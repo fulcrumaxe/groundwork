@@ -2,6 +2,7 @@
 import unittest
 
 from groundwork import diagnose as diamod
+from groundwork import errors as errmod
 from groundwork import styleguide as styleguidemod
 from groundwork import tour as tourmod
 from groundwork import web as webmod
@@ -27,6 +28,8 @@ def render_path(h, path, mid):
         body = styleguidemod.page()
     elif path == "/status":
         body = h.status_html()
+    elif path == "/404":
+        body = errmod.not_found_html(path)
     elif mid and path == f"/modules/{mid}":
         body = h.module_html(mid)
     else:
@@ -40,7 +43,7 @@ class RegistryShapeTest(unittest.TestCase):
         # Batch 1: 10 improvements + 12 features; Batch 2: +5 and +6;
         # Batch 3: guardrail + 5 improvements + 5 features.
         # Batch 4 lands 10 + 10; counts grow as entries land.
-        self.assertEqual(kinds.count("improvement"), 21)
+        self.assertEqual(kinds.count("improvement"), 22)
         self.assertEqual(kinds.count("feature"), 24)
         self.assertEqual(len(set(kinds)), 3)  # + mvp baseline
 

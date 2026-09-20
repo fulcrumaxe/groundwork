@@ -77,6 +77,8 @@ entries, and WEB_CEILING moves up only to cover those wires.
 
 - [x] I-15: Skip links — skip-to-content link + header/nav/main/footer
   landmarks in page chrome (web.py page(); test_skiplinks.py).
+- [x] I-13: Helpful 404 — unknown paths get links + repo search box
+  (errors.py; all four miss sites wired; test_errors.py).
 
 ## IMPROVEMENTS (500)
 

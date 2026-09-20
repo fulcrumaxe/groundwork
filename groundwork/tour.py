@@ -176,6 +176,9 @@ ENTRIES = [
     {"id": "skip-links", "kind": "improvement", "title": "Skip links",
      "blurb": "Skip to content link plus header/nav/main/footer landmarks.",
      "path": "/", "anchor": "main"},
+    {"id": "pretty-404", "kind": "improvement", "title": "Helpful 404",
+     "blurb": "Unknown paths get links and a project search, never a bare error.",
+     "path": "/404", "anchor": "not-found"},
 ]
 
 BY_ID = {e["id"]: e for e in ENTRIES}

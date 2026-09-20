@@ -18,6 +18,7 @@ from . import db as dbmod
 from . import debt as debtmod
 from . import diagnose as diamod
 from . import disputes as dismod
+from . import errors as errmod
 from . import exports as expmod
 from . import history as histmod
 from . import lessons as lesmod
@@ -437,9 +438,9 @@ class Handler(BaseHTTPRequestHandler):
             finally:
                 con.close()
             if m is None:
-                self._send(page("Not found", "<p>Unknown module.</p>",
-                                active="modules", page_id="modules",
-                                counts=counts, tour=tour_ctx), 404)
+                self._send(page("Not found", errmod.not_found_html(
+                    url.path, "Unknown module."), active="modules",
+                    page_id="modules", counts=counts, tour=tour_ctx), 404)
             else:
                 self._send(page("Reset", resetmod.confirm_html(
                     mid, m["task_summary"]), active="modules",
@@ -448,15 +449,17 @@ class Handler(BaseHTTPRequestHandler):
             mid = url.path.split("/")[-1]
             body = self.module_html(mid, level)
             if body == "<p>Unknown module.</p>":
-                self._send(page("Not found", body, active="modules",
-                                page_id="modules", counts=counts,
-                                tour=tour_ctx), 404)
+                self._send(page("Not found", errmod.not_found_html(
+                    url.path, "Unknown module."), active="modules",
+                    page_id="modules", counts=counts, tour=tour_ctx), 404)
             else:
                 self._send(page("Module", body, active="modules",
                                 page_id="modules", counts=counts,
                                 tour=tour_ctx))
         else:
-            self._send(b"not found", 404, "text/plain")
+            self._send(page("Not found",
+                            errmod.not_found_html(url.path),
+                            counts=counts, tour=tour_ctx), 404)
 
     def due_html(self, level: str = "auto") -> str:
         server = mcplib.MCPServer(self.db_path)
@@ -889,7 +892,8 @@ class Handler(BaseHTTPRequestHandler):
             body += "<p><a class='btn' href='/status'>Back to Status</a></p>"
             self._send(page("Dispute", body, counts=self._nav_counts()))
             return
-        self._send(b"not found", 404, "text/plain")
+        self._send(page("Not found", errmod.not_found_html(url.path),
+                        counts=self._nav_counts()), 404)
 
 
 def serve(host: str = "127.0.0.1", port: int = 8765, db_path: str = "groundwork.db"):

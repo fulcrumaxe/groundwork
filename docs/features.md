@@ -56,6 +56,7 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | Lesson read times | The module table of contents estimates minutes per lesson. | `/modules/&lt;id&gt;#readtime` |
 | Keyboard shortcuts | g then d jumps to Due, ? opens the cheat sheet — typing never hijacked. | `/#shortcuts` |
 | Skip links | Skip to content link plus header/nav/main/footer landmarks. | `/#main` |
+| Helpful 404 | Unknown paths get links and a project search, never a bare error. | `/404#not-found` |
 
 ## The original loop
 
