@@ -27,6 +27,7 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | Module health | Every capability area with its size and ceiling — web.py never grows. | `/status#status-modular` |
 | Grade disputes | Flag a wrong reference with one click; maintainers triage the queue. | `/status#status-disputes` |
 | Workload forecast | Reviews due per day for the next 30 days — see busy days coming. | `/reviews#workload` |
+| Module reset | Start a module over from a confirm page — lessons stay, progress goes. | `/modules/&lt;id&gt;#reset` |
 
 ## Improvements
 

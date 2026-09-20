@@ -20,7 +20,9 @@ from . import disputes as dismod
 from . import history as histmod
 from . import lessons as lesmod
 from . import ownership as ownmod
+from . import queries as quemod
 from . import readtime as readtimemod
+from . import reset as resetmod
 from . import results as resmod
 from . import exercises as exmod
 from . import exports as expmod
@@ -463,6 +465,22 @@ class Handler(BaseHTTPRequestHandler):
             host = self.headers.get("Host", "127.0.0.1:8765")
             self._send(self.robots_txt(f"http://{host}").encode(), 200,
                        "text/plain; charset=utf-8")
+        elif url.path.startswith("/modules/") and url.path.endswith("/reset"):
+            mid = url.path.split("/")[2]
+            con = self._con()
+            try:
+                m = con.execute("SELECT task_summary FROM modules WHERE id=?",
+                                (mid,)).fetchone()
+            finally:
+                con.close()
+            if m is None:
+                self._send(page("Not found", "<p>Unknown module.</p>",
+                                active="modules", page_id="modules",
+                                counts=counts, tour=tour_ctx), 404)
+            else:
+                self._send(page("Reset", resetmod.confirm_html(
+                    mid, m["task_summary"]), active="modules",
+                    page_id="modules", counts=counts, tour=tour_ctx))
         elif url.path.startswith("/modules/"):
             mid = url.path.split("/")[-1]
             body = self.module_html(mid, level)
@@ -486,8 +504,8 @@ class Handler(BaseHTTPRequestHandler):
                          "or browse <a href='/modules'>Modules</a>.</p>")
         con2 = self._con()
         try:
-            study = self._stored_lessons(con2, [c["id"] for c in due])
-            tries = self._attempts(con2, [c["id"] for c in due])
+            study = quemod.stored_lessons(con2, [c["id"] for c in due])
+            tries = quemod.attempts(con2, [c["id"] for c in due])
         finally:
             con2.close()
         for i, c in enumerate(due):
@@ -758,65 +776,6 @@ class Handler(BaseHTTPRequestHandler):
         parts.append("</div>")
         return "".join(parts)
 
-    def _stored_lessons(self, con, card_ids: list[str]) -> dict:
-        """(lesson dict, mastery) per card from lessons stored at creation."""
-        if not card_ids:
-            return {}
-        rows = con.execute(
-            "SELECT cards.id AS card, cards.concept_id AS cid, modules.lessons,"
-            " concepts.mastery AS mastery"
-            " FROM cards JOIN concepts ON concepts.id = cards.concept_id"
-            " JOIN modules ON modules.id = concepts.module_id"
-            f" WHERE cards.id IN ({','.join('?' * len(card_ids))})",
-            card_ids).fetchall()
-        out = {}
-        for r in rows:
-            try:
-                lessons = {L["concept_id"]: L for L in json.loads(r["lessons"] or "[]")}
-            except ValueError:
-                continue
-            node = r["cid"].split(":", 1)[1] if ":" in r["cid"] else r["cid"]
-            if node in lessons:
-                out[r["card"]] = (lessons[node], r["mastery"] or 0.0)
-        return out
-
-    def _attempts(self, con, card_ids: list[str]) -> dict:
-        if not card_ids:
-            return {}
-        rows = con.execute(
-            "SELECT card_id, COUNT(*) AS n FROM reviews"
-            f" WHERE card_id IN ({','.join('?' * len(card_ids))})"
-            " GROUP BY card_id", card_ids).fetchall()
-        return {r["card_id"]: r["n"] for r in rows}
-
-    def _history_by_card(self, con, mid: str) -> dict:
-        """Past reviews per card for one module, newest first."""
-        try:
-            rows = con.execute(
-                "SELECT reviews.card_id, reviews.grade, reviews.confidence,"
-                " reviews.reviewed_at, reviews.submission FROM reviews"
-                " JOIN cards ON cards.id = reviews.card_id"
-                " JOIN concepts ON concepts.id = cards.concept_id"
-                " WHERE concepts.module_id=? ORDER BY reviews.id DESC",
-                (mid,)).fetchall()
-        except Exception:  # noqa: BLE001 — pre-migration DBs lack submission
-            rows = con.execute(
-                "SELECT reviews.card_id, reviews.grade, reviews.confidence,"
-                " reviews.reviewed_at FROM reviews"
-                " JOIN cards ON cards.id = reviews.card_id"
-                " JOIN concepts ON concepts.id = cards.concept_id"
-                " WHERE concepts.module_id=? ORDER BY reviews.id DESC",
-                (mid,)).fetchall()
-            rows = [dict(r, submission="") for r in rows]
-            out = {}
-            for r in rows:
-                out.setdefault(r["card_id"], []).append(r)
-            return out
-        out = {}
-        for r in rows:
-            out.setdefault(r["card_id"], []).append(dict(r))
-        return out
-
     def module_html(self, mid: str, level: str = "auto") -> str:
         con = self._con()
         try:
@@ -830,8 +789,8 @@ class Handler(BaseHTTPRequestHandler):
             concepts = con.execute(
                 "SELECT id AS cid, name, kind, file, line, mastery FROM concepts"
                 " WHERE module_id=?", (mid,)).fetchall()
-            tries = self._attempts(con, [c["id"] for c in cards])
-            history = self._history_by_card(con, mid)
+            tries = quemod.attempts(con, [c["id"] for c in cards])
+            history = quemod.history_by_card(con, mid)
             owned = ownmod.owned_map(con, mid)
             ladders = _bloom_reached(con, mid)
         finally:
@@ -864,6 +823,7 @@ class Handler(BaseHTTPRequestHandler):
             repo_line = ""
         if repo_line:
             parts.append(f"<p><small>Session: {html.escape(repo_line)}</small></p>")
+        parts.append(resetmod.reset_link_html(mid))
         toc = []
         for row in concepts:
             node = row["cid"].split(":", 1)[1] if ":" in row["cid"] else row["cid"]
@@ -1064,6 +1024,20 @@ class Handler(BaseHTTPRequestHandler):
             self._send(page("Diagnose", body, active="due", page_id="due",
                             lede="Paste a traceback — study first, then fix.",
                             counts=self._nav_counts()))
+            return
+        if url.path.startswith("/modules/") and url.path.endswith("/reset"):
+            mid = url.path.split("/")[2]
+            out = resetmod.reset_module(self.db_path, mid)
+            if "error" in out:
+                body = f"<p>Could not reset: {html.escape(out['error'])}</p>"
+            else:
+                body = (f"<p>Reset complete: {out['reviews_deleted']} "
+                        f"review(s) deleted, {out['cards_reset']} card(s) "
+                        f"back to fresh scheduling.</p>")
+            body += (f"<p><a class='btn' href='/modules/{html.escape(mid)}'>"
+                     f"Back to module</a></p>")
+            self._send(page("Reset", body, active="modules",
+                            page_id="modules", counts=self._nav_counts()))
             return
         if url.path.startswith("/cards/") and url.path.endswith("/snooze"):
             card_id = url.path.split("/")[2]

@@ -160,6 +160,9 @@ ENTRIES = [
     {"id": "read-times", "kind": "improvement", "title": "Lesson read times",
      "blurb": "The module table of contents estimates minutes per lesson.",
      "path": "/modules/{mid}", "anchor": "readtime"},
+    {"id": "module-reset", "kind": "feature", "title": "Module reset",
+     "blurb": "Start a module over from a confirm page — lessons stay, progress goes.",
+     "path": "/modules/{mid}", "anchor": "reset"},
 ]
 
 BY_ID = {e["id"]: e for e in ENTRIES}

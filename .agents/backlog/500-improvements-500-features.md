@@ -37,8 +37,8 @@ New capability code lives in a new focused module
 (`groundwork/<area>.py`), never appended to web.py; web.py only gains
 thin delegation lines, route entries, and tour/status wiring. New tests
 go in focused files (`tests/test_<area>.py`). Enforced by
-`tests/test_modularity.py`: web.py stays under WEB_CEILING (1157
-after the readtime change — ceilings only move
+`tests/test_modularity.py`: web.py stays under WEB_CEILING (1131
+after the queries extraction — ceilings only move
 down), every registered area module stays under 350 lines.
 
 Batch 3 ships 5 improvements + 6 features, each with a tour entry +
@@ -59,6 +59,8 @@ status anchor + docs regen + MCP module + commit. Marked [x] as they land.
   (workload.py; history.py + ownership.py move out of web.py).
 - [x] I-101: Lesson read times — TOC shows minutes per lesson
   (readtime.py; dead preview helper removed to hold the ceiling).
+- [x] I-236/I-36: Module reset — progress wiped behind a confirm page
+  (reset.py; shared queries move to queries.py).
 
 ## IMPROVEMENTS (500)
 
