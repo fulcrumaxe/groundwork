@@ -40,6 +40,8 @@ from . import tour as tourmod
 CSS = ("body{font-family:system-ui,-apple-system,sans-serif;max-width:48rem;"
        "margin:2rem auto;padding:0 1rem;line-height:1.55;color:#1a1a1a}"
        "nav{margin-bottom:1rem}nav a{margin-right:.25rem}"
+       ".skip{position:absolute;left:-999px}.skip:focus{left:.5rem;top:.5rem;"
+       "background:#fff;padding:.4rem;z-index:9}"
        "h1{font-size:1.6rem}h2{font-size:1.25rem;margin-top:2rem;"
        "border-bottom:2px solid #1a1a1a;padding-bottom:.25rem}"
        "h3{font-size:1.05rem}h4{font-size:1rem;margin-bottom:.25rem}"
@@ -233,7 +235,8 @@ def page(title: str, body: str, active: str = "projects",
         f"<a href='{href}'{(' aria-current=\"page\"' if key == active else '')}>"
         f"{_label(key, label)}</a>"
         for key, href, label in NAV)
-    head = (f"<header class='page-head' id='top'><nav id='sitenav'>{links}</nav>"
+    head = (f"<a class='skip' href='#main'>Skip to content</a>"
+            f"<header class='page-head' id='top'><nav id='sitenav'>{links}</nav>"
             f"<h1>{html.escape(title)}</h1>")
     if lede:
         head += f"<p class='lede'>{html.escape(lede)}</p>"
@@ -256,7 +259,7 @@ def page(title: str, body: str, active: str = "projects",
     body = banner + body
     return (f"<!doctype html><html><head><meta charset='utf-8'>"
             f"<title>{html.escape(title)}</title><style>{CSS}</style></head>"
-            f"<body data-page='{page_id}'>{head}{body}{foot}"
+            f"<body data-page='{page_id}'>{head}<main id='main'>{body}</main>{foot}"
             f"{shortcutsmod.overlay_html()}{GLOBAL_JS}{shortcutsmod.script_js()}"
             f"</body></html>").encode()
 

@@ -172,6 +172,10 @@ ENTRIES = [
     {"id": "storage-meter", "kind": "feature", "title": "Storage meter",
      "blurb": "Database size and per-module rows — growth never surprises.",
      "path": "/status", "anchor": "status-storage"},
+    # -- Batch 4: ten improvements + ten features, no downsizing --
+    {"id": "skip-links", "kind": "improvement", "title": "Skip links",
+     "blurb": "Skip to content link plus header/nav/main/footer landmarks.",
+     "path": "/", "anchor": "main"},
 ]
 
 BY_ID = {e["id"]: e for e in ENTRIES}

@@ -39,7 +39,8 @@ class RegistryShapeTest(unittest.TestCase):
         kinds = [e["kind"] for e in tourmod.ENTRIES]
         # Batch 1: 10 improvements + 12 features; Batch 2: +5 and +6;
         # Batch 3: guardrail + 5 improvements + 5 features.
-        self.assertEqual(kinds.count("improvement"), 20)
+        # Batch 4 lands 10 + 10; counts grow as entries land.
+        self.assertEqual(kinds.count("improvement"), 21)
         self.assertEqual(kinds.count("feature"), 24)
         self.assertEqual(len(set(kinds)), 3)  # + mvp baseline
 

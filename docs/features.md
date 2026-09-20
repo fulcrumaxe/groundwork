@@ -55,6 +55,7 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | Grading disclosures | Every card says how it is judged before you answer. | `/due#grading` |
 | Lesson read times | The module table of contents estimates minutes per lesson. | `/modules/&lt;id&gt;#readtime` |
 | Keyboard shortcuts | g then d jumps to Due, ? opens the cheat sheet — typing never hijacked. | `/#shortcuts` |
+| Skip links | Skip to content link plus header/nav/main/footer landmarks. | `/#main` |
 
 ## The original loop
 

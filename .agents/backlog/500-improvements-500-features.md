@@ -68,6 +68,16 @@ status anchor + docs regen + MCP module + commit. Marked [x] as they land.
 - [x] I-238: Storage meter — file size + per-module rows on Status
   (storage.py; debt.py + status.py move out of web.py).
 
+## Batch 4 rule — no downsizing, full 10 + 10
+
+Same workflow as Batch 3 (tour entry + docs regen + MCP run + commit
+per item), but no proactive extraction/shrink work: new code lives in
+focused area modules, web.py only gains delegation lines and route
+entries, and WEB_CEILING moves up only to cover those wires.
+
+- [x] I-15: Skip links — skip-to-content link + header/nav/main/footer
+  landmarks in page chrome (web.py page(); test_skiplinks.py).
+
 ## IMPROVEMENTS (500)
 
 ### A. Navigation, IA & routing (I-1–50)
