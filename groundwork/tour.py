@@ -200,6 +200,9 @@ ENTRIES = [
     {"id": "already-know", "kind": "improvement", "title": "Already-know skip",
      "blurb": "Know it? Skip the line — the cards verify you in 30 days.",
      "path": "/modules/{mid}", "anchor": "already-know"},
+    {"id": "undo-review", "kind": "improvement", "title": "Undo last review",
+     "blurb": "Misclick recovery within 60 seconds — scheduling restored.",
+     "path": "/reviews", "anchor": "undo"},
 ]
 
 BY_ID = {e["id"]: e for e in ENTRIES}

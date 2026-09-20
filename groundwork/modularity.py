@@ -45,6 +45,7 @@ AREAS = {
     "decisions": "decisions.py",
     "clarity": "clarity.py",
     "known": "known.py",
+    "undo": "undo.py",
 }
 
 

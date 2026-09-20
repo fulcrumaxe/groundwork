@@ -46,7 +46,13 @@ CREATE TABLE IF NOT EXISTS reviews (
   grade INTEGER NOT NULL,
   confidence INTEGER NOT NULL DEFAULT 3,
   reviewed_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
-  submission TEXT NOT NULL DEFAULT ''
+  submission TEXT NOT NULL DEFAULT '',
+  prev_stability REAL NOT NULL DEFAULT 0,
+  prev_difficulty REAL NOT NULL DEFAULT 0,
+  prev_retrievability REAL NOT NULL DEFAULT 0,
+  prev_due TEXT NOT NULL DEFAULT '',
+  prev_lapses INTEGER NOT NULL DEFAULT 0,
+  prev_mastery REAL NOT NULL DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS decisions (

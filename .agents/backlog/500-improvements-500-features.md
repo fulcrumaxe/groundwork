@@ -93,6 +93,8 @@ entries, and WEB_CEILING moves up only to cover those wires.
   (clarity.py + clarity_ratings table + /concepts rate route).
 - [x] I-133: Already-know skip — self-certify a lesson, cards verify
   in 30 days (known.py + known_skips table + /concepts known route).
+- [x] I-224: Undo last review — 60-second misclick recovery restoring
+  scheduling + mastery (undo.py + prev_* review columns + /reviews/undo).
 
 ## IMPROVEMENTS (500)
 

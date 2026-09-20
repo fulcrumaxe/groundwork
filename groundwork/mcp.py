@@ -199,15 +199,23 @@ class MCPServer:
                 result = exmod.grade(exercise, submission, sbmod.SandboxRunner())
                 grade_val = 5 if result["pass"] else 1
             upd = schedmod.review_card(card["stability"], card["difficulty"], grade_val)
+            prev_mastery = con.execute(
+                "SELECT mastery FROM concepts WHERE id=?",
+                (card["concept_id"],)).fetchone()
             con.execute(
                 "UPDATE cards SET stability=?, difficulty=?, retrievability=?, due=?"
                 " WHERE id=?",
                 (upd["stability"], upd["difficulty"], upd["retrievability"],
                  upd["due"], card_id))
             con.execute(
-                "INSERT INTO reviews(card_id, grade, confidence, submission)"
-                " VALUES(?,?,?,?)",
-                (card_id, grade_val, int(confidence), str(submission)[:4000]))
+                "INSERT INTO reviews(card_id, grade, confidence, submission,"
+                " prev_stability, prev_difficulty, prev_retrievability,"
+                " prev_due, prev_lapses, prev_mastery)"
+                " VALUES(?,?,?,?,?,?,?,?,?,?)",
+                (card_id, grade_val, int(confidence), str(submission)[:4000],
+                 card["stability"], card["difficulty"], card["retrievability"],
+                 card["due"], card["lapses"],
+                 (prev_mastery["mastery"] or 0.0) if prev_mastery else 0.0))
             # Roll concept mastery toward latest performance.
             con.execute(
                 "UPDATE concepts SET mastery = mastery * 0.7 + ? * 0.3 WHERE id=?",

@@ -31,6 +31,14 @@ def init_db(db_path: str | Path = DEFAULT_DB) -> Path:
         rcols = [r[1] for r in con.execute("PRAGMA table_info(reviews)").fetchall()]
         if "submission" not in rcols:
             con.execute("ALTER TABLE reviews ADD COLUMN submission TEXT NOT NULL DEFAULT ''")
+        for col, typ in (("prev_stability", "REAL NOT NULL DEFAULT 0"),
+                         ("prev_difficulty", "REAL NOT NULL DEFAULT 0"),
+                         ("prev_retrievability", "REAL NOT NULL DEFAULT 0"),
+                         ("prev_due", "TEXT NOT NULL DEFAULT ''"),
+                         ("prev_lapses", "INTEGER NOT NULL DEFAULT 0"),
+                         ("prev_mastery", "REAL NOT NULL DEFAULT 0")):
+            if col not in rcols:
+                con.execute(f"ALTER TABLE reviews ADD COLUMN {col} {typ}")
         con.execute(
             "CREATE TABLE IF NOT EXISTS disputes ("
             " id INTEGER PRIMARY KEY AUTOINCREMENT,"

@@ -43,6 +43,7 @@ from . import status as statusmod
 from . import storage as storagemod
 from . import styleguide as styleguidemod
 from . import tour as tourmod
+from . import undo as undomod
 
 CSS = ("body{font-family:system-ui,-apple-system,sans-serif;max-width:48rem;"
        "margin:2rem auto;padding:0 1rem;line-height:1.55;color:#1a1a1a}"
@@ -886,6 +887,17 @@ class Handler(BaseHTTPRequestHandler):
                         f"<p><a class='btn' href='{html.escape(back)}'>"
                         f"Back to module</a></p>")
             self._send(page("Already know", body, counts=self._nav_counts()))
+            return
+        if url.path == "/reviews/undo":
+            out = undomod.undo(self.db_path)
+            if "error" in out:
+                body = (f"<p>Could not undo: {html.escape(out['error'])}</p>"
+                        f"<p><a class='btn' href='/reviews'>Back</a></p>")
+            else:
+                body = (f"<p>Undone review #{out['undone_review']} — "
+                        f"scheduling restored.</p>"
+                        f"<p><a class='btn' href='/reviews'>Back to History</a></p>")
+            self._send(page("Undo", body, counts=self._nav_counts()))
             return
         if url.path.startswith("/cards/") and url.path.endswith("/snooze"):
             card_id = url.path.split("/")[2]
