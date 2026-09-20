@@ -24,6 +24,7 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | Review-log CSV export | Every attempt as CSV for personal analysis — grades, confidence, answers. | `/status#status-csv` |
 | Read-only modules API | Modules with concept and card counts as JSON, for dashboards. | `/status#status-api` |
 | Read-only due-queue API | The live due queue as JSON — same order as the Due page. | `/status#status-api-due` |
+| Module health | Every capability area with its size and ceiling — web.py never grows. | `/status#status-modular` |
 
 ## Improvements
 

@@ -14,9 +14,13 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, quote, urlparse
 
+from . import api as apimod
 from . import db as dbmod
 from . import exercises as exmod
+from . import exports as expmod
 from . import mcp as mcplib
+from . import modularity as modularitymod
+from . import sitemap as sitemapmod
 from . import modules as modmod
 from . import sched as schedmod
 from . import tour as tourmod
@@ -1046,150 +1050,28 @@ class Handler(BaseHTTPRequestHandler):
                 f"{html.escape(r['summary'] or r['module_id'])}</a></small></p>")
         return "".join(parts)
 
+    # Thin delegation: the real renderers live in focused modules
+    # (exports.py, api.py, sitemap.py) per the Batch 3 modularity rule.
     def anki_tsv(self) -> str:
-        """All cards as Anki plain-text import (front\\tback\\ttags)."""
-        con = self._con()
-        try:
-            rows = con.execute(
-                "SELECT cards.front, cards.back, modules.task_summary,"
-                " modules.id FROM cards"
-                " JOIN concepts ON concepts.id = cards.concept_id"
-                " JOIN modules ON modules.id = concepts.module_id"
-                " ORDER BY modules.created_at, cards.id").fetchall()
-        finally:
-            con.close()
-        lines = []
-        for r in rows:
-            fields = []
-            for v in (r["front"] or "", r["back"] or ""):
-                v = html.escape(v, quote=False)
-                fields.append(v.replace("\t", " ").replace("\r\n", "<br>")
-                              .replace("\n", "<br>"))
-            tag = re.sub(r"\s+", "-", (r["task_summary"] or r["id"] or "")
-                         .strip().lower())[:40]
-            lines.append("\t".join(fields + [tag]))
-        return "\n".join(lines) + ("\n" if lines else "")
+        return expmod.anki_tsv(self.db_path)
 
     def api_modules(self) -> str:
-        """Read-only modules JSON: first slice of the public API (F-451)."""
-        con = self._con()
-        try:
-            mods = con.execute(
-                "SELECT id, task_summary, repo, created_at FROM modules"
-                " ORDER BY created_at DESC").fetchall()
-            out = []
-            for m in mods:
-                n_concepts = con.execute(
-                    "SELECT COUNT(*) FROM concepts WHERE module_id=?",
-                    (m["id"],)).fetchone()[0]
-                n_cards = con.execute(
-                    "SELECT COUNT(*) FROM cards JOIN concepts"
-                    " ON concepts.id = cards.concept_id"
-                    " WHERE concepts.module_id=?",
-                    (m["id"],)).fetchone()[0]
-                out.append({"id": m["id"],
-                            "task_summary": m["task_summary"] or "",
-                            "repo": m["repo"] or "",
-                            "created_at": m["created_at"] or "",
-                            "concepts": n_concepts, "cards": n_cards})
-        finally:
-            con.close()
-        return json.dumps({"modules": out})
+        return apimod.modules_json(self.db_path)
 
     def api_due(self) -> str:
-        """Read-only due queue JSON: second slice of the API (F-451)."""
-        server = mcplib.MCPServer(self.db_path)
-        due = server.tool_list_due_reviews({"limit": 100})["due"]
-        slim = [{"id": c.get("id"), "concept": c.get("concept"),
-                 "front": c.get("front"), "due": c.get("due")}
-                for c in due]
-        return json.dumps({"due": slim, "count": len(slim)})
+        return apimod.due_json(self.db_path)
 
     def reviews_csv(self) -> str:
-        """Review log as CSV for personal analysis (I-231)."""
-        import csv
-        import io
-        con = self._con()
-        try:
-            rows = con.execute(
-                "SELECT reviews.reviewed_at, concepts.name AS concept,"
-                " modules.task_summary AS summary, reviews.grade,"
-                " reviews.confidence, reviews.submission"
-                " FROM reviews JOIN cards ON cards.id = reviews.card_id"
-                " JOIN concepts ON concepts.id = cards.concept_id"
-                " JOIN modules ON modules.id = concepts.module_id"
-                " ORDER BY reviews.id").fetchall()
-        finally:
-            con.close()
-        buf = io.StringIO()
-        w = csv.writer(buf)
-        w.writerow(["reviewed_at", "concept", "module", "grade",
-                    "confidence", "pass", "submission"])
-        for r in rows:
-            w.writerow([r["reviewed_at"] or "", r["concept"] or "",
-                        r["summary"] or "", r["grade"],
-                        r["confidence"],
-                        "yes" if (r["grade"] or 0) >= 4 else "no",
-                        r["submission"] or ""])
-        return buf.getvalue()
+        return expmod.reviews_csv(self.db_path)
 
     def feed_xml(self, base_url: str) -> str:
-        """RSS 2.0 feed of learning modules for external readers."""
-        from email.utils import formatdate
-        con = self._con()
-        try:
-            mods = con.execute(
-                "SELECT modules.id, modules.task_summary, modules.created_at,"
-                " COUNT(DISTINCT concepts.id) AS n FROM modules"
-                " LEFT JOIN concepts ON concepts.id LIKE modules.id || ':%'"
-                " GROUP BY modules.id ORDER BY modules.created_at DESC"
-                " LIMIT 50").fetchall()
-        finally:
-            con.close()
-        items = []
-        for m in mods:
-            try:
-                stamp = schedmod.parse_iso(m["created_at"] or "").timestamp()
-                pub = formatdate(stamp, usegmt=True)
-            except Exception:  # noqa: BLE001 — raw date still renders
-                pub = m["created_at"] or ""
-            link = f"{base_url}/modules/{m['id']}"
-            items.append(
-                f"<item><title>{html.escape(m['task_summary'] or m['id'])}</title>"
-                f"<link>{html.escape(link)}</link>"
-                f"<guid>{html.escape(link)}</guid>"
-                f"<pubDate>{html.escape(pub)}</pubDate>"
-                f"<description>{m['n'] or 0} concepts</description></item>")
-        return ("<?xml version='1.0' encoding='UTF-8'?>"
-                "<rss version='2.0'><channel>"
-                "<title>Groundwork modules</title>"
-                f"<link>{html.escape(base_url)}/modules</link>"
-                "<description>Every agent session as a lesson.</description>"
-                + "".join(items) + "</channel></rss>")
+        return expmod.feed_xml(self.db_path, base_url)
 
     def sitemap_xml(self, base_url: str) -> str:
-        """Machine-readable route map for self-hosters (I-32)."""
-        con = self._con()
-        try:
-            mids = [r[0] for r in con.execute(
-                "SELECT id FROM modules ORDER BY created_at DESC").fetchall()]
-        finally:
-            con.close()
-        urls = ["", "due", "modules", "reviews", "debt", "diagnose",
-                "tour", "status"]
-        items = "".join(
-            f"<url><loc>{html.escape(base_url)}/{u}</loc></url>" if u
-            else f"<url><loc>{html.escape(base_url)}/</loc></url>"
-            for u in urls)
-        items += "".join(
-            f"<url><loc>{html.escape(base_url)}/modules/"
-            f"{html.escape(m)}</loc></url>" for m in mids)
-        return ("<?xml version='1.0' encoding='UTF-8'?>"
-                "<urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>"
-                + items + "</urlset>")
+        return sitemapmod.sitemap_xml(self.db_path, base_url)
 
     def robots_txt(self, base_url: str) -> str:
-        return (f"User-agent: *\nAllow: /\nSitemap: {base_url}/sitemap.xml\n")
+        return sitemapmod.robots_txt(base_url)
 
     def diagnose_html(self, trace: str = "") -> str:
         """Paste-a-traceback bridge: mentioned symbols → their lessons."""
@@ -1666,6 +1548,8 @@ class Handler(BaseHTTPRequestHandler):
             "<p><code>python3 -m groundwork export-module --module ID --out share.json</code> "
             "downloads a module; <code>python3 -m groundwork import-module --in share.json</code> "
             "loads it into another database. Reviews stay private; scheduling restarts fresh.</p>",
+            "<h2 id='status-modular'>Module health</h2>" +
+            modularitymod.status_rows() +
             "<h2 id='status-api'>Read-only API</h2>"
             "<p><a href='/api/modules.json'>/api/modules.json</a> lists "
             "every module with concept and card counts — the first slice "

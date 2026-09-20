@@ -138,6 +138,10 @@ ENTRIES = [
     {"id": "due-api", "kind": "feature", "title": "Read-only due-queue API",
      "blurb": "The live due queue as JSON — same order as the Due page.",
      "path": "/status", "anchor": "status-api-due"},
+    # -- Batch 3: same rhythm, plus the modularity rule --
+    {"id": "module-health", "kind": "feature", "title": "Module health",
+     "blurb": "Every capability area with its size and ceiling — web.py never grows.",
+     "path": "/status", "anchor": "status-modular"},
 ]
 
 BY_ID = {e["id"]: e for e in ENTRIES}
