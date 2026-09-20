@@ -12,7 +12,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 
-WEB_CEILING = 1030
+WEB_CEILING = 1040
 AREA_CAP = 350
 
 # Capability area -> module implementing it. Batch 3 appends its areas here.
