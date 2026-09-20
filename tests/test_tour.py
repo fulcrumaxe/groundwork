@@ -33,9 +33,9 @@ def render_path(h, path, mid):
 class RegistryShapeTest(unittest.TestCase):
     def test_batches_landed_improvements_and_features(self):
         kinds = [e["kind"] for e in tourmod.ENTRIES]
-        # Batch 1: 10 improvements + 12 features; Batch 2: +5 and +5.
+        # Batch 1: 10 improvements + 12 features; Batch 2: +5 and +6.
         self.assertEqual(kinds.count("improvement"), 15)
-        self.assertEqual(kinds.count("feature"), 17)
+        self.assertEqual(kinds.count("feature"), 18)
         self.assertEqual(len(set(kinds)), 3)  # + mvp baseline
 
     def test_ids_unique_and_complete(self):

@@ -29,6 +29,7 @@ status anchor + docs regen + MCP module + commit. Marked [x] as they land.
 - [x] I-243: Week in review — last-7-day attempts, active days, pass rate.
 - [x] I-231: Review-log CSV — /export/reviews.csv with every attempt.
 - [x] F-451 (first slice): Read-only modules API — /api/modules.json.
+- [x] F-451 (second slice): Read-only due-queue API — /api/due.json.
 
 ## IMPROVEMENTS (500)
 

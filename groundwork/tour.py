@@ -135,6 +135,9 @@ ENTRIES = [
     {"id": "readonly-api", "kind": "feature", "title": "Read-only modules API",
      "blurb": "Modules with concept and card counts as JSON, for dashboards.",
      "path": "/status", "anchor": "status-api"},
+    {"id": "due-api", "kind": "feature", "title": "Read-only due-queue API",
+     "blurb": "The live due queue as JSON — same order as the Due page.",
+     "path": "/status", "anchor": "status-api-due"},
 ]
 
 BY_ID = {e["id"]: e for e in ENTRIES}

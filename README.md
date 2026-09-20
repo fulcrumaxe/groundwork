@@ -80,6 +80,7 @@ expected outputs are always *measured* in the sandbox, never invented.
 | Week in review | Attempts, active days and pass rate for the last 7 days — a weekly ritual. | `/reviews#week` |
 | Review-log CSV export | Every attempt as CSV for personal analysis — grades, confidence, answers. | `/status#status-csv` |
 | Read-only modules API | Modules with concept and card counts as JSON, for dashboards. | `/status#status-api` |
+| Read-only due-queue API | The live due queue as JSON — same order as the Due page. | `/status#status-api-due` |
 <!-- GW-FEATURES:END -->
 
 ## Improvements

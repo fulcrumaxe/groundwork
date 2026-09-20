@@ -544,6 +544,21 @@ class ModuleSortTest(unittest.TestCase):
         self.assertIn("<b>Newest</b>", body)
 
 
+class DueApiTest(unittest.TestCase):
+    def setUp(self):
+        self.tmp, self.db, self.server, self.out = make_module("due api mod")
+        self.h = handler_for(self.db)
+
+    def test_due_json_matches_queue(self):
+        import json
+        doc = json.loads(self.h.api_due())
+        due = self.server.tool_list_due_reviews({"limit": 100})["due"]
+        self.assertEqual(doc["count"], len(due))
+        self.assertEqual([c["id"] for c in doc["due"]],
+                         [c["id"] for c in due])
+        self.assertIn("id='status-api-due'", self.h.status_html())
+
+
 class ReadonlyApiTest(unittest.TestCase):
     def setUp(self):
         self.tmp, self.db, self.server, self.out = make_module("api mod")

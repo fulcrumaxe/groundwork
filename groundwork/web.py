@@ -846,6 +846,9 @@ class Handler(BaseHTTPRequestHandler):
         elif url.path == "/api/modules.json":
             self._send(self.api_modules().encode(), 200,
                        "application/json; charset=utf-8")
+        elif url.path == "/api/due.json":
+            self._send(self.api_due().encode(), 200,
+                       "application/json; charset=utf-8")
         elif url.path == "/feed.xml":
             host = self.headers.get("Host", "127.0.0.1:8765")
             self._send(self.feed_xml(f"http://{host}").encode(), 200,
@@ -1092,6 +1095,15 @@ class Handler(BaseHTTPRequestHandler):
         finally:
             con.close()
         return json.dumps({"modules": out})
+
+    def api_due(self) -> str:
+        """Read-only due queue JSON: second slice of the API (F-451)."""
+        server = mcplib.MCPServer(self.db_path)
+        due = server.tool_list_due_reviews({"limit": 100})["due"]
+        slim = [{"id": c.get("id"), "concept": c.get("concept"),
+                 "front": c.get("front"), "due": c.get("due")}
+                for c in due]
+        return json.dumps({"due": slim, "count": len(slim)})
 
     def reviews_csv(self) -> str:
         """Review log as CSV for personal analysis (I-231)."""
@@ -1657,7 +1669,9 @@ class Handler(BaseHTTPRequestHandler):
             "<h2 id='status-api'>Read-only API</h2>"
             "<p><a href='/api/modules.json'>/api/modules.json</a> lists "
             "every module with concept and card counts — the first slice "
-            "of a public read API for dashboards.</p>",
+            "of a public read API for dashboards. "
+            "<span id='status-api-due'><a href='/api/due.json'>"
+            "/api/due.json</a> exposes the live due queue.</span></p>",
             "<h2 id='status-sitemap'>Sitemap</h2>"
             "<p><a href='/sitemap.xml'>sitemap.xml</a> lists every page and "
             "module for self-hosters; <a href='/robots.txt'>robots.txt</a> "
