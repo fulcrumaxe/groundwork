@@ -402,7 +402,7 @@ class StyleSignalsTest(unittest.TestCase):
     def test_due_marks_first_card_up_next(self):
         body = self.h.due_html()
         self.assertIn("Up next", body)
-        self.assertIn("<article class='next'>", body)
+        self.assertIn("<article class='next' id='card-", body)
         self.assertEqual(body.count("Up next"), 1)
 
     def test_due_queue_position_and_difficulty(self):
