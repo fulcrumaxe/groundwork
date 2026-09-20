@@ -76,6 +76,7 @@ expected outputs are always *measured* in the sandbox, never invented.
 | Pre-commit hook | hooks/pre-commit keeps bad commits out; presence shown below. | `/status#status-hooks` |
 | Write-the-docstring exercises | Docstring exercise cards render an explanation box. Answer one below. | `/due#up-next` |
 | Groundwork seed | Groundwork itself ships as learnable modules: export one repo's modules to a seed file, import it anywhere. | `/status#status-seed` |
+| Sitemap and robots | Every page and module listed for crawlers; see the live map below. | `/status#status-sitemap` |
 <!-- GW-FEATURES:END -->
 
 ## Improvements

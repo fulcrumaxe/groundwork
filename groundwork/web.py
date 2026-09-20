@@ -843,6 +843,14 @@ class Handler(BaseHTTPRequestHandler):
             host = self.headers.get("Host", "127.0.0.1:8765")
             self._send(self.feed_xml(f"http://{host}").encode(), 200,
                        "application/rss+xml; charset=utf-8")
+        elif url.path == "/sitemap.xml":
+            host = self.headers.get("Host", "127.0.0.1:8765")
+            self._send(self.sitemap_xml(f"http://{host}").encode(), 200,
+                       "application/xml; charset=utf-8")
+        elif url.path == "/robots.txt":
+            host = self.headers.get("Host", "127.0.0.1:8765")
+            self._send(self.robots_txt(f"http://{host}").encode(), 200,
+                       "text/plain; charset=utf-8")
         elif url.path.startswith("/modules/"):
             mid = url.path.split("/")[-1]
             body = self.module_html(mid, level)
@@ -1070,6 +1078,30 @@ class Handler(BaseHTTPRequestHandler):
                 f"<link>{html.escape(base_url)}/modules</link>"
                 "<description>Every agent session as a lesson.</description>"
                 + "".join(items) + "</channel></rss>")
+
+    def sitemap_xml(self, base_url: str) -> str:
+        """Machine-readable route map for self-hosters (I-32)."""
+        con = self._con()
+        try:
+            mids = [r[0] for r in con.execute(
+                "SELECT id FROM modules ORDER BY created_at DESC").fetchall()]
+        finally:
+            con.close()
+        urls = ["", "due", "modules", "reviews", "debt", "diagnose",
+                "tour", "status"]
+        items = "".join(
+            f"<url><loc>{html.escape(base_url)}/{u}</loc></url>" if u
+            else f"<url><loc>{html.escape(base_url)}/</loc></url>"
+            for u in urls)
+        items += "".join(
+            f"<url><loc>{html.escape(base_url)}/modules/"
+            f"{html.escape(m)}</loc></url>" for m in mids)
+        return ("<?xml version='1.0' encoding='UTF-8'?>"
+                "<urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>"
+                + items + "</urlset>")
+
+    def robots_txt(self, base_url: str) -> str:
+        return (f"User-agent: *\nAllow: /\nSitemap: {base_url}/sitemap.xml\n")
 
     def diagnose_html(self, trace: str = "") -> str:
         """Paste-a-traceback bridge: mentioned symbols → their lessons."""
@@ -1544,6 +1576,10 @@ class Handler(BaseHTTPRequestHandler):
             "<p><code>python3 -m groundwork export-module --module ID --out share.json</code> "
             "downloads a module; <code>python3 -m groundwork import-module --in share.json</code> "
             "loads it into another database. Reviews stay private; scheduling restarts fresh.</p>",
+            "<h2 id='status-sitemap'>Sitemap</h2>"
+            "<p><a href='/sitemap.xml'>sitemap.xml</a> lists every page and "
+            "module for self-hosters; <a href='/robots.txt'>robots.txt</a> "
+            "points crawlers at it.</p>",
             "<h2 id='status-seed'>Groundwork seed</h2>"
             "<p>Groundwork itself is a learnable project: "
             "<code>python3 -m groundwork export-seed --repo PATH --out seed.json</code> "

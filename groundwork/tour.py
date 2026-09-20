@@ -123,6 +123,9 @@ ENTRIES = [
     {"id": "back-to-top", "kind": "improvement", "title": "Back-to-top link",
      "blurb": "Long module pages grow a floating Back to top link.",
      "path": "/modules", "anchor": "top"},
+    {"id": "sitemap-robots", "kind": "feature", "title": "Sitemap and robots",
+     "blurb": "Every page and module listed for crawlers; see the live map below.",
+     "path": "/status", "anchor": "status-sitemap"},
 ]
 
 BY_ID = {e["id"]: e for e in ENTRIES}

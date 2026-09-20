@@ -544,6 +544,29 @@ class ModuleSortTest(unittest.TestCase):
         self.assertIn("<b>Newest</b>", body)
 
 
+class SitemapTest(unittest.TestCase):
+    def setUp(self):
+        self.tmp, self.db, self.server, self.out = make_module("map mod")
+        self.h = handler_for(self.db)
+
+    def test_sitemap_lists_routes_and_modules(self):
+        body = self.h.sitemap_xml("http://x")
+        for route in ("/</loc>", "/due</loc>", "/modules</loc>",
+                      "/reviews</loc>", "/tour</loc>", "/status</loc>"):
+            self.assertIn(route, body)
+        self.assertIn(f"/modules/{self.out['module_id']}</loc>", body)
+
+    def test_robots_points_at_sitemap(self):
+        body = self.h.robots_txt("http://x")
+        self.assertIn("User-agent: *", body)
+        self.assertIn("http://x/sitemap.xml", body)
+
+    def test_status_links_sitemap(self):
+        body = self.h.status_html()
+        self.assertIn("id='status-sitemap'", body)
+        self.assertIn("/sitemap.xml", body)
+
+
 class BackToTopTest(unittest.TestCase):
     def setUp(self):
         self.tmp, self.db, self.server, self.out = make_module("top mod")

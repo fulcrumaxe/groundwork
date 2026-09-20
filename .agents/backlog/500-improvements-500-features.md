@@ -25,6 +25,7 @@ docs regen + MCP module + commit. Marked [x] as they land.
 - [x] I-18: Module sorting — Modules toggles newest/oldest first.
 - [x] I-45: Snooze a card — pushes one card to tomorrow, no grade.
 - [x] I-5: Back-to-top — floating link on long module pages.
+- [x] I-32: Sitemap + robots — /sitemap.xml lists pages and modules.
 
 ## IMPROVEMENTS (500)
 
