@@ -20,6 +20,7 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | Write-the-docstring exercises | Docstring exercise cards render an explanation box. Answer one below. | `/due#up-next` |
 | Groundwork seed | Groundwork itself ships as learnable modules: export one repo's modules to a seed file, import it anywhere. | `/status#status-seed` |
 | Sitemap and robots | Every page and module listed for crawlers; see the live map below. | `/status#status-sitemap` |
+| Week in review | Attempts, active days and pass rate for the last 7 days — a weekly ritual. | `/reviews#week` |
 
 ## Improvements
 

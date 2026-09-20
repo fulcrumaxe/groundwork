@@ -9,6 +9,7 @@ from __future__ import annotations
 import html
 import json
 import re
+from datetime import timedelta
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, quote, urlparse
@@ -936,6 +937,13 @@ class Handler(BaseHTTPRequestHandler):
                 "SELECT substr(reviewed_at, 1, 10) AS d, COUNT(*) AS n,"
                 " SUM(CASE WHEN grade >= 4 THEN 1 ELSE 0 END) AS ok"
                 " FROM reviews GROUP BY d ORDER BY d DESC LIMIT 14").fetchall()
+            week = con.execute(
+                "SELECT COUNT(*) AS n,"
+                " SUM(CASE WHEN grade >= 4 THEN 1 ELSE 0 END) AS ok,"
+                " COUNT(DISTINCT substr(reviewed_at, 1, 10)) AS days"
+                " FROM reviews WHERE reviewed_at >= ?",
+                ((schedmod.utcnow() - timedelta(days=7)).strftime(
+                    "%Y-%m-%dT%H:%M:%SZ"),)).fetchone()
             rows = con.execute(
                 "SELECT reviews.grade, reviews.confidence, reviews.reviewed_at,"
                 " concepts.name AS concept, concepts.module_id AS module_id,"
@@ -1006,6 +1014,14 @@ class Handler(BaseHTTPRequestHandler):
             parts.append("<h2>Last 14 practice days</h2>"
                          f"<table class='log'><tr><th>Day</th><th>Attempts</th>"
                          f"<th>Passed</th></tr>{cells}</table>")
+            wn, wok, wdays = week["n"] or 0, week["ok"] or 0, week["days"] or 0
+            acc = f"{round(100 * wok / wn)}%" if wn else "—"
+            parts.append(
+                "<h2 id='week'>This week</h2>"
+                f"<p>{wn} attempts across {wdays} active day"
+                f"{'s' if wdays != 1 else ''} · {wok} passed "
+                f"({acc}) — your weekly review ritual: wins, weak spots, "
+                f"next week on the <a href='/due'>Due</a> queue.</p>")
         parts.append("<h2 id='attempts'>Attempts</h2>"
                          "<p id='timestamps'><small>Relative times "
                          "(“just now”, “3h ago”) — hover any time for "

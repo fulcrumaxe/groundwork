@@ -544,6 +544,21 @@ class ModuleSortTest(unittest.TestCase):
         self.assertIn("<b>Newest</b>", body)
 
 
+class WeekReviewTest(unittest.TestCase):
+    def setUp(self):
+        self.tmp, self.db, self.server, self.out = make_module("week mod")
+        self.h = handler_for(self.db)
+
+    def test_week_block_summarizes_last_7_days(self):
+        card = self.server.tool_list_due_reviews({"limit": 1})["due"][0]
+        self.server.submit_review(card["id"], "5", 4)
+        body = self.h.history_html()
+        self.assertIn("id='week'", body)
+        self.assertIn("This week", body)
+        self.assertIn("1 attempts", body)
+        self.assertIn("100%", body)
+
+
 class SitemapTest(unittest.TestCase):
     def setUp(self):
         self.tmp, self.db, self.server, self.out = make_module("map mod")
