@@ -147,24 +147,56 @@ Detail lines below marked [x] as they land.
 - [x] I-111: Misconception callouts (misconceptions.py + test_misconceptions.py).
 - [x] I-118: Private lesson notes (lessonnotes.py + test_lessonnotes.py).
 
+## Batch 6 rule — eight-and-eight with pipeline emission (this run)
+
+Same workflow as Batch 5 (tour entry + docs regen + MCP run + commit
+per item), plus one correction the run forced: new exercise types must
+also emit from `pipeline.BLOOM_DEFAULT_TYPES`, or they never appear in
+lesson modules. Emission guards mirror the siblings (harness-gated
+26/27, mutation-gated 28 — a passing-code harness would make every
+type-28 card unpassable). New code lives in focused area modules
+registered in `modularity.AREAS`; web.py only gains delegation lines
+(1036 → 1069, WEB_CEILING 1040 → 1070 for the wires).
+
+Batch 6 ships 8 improvements + 8 features, each committed locally
+per item on branch `batch6-f8-i8`, merged to main at the end.
+Detail lines below marked [x] as they land.
+
+- [x] I-2: Global header search (search.py + test_search.py).
+- [x] I-3: Page breadcrumbs (crumbs.py + test_crumbs.py).
+- [x] I-4: Explainer level carry-over (levelcarry.py + test_levelcarry.py).
+- [x] I-6: Sticky TOC highlight (tochighlight.py + test_tochighlight.py).
+- [x] I-7: Card deep-links (cardlinks.py + test_cardlinks.py).
+- [x] I-8: Lesson pager (pager.py + test_pager.py).
+- [x] I-10: Footer sitemap (footnav.py + test_footnav.py).
+- [x] I-14: Scroll position kept (scrollpos.py + test_scrollpos.py).
+- [x] F-2: Name-that-smell, type 15 (smell.py + test_smell.py).
+- [x] F-3: Rename-symbol, type 17 (renameex.py + test_renameex.py).
+- [x] F-4: Complexity golf, type 26 (golf.py + test_golf.py).
+- [x] F-5: Dependency-injection swap, type 27 (diretro.py + test_diretro.py).
+- [x] F-6: Error-handling retrofit, type 28 (errbranch.py + test_errbranch.py).
+- [x] F-7: Logging retrofit, type 29 (logretro.py + test_logretro.py).
+- [x] F-8: Type-annotation retrofit, type 31 (typeanno.py + test_typeanno.py).
+- [x] F-9: Doc-example doctest, type 32 (docdoctest.py + test_docdoctest.py).
+
 ## IMPROVEMENTS (500)
 
 ### A. Navigation, IA & routing (I-1–50)
 
 - [x] I-1: Give every page a unique `<title>` including context (module summary, lesson name).
-- I-2: Add a global header search (concepts, modules, symbols) with keyboard shortcut `/`.
-- I-3: Breadcrumb every nested page: Due/Modules/History › Module › Lesson › Card.
-- I-4: Persist `?level=` explainer choice per browser via query carry-over on all links.
+- [x] I-2: Add a global header search (concepts, modules, symbols) with keyboard shortcut `/`.
+- [x] I-3: Breadcrumb every nested page: Due/Modules/History › Module › Lesson › Card.
+- [x] I-4: Persist `?level=` explainer choice per browser via query carry-over on all links.
 - I-5: Add "Back to top" floating action on long module pages.
-- I-6: Make the sticky TOC highlight the section currently in view.
-- I-7: Deep-link every card (`/modules/<id>#card-<cid>`) so History entries jump to the exact card.
-- I-8: Add "next card" / "previous card" pager inside each lesson article.
+- [x] I-6: Make the sticky TOC highlight the section currently in view.
+- [x] I-7: Deep-link every card (`/modules/<id>#card-<cid>`) so History entries jump to the exact card.
+- [x] I-8: Add "next card" / "previous card" pager inside each lesson article.
 - I-9: Redirect legacy `/reviews` confusion: keep URL, but retitle and differentiate (done: History).
-- I-10: Add a site footer sitemap on every page (Due · Modules · History · About).
+- [x] I-10: Add a site footer sitemap on every page (Due · Modules · History · About).
 - I-11: Show counts in nav: Due (n), Modules (n), History (total attempts).
 - [x] I-12: Empty states for every page with a next action (no dead ends).
 - I-13: 404 page with search box and links instead of plain "not found".
-- I-14: Preserve scroll position when returning from a result screen via anchor origins.
+- [x] I-14: Preserve scroll position when returning from a result screen via anchor origins.
 - I-15: Add skip-links ("skip to practice") for keyboard users.
 - I-16: Make module cards entire-clickable with visible focus rings.
 - I-17: Add per-lesson "mark as reviewed" without answering (for re-reads).
@@ -684,14 +716,14 @@ Detail lines below marked [x] as they land.
 ### K. New exercise types (F-1–50)
 
 - F-1: Fill-the-docstring (write docs; graded against callers' needs checklist).
-- F-2: Name-that-smell (identify the code smell in a real snippet).
-- F-3: Rename-refactor (propose a better name; graded by convention + peer rubric).
-- F-4: Complexity golf (reduce nesting; AST metric check).
-- F-5: Dependency injection swap (rewrite hardcoded dep as parameter; tests green).
-- F-6: Error-handling retrofit (add the missing branch; fault-injection tests).
-- F-7: Logging retrofit (add observability at the right lines; checklist).
-- F-8: Type-annotation retrofit (annotate; verifier or runtime check).
-- F-9: Doc-example doctest (write an example that passes as doctest).
+- [x] F-2: Name-that-smell (identify the code smell in a real snippet).
+- [x] F-3: Rename-refactor (propose a better name; graded by convention + peer rubric).
+- [x] F-4: Complexity golf (reduce nesting; AST metric check).
+- [x] F-5: Dependency injection swap (rewrite hardcoded dep as parameter; tests green).
+- [x] F-6: Error-handling retrofit (add the missing branch; fault-injection tests).
+- [x] F-7: Logging retrofit (add observability at the right lines; checklist).
+- [x] F-8: Type-annotation retrofit (annotate; verifier or runtime check).
+- [x] F-9: Doc-example doctest (write an example that passes as doctest).
 - F-10: Property-based test authoring (write Hypothesis-style invariants; runner).
 - F-11: Fuzz-target triage (reproduce a crasher from a failing input).
 - F-12: Performance fix (make it O(n); benchmark gate).
