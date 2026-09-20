@@ -843,6 +843,9 @@ class Handler(BaseHTTPRequestHandler):
         elif url.path == "/export/reviews.csv":
             self._send(self.reviews_csv().encode(), 200,
                        "text/csv; charset=utf-8")
+        elif url.path == "/api/modules.json":
+            self._send(self.api_modules().encode(), 200,
+                       "application/json; charset=utf-8")
         elif url.path == "/feed.xml":
             host = self.headers.get("Host", "127.0.0.1:8765")
             self._send(self.feed_xml(f"http://{host}").encode(), 200,
@@ -1063,6 +1066,32 @@ class Handler(BaseHTTPRequestHandler):
                          .strip().lower())[:40]
             lines.append("\t".join(fields + [tag]))
         return "\n".join(lines) + ("\n" if lines else "")
+
+    def api_modules(self) -> str:
+        """Read-only modules JSON: first slice of the public API (F-451)."""
+        con = self._con()
+        try:
+            mods = con.execute(
+                "SELECT id, task_summary, repo, created_at FROM modules"
+                " ORDER BY created_at DESC").fetchall()
+            out = []
+            for m in mods:
+                n_concepts = con.execute(
+                    "SELECT COUNT(*) FROM concepts WHERE module_id=?",
+                    (m["id"],)).fetchone()[0]
+                n_cards = con.execute(
+                    "SELECT COUNT(*) FROM cards JOIN concepts"
+                    " ON concepts.id = cards.concept_id"
+                    " WHERE concepts.module_id=?",
+                    (m["id"],)).fetchone()[0]
+                out.append({"id": m["id"],
+                            "task_summary": m["task_summary"] or "",
+                            "repo": m["repo"] or "",
+                            "created_at": m["created_at"] or "",
+                            "concepts": n_concepts, "cards": n_cards})
+        finally:
+            con.close()
+        return json.dumps({"modules": out})
 
     def reviews_csv(self) -> str:
         """Review log as CSV for personal analysis (I-231)."""
@@ -1625,6 +1654,10 @@ class Handler(BaseHTTPRequestHandler):
             "<p><code>python3 -m groundwork export-module --module ID --out share.json</code> "
             "downloads a module; <code>python3 -m groundwork import-module --in share.json</code> "
             "loads it into another database. Reviews stay private; scheduling restarts fresh.</p>",
+            "<h2 id='status-api'>Read-only API</h2>"
+            "<p><a href='/api/modules.json'>/api/modules.json</a> lists "
+            "every module with concept and card counts — the first slice "
+            "of a public read API for dashboards.</p>",
             "<h2 id='status-sitemap'>Sitemap</h2>"
             "<p><a href='/sitemap.xml'>sitemap.xml</a> lists every page and "
             "module for self-hosters; <a href='/robots.txt'>robots.txt</a> "

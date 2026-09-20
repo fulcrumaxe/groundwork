@@ -31,11 +31,11 @@ def render_path(h, path, mid):
 
 
 class RegistryShapeTest(unittest.TestCase):
-    def test_ten_improvements_plus_growing_features(self):
+    def test_batches_landed_improvements_and_features(self):
         kinds = [e["kind"] for e in tourmod.ENTRIES]
-        # Batch 2 grows improvements 10 -> 15 as items land; features only grow.
+        # Batch 1: 10 improvements + 12 features; Batch 2: +5 and +5.
         self.assertEqual(kinds.count("improvement"), 15)
-        self.assertGreaterEqual(kinds.count("feature"), 12)
+        self.assertEqual(kinds.count("feature"), 17)
         self.assertEqual(len(set(kinds)), 3)  # + mvp baseline
 
     def test_ids_unique_and_complete(self):
@@ -102,7 +102,9 @@ class TourTargetsTest(unittest.TestCase):
     def test_status_page_has_all_sections(self):
         body = self.h.status_html()
         for sec in ("status-ci", "status-hooks", "status-cli",
-                    "status-mcp", "status-exports"):
+                    "status-mcp", "status-exports", "status-share",
+                    "status-seed", "status-sitemap", "status-csv",
+                    "status-api"):
             self.assertIn(f"id='{sec}'", body)
         self.assertIn("/export/anki.tsv", body)
         self.assertIn("/feed.xml", body)

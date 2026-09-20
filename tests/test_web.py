@@ -544,6 +544,26 @@ class ModuleSortTest(unittest.TestCase):
         self.assertIn("<b>Newest</b>", body)
 
 
+class ReadonlyApiTest(unittest.TestCase):
+    def setUp(self):
+        self.tmp, self.db, self.server, self.out = make_module("api mod")
+        self.h = handler_for(self.db)
+
+    def test_modules_json_lists_module_with_counts(self):
+        import json
+        doc = json.loads(self.h.api_modules())
+        self.assertEqual(len(doc["modules"]), 1)
+        m = doc["modules"][0]
+        self.assertEqual(m["id"], self.out["module_id"])
+        self.assertEqual(m["task_summary"], "api mod")
+        self.assertGreater(m["concepts"], 0)
+        self.assertGreater(m["cards"], 0)
+
+    def test_status_links_api(self):
+        self.assertIn("id='status-api'", self.h.status_html())
+        self.assertIn("/api/modules.json", self.h.status_html())
+
+
 class ReviewsCsvTest(unittest.TestCase):
     def setUp(self):
         self.tmp, self.db, self.server, self.out = make_module("csv mod")

@@ -79,6 +79,7 @@ expected outputs are always *measured* in the sandbox, never invented.
 | Sitemap and robots | Every page and module listed for crawlers; see the live map below. | `/status#status-sitemap` |
 | Week in review | Attempts, active days and pass rate for the last 7 days — a weekly ritual. | `/reviews#week` |
 | Review-log CSV export | Every attempt as CSV for personal analysis — grades, confidence, answers. | `/status#status-csv` |
+| Read-only modules API | Modules with concept and card counts as JSON, for dashboards. | `/status#status-api` |
 <!-- GW-FEATURES:END -->
 
 ## Improvements

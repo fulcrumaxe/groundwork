@@ -13,8 +13,8 @@ coverage-timeline, anki-export, rss-feed, module-sharing, cli-review,
 ci-workflow, precommit-hook, docstring-type). Backlog hits marked [x].
 
 Batch 2 ships the seed feature (Groundwork itself as a learnable project)
-plus 5 improvements + 5 features, each with a tour entry + status anchor +
-docs regen + MCP module + commit. Marked [x] as they land.
+plus 5 improvements + 5 more features (11 items), each with a tour entry +
+status anchor + docs regen + MCP module + commit. Marked [x] as they land.
 
 - [x] SEED: Groundwork seed — export-seed/import-seed CLI, status home,
   tour entry (no fixed backlog number; the seed idea spans O. packs).
@@ -28,6 +28,7 @@ docs regen + MCP module + commit. Marked [x] as they land.
 - [x] I-32: Sitemap + robots — /sitemap.xml lists pages and modules.
 - [x] I-243: Week in review — last-7-day attempts, active days, pass rate.
 - [x] I-231: Review-log CSV — /export/reviews.csv with every attempt.
+- [x] F-451 (first slice): Read-only modules API — /api/modules.json.
 
 ## IMPROVEMENTS (500)
 

@@ -132,6 +132,9 @@ ENTRIES = [
     {"id": "reviews-csv", "kind": "feature", "title": "Review-log CSV export",
      "blurb": "Every attempt as CSV for personal analysis — grades, confidence, answers.",
      "path": "/status", "anchor": "status-csv"},
+    {"id": "readonly-api", "kind": "feature", "title": "Read-only modules API",
+     "blurb": "Modules with concept and card counts as JSON, for dashboards.",
+     "path": "/status", "anchor": "status-api"},
 ]
 
 BY_ID = {e["id"]: e for e in ENTRIES}
