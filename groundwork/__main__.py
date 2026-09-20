@@ -160,14 +160,22 @@ def cmd_e2e(args) -> int:
             ans = p.get("expected", "")
         elif t == 9:
             ans = "\n".join(str(x) for x in p.get("expected", []))
-        elif t in (7, 16, 18):
+        elif t in (7, 15, 16, 18):
             ans = p.get("answer", "")
+        elif t == 17:
+            ans = (f"{p.get('target', 'x')}_renamed "
+                   + " ".join(p.get("rubric", [])))
+        elif t == 29:
+            ans = "\n".join(f"{it['id']}={it['level']}"
+                            for it in p.get("checklist", []))
+        elif t == 32:
+            ans = f">>> {p.get('call', '')}\n{p.get('expected', '')}"
         elif t in (10, 11):
             ans = " ".join(str(i) for i in range(len(p.get("lines", []))))
             # order indices refer to shuffled list; solve via solution match
             sol, lines = p.get("solution", []), p.get("lines", [])
             ans = " ".join(str(lines.index(l)) for l in sol if l in lines)
-        elif t in (12, 19, 23):
+        elif t in (12, 19, 23, 27, 28, 31):
             ans = p.get("reference", "")
         elif t == 20:
             # Satisfy the extension requirement: append the optional

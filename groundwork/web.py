@@ -14,8 +14,10 @@ from urllib.parse import parse_qs, quote, urlparse
 
 from . import api as apimod
 from . import badge as badgemod
+from . import cardlinks as cardlinksmod
 from . import cards as cardsmod
 from . import clarity as claritymod
+from . import crumbs as crumbsmod
 from . import db as dbmod
 from . import debt as debtmod
 from . import decisions as decmod
@@ -24,14 +26,17 @@ from . import digest as digestmod
 from . import disputes as dismod
 from . import errors as errmod
 from . import exports as expmod
+from . import footnav as footnavmod
 from . import history as histmod
 from . import journal as journalmod
 from . import known as knownmod
 from . import lessons as lesmod
+from . import levelcarry as levelcarrymod
 from . import mcp as mcplib
 from . import modularity as modularitymod
 from . import modules as modmod
 from . import ownership as ownmod
+from . import pager as pagermod
 from . import queries as quemod
 from . import queue as qmod
 from . import readtime as readtimemod
@@ -39,12 +44,15 @@ from . import related as relmod
 from . import reset as resetmod
 from . import results as resmod
 from . import sched as schedmod
+from . import scrollpos as scrollposmod
+from . import search as searchmod
 from . import serendipity as sermod
 from . import shortcuts as shortcutsmod
 from . import sitemap as sitemapmod
 from . import status as statusmod
 from . import storage as storagemod
 from . import styleguide as styleguidemod
+from . import tochighlight as tochighlightmod
 from . import tour as tourmod
 from . import undo as undomod
 
@@ -248,7 +256,7 @@ def page(title: str, body: str, active: str = "projects",
         for key, href, label in NAV)
     head = (f"<a class='skip' href='#main'>Skip to content</a>"
             f"<header class='page-head' id='top'><nav id='sitenav'>{links}</nav>"
-            f"<h1>{html.escape(title)}</h1>")
+            f"<h1>{html.escape(title)}</h1>{searchmod.header_html()}")
     if lede:
         head += f"<p class='lede'>{html.escape(lede)}</p>"
     head += "</header>"
@@ -262,16 +270,13 @@ def page(title: str, body: str, active: str = "projects",
             f"<a class='btn' href='{tour['prev_url']}'>‹ Prev</a> "
             f"<a class='btn' href='{tour['next_url']}'>Next ›</a> "
             f"<a href='/tour'>Exit tour</a></p>")
-    foot = ("<footer class='page-foot'>Groundwork — every session leaves you smarter.<br>"
-            "<a href='/'>Projects</a> · <a href='/due'>Due</a> · "
-            "<a href='/modules'>Modules</a> · <a href='/reviews'>History</a> · "
-            "<a href='/debt'>Debt</a> · <a href='/tour'>Tour</a> · "
-            "<a href='/status'>Status</a></footer>")
+    foot = footnavmod.footer(next((h for k, h, _ in NAV if k == active), ""))
     body = banner + body
     return (f"<!doctype html><html><head><meta charset='utf-8'>"
             f"<title>{html.escape(title)}</title><style>{CSS}</style></head>"
             f"<body data-page='{page_id}'>{head}<main id='main'>{body}</main>{foot}"
             f"{shortcutsmod.overlay_html()}{GLOBAL_JS}{shortcutsmod.script_js()}"
+            f"{searchmod.script_js()}{scrollposmod.record_js()}"
             f"</body></html>").encode()
 
 
@@ -332,6 +337,8 @@ class Handler(BaseHTTPRequestHandler):
 
     # -- helpers
     def _send(self, data: bytes, code: int = 200, ctype: str = "text/html"):
+        if ctype == "text/html" and getattr(self, "_level", "auto") != "auto":
+            data = levelcarrymod.carry_html(data.decode(), self._level).encode()
         self.send_response(code)
         self.send_header("Content-Type", ctype)
         self.send_header("Content-Length", str(len(data)))
@@ -360,7 +367,8 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         url = urlparse(self.path)
         query = parse_qs(url.query)
-        level = query.get("level", ["auto"])[0]
+        level = levelcarrymod.normalize(query.get("level", ["auto"])[0])
+        self._level = level
         counts = self._nav_counts()
         tour_ctx = None
         tour_id = query.get("tour", [""])[0]
@@ -420,6 +428,12 @@ class Handler(BaseHTTPRequestHandler):
             self._send(page("Journal", self.journal_html(),
                             active="tour", page_id="journal",
                             lede="What did you misjudge this week? Private by design.",
+                            counts=counts, tour=tour_ctx))
+        elif url.path == "/search":
+            q = query.get("q", [""])[0]
+            self._send(page("Search", self.search_html(q),
+                            active="projects", page_id="projects",
+                            lede="Concepts, modules, and symbols — ranked.",
                             counts=counts, tour=tour_ctx))
         elif url.path == "/export/anki.tsv":
             self._send(self.anki_tsv().encode(), 200,
@@ -554,7 +568,8 @@ class Handler(BaseHTTPRequestHandler):
                     f"<input type='hidden' name='origin' value='/due'>"
                     f"<button{snooze_id}>Snooze until tomorrow</button></form>")
                 parts.append(
-                    f"<article{cls}>{tag}{pos}{cardsmod._due_why(c, why_extra)}"
+                    f"<article{cls} id='{scrollposmod.card_anchor(c['id'])}'>"
+                    f"{tag}{pos}{cardsmod._due_why(c, why_extra)}"
                     f"<h3>{html.escape(c.get('concept', ''))}{stale} {dots} {chip}</h3>"
                     f"{mem}{forecast}{lesson}"
                     f"{lesmod.why_html(c)}"
@@ -580,6 +595,19 @@ class Handler(BaseHTTPRequestHandler):
 
     def api_due(self) -> str:
         return apimod.due_json(self.db_path)
+
+    def search_html(self, q: str) -> str:
+        """Ranked header-search hits over modules, concepts, symbols."""
+        con = self._con()
+        try:
+            mods = con.execute("SELECT id, task_summary FROM modules").fetchall()
+            cons = con.execute(
+                "SELECT id, module_id, name, kind FROM concepts").fetchall()
+        finally:
+            con.close()
+        recs = (searchmod.modules_to_records(mods)
+                + searchmod.concepts_to_records(cons))
+        return searchmod.results_html(searchmod.search(recs, q), q)
 
     def reviews_csv(self) -> str:
         return expmod.reviews_csv(self.db_path)
@@ -745,8 +773,8 @@ class Handler(BaseHTTPRequestHandler):
         cards_by_concept: dict[str, list] = {}
         for c in cards:
             cards_by_concept.setdefault(c["concept_id"], []).append(c)
-        parts = [f"<p class='crumbs'><a href='/modules'>Modules</a> › "
-                   f"{html.escape(m['task_summary'] or mid)}</p>",
+        parts = [crumbsmod.trail([("Modules", "/modules"),
+                                         (m["task_summary"] or mid, None)]),
                    f"<p>{html.escape(m['task_summary'] or '')}</p>"]
         try:
             mission = m["purpose"]
@@ -767,7 +795,8 @@ class Handler(BaseHTTPRequestHandler):
             mins = readtimemod.minutes_for(lesson_map.get(node, {}))
             toc.append(f"<a href='#lesson-{lesmod.slug(node)}'>{html.escape(row['name'])}</a> · {mins} min")
         if toc:
-            parts.append(f"<p class='toc' id='readtime'><small>In this module: {' · '.join(toc)}</small> <small>(minutes per lesson)</small></p>")
+            parts.append(tochighlightmod.enhance_toc(
+                f"<p class='toc' id='readtime'><small>In this module: {' · '.join(toc)}</small> <small>(minutes per lesson)</small></p>"))
         if concepts:
             owned_n = 0
             for row in concepts:
@@ -829,13 +858,15 @@ class Handler(BaseHTTPRequestHandler):
                           f"{lesmod.render_levels(lesson_map[node], mastery_of.get(node, 0.0), tries.get(c['id'], 0), level, base)}</details>"
                           if node in lesson_map else "")
                 parts.append(
-                    f"<article><h3>{html.escape(c['concept'])} "
+                    f"{cardlinksmod.article_open(c['id'])}<h3>{html.escape(c['concept'])} "
                     f"{cardsmod._difficulty_dots(c['difficulty'])}</h3>"
                     f"{lesson}"
                     f"{lesmod.why_html(c)}"
                     f"<p>{html.escape(c['front'])}</p>"
                     f"{cardsmod.answer_widget(c, tries.get(c['id'], 0), base)}"
                     f"{lesmod.submissions_html(history.get(c['id'], []))}</article>")
+            parts.append(pagermod.pager_html(
+                pagermod.section_slugs(concepts), ci, first=ci == 0))
             parts.append("</section>")
         parts.append(relmod.related_html(self.db_path, mid))
         parts.append("<a class='totop' href='#top'>Back to top ↑</a>")
@@ -963,6 +994,7 @@ class Handler(BaseHTTPRequestHandler):
         if url.path.startswith("/cards/") and url.path.endswith("/review"):
             card_id = url.path.split("/")[2]
             answer, conf_i, origin = _parse_review_form(raw)
+            origin = scrollposmod.origin_with_anchor(origin, card_id)
             server = mcplib.MCPServer(self.db_path)
             out = server.submit_review(card_id, answer, conf_i)
             if "error" in out:
@@ -982,8 +1014,9 @@ class Handler(BaseHTTPRequestHandler):
             finally:
                 con.close()
             due_left = server.tool_list_due_reviews({"limit": 1000})["count"]
-            body = resmod.render_result(res["pass"], res["feedback"], back,
-                                        out["next_due"], origin, mod_id, due_left)
+            body = (scrollposmod.restore_js(origin)
+                    + resmod.render_result(res["pass"], res["feedback"], back,
+                                           out["next_due"], origin, mod_id, due_left))
             self._send(page("Result", body, counts=self._nav_counts()))
             return
         if url.path.startswith("/cards/") and url.path.endswith("/dispute"):

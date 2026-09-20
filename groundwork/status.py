@@ -11,14 +11,30 @@ from pathlib import Path
 
 from . import db as dbmod
 from . import blindspots as blindmod
+from . import cardlinks as cardlinksmod
+from . import crumbs as crumbsmod
+from . import diretro as diretromod
 from . import disputes as dismod
+from . import docdoctest as docdoctestmod
+from . import errbranch as errbranchmod
+from . import footnav as footnavmod
+from . import golf as golfmod
+from . import levelcarry as levelcarrymod
 from . import letter as lettermod
+from . import logretro as logretromod
 from . import mcp as mcplib
 from . import modularity as modularitymod
 from . import northstar as northstarmod
+from . import pager as pagermod
+from . import renameex as renameexmod
+from . import scrollpos as scrollposmod
+from . import search as searchmod
+from . import smell as smellmod
 from . import tools as toolsmod
+from . import tochighlight as tochighlightmod
 from . import sched as schedmod
 from . import storage as storagemod
+from . import typeanno as typeannomod
 
 
 BATCH5 = [
@@ -86,6 +102,36 @@ def batch5_html() -> str:
     return "".join(parts)
 
 
+def batch6_html(db_path: str) -> str:
+    """Batch 6 home: one anchored subsection per shipped item.
+
+    Each section renders from its own area module (never web.py);
+    db_path threads through to the modules that accept it.
+    """
+    return "".join([
+        "<h2 id='status-batch6'>Batch 6: search, trails, and new exercises</h2>"
+        "<p>Eight improvements plus eight features, each a focused "
+        "module under 350 lines. The eight exercise types also emit "
+        "into lesson modules via the pipeline.</p>",
+        searchmod.section_html(),
+        crumbsmod.section_html(),
+        levelcarrymod.section_html(),
+        tochighlightmod.status_html(),
+        cardlinksmod.section_html(db_path),
+        pagermod.section_html(db_path),
+        footnavmod.section_html_status(),
+        scrollposmod.section_html(),
+        smellmod.section_html(db_path),
+        renameexmod.section_html(db_path),
+        golfmod.section_html(),
+        diretromod.section_html(db_path),
+        errbranchmod.section_html(db_path),
+        logretromod.section_html(db_path),
+        typeannomod.section_html(db_path),
+        docdoctestmod.section_html(),
+    ])
+
+
 def page_html(db_path: str) -> str:
     """Visible home for the non-page items, plus the area sections."""
     root = Path(__file__).resolve().parent.parent
@@ -141,6 +187,7 @@ def page_html(db_path: str) -> str:
         dismod.queue_html(db_path) +
         storagemod.section_html(db_path) +
         batch5_html() +
+        batch6_html(db_path) +
         "<h2 id='status-api'>Read-only API</h2>"
         "<p><a href='/api/modules.json'>/api/modules.json</a> lists "
         "every module with concept and card counts — the first slice "

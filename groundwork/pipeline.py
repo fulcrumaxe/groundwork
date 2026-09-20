@@ -279,9 +279,9 @@ def _first_var(src: str) -> str:
 BLOOM_DEFAULT_TYPES = {
     "recall": [1, 2, 4, 3],
     "explain": [5, 6, 7, 25, 1],
-    "apply": [8, 10, 11, 12, 9],
-    "analyse": [13, 14, 16, 18, 9],
-    "modify": [12, 14, 19, 20],
+    "apply": [8, 10, 11, 12, 9, 31, 32],
+    "analyse": [13, 14, 16, 18, 9, 15, 17, 26, 28, 29],
+    "modify": [12, 14, 19, 20, 27],
     "evaluate": [21, 22],
     "create": [24, 23],
 }
@@ -355,9 +355,9 @@ def create_module(con, repo: str, commit_range: str = "", task_summary: str = ""
                 continue  # needs measurable execution
             if t == 9 and "trace_expected" not in ctx:
                 continue  # needs measured reference trace
-            if t in (12, 14, 19, 20, 23) and "tests" not in ctx:
+            if t in (12, 14, 19, 20, 23, 26, 27) and "tests" not in ctx:
                 continue  # needs assert-only harness
-            if t in (13, 14, 21, 22) and "buggy" not in ctx:
+            if t in (13, 14, 21, 22, 28) and "buggy" not in ctx:
                 continue  # needs verified-breaking mutation
             e = ex.generate(t, eid, c, snippet, ctx)
             if e.get("payload", {}).get("grounded", True) is False:
