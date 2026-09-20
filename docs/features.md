@@ -39,6 +39,7 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | Weekly letter | An auto-drafted private progress note — gentle, never streaky. | `/status#status-letter` |
 | Serendipity cards | An adjacent concept you might love — bonus, never duty. | `/due#serendipity` |
 | Blind spots | Lowest-mastery concepts — study time goes where it matters. | `/status#status-blindspots` |
+| Personal bests | Strongest memory, most practiced, sharpest skill — no streaks. | `/reviews#bests` |
 
 ## Improvements
 

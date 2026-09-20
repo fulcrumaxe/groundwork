@@ -53,6 +53,7 @@ AREAS = {
     "letter": "letter.py",
     "serendipity": "serendipity.py",
     "blindspots": "blindspots.py",
+    "bests": "bests.py",
 }
 
 

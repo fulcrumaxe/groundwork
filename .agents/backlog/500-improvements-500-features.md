@@ -113,6 +113,8 @@ entries, and WEB_CEILING moves up only to cover those wires.
   bonus wander on Due (serendipity.py).
 - [x] F-184: Blind spots — lowest-mastery concepts with lesson links
   on Status (blindspots.py).
+- [x] F-101: Personal bests — strongest memory, most practiced,
+  sharpest skill on History (bests.py).
 
 ## IMPROVEMENTS (500)
 

@@ -230,6 +230,9 @@ ENTRIES = [
     {"id": "blind-spots", "kind": "feature", "title": "Blind spots",
      "blurb": "Lowest-mastery concepts — study time goes where it matters.",
      "path": "/status", "anchor": "status-blindspots"},
+    {"id": "personal-bests", "kind": "feature", "title": "Personal bests",
+     "blurb": "Strongest memory, most practiced, sharpest skill — no streaks.",
+     "path": "/reviews", "anchor": "bests"},
 ]
 
 BY_ID = {e["id"]: e for e in ENTRIES}

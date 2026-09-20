@@ -8,6 +8,7 @@ from __future__ import annotations
 import html
 from datetime import timedelta
 
+from . import bests as bestsmod
 from . import cards as cardsmod
 from . import db as dbmod
 from . import exercises as exmod
@@ -149,6 +150,7 @@ def history_html(db_path: str) -> str:
                      "<a href='/due'>Due</a> page and it will show up here.</p>")
         parts.append(monthmod.section_html(db_path))
         parts.append(undomod.section_html(db_path))
+        parts.append(bestsmod.section_html(db_path))
         return "".join(parts)
     if days:
         cells = "".join(
@@ -168,6 +170,7 @@ def history_html(db_path: str) -> str:
             f"next week on the <a href='/due'>Due</a> queue.</p>")
         parts.append(monthmod.section_html(db_path))
         parts.append(undomod.section_html(db_path))
+        parts.append(bestsmod.section_html(db_path))
     parts.append("<h2 id='attempts'>Attempts</h2>"
                      "<p id='timestamps'><small>Relative times "
                      "(“just now”, “3h ago”) — hover any time for "
