@@ -95,6 +95,7 @@ expected outputs are always *measured* in the sandbox, never invented.
 | Due-why tooltips | Hover why-due: memory strength, days overdue, lapse count. | `/due#due-why` |
 | Relative timestamps | History reads as “just now” and “3h ago” — hover any time for the exact timestamp. | `/reviews#timestamps` |
 | Memory-strength bars | Each Due card shows its FSRS memory strength in days, as a bar. | `/due#memory` |
+| Module sorting | The Modules library toggles newest-first and oldest-first. | `/modules#sort` |
 <!-- GW-IMPROVEMENTS:END -->
 
 See also [docs/features.md](docs/features.md) and the in-app

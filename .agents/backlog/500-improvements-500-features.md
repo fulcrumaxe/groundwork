@@ -22,6 +22,7 @@ docs regen + MCP module + commit. Marked [x] as they land.
   `<time datetime>` with relative text + exact on hover.
 - [x] I-76: Memory-strength bars — each Due card shows FSRS stability
   in days, as a bar.
+- [x] I-18: Module sorting — Modules toggles newest/oldest first.
 
 ## IMPROVEMENTS (500)
 

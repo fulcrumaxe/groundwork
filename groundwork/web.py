@@ -805,9 +805,10 @@ class Handler(BaseHTTPRequestHandler):
                             counts=counts, tour=tour_ctx))
         elif url.path == "/modules":
             repo = query.get("repo", [""])[0]
+            sort = query.get("sort", ["newest"])[0]
             lede = (f"Modules in {repo} — pick one and study it." if repo
                     else "Every agent session as a lesson — pick one and study it.")
-            self._send(page("Modules", self.modules_html(repo),
+            self._send(page("Modules", self.modules_html(repo, sort),
                             active="modules", page_id="modules",
                             lede=lede, counts=counts, tour=tour_ctx))
         elif url.path == "/debt":
@@ -1177,13 +1178,15 @@ class Handler(BaseHTTPRequestHandler):
         parts.append("</div>")
         return "".join(parts)
 
-    def modules_html(self, repo: str = "") -> str:
+    def modules_html(self, repo: str = "", sort: str = "newest") -> str:
         """The library: every MCP session as a module card with progress."""
+        if sort not in ("newest", "oldest"):
+            sort = "newest"
         con = self._con()
         try:
             mods = con.execute(
                 "SELECT id, task_summary, created_at, repo, commit_range FROM modules"
-                " ORDER BY created_at DESC LIMIT 50").fetchall()
+                " ORDER BY created_at DESC, rowid DESC LIMIT 50").fetchall()
             cards = []
             for m in mods:
                 stats = con.execute(
@@ -1207,10 +1210,18 @@ class Handler(BaseHTTPRequestHandler):
                         "<p>No modules for this project yet.</p>")
             return ("<p>No modules yet. Finish an agent session with the "
                     "`create_learning_module` MCP tool and it appears here.</p>")
+        if sort == "oldest":
+            cards = cards[::-1]
         parts = []
         if repo:
             parts.append(f"<p class='crumbs'><a href='/'>Projects</a> › "
                          f"{html.escape(repo)}</p>")
+        other = "oldest" if sort == "newest" else "newest"
+        qs = f"?sort={other}" + (f"&repo={quote(repo, safe='')}" if repo else "")
+        here = f"<b>{sort.title()}</b>"
+        there = f"<a href='/modules{qs}'>{other.title()}</a>"
+        first, second = (here, there) if sort == "newest" else (there, here)
+        parts.append(f"<p id='sort'><small>Sort: {first} · {second}</small></p>")
         parts.append("<div id='library'>")
         for mi, (m, stats, omap, order) in enumerate(cards):
             n = stats["n"] or 0

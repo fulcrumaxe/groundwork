@@ -519,6 +519,31 @@ class RelativeTimesTest(unittest.TestCase):
         self.assertIn("just now", body)
 
 
+class ModuleSortTest(unittest.TestCase):
+    def setUp(self):
+        self.tmp, self.db, self.server, self.out = make_module("first mod")
+        self.server.tool_create_learning_module(
+            {"repo_path": str(self.tmp), "task_summary": "second mod"})
+        self.h = handler_for(self.db)
+
+    def test_toggle_present_with_newest_default(self):
+        body = self.h.modules_html()
+        self.assertIn("id='sort'", body)
+        self.assertIn("<b>Newest</b>", body)
+        self.assertIn("sort=oldest", body)
+
+    def test_oldest_reverses_order(self):
+        new = self.h.modules_html()
+        old = self.h.modules_html("", "oldest")
+        self.assertLess(new.index("second mod"), new.index("first mod"))
+        self.assertLess(old.index("first mod"), old.index("second mod"))
+        self.assertIn("<b>Oldest</b>", old)
+
+    def test_bad_sort_falls_back_to_newest(self):
+        body = self.h.modules_html("", "random")
+        self.assertIn("<b>Newest</b>", body)
+
+
 class MemoryStrengthTest(unittest.TestCase):
     def setUp(self):
         self.tmp, self.db, self.server, self.out = make_module("memory mod")

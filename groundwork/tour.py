@@ -114,6 +114,9 @@ ENTRIES = [
     {"id": "memory-strength", "kind": "improvement", "title": "Memory-strength bars",
      "blurb": "Each Due card shows its FSRS memory strength in days, as a bar.",
      "path": "/due", "anchor": "memory"},
+    {"id": "module-sort", "kind": "improvement", "title": "Module sorting",
+     "blurb": "The Modules library toggles newest-first and oldest-first.",
+     "path": "/modules", "anchor": "sort"},
 ]
 
 BY_ID = {e["id"]: e for e in ENTRIES}
