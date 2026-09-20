@@ -7,7 +7,8 @@ Trigger prompt: **"run the feature & improvement system"**
 Default batch: **8 improvements + 8 features**, picked from the
 unshipped (`- ` without `[x]`) entries in
 `.agents/backlog/500-improvements-500-features.md`.
-Prefer small, migration-free items (pure helpers, renderers, CSS).
+Take the entries as listed — the runbook does not rank, prefer, or
+skip kinds of items; whatever is next in the backlog is what ships.
 
 ## Procedure
 
