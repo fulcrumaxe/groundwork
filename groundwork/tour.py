@@ -221,6 +221,9 @@ ENTRIES = [
     {"id": "tool-analytics", "kind": "feature", "title": "Tool-call analytics",
      "blurb": "Which MCP tools fire, with failure rates and latency.",
      "path": "/status", "anchor": "status-tools"},
+    {"id": "weekly-letter", "kind": "feature", "title": "Weekly letter",
+     "blurb": "An auto-drafted private progress note — gentle, never streaky.",
+     "path": "/status", "anchor": "status-letter"},
 ]
 
 BY_ID = {e["id"]: e for e in ENTRIES}

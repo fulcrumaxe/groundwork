@@ -50,6 +50,7 @@ AREAS = {
     "journal": "journal.py",
     "badge": "badge.py",
     "tools": "tools.py",
+    "letter": "letter.py",
 }
 
 

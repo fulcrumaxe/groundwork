@@ -36,6 +36,7 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | Just-one-card mode | Low energy? Answer a single card — no guilt design. | `/due#one-card` |
 | README badge | Your live owned count as an embeddable SVG shield. | `/status#status-badge` |
 | Tool-call analytics | Which MCP tools fire, with failure rates and latency. | `/status#status-tools` |
+| Weekly letter | An auto-drafted private progress note — gentle, never streaky. | `/status#status-letter` |
 
 ## Improvements
 

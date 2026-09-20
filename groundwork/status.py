@@ -11,6 +11,7 @@ from pathlib import Path
 
 from . import db as dbmod
 from . import disputes as dismod
+from . import letter as lettermod
 from . import mcp as mcplib
 from . import modularity as modularitymod
 from . import northstar as northstarmod
@@ -68,6 +69,7 @@ def page_html(db_path: str) -> str:
         modularitymod.status_rows() +
         northstarmod.section_html(db_path) +
         toolsmod.section_html(db_path) +
+        lettermod.section_html(db_path) +
         "<h2 id='status-disputes'>Grade disputes</h2>" +
         dismod.queue_html(db_path) +
         storagemod.section_html(db_path) +

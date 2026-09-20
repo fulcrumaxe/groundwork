@@ -107,6 +107,8 @@ entries, and WEB_CEILING moves up only to cover those wires.
   linked from sharing (badge.py).
 - [x] F-389: Tool-call analytics — every dispatch logged with ok/ms,
   per-tool table on Status (tools.py + tool_calls table).
+- [x] F-106: Weekly letter — auto-drafted private progress note with
+  one next step on Status (letter.py).
 
 ## IMPROVEMENTS (500)
 
