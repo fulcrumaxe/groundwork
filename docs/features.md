@@ -62,6 +62,7 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | Month in review | Concepts owned, accuracy trend and effort across the last 30 days. | `/reviews#month` |
 | Related modules | Same repo or shared concepts — keep following the thread. | `/modules/&lt;id&gt;#related` |
 | Decision quotes | Agent chose-X-over-Y rationale quoted inside the lesson it shaped. | `/modules/&lt;id&gt;#decisions` |
+| Clarity votes | Rate each lesson 1–5; averages feed generation quality. | `/modules/&lt;id&gt;#clarity` |
 
 ## The original loop
 

@@ -89,6 +89,8 @@ entries, and WEB_CEILING moves up only to cover those wires.
   module bottom (related.py).
 - [x] I-110: Decision quotes — agent chose-X-over-Y rationale inside
   the lesson it motivated (decisions.py).
+- [x] I-114: Clarity votes — 1–5 rating per lesson with averages
+  (clarity.py + clarity_ratings table + /concepts rate route).
 
 ## IMPROVEMENTS (500)
 

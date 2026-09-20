@@ -69,6 +69,13 @@ CREATE TABLE IF NOT EXISTS holes (
   created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
 );
 
+CREATE TABLE IF NOT EXISTS clarity_ratings (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  concept_id TEXT NOT NULL REFERENCES concepts(id) ON DELETE CASCADE,
+  score INTEGER NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+);
+
 CREATE TABLE IF NOT EXISTS disputes (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   card_id TEXT NOT NULL REFERENCES cards(id) ON DELETE CASCADE,

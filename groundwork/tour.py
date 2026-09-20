@@ -194,6 +194,9 @@ ENTRIES = [
     {"id": "decision-quotes", "kind": "improvement", "title": "Decision quotes",
      "blurb": "Agent chose-X-over-Y rationale quoted inside the lesson it shaped.",
      "path": "/modules/{mid}", "anchor": "decisions"},
+    {"id": "clarity-votes", "kind": "improvement", "title": "Clarity votes",
+     "blurb": "Rate each lesson 1–5; averages feed generation quality.",
+     "path": "/modules/{mid}", "anchor": "clarity"},
 ]
 
 BY_ID = {e["id"]: e for e in ENTRIES}
