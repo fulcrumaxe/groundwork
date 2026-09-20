@@ -85,6 +85,8 @@ entries, and WEB_CEILING moves up only to cover those wires.
   due tomorrow, suggested start (digest.py).
 - [x] I-244: Month in review — owned concepts, accuracy trend, effort
   over 30 days on History (monthreview.py).
+- [x] I-23: Related modules — same repo or shared concept names at
+  module bottom (related.py).
 
 ## IMPROVEMENTS (500)
 

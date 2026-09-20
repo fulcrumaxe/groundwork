@@ -41,6 +41,7 @@ AREAS = {
     "queue": "queue.py",
     "digest": "digest.py",
     "monthreview": "monthreview.py",
+    "related": "related.py",
 }
 
 

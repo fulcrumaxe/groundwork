@@ -188,6 +188,9 @@ ENTRIES = [
     {"id": "month-review", "kind": "improvement", "title": "Month in review",
      "blurb": "Concepts owned, accuracy trend and effort across the last 30 days.",
      "path": "/reviews", "anchor": "month"},
+    {"id": "related-modules", "kind": "improvement", "title": "Related modules",
+     "blurb": "Same repo or shared concepts — keep following the thread.",
+     "path": "/modules/{mid}", "anchor": "related"},
 ]
 
 BY_ID = {e["id"]: e for e in ENTRIES}

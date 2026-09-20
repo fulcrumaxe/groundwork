@@ -30,6 +30,7 @@ from . import ownership as ownmod
 from . import queries as quemod
 from . import queue as qmod
 from . import readtime as readtimemod
+from . import related as relmod
 from . import reset as resetmod
 from . import results as resmod
 from . import sched as schedmod
@@ -788,6 +789,7 @@ class Handler(BaseHTTPRequestHandler):
                     f"{cardsmod.answer_widget(c, tries.get(c['id'], 0), base)}"
                     f"{lesmod.submissions_html(history.get(c['id'], []))}</article>")
             parts.append("</section>")
+        parts.append(relmod.related_html(self.db_path, mid))
         parts.append("<a class='totop' href='#top'>Back to top ↑</a>")
         return "".join(parts)
 
