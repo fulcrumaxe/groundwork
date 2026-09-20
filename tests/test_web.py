@@ -7,7 +7,9 @@ from urllib.parse import urlencode
 from groundwork import cards as cardsmod
 from groundwork import results as resmod
 from groundwork import db as dbmod
+from groundwork import history as histmod
 from groundwork import lessons as lesmod
+from groundwork import ownership as ownmod
 from groundwork import mcp as mcplib
 from groundwork import sched as schedmod
 from groundwork import web as webmod
@@ -181,10 +183,10 @@ class DistinctPagesTest(unittest.TestCase):
 
     def test_calibration_coach_quiet_when_calibrated(self):
         rows = [("1", 5, 4), ("1", 5, 5), ("8", 5, 4)]
-        body = webmod.calibration_coach(rows)
+        body = histmod.calibration_coach(rows)
         self.assertIn("Calibration coach", body)
         self.assertNotIn("Coach:", body)
-        self.assertEqual(webmod.calibration_coach([]), "")
+        self.assertEqual(histmod.calibration_coach([]), "")
 
     def test_history_lists_attempts_with_module_link(self):
         con = self.server._con()
@@ -346,17 +348,17 @@ class LessonPageTest(unittest.TestCase):
             con.execute(
                 "INSERT INTO cards(id, concept_id, exercise_type)"
                 " VALUES('card-o','m-owned:c','19')")
-            self.assertEqual(webmod._owned_map(con, "m-owned"),
+            self.assertEqual(ownmod.owned_map(con, "m-owned"),
                              {"m-owned:c": (0, False)})
             con.execute(
                 "INSERT INTO reviews(card_id, grade, confidence)"
                 " VALUES('card-o',5,4)")
-            self.assertEqual(webmod._owned_map(con, "m-owned")["m-owned:c"],
+            self.assertEqual(ownmod.owned_map(con, "m-owned")["m-owned:c"],
                              (1, False))
             con.execute(
                 "INSERT INTO reviews(card_id, grade, confidence)"
                 " VALUES('card-o',5,4)")
-            self.assertEqual(webmod._owned_map(con, "m-owned")["m-owned:c"],
+            self.assertEqual(ownmod.owned_map(con, "m-owned")["m-owned:c"],
                              (2, True))
             # Recall passes alone never own, however repeated.
             con.execute(
@@ -371,7 +373,7 @@ class LessonPageTest(unittest.TestCase):
             con.execute(
                 "INSERT INTO reviews(card_id, grade, confidence)"
                 " VALUES('card-r',5,4)")
-            self.assertEqual(webmod._owned_map(con, "m-owned")["m-owned:r"],
+            self.assertEqual(ownmod.owned_map(con, "m-owned")["m-owned:r"],
                              (2, False))
             con.rollback()
         finally:

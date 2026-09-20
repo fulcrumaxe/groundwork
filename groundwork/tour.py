@@ -154,6 +154,9 @@ ENTRIES = [
     {"id": "grade-disputes", "kind": "feature", "title": "Grade disputes",
      "blurb": "Flag a wrong reference with one click; maintainers triage the queue.",
      "path": "/status", "anchor": "status-disputes"},
+    {"id": "workload-graph", "kind": "feature", "title": "Workload forecast",
+     "blurb": "Reviews due per day for the next 30 days — see busy days coming.",
+     "path": "/reviews", "anchor": "workload"},
 ]
 
 BY_ID = {e["id"]: e for e in ENTRIES}

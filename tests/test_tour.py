@@ -36,7 +36,7 @@ class RegistryShapeTest(unittest.TestCase):
         # Batch 1: 10 improvements + 12 features; Batch 2: +5 and +6;
         # Batch 3: guardrail + 5 improvements + 5 features as they land.
         self.assertEqual(kinds.count("improvement"), 18)
-        self.assertEqual(kinds.count("feature"), 20)
+        self.assertEqual(kinds.count("feature"), 21)
         self.assertEqual(len(set(kinds)), 3)  # + mvp baseline
 
     def test_ids_unique_and_complete(self):
