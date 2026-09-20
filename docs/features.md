@@ -53,6 +53,7 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | Queue status chips | Due, overdue and new cards carry distinct chips in the queue. | `/due#queue-status` |
 | Grading disclosures | Every card says how it is judged before you answer. | `/due#grading` |
 | Lesson read times | The module table of contents estimates minutes per lesson. | `/modules/&lt;id&gt;#readtime` |
+| Keyboard shortcuts | g then d jumps to Due, ? opens the cheat sheet — typing never hijacked. | `/#shortcuts` |
 
 ## The original loop
 

@@ -112,6 +112,7 @@ expected outputs are always *measured* in the sandbox, never invented.
 | Queue status chips | Due, overdue and new cards carry distinct chips in the queue. | `/due#queue-status` |
 | Grading disclosures | Every card says how it is judged before you answer. | `/due#grading` |
 | Lesson read times | The module table of contents estimates minutes per lesson. | `/modules/&lt;id&gt;#readtime` |
+| Keyboard shortcuts | g then d jumps to Due, ? opens the cheat sheet — typing never hijacked. | `/#shortcuts` |
 <!-- GW-IMPROVEMENTS:END -->
 
 See also [docs/features.md](docs/features.md) and the in-app

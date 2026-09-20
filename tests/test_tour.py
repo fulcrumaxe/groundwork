@@ -39,7 +39,7 @@ class RegistryShapeTest(unittest.TestCase):
         kinds = [e["kind"] for e in tourmod.ENTRIES]
         # Batch 1: 10 improvements + 12 features; Batch 2: +5 and +6;
         # Batch 3: guardrail + 5 improvements + 5 features as they land.
-        self.assertEqual(kinds.count("improvement"), 19)
+        self.assertEqual(kinds.count("improvement"), 20)
         self.assertEqual(kinds.count("feature"), 23)
         self.assertEqual(len(set(kinds)), 3)  # + mvp baseline
 
@@ -77,7 +77,7 @@ class TourTargetsTest(unittest.TestCase):
         self.h = handler_for(self.db)
         card = self.server.tool_list_due_reviews({"limit": 1})["due"][0]
         self.server.submit_review(card["id"], "5", 4)
-        self.mid, self.lesson = self.h._tour_targets()
+        self.mid, self.lesson = tourmod.targets(self.db)
         self.assertTrue(self.mid and self.lesson)
 
     def test_every_entry_lands_on_rendered_anchor(self):
@@ -97,7 +97,7 @@ class TourTargetsTest(unittest.TestCase):
         self.assertIn("Exit tour", raw)
 
     def test_tour_page_lists_every_entry_with_show_me(self):
-        body = self.h.tour_html()
+        body = tourmod.page_html(self.db)
         for e in tourmod.ENTRIES:
             with self.subTest(entry=e["id"]):
                 self.assertIn(e["title"], body)

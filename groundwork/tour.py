@@ -166,6 +166,9 @@ ENTRIES = [
     {"id": "style-guide", "kind": "feature", "title": "Component gallery",
      "blurb": "Every UI building block on one dev page, with class names.",
      "path": "/styleguide", "anchor": "styleguide"},
+    {"id": "shortcuts-cheatsheet", "kind": "improvement", "title": "Keyboard shortcuts",
+     "blurb": "g then d jumps to Due, ? opens the cheat sheet — typing never hijacked.",
+     "path": "/", "anchor": "shortcuts"},
 ]
 
 BY_ID = {e["id"]: e for e in ENTRIES}
@@ -199,3 +202,56 @@ def context(entry_id: str, mid: str = "", lesson: str = "") -> dict:
             "title": entry["title"], "blurb": entry["blurb"],
             "prev_url": prev_url, "next_url": next_url,
             "kind": entry["kind"]}
+
+
+def targets(db_path: str) -> tuple[str, str]:
+    """(latest module id, its first lesson anchor) for tour deep links."""
+    from . import db as dbmod
+    from . import lessons as lesmod
+    con = dbmod.connect(db_path)
+    try:
+        m = con.execute(
+            "SELECT id FROM modules ORDER BY created_at DESC LIMIT 1"
+        ).fetchone()
+        if m is None:
+            return "", ""
+        mid = m["id"]
+        c = con.execute(
+            "SELECT id FROM concepts WHERE module_id=? ORDER BY rowid LIMIT 1",
+            (mid,)).fetchone()
+    finally:
+        con.close()
+    if c is None:
+        return mid, ""
+    node = c["id"].split(":", 1)[1] if ":" in c["id"] else c["id"]
+    return mid, f"lesson-{lesmod.slug(node)}"
+
+
+def page_html(db_path: str) -> str:
+    """Catalog of every web-facing item, each with a Show-me link."""
+    import html
+    mid, lesson = targets(db_path)
+    parts = ["<p>Every capability below has a visible home. "
+             "<b>Show me</b> jumps to it and highlights it; "
+             "Prev/Next walks the whole list.</p>",
+             f"<p><a class='btn' href='{step_url(ORDER[0], mid, lesson)}'>"
+             "Start guided tour</a></p>"]
+    groups = (("mvp", "The loop", "The original learning cycle."),
+              ("feature", "Features", "New capabilities, Batch 1."),
+              ("improvement", "Improvements", "Batch 1 friction removal."))
+    n = 0
+    for kind, heading, sub in groups:
+        items = [e for e in ENTRIES if e["kind"] == kind]
+        lis = []
+        for e in items:
+            n += 1
+            url = step_url(e["id"], mid, lesson)
+            lis.append(
+                f"<li><b>{n}. {html.escape(e['title'])}</b> — "
+                f"{html.escape(e['blurb'])} "
+                f"<a class='btn' href='{url}'>Show me</a></li>")
+        parts.append(
+            f"<h2>{heading}</h2><p><small>{sub}</small></p>"
+            f"<ol class='tour-steps' start='{n - len(items) + 1}'>"
+            + "".join(lis) + "</ol>")
+    return "".join(parts)

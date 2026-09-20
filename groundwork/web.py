@@ -22,6 +22,7 @@ from . import history as histmod
 from . import lessons as lesmod
 from . import ownership as ownmod
 from . import queries as quemod
+from . import shortcuts as shortcutsmod
 from . import styleguide as styleguidemod
 from . import readtime as readtimemod
 from . import reset as resetmod
@@ -132,7 +133,12 @@ CSS = ("body{font-family:system-ui,-apple-system,sans-serif;max-width:48rem;"
        "color:#fff;border-radius:999px;padding:.5rem .9rem;font-size:.85rem;"
        "text-decoration:none}"
        "a.totop:visited{color:#fff}"
-       "a.totop:hover{background:#333}")
+       "a.totop:hover{background:#333}"
+       "#shortcuts{position:fixed;bottom:1rem;left:1rem;background:#fff;"
+       "border:2px solid #1a1a1a;border-radius:10px;padding:.5rem 1rem;"
+       "max-width:22rem;box-shadow:0 4px 16px rgba(0,0,0,.25)}"
+       "kbd{border:1px solid #999;border-radius:4px;padding:0 .3rem;"
+       "background:#f4f4f4;font-size:.8rem}")
 
 
 GLOBAL_JS = """
@@ -249,7 +255,8 @@ def page(title: str, body: str, active: str = "projects",
     body = banner + body
     return (f"<!doctype html><html><head><meta charset='utf-8'>"
             f"<title>{html.escape(title)}</title><style>{CSS}</style></head>"
-            f"<body data-page='{page_id}'>{head}{body}{foot}{GLOBAL_JS}"
+            f"<body data-page='{page_id}'>{head}{body}{foot}"
+            f"{shortcutsmod.overlay_html()}{GLOBAL_JS}{shortcutsmod.script_js()}"
             f"</body></html>").encode()
 
 
@@ -380,7 +387,7 @@ class Handler(BaseHTTPRequestHandler):
         tour_ctx = None
         tour_id = query.get("tour", [""])[0]
         if tour_id in tourmod.BY_ID:
-            mid, lesson = self._tour_targets()
+            mid, lesson = tourmod.targets(self.db_path)
             tour_ctx = tourmod.context(tour_id, mid, lesson)
         if url.path == "/":
             self._send(page("Projects", self.projects_html(),
@@ -839,53 +846,8 @@ class Handler(BaseHTTPRequestHandler):
         parts.append("<a class='totop' href='#top'>Back to top ↑</a>")
         return "".join(parts)
 
-    def _tour_targets(self) -> tuple[str, str]:
-        """(latest module id, its first lesson anchor) for tour deep links."""
-        con = self._con()
-        try:
-            m = con.execute(
-                "SELECT id FROM modules ORDER BY created_at DESC LIMIT 1"
-            ).fetchone()
-            if m is None:
-                return "", ""
-            mid = m["id"]
-            c = con.execute(
-                "SELECT id FROM concepts WHERE module_id=? ORDER BY rowid LIMIT 1",
-                (mid,)).fetchone()
-        finally:
-            con.close()
-        if c is None:
-            return mid, ""
-        node = c["id"].split(":", 1)[1] if ":" in c["id"] else c["id"]
-        return mid, f"lesson-{lesmod.slug(node)}"
-
     def tour_html(self) -> str:
-        """Catalog of every web-facing item, each with a Show-me link."""
-        mid, lesson = self._tour_targets()
-        parts = ["<p>Every capability below has a visible home. "
-                 "<b>Show me</b> jumps to it and highlights it; "
-                 "Prev/Next walks the whole list.</p>",
-                 f"<p><a class='btn' href='{tourmod.step_url(tourmod.ORDER[0], mid, lesson)}'>"
-                 "Start guided tour</a></p>"]
-        groups = (("mvp", "The loop", "The original learning cycle."),
-                  ("feature", "Features", "New capabilities, Batch 1."),
-                  ("improvement", "Improvements", "Batch 1 friction removal."))
-        n = 0
-        for kind, heading, sub in groups:
-            items = [e for e in tourmod.ENTRIES if e["kind"] == kind]
-            lis = []
-            for e in items:
-                n += 1
-                url = tourmod.step_url(e["id"], mid, lesson)
-                lis.append(
-                    f"<li><b>{n}. {html.escape(e['title'])}</b> — "
-                    f"{html.escape(e['blurb'])} "
-                    f"<a class='btn' href='{url}'>Show me</a></li>")
-            parts.append(
-                f"<h2>{heading}</h2><p><small>{sub}</small></p>"
-                f"<ol class='tour-steps' start='{n - len(items) + 1}'>"
-                + "".join(lis) + "</ol>")
-        return "".join(parts)
+        return tourmod.page_html(self.db_path)
 
     def status_html(self) -> str:
         """Visible home for the non-page items: CI, hooks, CLI, MCP, exports."""

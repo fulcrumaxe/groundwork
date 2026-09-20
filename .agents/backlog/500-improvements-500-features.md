@@ -37,8 +37,8 @@ New capability code lives in a new focused module
 (`groundwork/<area>.py`), never appended to web.py; web.py only gains
 thin delegation lines, route entries, and tour/status wiring. New tests
 go in focused files (`tests/test_<area>.py`). Enforced by
-`tests/test_modularity.py`: web.py stays under WEB_CEILING (1082
-after the diagnose extraction — ceilings only move
+`tests/test_modularity.py`: web.py stays under WEB_CEILING (1044
+after the tour-page extraction — ceilings only move
 down), every registered area module stays under 350 lines.
 
 Batch 3 ships 5 improvements + 6 features, each with a tour entry +
@@ -63,6 +63,8 @@ status anchor + docs regen + MCP module + commit. Marked [x] as they land.
   (reset.py; shared queries move to queries.py).
 - [x] I-96: Component gallery — /styleguide shows every block
   (styleguide.py; diagnose.py + lesson slugs move out of web.py).
+- [x] I-40: Keyboard shortcuts — g-sequences + ? overlay
+  (shortcuts.py; tour catalog moves to tour.py).
 
 ## IMPROVEMENTS (500)
 
