@@ -48,6 +48,11 @@ def review_card(stability: float, difficulty: float, grade: int,
             "retrievability": 1.0, "due": iso(due)}
 
 
+def snooze_due(now: datetime | None = None) -> str:
+    """Next-day due timestamp for a snoozed card (no grade recorded)."""
+    return iso((now or utcnow()) + timedelta(days=1))
+
+
 def elapsed_retrievability(stability: float, due_iso: str,
                            now: datetime | None = None) -> float:
     now = now or utcnow()

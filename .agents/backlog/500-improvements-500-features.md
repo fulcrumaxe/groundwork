@@ -23,6 +23,7 @@ docs regen + MCP module + commit. Marked [x] as they land.
 - [x] I-76: Memory-strength bars — each Due card shows FSRS stability
   in days, as a bar.
 - [x] I-18: Module sorting — Modules toggles newest/oldest first.
+- [x] I-45: Snooze a card — pushes one card to tomorrow, no grade.
 
 ## IMPROVEMENTS (500)
 

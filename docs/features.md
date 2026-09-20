@@ -37,6 +37,7 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | Relative timestamps | History reads as “just now” and “3h ago” — hover any time for the exact timestamp. | `/reviews#timestamps` |
 | Memory-strength bars | Each Due card shows its FSRS memory strength in days, as a bar. | `/due#memory` |
 | Module sorting | The Modules library toggles newest-first and oldest-first. | `/modules#sort` |
+| Snooze a card | Not today? Snooze pushes one card to tomorrow — no grade recorded. | `/due#snooze` |
 
 ## The original loop
 

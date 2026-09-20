@@ -155,6 +155,21 @@ class MCPServer:
             con.close()
         return {"due": schedmod.interleave(cards), "count": len(cards)}
 
+    def snooze_card(self, card_id: str) -> dict:
+        """Push one card to tomorrow without recording a grade (I-45)."""
+        con = self._con()
+        try:
+            row = con.execute("SELECT id FROM cards WHERE id=?",
+                              (card_id,)).fetchone()
+            if row is None:
+                return {"error": "unknown card"}
+            due = schedmod.snooze_due()
+            con.execute("UPDATE cards SET due=? WHERE id=?", (due, card_id))
+            con.commit()
+        finally:
+            con.close()
+        return {"card_id": card_id, "due": due}
+
     # ------------------------------------------------------- review/grade
 
     def submit_review(self, card_id: str, submission: str,

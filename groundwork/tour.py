@@ -117,6 +117,9 @@ ENTRIES = [
     {"id": "module-sort", "kind": "improvement", "title": "Module sorting",
      "blurb": "The Modules library toggles newest-first and oldest-first.",
      "path": "/modules", "anchor": "sort"},
+    {"id": "snooze-card", "kind": "improvement", "title": "Snooze a card",
+     "blurb": "Not today? Snooze pushes one card to tomorrow — no grade recorded.",
+     "path": "/due", "anchor": "snooze"},
 ]
 
 BY_ID = {e["id"]: e for e in ENTRIES}

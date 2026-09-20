@@ -895,13 +895,18 @@ class Handler(BaseHTTPRequestHandler):
                     "<button class='giveup' id='giveup'>", 1)
             mem = _memory_bar(
                 c, " id='memory'" if first else "")
+            snooze_id = " id='snooze'" if first else ""
+            snooze = (
+                f"<form method='post' action='/cards/{c['id']}/snooze'>"
+                f"<input type='hidden' name='origin' value='/due'>"
+                f"<button{snooze_id}>Snooze until tomorrow</button></form>")
             parts.append(
                 f"<article{cls}>{tag}{pos}{_due_why(c, why_extra)}"
                 f"<h3>{html.escape(c.get('concept', ''))}{stale} {dots}</h3>"
                 f"{mem}{lesson}"
                 f"{why_html(c)}"
                 f"<p>{html.escape(c.get('front', ''))}</p>"
-                f"{widget}</article>")
+                f"{widget}{snooze}</article>")
         parts.append("<p><a class='btn' href='/modules'>Browse all modules</a> "
                      "<a class='btn' href='/reviews'>Review history</a> "
                      "<a class='btn' href='/diagnose'>Diagnose a traceback</a></p>")
@@ -1564,6 +1569,22 @@ class Handler(BaseHTTPRequestHandler):
             self._send(page("Diagnose", body, active="due", page_id="due",
                             lede="Paste a traceback — study first, then fix.",
                             counts=self._nav_counts()))
+            return
+        if url.path.startswith("/cards/") and url.path.endswith("/snooze"):
+            card_id = url.path.split("/")[2]
+            form = parse_qs(raw, keep_blank_values=True)
+            origin = _safe_origin(form.get("origin", ["/due"])[0])
+            server = mcplib.MCPServer(self.db_path)
+            out = server.snooze_card(card_id)
+            if "error" in out:
+                self._send(page("Error", "<p>Unknown card.</p>",
+                                counts=self._nav_counts()), 404)
+                return
+            body = (f"<p>Snoozed until <b>{html.escape(out['due'])}</b> — "
+                    f"no grade recorded.</p>"
+                    f"<p><a class='btn' href='{html.escape(origin)}'>"
+                    f"Back to queue</a></p>")
+            self._send(page("Snoozed", body, counts=self._nav_counts()))
             return
         if url.path.startswith("/cards/") and url.path.endswith("/review"):
             card_id = url.path.split("/")[2]

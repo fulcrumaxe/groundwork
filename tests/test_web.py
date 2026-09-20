@@ -544,6 +544,39 @@ class ModuleSortTest(unittest.TestCase):
         self.assertIn("<b>Newest</b>", body)
 
 
+class SnoozeTest(unittest.TestCase):
+    def setUp(self):
+        self.tmp, self.db, self.server, self.out = make_module("snooze mod")
+        self.h = handler_for(self.db)
+
+    def test_due_offers_snooze(self):
+        body = self.h.due_html()
+        self.assertIn("id='snooze'", body)
+        self.assertIn("Snooze until tomorrow", body)
+        self.assertIn("/snooze", body)
+
+    def test_snooze_pushes_due_without_a_grade(self):
+        card = self.server.tool_list_due_reviews({"limit": 1})["due"][0]
+        out = self.server.snooze_card(card["id"])
+        self.assertNotIn("error", out)
+        import datetime
+        tomorrow = (schedmod.utcnow() +
+                    datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+        self.assertTrue(out["due"].startswith(tomorrow))
+        con = dbmod.connect(self.db)
+        try:
+            n = con.execute("SELECT COUNT(*) FROM reviews").fetchone()[0]
+            self.assertEqual(n, 0)
+            due = con.execute("SELECT due FROM cards WHERE id=?",
+                              (card["id"],)).fetchone()[0]
+            self.assertEqual(due, out["due"])
+        finally:
+            con.close()
+
+    def test_snooze_unknown_card_errors(self):
+        self.assertIn("error", self.server.snooze_card("nope"))
+
+
 class MemoryStrengthTest(unittest.TestCase):
     def setUp(self):
         self.tmp, self.db, self.server, self.out = make_module("memory mod")
