@@ -179,6 +179,38 @@ Detail lines below marked [x] as they land.
 - [x] F-8: Type-annotation retrofit, type 31 (typeanno.py + test_typeanno.py).
 - [x] F-9: Doc-example doctest, type 32 (docdoctest.py + test_docdoctest.py).
 
+## Batch 7 rule — eight-and-eight, library scale (this run)
+
+Same workflow as Batch 6 (tour entry + docs regen + MCP run + commit
+per item, pipeline emission for exercise types). New code lives in
+focused area modules registered in `modularity.AREAS`; web.py only
+gains delegation lines (1069 → 1111, WEB_CEILING 1070 → 1112 for the
+wires). Two parent-side corrections the run forced: fuzztriage line
+match ignores call arguments (a wrong call containing the digit must
+not pass), and apidesign pass needs every rubric point (typeanno
+sibling contract). racehunt trimmed to 347 lines to hold AREA_CAP.
+
+Batch 7 ships 8 improvements + 8 features, each committed locally
+per item on branch `batch7-f8-i8`, merged to main at the end.
+Detail lines below marked [x] as they land.
+
+- [x] I-16: Whole-card module links (clickcards.py + test_clickcards.py).
+- [x] I-17: Mark as reviewed (reviewed.py + test_reviewed.py).
+- [x] I-19: Module status filter (modfilter.py + test_modfilter.py).
+- [x] I-20: Modules pagination (modpages.py + test_modpages.py).
+- [x] I-22: Concept-chip lesson links (chiplinks.py + test_chiplinks.py).
+- [x] I-24: Recently visited strip (recent.py + test_recent.py).
+- [x] I-29: Unsaved-answer guard (unsaved.py + test_unsaved.py).
+- [x] I-30: Result verdict auto-scroll (autoscroll.py + test_autoscroll.py).
+- [x] F-10: Property-based test authoring, type 33 (proptest.py + test_proptest.py).
+- [x] F-11: Fuzz-target triage, type 34 (fuzztriage.py + test_fuzztriage.py).
+- [x] F-12: Performance fix, type 35 (perffix.py + test_perffix.py).
+- [x] F-13: Memory-profile reading, type 36 (memprofile.py + test_memprofile.py).
+- [x] F-14: Race-hunt, type 37 (racehunt.py + test_racehunt.py).
+- [x] F-15: Dead-code elimination, type 38 (deadcode.py + test_deadcode.py).
+- [x] F-16: Config extraction, type 39 (configex.py + test_configex.py).
+- [x] F-17: API-signature design, type 40 (apidesign.py + test_apidesign.py).
+
 ## IMPROVEMENTS (500)
 
 ### A. Navigation, IA & routing (I-1–50)
@@ -198,21 +230,21 @@ Detail lines below marked [x] as they land.
 - I-13: 404 page with search box and links instead of plain "not found".
 - [x] I-14: Preserve scroll position when returning from a result screen via anchor origins.
 - I-15: Add skip-links ("skip to practice") for keyboard users.
-- I-16: Make module cards entire-clickable with visible focus rings.
-- I-17: Add per-lesson "mark as reviewed" without answering (for re-reads).
+- [x] I-16: Make module cards entire-clickable with visible focus rings.
+- [x] I-17: Add per-lesson "mark as reviewed" without answering (for re-reads).
 - I-18: Sort Modules index by recent activity, with toggle for newest/oldest/most-stale.
-- I-19: Filter Modules index by status: all / in-progress / owned / stale.
-- I-20: Paginate or virtualize the Modules index past 50 modules.
+- [x] I-19: Filter Modules index by status: all / in-progress / owned / stale.
+- [x] I-20: Paginate or virtualize the Modules index past 50 modules.
 - I-21: Add per-module "Resume where I left off" jumping to first unowned lesson.
-- I-22: Link every concept chip to its lesson anchor.
+- [x] I-22: Link every concept chip to its lesson anchor.
 - I-23: Show related modules ("same symbols", "same repo") at module bottom.
-- I-24: Add a "recently visited" strip on Due.
+- [x] I-24: Add a "recently visited" strip on Due.
 - I-25: Unify date/time formatting and add relative times ("2h ago", "due tomorrow").
 - I-26: Make all timestamps timezone-explicit with title tooltips.
 - [x] I-27: Add print stylesheet so lessons print cleanly as study sheets.
 - [x] I-28: Add "copy link" button per lesson section (copies anchor URL).
-- I-29: Confirm before leaving a half-answered card (unsaved textarea guard).
-- I-30: After review, auto-scroll result into view on return.
+- [x] I-29: Confirm before leaving a half-answered card (unsaved textarea guard).
+- [x] I-30: After review, auto-scroll result into view on return.
 - I-31: Distinguish external vs internal links visually (repo paths vs routes).
 - I-32: Add a sitemap.xml and robots stance for self-hosters exposing publicly.
 - I-33: Language-prefix-free canonical URLs; document URL contract in README.
@@ -724,14 +756,14 @@ Detail lines below marked [x] as they land.
 - [x] F-7: Logging retrofit (add observability at the right lines; checklist).
 - [x] F-8: Type-annotation retrofit (annotate; verifier or runtime check).
 - [x] F-9: Doc-example doctest (write an example that passes as doctest).
-- F-10: Property-based test authoring (write Hypothesis-style invariants; runner).
-- F-11: Fuzz-target triage (reproduce a crasher from a failing input).
-- F-12: Performance fix (make it O(n); benchmark gate).
-- F-13: Memory-profile reading (interpret tracemalloc output; exact match).
-- F-14: Race-hunt (spot the shared-state bug; line match + fix).
-- F-15: Dead-code elimination (remove unused paths; coverage-kept-green).
-- F-16: Config extraction (move magic values to config; behavior identical).
-- F-17: API design (design the signature for a new requirement; rubric).
+- [x] F-10: Property-based test authoring (write Hypothesis-style invariants; runner).
+- [x] F-11: Fuzz-target triage (reproduce a crasher from a failing input).
+- [x] F-12: Performance fix (make it O(n); benchmark gate).
+- [x] F-13: Memory-profile reading (interpret tracemalloc output; exact match).
+- [x] F-14: Race-hunt (spot the shared-state bug; line match + fix).
+- [x] F-15: Dead-code elimination (remove unused paths; coverage-kept-green).
+- [x] F-16: Config extraction (move magic values to config; behavior identical).
+- [x] F-17: API design (design the signature for a new requirement; rubric).
 - F-18: Spec writing (write acceptance criteria; checklist vs hidden tests).
 - F-19: Commit-message authorship (summarize a diff; rubric vs intent).
 - F-20: Changelog entry (describe user impact; rubric).
