@@ -3,6 +3,7 @@ import unittest
 
 from groundwork import diagnose as diamod
 from groundwork import errors as errmod
+from groundwork import journal as journalmod
 from groundwork import styleguide as styleguidemod
 from groundwork import tour as tourmod
 from groundwork import web as webmod
@@ -30,6 +31,8 @@ def render_path(h, path, mid):
         body = h.status_html()
     elif path == "/404":
         body = errmod.not_found_html(path)
+    elif path == "/journal":
+        body = journalmod.page_html(h.db_path)
     elif mid and path == f"/modules/{mid}":
         body = h.module_html(mid)
     else:
@@ -44,7 +47,7 @@ class RegistryShapeTest(unittest.TestCase):
         # Batch 3: guardrail + 5 improvements + 5 features.
         # Batch 4 lands 10 + 10; counts grow as entries land.
         self.assertEqual(kinds.count("improvement"), 30)
-        self.assertEqual(kinds.count("feature"), 26)
+        self.assertEqual(kinds.count("feature"), 27)
         self.assertEqual(len(set(kinds)), 3)  # + mvp baseline
 
     def test_ids_unique_and_complete(self):

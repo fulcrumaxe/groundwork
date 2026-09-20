@@ -82,6 +82,14 @@ CREATE TABLE IF NOT EXISTS clarity_ratings (
   created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
 );
 
+CREATE TABLE IF NOT EXISTS journal_entries (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  created_day TEXT NOT NULL,
+  prompt TEXT NOT NULL DEFAULT '',
+  body TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+);
+
 CREATE TABLE IF NOT EXISTS known_skips (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   concept_id TEXT NOT NULL REFERENCES concepts(id) ON DELETE CASCADE,

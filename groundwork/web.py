@@ -24,6 +24,7 @@ from . import disputes as dismod
 from . import errors as errmod
 from . import exports as expmod
 from . import history as histmod
+from . import journal as journalmod
 from . import known as knownmod
 from . import lessons as lesmod
 from . import mcp as mcplib
@@ -411,6 +412,11 @@ class Handler(BaseHTTPRequestHandler):
             self._send(page("Status", self.status_html(),
                             active="tour", page_id="status",
                             lede="Machine-room items with no page of their own.",
+                            counts=counts, tour=tour_ctx))
+        elif url.path == "/journal":
+            self._send(page("Journal", self.journal_html(),
+                            active="tour", page_id="journal",
+                            lede="What did you misjudge this week? Private by design.",
                             counts=counts, tour=tour_ctx))
         elif url.path == "/export/anki.tsv":
             self._send(self.anki_tsv().encode(), 200,
@@ -818,6 +824,9 @@ class Handler(BaseHTTPRequestHandler):
         parts.append("<a class='totop' href='#top'>Back to top ↑</a>")
         return "".join(parts)
 
+    def journal_html(self) -> str:
+        return journalmod.page_html(self.db_path)
+
     def tour_html(self) -> str:
         return tourmod.page_html(self.db_path)
 
@@ -839,6 +848,19 @@ class Handler(BaseHTTPRequestHandler):
                 resp = {"jsonrpc": "2.0", "id": None, "error": {"message": str(e)}}
             data = json.dumps(resp).encode()
             self._send(data, 200, "application/json")
+            return
+        if url.path == "/journal":
+            form = parse_qs(raw, keep_blank_values=True)
+            out = journalmod.save(
+                self.db_path, form.get("body", [""])[0])
+            if "error" in out:
+                body = (f"<p>Could not save: {html.escape(out['error'])}</p>"
+                        f"<p><a class='btn' href='/journal'>Back</a></p>")
+            else:
+                body = (f"<p>Entry saved — private, always.</p>"
+                        f"<p><a class='btn' href='/journal'>Back to Journal</a></p>")
+            self._send(page("Journal", body, active="tour",
+                            page_id="journal", counts=self._nav_counts()))
             return
         if url.path == "/diagnose":
             form = parse_qs(raw, keep_blank_values=True)

@@ -99,6 +99,8 @@ entries, and WEB_CEILING moves up only to cover those wires.
   owned count on Status (northstar.py).
 - [x] F-292: Personal data download — everything in one JSON via
   /export/me.json, linked from Storage (exports.py).
+- [x] F-68: Metacognition journal — data-driven weekly misjudgment
+  prompt with private entries at /journal (journal.py).
 
 ## IMPROVEMENTS (500)
 

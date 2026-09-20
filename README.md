@@ -89,6 +89,7 @@ expected outputs are always *measured* in the sandbox, never invented.
 | Storage meter | Database size and per-module rows — growth never surprises. | `/status#status-storage` |
 | North-star dashboard | Delayed accuracy on mature cards — the number that matters. | `/status#status-northstar` |
 | Personal data download | Everything about you in one JSON — portable, private. | `/status#status-data` |
+| Metacognition journal | Weekly what-did-you-misjudge prompt, answered privately. | `/journal#journal` |
 <!-- GW-FEATURES:END -->
 
 ## Improvements

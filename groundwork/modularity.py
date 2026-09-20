@@ -47,6 +47,7 @@ AREAS = {
     "known": "known.py",
     "undo": "undo.py",
     "northstar": "northstar.py",
+    "journal": "journal.py",
 }
 
 
