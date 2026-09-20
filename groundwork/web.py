@@ -24,6 +24,7 @@ from . import disputes as dismod
 from . import errors as errmod
 from . import exports as expmod
 from . import history as histmod
+from . import known as knownmod
 from . import lessons as lesmod
 from . import mcp as mcplib
 from . import modularity as modularitymod
@@ -756,6 +757,8 @@ class Handler(BaseHTTPRequestHandler):
         dec_matches = decmod.matches_for_module(self.db_path, dec_nodes)
         cl_sums = claritymod.summaries(
             self.db_path, [r["cid"] for r in concepts])
+        known_pending = knownmod.pending(
+            self.db_path, [r["cid"] for r in concepts])
         for ci, row in enumerate(concepts):
             node = row["cid"].split(":", 1)[1] if ":" in row["cid"] else row["cid"]
             slug = lesmod.slug(node)
@@ -782,6 +785,9 @@ class Handler(BaseHTTPRequestHandler):
             avg, nvotes = cl_sums.get(row["cid"], (0.0, 0))
             parts.append(claritymod.block_html(
                 row["cid"], avg, nvotes, base, ci == 0))
+            parts.append(knownmod.button_html(
+                row["cid"], known_pending.get(row["cid"], ""), base,
+                ci == 0))
             if concept_cards:
                 if not practice_tagged:
                     parts.append("<h3 id='practice'>Practice</h3>")
@@ -864,6 +870,22 @@ class Handler(BaseHTTPRequestHandler):
                         f"<p><a class='btn' href='{html.escape(back)}'>"
                         f"Back to module</a></p>")
             self._send(page("Clarity", body, counts=self._nav_counts()))
+            return
+        if url.path.startswith("/concepts/") and url.path.endswith("/known"):
+            cid = url.path.split("/")[2]
+            form = parse_qs(raw, keep_blank_values=True)
+            origin = _safe_origin(form.get("origin", ["/modules"])[0])
+            out = knownmod.skip(self.db_path, cid)
+            if "error" in out:
+                body = (f"<p>Could not skip: {html.escape(out['error'])}</p>"
+                        f"<p><a class='btn' href='{html.escape(origin)}'>Back</a></p>")
+            else:
+                back = f"/modules/{out['module_id']}"
+                body = (f"<p>Skipped — verification due "
+                        f"<b>{html.escape(out['verify_due'][:10])}</b>.</p>"
+                        f"<p><a class='btn' href='{html.escape(back)}'>"
+                        f"Back to module</a></p>")
+            self._send(page("Already know", body, counts=self._nav_counts()))
             return
         if url.path.startswith("/cards/") and url.path.endswith("/snooze"):
             card_id = url.path.split("/")[2]

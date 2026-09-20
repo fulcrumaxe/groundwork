@@ -44,6 +44,7 @@ AREAS = {
     "related": "related.py",
     "decisions": "decisions.py",
     "clarity": "clarity.py",
+    "known": "known.py",
 }
 
 

@@ -63,6 +63,7 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | Related modules | Same repo or shared concepts — keep following the thread. | `/modules/&lt;id&gt;#related` |
 | Decision quotes | Agent chose-X-over-Y rationale quoted inside the lesson it shaped. | `/modules/&lt;id&gt;#decisions` |
 | Clarity votes | Rate each lesson 1–5; averages feed generation quality. | `/modules/&lt;id&gt;#clarity` |
+| Already-know skip | Know it? Skip the line — the cards verify you in 30 days. | `/modules/&lt;id&gt;#already-know` |
 
 ## The original loop
 

@@ -91,6 +91,8 @@ entries, and WEB_CEILING moves up only to cover those wires.
   the lesson it motivated (decisions.py).
 - [x] I-114: Clarity votes — 1–5 rating per lesson with averages
   (clarity.py + clarity_ratings table + /concepts rate route).
+- [x] I-133: Already-know skip — self-certify a lesson, cards verify
+  in 30 days (known.py + known_skips table + /concepts known route).
 
 ## IMPROVEMENTS (500)
 

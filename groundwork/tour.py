@@ -197,6 +197,9 @@ ENTRIES = [
     {"id": "clarity-votes", "kind": "improvement", "title": "Clarity votes",
      "blurb": "Rate each lesson 1–5; averages feed generation quality.",
      "path": "/modules/{mid}", "anchor": "clarity"},
+    {"id": "already-know", "kind": "improvement", "title": "Already-know skip",
+     "blurb": "Know it? Skip the line — the cards verify you in 30 days.",
+     "path": "/modules/{mid}", "anchor": "already-know"},
 ]
 
 BY_ID = {e["id"]: e for e in ENTRIES}
