@@ -55,6 +55,14 @@ class GenerateTest(unittest.TestCase):
         e = mod.generate("ex46", make_concept(), CODE.splitlines(), ctx)
         self.assertTrue(e["front"])
 
+    def test_two_line_def_plants(self):
+        # Generic-suite runnable is a 2-line def: middle index must clamp.
+        tiny = "def add(a=2, b=3):\n    return a + b"
+        e = mod.generate("ex46", make_concept("add"), tiny.splitlines(),
+                         {"runnable": tiny})
+        self.assertIn("<<<<<<<", e["payload"]["conflicted"])
+        ast.parse(e["payload"]["reference"])
+
 
 class GradeTest(unittest.TestCase):
     def test_accept_reference(self):

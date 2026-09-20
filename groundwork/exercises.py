@@ -15,6 +15,9 @@ import re
 from pathlib import Path
 
 from . import apidesign as apidesignmod
+from . import bisect as bisectmod
+from . import changelog as changelogmod
+from . import commitmsg as commitmsgmod
 from . import configex as configexmod
 from . import deadcode as deadcodemod
 from . import diretro as diretromod
@@ -24,11 +27,16 @@ from . import fuzztriage as fuzztriagemod
 from . import golf as golfmod
 from . import logretro as logretromod
 from . import memprofile as memprofilemod
+from . import migration as migrationmod
 from . import perffix as perffixmod
 from . import proptest as proptestmod
 from . import racehunt as racehuntmod
+from . import rebase as rebasemod
 from . import renameex as renameexmod
+from . import repro as repromod
+from . import rollback as rollbackmod
 from . import smell as smellmod
+from . import specwrite as specwritemod
 from . import typeanno as typeannomod
 
 # type number -> (name, bloom)
@@ -73,16 +81,24 @@ TYPES = {
     38: ("dead-code", "modify"),
     39: ("config-extract", "modify"),
     40: ("api-design", "create"),
+    41: ("spec-writing", "create"),
+    42: ("commit-message", "create"),
+    43: ("changelog-entry", "create"),
+    44: ("issue-repro", "apply"),
+    45: ("bisect-drill", "analyse"),
+    46: ("rebase-resolve", "modify"),
+    47: ("migration-authoring", "modify"),
+    48: ("rollback-plan", "evaluate"),
 }
 
 BLOOM_TYPES = {
     "recall": [1, 2, 3, 4],
     "explain": [5, 6, 7, 25, 1],
-    "apply": [8, 10, 11, 12, 9, 31, 32, 33],
-    "analyse": [13, 14, 15, 16, 17, 18, 9, 26, 28, 29, 34, 36, 37],
-    "modify": [12, 14, 19, 20, 27, 35, 38, 39],
-    "evaluate": [21, 22],
-    "create": [24, 23, 40],
+    "apply": [8, 10, 11, 12, 9, 31, 32, 33, 44],
+    "analyse": [13, 14, 15, 16, 17, 18, 9, 26, 28, 29, 34, 36, 37, 45],
+    "modify": [12, 14, 19, 20, 27, 35, 38, 39, 46, 47],
+    "evaluate": [21, 22, 48],
+    "create": [24, 23, 40, 41, 42, 43],
 }
 
 
@@ -760,6 +776,10 @@ GENERATORS = {
     35: perffixmod.generate, 36: memprofilemod.generate,
     37: racehuntmod.generate, 38: deadcodemod.generate,
     39: configexmod.generate, 40: apidesignmod.generate,
+    41: specwritemod.generate, 42: commitmsgmod.generate,
+    43: changelogmod.generate, 44: repromod.generate,
+    45: bisectmod.generate, 46: rebasemod.generate,
+    47: migrationmod.generate, 48: rollbackmod.generate,
 }
 
 
@@ -959,6 +979,22 @@ def grade(exercise: dict, submission: str, runner=None) -> dict:
         return configexmod.grade(exercise, submission, runner)
     if t == 40:
         return apidesignmod.grade(exercise, submission, runner)
+    if t == 41:
+        return specwritemod.grade(exercise, submission, runner)
+    if t == 42:
+        return commitmsgmod.grade(exercise, submission, runner)
+    if t == 43:
+        return changelogmod.grade(exercise, submission, runner)
+    if t == 44:
+        return repromod.grade(exercise, submission, runner)
+    if t == 45:
+        return bisectmod.grade(exercise, submission, runner)
+    if t == 46:
+        return rebasemod.grade(exercise, submission, runner)
+    if t == 47:
+        return migrationmod.grade(exercise, submission, runner)
+    if t == 48:
+        return rollbackmod.grade(exercise, submission, runner)
     # Execution-graded types need the sandbox runner. Pure-order Parsons
     # (no harness) is graded without it, below.
     if runner is None and not (t == 11 and not p.get("tests")):
@@ -1081,6 +1117,22 @@ def render(exercise: dict) -> str:
         return configexmod.render(exercise)
     if t == 40:
         return apidesignmod.render(exercise)
+    if t == 41:
+        return specwritemod.render(exercise)
+    if t == 42:
+        return commitmsgmod.render(exercise)
+    if t == 43:
+        return changelogmod.render(exercise)
+    if t == 44:
+        return repromod.render(exercise)
+    if t == 45:
+        return bisectmod.render(exercise)
+    if t == 46:
+        return rebasemod.render(exercise)
+    if t == 47:
+        return migrationmod.render(exercise)
+    if t == 48:
+        return rollbackmod.render(exercise)
     p = exercise.get("payload", {})
     front = html.escape(exercise.get("front", ""))
     body = f"<p>{front}</p>"

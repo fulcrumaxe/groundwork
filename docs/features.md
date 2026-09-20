@@ -64,6 +64,14 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | Dead-code elimination | Cut the flagged dead function, branch, or import — remaining tests stay green. | `/status#status-b7-deadcode` |
 | Config extraction | Hoist magic values into named constants; hidden tests stay green. | `/status#status-b7-configex` |
 | API-signature design | Design a function signature — name, params with defaults, return annotation. | `/status#status-b7-apidesign` |
+| Spec writing | Write acceptance criteria for a function: every checkbox — inputs, returns, edge cases — must appear. | `/status#status-b8-specwrite` |
+| Commit-message authorship | Summarize a diff as a commit message: imperative subject naming the what and the why. | `/status#status-b8-commitmsg` |
+| Changelog entry | Write a keep-a-changelog entry: pick the Added/Changed/Fixed section and state the user-visible impact. | `/status#status-b8-changelog` |
+| Issue reproduction | Write a minimal repro script from a bug report; the sandbox confirms it fails. | `/status#status-b8-repro` |
+| Bisect drill | Find the breaking commit in a synthetic history — hash or index. | `/status#status-b8-bisect` |
+| Rebase-conflict resolution | Resolve a planted git-conflict block keeping both sides; static check stays green. | `/status#status-b8-rebase` |
+| Migration authoring | Rename a record field with a default across fixture rows. | `/status#status-b8-migration` |
+| Rollback planning | Order the rollback steps for a bad deploy — freeze, flag, revert, verify. | `/status#status-b8-rollback` |
 
 ## Improvements
 
@@ -123,6 +131,14 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | Recently visited strip | Due opens with your last 8 modules — kept in this browser only. | `/status#status-b7-recent` |
 | Unsaved-answer guard | Start typing an answer and wander off and the browser asks first. | `/status#status-b7-unsaved` |
 | Result verdict auto-scroll | After grading, the verdict block takes focus and scrolls into view. | `/status#status-b7-autoscroll` |
+| Spot external links at a glance | External links now show a marker plus screen-reader note while internal routes and repo paths stay plain. | `/status#status-b8-extlinks` |
+| Canonical URL contract | One language-prefix-free URL per page — the full route table lives on Status. | `/status#status-b8-canonurl` |
+| Origin allowlist guard | ?origin back-links only return to known app pages — open-redirect shapes fall back to the queue. | `/status#status-b8-originguard` |
+| Primary button first | Every form leads with its primary action — tab order matches visual order. | `/status#status-b8-buttons` |
+| Per-page hooks | Every page carries a data-page hook from a closed registry — future pages cannot ship unstyled. | `/status#status-b8-pageids` |
+| Archived-module notice | Deleted modules explain themselves with search and siblings, not a bare 404. | `/status#status-b8-archived` |
+| Merged site nav | Header and footer render from one nav table — one active state, no drift. | `/status#status-b8-sitenav` |
+| Answer-field autofocus | Cards focus their answer box as they scroll into view — just start typing. | `/status#status-b8-autofocus` |
 
 ## The original loop
 

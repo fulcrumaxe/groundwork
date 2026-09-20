@@ -103,6 +103,22 @@ AREAS = {
     "deadcode": "deadcode.py",
     "configex": "configex.py",
     "apidesign": "apidesign.py",
+    "extlinks": "extlinks.py",
+    "canonurl": "canonurl.py",
+    "originguard": "originguard.py",
+    "buttons": "buttons.py",
+    "pageids": "pageids.py",
+    "archived": "archived.py",
+    "sitenav": "sitenav.py",
+    "autofocus": "autofocus.py",
+    "specwrite": "specwrite.py",
+    "commitmsg": "commitmsg.py",
+    "changelog": "changelog.py",
+    "repro": "repro.py",
+    "bisect": "bisect.py",
+    "rebase": "rebase.py",
+    "migration": "migration.py",
+    "rollback": "rollback.py",
 }
 
 

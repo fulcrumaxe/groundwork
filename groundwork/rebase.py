@@ -90,7 +90,7 @@ def _pick_target(lines: list[str]) -> int:
     n = len(lines)
     if n < 2:
         return -1
-    order = [1 + (n // 2)]
+    order = [min(1 + (n // 2), n - 1)]
     order += [i for i in range(1, n) if i not in order]
     for i in order:
         if not lines[i].rstrip().endswith("\\"):
