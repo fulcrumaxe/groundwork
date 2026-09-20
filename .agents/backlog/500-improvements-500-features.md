@@ -1,0 +1,1071 @@
+# 1000x Backlog: 500 Improvements + 500 Features
+
+Goal: make Groundwork 1000x better. Improvements = polish/fix/upgrade of what
+exists. Features = new capabilities. Each item is one concrete, buildable unit.
+
+## IMPROVEMENTS (500)
+
+### A. Navigation, IA & routing (I-1–50)
+
+- I-1: Give every page a unique `<title>` including context (module summary, lesson name).
+- I-2: Add a global header search (concepts, modules, symbols) with keyboard shortcut `/`.
+- I-3: Breadcrumb every nested page: Due/Modules/History › Module › Lesson › Card.
+- I-4: Persist `?level=` explainer choice per browser via query carry-over on all links.
+- I-5: Add "Back to top" floating action on long module pages.
+- I-6: Make the sticky TOC highlight the section currently in view.
+- I-7: Deep-link every card (`/modules/<id>#card-<cid>`) so History entries jump to the exact card.
+- I-8: Add "next card" / "previous card" pager inside each lesson article.
+- I-9: Redirect legacy `/reviews` confusion: keep URL, but retitle and differentiate (done: History).
+- I-10: Add a site footer sitemap on every page (Due · Modules · History · About).
+- I-11: Show counts in nav: Due (n), Modules (n), History (total attempts).
+- I-12: Empty states for every page with a next action (no dead ends).
+- I-13: 404 page with search box and links instead of plain "not found".
+- I-14: Preserve scroll position when returning from a result screen via anchor origins.
+- I-15: Add skip-links ("skip to practice") for keyboard users.
+- I-16: Make module cards entire-clickable with visible focus rings.
+- I-17: Add per-lesson "mark as reviewed" without answering (for re-reads).
+- I-18: Sort Modules index by recent activity, with toggle for newest/oldest/most-stale.
+- I-19: Filter Modules index by status: all / in-progress / owned / stale.
+- I-20: Paginate or virtualize the Modules index past 50 modules.
+- I-21: Add per-module "Resume where I left off" jumping to first unowned lesson.
+- I-22: Link every concept chip to its lesson anchor.
+- I-23: Show related modules ("same symbols", "same repo") at module bottom.
+- I-24: Add a "recently visited" strip on Due.
+- I-25: Unify date/time formatting and add relative times ("2h ago", "due tomorrow").
+- I-26: Make all timestamps timezone-explicit with title tooltips.
+- I-27: Add print stylesheet so lessons print cleanly as study sheets.
+- I-28: Add "copy link" button per lesson section (copies anchor URL).
+- I-29: Confirm before leaving a half-answered card (unsaved textarea guard).
+- I-30: After review, auto-scroll result into view on return.
+- I-31: Distinguish external vs internal links visually (repo paths vs routes).
+- I-32: Add a sitemap.xml and robots stance for self-hosters exposing publicly.
+- I-33: Language-prefix-free canonical URLs; document URL contract in README.
+- I-34: Add `?origin` allowlist tests for every new page added later.
+- I-35: Standardize button order (primary left) across all forms.
+- I-36: Put destructive/secondary actions (reset progress) behind confirm pages.
+- I-37: Add per-page `data-page` hooks for all future pages (coverage test).
+- I-38: Graceful "module archived" state instead of 404 for deleted modules.
+- I-39: Merge duplicate nav (header + footer) into one helper with active state.
+- I-40: Keyboard shortcuts: `g d/g m/g h`, `j/k` between cards, `?` overlay.
+- I-41: Focus the answer field automatically when a card scrolls into view.
+- I-42: Collapse answered-due cards in place with undo instead of full reload.
+- I-43: Show queue position ("card 3 of 12 due") on Due cards.
+- I-44: Group Due queue by module with collapsible sections.
+- I-45: Add "snooze this card until tomorrow" per Due card.
+- I-46: One-click "start 5-minute session" that queues exactly ~5 min of cards.
+- I-47: Session-end summary screen (answered, accuracy, what returns when).
+- I-48: Resume interrupted sessions from History ("continue session").
+- I-49: Add URL-based session share (read-only snapshot link per module).
+- I-50: Audit every link quarterly with an automated link-check test.
+
+### B. Visual design & delight (I-51–100)
+
+- I-51: Define a real palette (ink, paper, 3 page accents, pass/fail/stale) as CSS variables.
+- I-52: Add dark mode via `prefers-color-scheme` with tested contrast ratios.
+- I-53: Establish a type scale (display, h1-h4, body, small, code) and apply consistently.
+- I-54: Replace system-ui-only stack with a distinctive but offline-safe pairing.
+- I-55: Design a wordmark/logo (SVG, inline) for header and module exports.
+- I-56: Give each Bloom tier its own chip color used in cards, History, and coach table.
+- I-57: Animate progress bars with width transitions (reduced-motion safe).
+- I-58: Celebrate Owned status with a non-emoji badge reveal animation.
+- I-59: Add subtle card entrance stagger on Due (CSS only, no framework).
+- I-60: Style `details/summary` markers consistently with custom carets.
+- I-61: Give code blocks line numbers and a copy button.
+- I-62: Syntax-highlight Python/TS snippets without dependencies (tiny tokenizer).
+- I-63: Differentiate hint tiers visually (nudge vs pointer vs worked step).
+- I-64: Style confidence input as a 1–5 segmented slider, not a text box.
+- I-65: Add focus-visible rings everywhere; never remove outlines.
+- I-66: Increase tap targets to 44px minimum on all buttons/inputs.
+- I-67: Unify border-radius scale (cards 12, controls 8, chips full).
+- I-68: Add whitespace rhythm: consistent section spacing scale.
+- I-69: Design empty-state illustrations (inline SVG, one per page).
+- I-70: Add a "session complete" illustration + summary hero for empty Due.
+- I-71: Theme the History page like a logbook (mono dates, ruled rows).
+- I-72: Theme Modules like a library shelf (cover-style cards with spine accent).
+- I-73: Theme Due like a briefing (numbered mission cards).
+- I-74: Add per-module cover color derived from repo hash (stable identity).
+- I-75: Show difficulty as a 5-dot meter on each card header.
+- I-76: Show stability/retrievability as a "memory strength" bar per card.
+- I-77: Replace ✓/✗ text with designed pass/fail stamps (CSS shapes, still text-readable).
+- I-78: Add a streak-free "gardener" metaphor: concepts grow from seed → sprout → tree.
+- I-79: Confetti-free celebration: Owned triggers a calm full-width banner.
+- I-80: Add sound-free haptic-style micro-interactions (scale on press).
+- I-81: Loading skeletons for module pages generated mid-request.
+- I-82: Optimistic UI on review submit (disable + spinner) to hide latency.
+- I-83: Error pages with the same header/footer (no naked stack traces).
+- I-84: Style form validation errors inline (confidence out of range, empty answer).
+- I-85: Add `::selection` color matching page accent.
+- I-86: Custom scrollbar styling that respects platform conventions.
+- I-87: Favicon per page state (due count badge via SVG data URI).
+- I-88: Open Graph tags so shared module links unfurl nicely.
+- I-89: Add a "compact density" toggle for small screens vs desktop.
+- I-90: Responsive breakpoints audit at 360/768/1024/1440px with screenshots.
+- I-91: Prevent layout shift from Parsons drag list (fixed min-heights).
+- I-92: Make tables horizontally scrollable with sticky first column on mobile.
+- I-93: Unify all timestamps into a `<time>` element with datetime attr.
+- I-94: Add a design-tokens section to README for contributors.
+- I-95: Snapshot-test rendered page HTML to catch visual regressions.
+- I-96: Add a `/styleguide` dev page showcasing every component.
+- I-97: Remove all remaining raw emoji-as-icon usage; replace with CSS/SVG.
+- I-98: Add motion budget: total animation <300ms, all `prefers-reduced-motion` gated.
+- I-99: High-contrast mode support beyond dark mode.
+- I-100: Run a 5-user hallway usability test and fix top 10 findings.
+
+### C. Lesson & study experience (I-101–150)
+
+- I-101: Show estimated read time per lesson section.
+- I-102: Add "explain differently" button cycling example-first vs definition-first order.
+- I-103: Inline glossary tooltips for jargon in leveled explainers.
+- I-104: Link every symbol mention to its lesson anchor or file line.
+- I-105: Add worked-example replay: step through the measured trace one step at a time.
+- I-106: Let learners run the worked example with their own inputs in-page.
+- I-107: Show before/after diff view for what the agent changed (per lesson).
+- I-108: Collapse long source blocks with "show full file context" expander.
+- I-109: Add per-lesson "why this matters" written from concept_notes when present.
+- I-110: Surface agent decision quotes inline in the lesson they motivated.
+- I-111: Add "common misconceptions" callout per lesson (LLM-seeded, flagged).
+- I-112: Add "try it yourself" micro-prompts between study paragraphs.
+- I-113: End each lesson with a 1-question exit ticket (ungraded, retrieval).
+- I-114: Let learners rate lesson clarity (feeds generation quality metrics).
+- I-115: Version lessons: "updated for commit X" banner when code moved on.
+- I-116: Diff view between lesson versions (what changed in the code).
+- I-117: Pin lessons to keep them atop the module regardless of order.
+- I-118: Add lesson-level notes (private markdown scratchpad per concept).
+- I-119: Export single lesson as printable handout (HTML → print CSS).
+- I-120: Add reading-progress bar per module page.
+- I-121: Remember collapsed/expanded explainer tabs per learner.
+- I-122: Auto-pick explainer level from recent calibration, not just mastery.
+- I-123: Add L1 "ELI5" and L5 "design tradeoffs" extremes beyond current 4 levels.
+- I-124: Show which level peers found most helpful (opt-in aggregate).
+- I-125: Add diagrams-per-lesson quality gate (every lesson gets ≥1 visual).
+- I-126: Render call graphs as inline SVG instead of text lists.
+- I-127: Sequence diagrams for the 3-step call chains (type-10 content reused).
+- I-128: File-map mini-view: where this concept sits in the repo tree.
+- I-129: Add "see it in the real file" link with line anchor to repo viewer.
+- I-130: Support image attachments in concept_notes (screenshots, whiteboard).
+- I-131: Add lesson dependencies ("understand X first") with jump links.
+- I-132: Detect circular lesson dependencies and break ties deterministically.
+- I-133: Add "I already know this" skip that schedules a delayed verification.
+- I-134: Add "confusing" flag per lesson section routing to regeneration queue.
+- I-135: Show regeneration status ("improved draft pending") transparently.
+- I-136: A/B test explainer phrasings and keep winners by delayed recall.
+- I-137: Localize lesson templates (structure, not just words) per language.
+- I-138: Add code-reading-aloud mode (speech synthesis of walkthrough steps).
+- I-139: Add dyslexia-friendly type/spacing toggle.
+- I-140: Reduce motion in walkthrough reveals; instant when reduced-motion set.
+- I-141: Add lesson audio summaries (offline TTS where available).
+- I-142: Transcript every audio asset for search and accessibility.
+- I-143: Add "study with a friend" side-by-side lesson view (two cursors, local).
+- I-144: Time-box reading with a gentle "still with us?" nudge after 10 idle min.
+- I-145: Let learners set a per-lesson difficulty vote (too easy/just/hard).
+- I-146: Feed difficulty votes into exercise-type selection weights.
+- I-147: Show prerequisite chain as a visual path at module top.
+- I-148: Unlock animation when a new lesson becomes available.
+- I-149: Weekly "lesson digest" page: what changed in code you studied.
+- I-150: Archive retired lessons with reason (renamed, deleted, split).
+
+### D. Practice & answer UX (I-151–200)
+
+- I-151: Inline validation: "answer looks empty" warning before submit.
+- I-152: Save draft answers in localStorage so reloads never lose work.
+- I-153: Show character/line counts on code textareas.
+- I-154: Add a real code editor (tab key, mono font, line numbers) replacing textarea.
+- I-155: Run button with shortcut (Ctrl+Enter) on all code exercises.
+- I-156: Show sandbox output inline without leaving the card.
+- I-157: Diff learner output vs expected output side-by-side on mismatch.
+- I-158: Reveal answer only after attempt (already) plus "reveal" for giving up (logs grade 0).
+- I-159: "Give up" path records a lapse and schedules sooner (honest FSRS).
+- I-160: Partial-credit display for multi-blank cloze (which blanks passed).
+- I-161: Retry wrong blanks only (keep correct ones filled).
+- I-162: Parsons: touch-friendly drag plus full keyboard reorder.
+- I-163: Parsons: "check partial order" showing longest correct run.
+- I-164: Match-pairs: click-to-pair UI alternative to letter typing.
+- I-165: Trace tables: pre-filled step rows with per-cell feedback.
+- I-166: Predict-output: multiple attempts with shrinking hint (3 strikes).
+- I-167: Explain answers: live rubric checklist filling as you type keywords.
+- I-168: Code review: line-comment UI (attach note to a line, like real review).
+- I-169: Compare: side-by-side panes with synchronized scrolling.
+- I-170: Extend-feature: show param checklist (exists? default? used?) live.
+- I-171: Rebuild: show spec alongside editor in split view.
+- I-172: Refactor: behavior-diff view proving output equivalence on sample inputs.
+- I-173: Call-path: click-to-order chips instead of typing indices.
+- I-174: Blast-radius: clickable dependency graph instead of buttons.
+- I-175: Odd-one-out: strike-through elimination UI before committing.
+- I-176: Design-rationale: show decision context quote beside choices.
+- I-177: Flashcards: flip animation (CSS) between recall and self-rate.
+- I-178: Cloze: inline blank inputs inside rendered code (not separate fields).
+- I-179: Signature: skeleton with per-param slots and individual ticks.
+- I-180: Where-live: repo tree picker instead of buttons when many files.
+- I-181: Add per-type "how grading works" disclosure (builds trust).
+- I-182: Show reference runtime (ms) so learners calibrate expectations.
+- I-183: Timeout feedback tailored ("infinite loop?" vs "too slow?").
+- I-184: Sandbox error messages translated to learner-friendly language.
+- I-185: Allow "run without submitting" scratch runs on code cards.
+- I-186: Keep scratch runs out of grading but count them for hint unlocking.
+- I-187: Unlock hint tiers by attempts AND by time stuck (not attempts alone).
+- I-188: "Ask for a nudge" button that reveals next tier without an attempt.
+- I-189: Track hint usage per card; heavy-hint passes schedule sooner.
+- I-190: Post-answer "what to review next" suggestion list.
+- I-191: One-click "practice similar" generating a variant card on demand.
+- I-192: Variant cards marked as bonus (don't pollute FSRS stats).
+- I-193: Let learners dispute a grade ("wrong reference") with one click.
+- I-194: Dispute queue page for maintainers with accept/reject actions.
+- I-195: Accepted disputes auto-quarantine the card and regenerate it.
+- I-196: Show card authorship (template vs LLM vs community) for trust.
+- I-197: Add answer history diff ("last time you wrote X").
+- I-198: Streak-free "personal bests" (fastest correct trace, etc.).
+- I-199: Reduce form spam: one submit per card per 5s (double-click guard).
+- I-200: Full keyboard flow: answer, rate, advance without touching mouse.
+
+### E. Scheduling, retention & progress (I-201–250)
+
+- I-201: Upgrade to full FSRS-4.5 parameters with per-learner optimization.
+- I-202: Add desired-retention setting (0.7–0.95) with workload preview.
+- I-203: Show "due in X days" forecast per card and per module.
+- I-204: Workload graph: reviews due per day for next 30 days.
+- I-205: Cap daily reviews with "load balance" spreading overflow.
+- I-206: Weekend/light mode: reduced load on chosen days.
+- I-207: Timezone-aware due dates (no midnight-boundary surprises).
+- I-208: Separate lapses counter drives relearning steps (1d → 3d ladder).
+- I-209: Add "cram mode" before a deadline (temporarily pull everything due).
+- I-210: Add "vacation hold" freezing all schedules without penalty.
+- I-211: Leech detection: auto-reformulate cards failed 8+ times.
+- I-212: Leech cards get prerequisite checks ("maybe you miss X first").
+- I-213: Suspend (not delete) leeches with one-click unsuspend.
+- I-214: Bury siblings: same-concept cards never due the same day.
+- I-215: Prioritize stale-risk cards when code churn is high.
+- I-216: Auto-pause cards whose file changed until re-verified.
+- I-217: Re-verify paused cards against new code; resume or retire with notice.
+- I-218: Show retrievability decay curve per card ("memory strength over time").
+- I-219: Distinguish "due" vs "overdue" vs "new" visually in queue.
+- I-220: New-card introduction rate limiter (max N new/day).
+- I-221: Interleave by Bloom tier explicitly (recall → apply → analyse rotation).
+- I-222: Session builder: mix targets ("3 apply, 2 recall") with auto-fill.
+- I-223: Postpone with reason (busy/tired) feeding scheduler analytics.
+- I-224: Undo last review (misclick recovery) within 60 seconds.
+- I-225: Edit submitted confidence after the fact (calibration honesty).
+- I-226: Per-concept retention dashboard (stability trend lines).
+- I-227: Forgetting-curve visualization per module.
+- I-228: "Owned" anniversary reviews (prove it again after 30/90 days).
+- I-229: Un-own concepts whose code changed significantly (stale resets mastery).
+- I-230: Decay Owned on sustained inactivity with a gentle re-check, not reset.
+- I-231: Export review log as CSV for personal analysis.
+- I-232: Import review history from Anki to warm-start scheduler.
+- I-233: Multi-learner profiles on one server (switcher, separate FSRS states).
+- I-234: Per-profile desired retention and daily caps.
+- I-235: Guest mode (no persistence) for trying a module.
+- I-236: Data reset per module ("start this module over").
+- I-237: Delete my data page (single profile wipe, no telemetry elsewhere).
+- I-238: Show storage used per profile/module.
+- I-239: Scheduler explainability: "why is this due today?" tooltip.
+- I-240: "What if I skip a week?" simulator projecting retention impact.
+- I-241: Smart reminders via MCP nudge (agent mentions due count at session end).
+- I-242: Daily digest page (no email): today's queue at a glance.
+- I-243: Weekly review ritual page (wins, weak spots, next week).
+- I-244: Month-in-review: concepts owned, accuracy trend, time invested.
+- I-245: Compare planned vs actual practice time.
+- I-246: Set weekly minute goals (time-based, never streak-based).
+- I-247: Celebrate consistency privately ("3 active weeks") without streak fear.
+- I-248: Pause goals without losing history.
+- I-249: Scheduler A/B: test intervals by delayed recall, keep winners.
+- I-250: Publish anonymized scheduling dataset (opt-in) for research.
+
+### F. Generation quality & correctness (I-251–300)
+
+- I-251: Raise sandbox verification gate to ≥95% with per-type floors.
+- I-252: Add reference-solution double-run (flaky outputs quarantined).
+- I-253: Seed RNG per module for reproducible generation (debug regeneration).
+- I-254: Deduplicate near-identical cards across concepts (embedding or token hash).
+- I-255: Ban trivial cards (answer visible verbatim in front) at generation.
+- I-256: Ban ambiguous fronts ("what does it do?" without code anchor).
+- I-257: Enforce snippet windows centered on the concept line, not file start.
+- I-258: Trim snippets to the enclosing function plus 3 lines context.
+- I-259: Prefer real caller names over bare ids in all fronts/backs.
+- I-260: Resolve bare edge endpoints to display names everywhere (lesson + cards).
+- I-261: Validate every distractor is actually wrong (run the wrong ones).
+- I-262: Validate choice sets have no duplicate options after shuffle.
+- I-263: Cap choice count at 4 for readability.
+- I-264: Ensure Parsons slices parse standalone or fall back to order-truth.
+- I-265: Cap Parsons at 6 lines; split longer blocks.
+- I-266: Ensure cloze blanks are answerable from the shown template alone.
+- I-267: Cloze: never blank Python keywords or pure syntax.
+- I-268: Trace: verify traced var actually changes (else pick another var).
+- I-269: Predict: reject non-deterministic snippets (time, random, dict order).
+- I-270: Fix-bug: verify the bug is uniquely identifiable (one failing line).
+- I-271: Spot-bug: avoid off-by-one ambiguous line mappings.
+- I-272: Complete-function: verify stub doesn't leak the solution in names.
+- I-273: Refactor: verify reference is idiomatic enough to be worth emulating.
+- I-274: Rebuild: verify spec doesn't quote the implementation verbatim.
+- I-275: Review: verify the seeded flaw is the only flaw (else acknowledge).
+- I-276: Compare: verify versions differ meaningfully (not whitespace).
+- I-277: Teach-back: verify follow-ups are answerable from the lesson.
+- I-278: Blast-radius: verify answer is the direct caller, not transitive.
+- I-279: Odd-one-out: verify outsider shares file/type plausibility (not trivially alien).
+- I-280: Call-path: verify chain has no repeated names (else skip honestly).
+- I-281: Rationale: verify decision symbol matches the concept (no cross-talk).
+- I-282: Match-pairs: verify ≥3 pairs or skip (2-pair is guessable).
+- I-283: Regenerate dropped cards once with relaxed constraints before giving up.
+- I-284: Log drop reasons per type for generation analytics.
+- I-285: Generation report page per module (kept/dropped/why).
+- I-286: Community flag → auto-regenerate single card (not whole module).
+- I-287: Pin good cards so regeneration never touches them.
+- I-288: LLM draft timeout with deterministic fallback (never block module creation).
+- I-289: Cache LLM drafts by content hash to cut costs/latency.
+- I-290: Support multiple LLM providers with fallback chain.
+- I-291: Constrain LLM output with JSON schema validation + 1 repair retry.
+- I-292: Strip LLM hallucinations: verify every cited symbol exists in repo.
+- I-293: Verify every cited line number is within the file.
+- I-294: Language-detect snippets; never label Python as generic "code".
+- I-295: Per-language generation profiles (idioms differ: Go errors, Rust borrow).
+- I-296: Glossary-aware fronts (expand acronyms on first use per module).
+- I-297: Reading-level check on backs (aim grade 8–12 for beginners).
+- I-298: Toxicity/bias screen on generated text (static wordlist + reporter).
+- I-299: License hygiene: generated content stays MIT-compatible, no copied GPL text.
+- I-300: Nightly generation-quality dashboard (pass rate by type over time).
+
+### G. Performance, reliability & offline (I-301–350)
+
+- I-301: Page budget: server-render each page <50ms p95 on the e2e repo.
+- I-302: Add `EXPLAIN QUERY PLAN` coverage for the N+1 query in modules index.
+- I-303: Batch owned-map + stats into one query per page (kill per-module loops).
+- I-304: Add SQLite indexes on reviews(card_id), cards(concept_id) if missing.
+- I-305: Cap History page at 100 with "load more" pagination.
+- I-306: Cap Due queue fetch with "and N more" overflow line.
+- I-307: Stream large module pages (flush header before card loop).
+- I-308: ETag + conditional GET for unchanged module pages.
+- I-309: Gzip responses when the client accepts it.
+- I-310: Cache rendered lessons in-process with file-hash invalidation.
+- I-311: Move sandbox runs to a worker pool with timeouts and kill switches.
+- I-312: Cap concurrent sandbox executions per request.
+- I-313: Sandbox memory limits (ulimit) to contain runaway learner code.
+- I-314: Sandbox network isolation documented and enforced where possible.
+- I-315: Filesystem jail for executed code (temp dir, no repo writes).
+- I-316: Deterministic sandbox PATH/env for reproducible verdicts.
+- I-317: Rate-limit review POSTs per IP (abuse + accidental loops).
+- I-318: CSRF tokens on all forms (same-origin POST hardening).
+- I-319: Escape audit: fuzz all renderers with hostile symbol names.
+- I-320: Origin allowlist test covering every redirect/link builder.
+- I-321: SQLite WAL + busy-timeout for concurrent serve + MCP writes.
+- I-322: DB backup command (`groundwork backup`) with timestamped copies.
+- I-323: Auto-backup before every schema migration.
+- I-324: Migration dry-run flag showing SQL before applying.
+- I-325: Health endpoint `/healthz` (db ok, disk, version).
+- I-326: Version banner + changelog page in-app.
+- I-327: Structured server logs (one line per request, timings).
+- I-328: Slow-query log for DB calls over 100ms.
+- I-329: Graceful shutdown (finish in-flight reviews, no half-writes).
+- I-330: PID file + `stop` command matching `serve`.
+- I-331: `--port` conflict error suggests the running PID instead of traceback.
+- I-332: Full offline bundle: vendor everything, zero CDN/fonts/network.
+- I-333: Offline-first test: block network, full suite must pass.
+- I-334: Works on Python 3.10+ (floor documented and CI-tested).
+- I-335: Single-binary release (PyInstaller/Nuitka) for one-command self-host.
+- I-336: Docker image under 100MB with non-root user.
+- I-337: Docker Compose with volume + port + backup sidecar example.
+- I-338: systemd unit file example for always-on home servers.
+- I-339: LaunchAgent/plist example for macOS menu-bar-less autostart.
+- I-340: Windows service notes (NSSM) for completeness.
+- I-341: ARM wheels/notes for Raspberry Pi self-hosting.
+- I-342: Low-memory mode (smaller sandbox, paginated pages) for 512MB boxes.
+- I-343: Startup self-check reporting missing tools (git, compilers) kindly.
+- I-344: Degraded-mode banners (no git → diff features disabled, explained).
+- I-345: Request timeout guard on module generation (stream progress).
+- I-346: Generation progress page (poll status instead of hanging POST).
+- I-347: Cancel runaway generation from the UI.
+- I-348: Crash-safe writes: transactions around every multi-row insert.
+- I-349: DB integrity check command (`groundwork doctor`).
+- I-350: Load-test script (100 concurrent reviews) in CI.
+
+### H. MCP & agent integration polish (I-351–400)
+
+- I-351: `describe_tools` examples per tool with copy-paste JSON.
+- I-352: Validate `create_learning_module` args early with field-level errors.
+- I-353: Clamp `limit` params server-side (max 200) against abuse.
+- I-354: Return module Due-summary in creation result (cards, first due date).
+- I-355: Return warnings (no tests found, no decisions, tiny diff) with the module.
+- I-356: Idempotency keys: same agent retry never double-creates modules.
+- I-357: Link modules back to the agent run (run id, model, prompt hash).
+- I-358: Agent-side receipt: confirm module link is reachable before replying done.
+- I-359: Notify learner in-app when a new module lands (unread badge).
+- I-360: Digest mode: batch 5 micro-sessions into one module on request.
+- I-361: Split mode: huge diffs become one module per file/cluster.
+- I-362: Respect `.groundworkignore` for generated/vendor files in graph+diff.
+- I-363: Monorepo support: scope modules per package with repo-relative roots.
+- I-364: Multi-root workspaces (frontend + backend) in one module set.
+- I-365: Symlink-safe graph building (no escape from repo root).
+- I-366: Submodule-aware diffs (report, don't crash).
+- I-367: Non-git repos: snapshot mode with content hashes instead of commits.
+- I-368: Commit-range validation with helpful "range empty" diagnostics.
+- I-369: Dirty-tree modules labeled honestly (uncommitted vs committed).
+- I-370: Branch-aware modules (feature-branch sessions tagged by branch).
+- I-371: PR integration: module link posted as a check-run comment.
+- I-372: Explain-before-merge gate (warn mode) as a pre-merge checklist page.
+- I-373: Merge gate block mode (CI fails until quiz passed) with override audit.
+- I-374: Quiz-from-PR: 3 questions generated per agent-authored PR.
+- I-375: Agent self-report: what it thinks is hardest for the learner (seeds notes).
+- I-376: `get_learner_profile` includes per-concept mastery + due counts.
+- I-377: `get_learner_profile` latency budget (<100ms, cached).
+- I-378: Learning-hole lifecycle page (open → used → verified understood).
+- I-379: Hole reminders: agent asked you to write X — still open after 7 days.
+- I-380: Decision log browser (searchable chose-X-over-Y history).
+- I-381: Decisions suggested automatically from diff patterns ("chose map over loop").
+- I-382: Decision coverage metric per module (% concepts with rationale).
+- I-383: Nudge agents to pass purpose/concept_notes (lint the tool call).
+- I-384: Purpose quality score (concrete vs vague) with rewrite hint.
+- I-385: Template library for task summaries per repo.
+- I-386: MCP over SSE/WebSocket in addition to stdio for remote agents.
+- I-387: Auth token for HTTP MCP endpoint (shared secret, documented).
+- I-388: Per-agent rate limits and audit log of tool calls.
+- I-389: Tool-call analytics page (which tools fire, failure rates).
+- I-390: Versioned MCP API with deprecation headers.
+- I-391: JSON-RPC batch support for multi-call agent flows.
+- I-392: Better JSON-RPC errors (codes + remediation hints, not tracebacks).
+- I-393: Client configs for Zed, Windsurf, Aider, Continue (not just big-3).
+- I-394: One-line installer for MCP config per client.
+- I-395: Connection tester (`groundwork mcp ping`) for agent setup diagnosis.
+- I-396: E2E test per supported client config (stdio handshake at least).
+- I-397: Agent skill files (SKILL.md) teaching agents to call tools well.
+- I-398: "Learning mode" toggle agents can read: leave TODOs, don't finish.
+- I-399: Socratic-mode system prompt snippet served per learner profile.
+- I-400: Agent contribution graph: sessions → modules → owned (the loop, visualized).
+
+### I. Accessibility, mobile & language (I-401–450)
+
+- I-401: Full WCAG 2.2 AA audit with remediation tracker.
+- I-402: Screen-reader walkthrough of Due → answer → result → History.
+- I-403: Live-region announcements for grading verdicts (no focus loss).
+- I-404: Label every input explicitly (no placeholder-only labeling).
+- I-405: Parsons operable entirely by keyboard (already buttons; add listbox semantics).
+- I-406: Drag-and-drop never the only path (numeric/alternative inputs everywhere).
+- I-407: Color is never the only signal (icons + text on all statuses).
+- I-408: Minimum 4.5:1 contrast on body text, 3:1 on large text/UI.
+- I-409: Focus order matches visual order on all pages.
+- I-410: No keyboard traps in drag lists, editors, or dialogs.
+- I-411: Skip-link + landmarks (`header/main/nav/footer`) coverage test.
+- I-412: Reduced-motion respected in every animation (test with emulation).
+- I-413: No auto-playing content anywhere.
+- I-414: Timeouts generous or absent (no timed quizzes).
+- I-415: Text resizes to 200% without breakage (layout audit).
+- I-416: Touch targets ≥44px, spacing between adjacent targets.
+- I-417: Mobile-first Due flow: one card per screen, thumb-reachable submit.
+- I-418: Sticky action bar on mobile (answer + submit always visible).
+- I-419: Prevent iOS zoom-on-focus (16px+ input font sizes).
+- I-420: Offline-capable review via service worker (queue submits, sync later).
+- I-421: Installable PWA manifest (icon, name, standalone display).
+- I-422: Safe-area insets for notched phones.
+- I-423: Landscape-mode layout check for tablets.
+- I-424: Print CSS for Due queue (pocket review sheet).
+- I-425: Right-to-left (RTL) layout support for Hebrew/Arabic UI.
+- I-426: UI string externalization (all copy in one catalog file).
+- I-427: Community translation workflow (Weblate-compatible export).
+- I-428: Spanish, Portuguese, French, German UI packs (top requested first).
+- I-429: Localized date/number formatting via Intl-equivalent (stdlib).
+- I-430: Localized FSRS/scheduler vocabulary (due/tomorrow done right).
+- I-431: Code identifiers never translated (guard in i18n pipeline).
+- I-432: Multilingual learners: UI language independent of code language.
+- I-433: Ruby-annotation support for CJK learners on key terms.
+- I-434: Font stacks covering CJK, Arabic, Devanagari without webfonts.
+- I-435: Screen-reader pronunciation fixes for code (`aria-label` on symbols).
+- I-436: Describe diagrams textually (every SVG gets `<desc>`).
+- I-437: Data tables with proper `<th scope>` semantics.
+- I-438: Form error association (`aria-describedby`) on every field.
+- I-439: Status chips as text, not color-only pills.
+- I-440: Seizure safety: no flashing above 3Hz anywhere (including celebrations).
+- I-441: Vestibular safety: no parallax or large-area motion.
+- I-442: Cognitive load: one concept per screen option ("focus mode").
+- I-443: Distraction-free reading mode (hides nav/chrome per lesson).
+- I-444: Adjustable line-length and line-height controls.
+- I-445: OpenDyslexic-style font option (system fallbacks, no download).
+- I-446: Color-blind-safe palette verification (simulate deuteranopia/protanopia).
+- I-447: Monochrome-mode check: everything works with zero color.
+- I-448: Accessibility statement page with contact + known issues.
+- I-449: A11y regression suite (axe-core equivalent checks in CI).
+- I-450: Annual third-party accessibility audit budgeted.
+
+### J. Onboarding, docs & settings (I-451–500)
+
+- I-451: First-run wizard: repo → sample module → first review in <3 minutes.
+- I-452: Demo mode with a built-in sample repo (no setup to see value).
+- I-453: Interactive tour overlay highlighting Due/Modules/History once.
+- I-454: "How learning here works" 60-second explainer page (science-linked).
+- I-455: Learner-level picker with plain-language descriptions + change anytime.
+- I-456: Goal picker (ship faster / onboard / interview prep) tuning planner weights.
+- I-457: Daily-cap picker during onboarding (5/10/20 min).
+- I-458: Import path picker (git repo, folder, GitHub URL).
+- I-459: MCP setup checker with per-client copy-paste configs.
+- I-460: "Create your first module" guided action from the agent side.
+- I-461: Onboarding checklist page with progress that dismisses forever.
+- I-462: Contextual help: every page gets a one-line "what is this page" lede (done; keep).
+- I-463: Tooltips on all jargon (FSRS, Bloom, stability) linking to glossary.
+- I-464: In-app glossary page (learning-science terms in plain words).
+- I-465: Video walkthrough (2 min) embedded with transcript.
+- I-466: FAQ page answering top 20 support questions.
+- I-467: Troubleshooting page (port conflicts, DB locked, sandbox fails).
+- I-468: README quickstart tested monthly by a fresh-eyes contributor.
+- I-469: Architecture doc (one page, mermaid) kept in sync by CI check.
+- I-470: Contributor guide (setup, tests, style, PR template).
+- I-471: Code of conduct + security policy files.
+- I-472: Changelog maintained per release (keep-a-changelog format).
+- I-473: Release notes with upgrade/migration steps highlighted.
+- I-474: Settings page: retention, caps, theme, density, language, profile.
+- I-475: Settings import/export as a single TOML file.
+- I-476: Per-repo settings overrides (stricter gates for work repos).
+- I-477: Keyboard shortcut reference page (also `?` overlay).
+- I-478: Notification preferences (in-app only; no email by default).
+- I-479: Data management page (export, per-module reset, full wipe).
+- I-480: Privacy page: what is stored, where, and what never leaves disk.
+- I-481: Telemetry: none, and say so prominently (trust differentiator).
+- I-482: Backup/restore UI (download/upload the SQLite file safely).
+- I-483: Multi-device sync guide (Syncthing/manual, conflict rules).
+- I-484: Admin page for shared servers (profiles, disk, version).
+- I-485: Feature-flag page for experimental types (opt-in per profile).
+- I-486: "What's new" modal per version with dismiss + changelog link.
+- I-487: Feedback widget (local-only mailbox file, no tracking).
+- I-488: Bug-report helper bundling version + logs (redacted) to clipboard.
+- I-489: Docs search across README + in-app help.
+- I-490: API docs for the exercise plugin interface with 3 examples.
+- I-491: Migration guide for Anki users (concepts → decks mapping).
+- I-492: Educator guide (assignments, reading History, privacy).
+- I-493: Team-lead guide (bus-factor maps without surveillance).
+- I-494: Self-learner path (point at any OSS repo, no agent needed).
+- I-495: Junior-dev path (learning mode + TODO holes emphasized).
+- I-496: New-hire onboarding template (repo tour in week one).
+- I-497: Interview-prep track template (trace/predict-heavy mixes).
+- I-498: Legacy-codebase track (blast-radius/odd-one-out heavy).
+- I-499: Accessibility preferences respected from OS on first run.
+- I-500: "Take the tour again" + "reset onboarding" controls in settings.
+
+## FEATURES (500)
+
+### K. New exercise types (F-1–50)
+
+- F-1: Fill-the-docstring (write docs; graded against callers' needs checklist).
+- F-2: Name-that-smell (identify the code smell in a real snippet).
+- F-3: Rename-refactor (propose a better name; graded by convention + peer rubric).
+- F-4: Complexity golf (reduce nesting; AST metric check).
+- F-5: Dependency injection swap (rewrite hardcoded dep as parameter; tests green).
+- F-6: Error-handling retrofit (add the missing branch; fault-injection tests).
+- F-7: Logging retrofit (add observability at the right lines; checklist).
+- F-8: Type-annotation retrofit (annotate; verifier or runtime check).
+- F-9: Doc-example doctest (write an example that passes as doctest).
+- F-10: Property-based test authoring (write Hypothesis-style invariants; runner).
+- F-11: Fuzz-target triage (reproduce a crasher from a failing input).
+- F-12: Performance fix (make it O(n); benchmark gate).
+- F-13: Memory-profile reading (interpret tracemalloc output; exact match).
+- F-14: Race-hunt (spot the shared-state bug; line match + fix).
+- F-15: Dead-code elimination (remove unused paths; coverage-kept-green).
+- F-16: Config extraction (move magic values to config; behavior identical).
+- F-17: API design (design the signature for a new requirement; rubric).
+- F-18: Spec writing (write acceptance criteria; checklist vs hidden tests).
+- F-19: Commit-message authorship (summarize a diff; rubric vs intent).
+- F-20: Changelog entry (describe user impact; rubric).
+- F-21: Issue reproduction (write a repro script from a bug report; runner).
+- F-22: Bisect drill (find the breaking commit in a synthetic history).
+- F-23: Rebase-conflict resolution (resolve a planted conflict; tests green).
+- F-24: Migration authoring (write the schema migration; verifier).
+- F-25: Rollback planning (order the rollback steps; exact sequence).
+- F-26: Threat-model the function (list abuse cases; checklist).
+- F-27: Secret-scan (find the leaked credential pattern; exact match).
+- F-28: Input-validation audit (list unvalidated inputs; checklist).
+- F-29: Accessibility audit of rendered output (checklist on HTML snippets).
+- F-30: i18n extraction (find hardcoded strings; exact set match).
+- F-31: Regex authoring (match the required cases; test-suite graded).
+- F-32: SQL authoring from spec (result-set graded on fixture DB).
+- F-33: CSS layout fix (match the wireframe; pixel-diff gate, tolerant).
+- F-34: CLI UX review (spot the usability flaw in --help output).
+- F-35: Log reading (diagnose from logs only; exact root cause).
+- F-36: Metrics reading (which graph shows the regression; choice).
+- F-37: Flame-graph reading (which frame dominates; choice + why).
+- F-38: Core-dump-lite triage (read a traceback; name frame + fix).
+- F-39: Dependency upgrade (resolve the breaking change; tests green).
+- F-40: License compatibility check (is this dep OK; exact + reason).
+- F-41: Containerize it (write the Dockerfile; build gate).
+- F-42: CI pipeline authoring (YAML that passes a dry-run linter).
+- F-43: Feature-flag removal (clean up the flag; tests + grep gate).
+- F-44: Backfill script (migrate old data shapes; fixture-verified).
+- F-45: Pagination retrofit (page the endpoint; contract tests).
+- F-46: Cache-invalidation reasoning (when does this go stale; checklist).
+- F-47: Idempotency design (make the handler re-runnable; double-run gate).
+- F-48: Rate-limit design (pick limits with reasoning; rubric).
+- F-49: Webhook verification (implement signature check; vector tests).
+- F-50: Every new type ships with generator + grader + widget + e2e answer.
+
+### L. Mastery & learning science (F-51–100)
+
+- F-51: Delayed-retest engine: 7/30-day probe cards measuring true retention.
+- F-52: North-star dashboard (delayed accuracy) for the learner, not just devs.
+- F-53: Bloom-ladder visualization per concept (rungs light up as owned).
+- F-54: Prerequisite unlock quests (own X to unlock Y, shown as a path).
+- F-55: Desirable-difficulty dial: learner-tunable challenge level.
+- F-56: Productive-failure sessions (attempt cold before any study, primed).
+- F-57: Worked-example fading sequences (full → partial → solo per concept).
+- F-58: Self-explanation prompts after every worked step ("why does this line exist?").
+- F-59: Elaboration drills (connect new concept to two you already own).
+- F-60: Dual-coding packs (every key idea gets words + diagram + trace).
+- F-61: Interleaving engine v2 (concept × type matrix scheduler).
+- F-62: Spacing optimizer (per-learner intervals from recall data).
+- F-63: Retrieval-first modules (questions before prose, enforced by template).
+- F-64: Prediction-then-reveal on every code snippet (one-click cover).
+- F-65: Confidence-weighted scoring (brave-correct beats shy-correct).
+- F-66: Calibration training drills (bet points on answers, explicit odds).
+- F-67: Overconfidence intervention cards (extra evidence when gap is large).
+- F-68: Metacognition journal (weekly "what did I misjudge?" prompt).
+- F-69: Mastery interviews (oral-exam mode: explain aloud, rubric-graded).
+- F-70: Transfer tests (same idea in unfamiliar code, no anchor).
+- F-71: Far-transfer challenges (apply the pattern in another language).
+- F-72: Debugging under pressure drills (timed, production-like logs).
+- F-73: Incident-replay library (real past outages as practice scenarios).
+- F-74: Pre-mortem exercises (list how this code could fail before it does).
+- F-75: Code-reading fluency trainer (skim → gist → verify, timed).
+- F-76: Naming fluency drills (guess purpose from name, then verify).
+- F-77: API guessing (predict the stdlib/third-party call, then check docs).
+- F-78: Mental-model mapping (draw the data flow; graph-diff graded).
+- F-79: Rubber-duck mode (explain to a patient bot that only asks questions).
+- F-80: Protégé-effect studio (teach a simulated junior with follow-ups).
+- F-81: Feynman check (explain simply; jargon detector scores clarity).
+- F-82: Analogy builder (map the concept to a familiar domain; rubric).
+- F-83: Counterexample hunting (find inputs breaking your mental model).
+- F-84: Boundary-value drills (off-by-one bootcamp per function).
+- F-85: Invariant stating (write the loop invariant; verifier-checked).
+- F-86: Pre/postcondition authoring (contracts graded against tests).
+- F-87: Refactoring kata library (same smell, many repos, spaced).
+- F-88: Debugging kata library (classic bug shapes, synthetic + real).
+- F-89: Reading-group mode (same module, discussion prompts, local sync).
+- F-90: Spaced teaching (re-teach a concept after 30 days, compare recordings).
+- F-91: Forgetting-curve personalization (your decay constant, estimated).
+- F-92: Optimal-review-time suggestions (when your recall peaks).
+- F-93: Sleep-aware scheduling (never schedule new cards late at night).
+- F-94: Cognitive-load guard (cap new concepts per session by measured strain).
+- F-95: Flow detection (extend sessions when accuracy + pace are high).
+- F-96: Frustration detection (3 fast fails → easier card + encouragement).
+- F-97: Boredom detection (too easy → jump a Bloom rung).
+- F-98: Learning-style tuning (visual vs textual mix from performance, not quiz).
+- F-99: Skill-atom decomposition (split failing concepts into sub-skills).
+- F-100: Automatic remediation paths (fail X → get the 3 prerequisites first).
+
+### M. Motivation without dark patterns (F-101–150)
+
+- F-101: Personal-best tracking (accuracy, speed, depth) with history charts.
+- F-102: "Concepts owned" counter as the headline number (never streaks).
+- F-103: Growth rings visualization (each owned concept adds a ring).
+- F-104: Knowledge-garden view (repo map blooming as you learn).
+- F-105: Time-invested ledger (hours → owned concepts ROI view).
+- F-106: Weekly letter to self (auto-drafted progress note, private).
+- F-107: Milestone moments (first Owned, 10th module, full repo coverage).
+- F-108: Milestone share-cards (exportable PNG for socials, opt-in).
+- F-109: Learning resume (verified skills page per repo, portable).
+- F-110: Skill endorsements by your own delayed tests (not peers).
+- F-111: "Explain it to me" party trick mode (quiz from your owned list).
+- F-112: Teaching certificates per module pack (combines owned proofs).
+- F-113: Collectible concept badges (art per idea, no rarity pressure).
+- F-114: Badge showcase page (your gallery, private by default).
+- F-115: Theme unlocks (new palettes for milestones, cosmetic only).
+- F-116: Custom avatar/duo-tone identity (local, playful).
+- F-117: Mascot companion reacting to effort (encourages attempts, not wins).
+- F-118: Ambient progress sounds (optional, off by default, local files).
+- F-119: Focus timer integration (pomodoro with queue auto-fill).
+- F-120: Session playlists (5/10/20-min mixes, one click).
+- F-121: "Just one card" mode for low-energy days (no guilt design).
+- F-122: Rest-day affirmations (breaks framed as consolidation).
+- F-123: Comeback path (after 30 idle days: gentle recap, no shame).
+- F-124: Anti-streak pledge page (why we never count streaks).
+- F-125: Social accountability without leaderboards (study buddy pings).
+- F-126: Buddy matching by repo overlap (opt-in, local).
+- F-127: Co-op modules (two learners, complementary card splits).
+- F-128: Friendly wagers (bet coffee on delayed-test outcomes, logged).
+- F-129: Team challenges (own a subsystem together, aggregate only).
+- F-130: Classroom quests (teacher-defined, completion-based, no ranking).
+- F-131: Seasonal events (Hacktober-style: own 5 OSS concepts).
+- F-132: Anniversary recaps (your year in code comprehension).
+- F-133: "Ship-it confidence" meter before releases (your coverage on diff).
+- F-134: Pre-interview confidence builder (targeted recap track).
+- F-135: Onboarding countdown (new-hire: own core flows in 30 days).
+- F-136: Curiosity-driven "rabbit hole" mode (follow callers freely, tracked).
+- F-137: Serendipity cards (adjacent concept you might love, clearly labeled).
+- F-138: "Why am I seeing this?" transparency on every recommendation.
+- F-139: Opt out of any motivational element individually (granular toggles).
+- F-140: Plain-mode (zero gamification: lists only, same engine).
+- F-141: Kids mode (simpler words, bigger targets, parent dashboard).
+- F-142: Accessibility-first delight (motion-free celebrations that still feel good).
+- F-143: Localized celebrations (culturally neutral milestone copy).
+- F-144: Thank-the-author button (message to module-pack creators).
+- F-145: Contributor spotlight (pack authors featured monthly).
+- F-146: Open-source karma ledger (your packs' learner counts).
+- F-147: Donation links for pack authors (support the commons).
+- F-148: Nonprofit/edu licensing spotlight (free forever, prominently).
+- F-149: Carbon note (local-first = no cloud GPU per review, quantified).
+- F-150: Annual "state of my codebase brain" report (beautiful, private).
+
+### N. Teams, classroom & social (F-151–200)
+
+- F-151: Team workspaces (shared server, private profiles, opt-in everything).
+- F-152: Bus-factor map (who owns what, aggregated, no individual ranking).
+- F-153: Bus-factor alerts ("only one person owns auth — fix this quarter").
+- F-154: Onboarding paths auto-built from the knowledge graph layers.
+- F-155: New-hire checklists tied to owned proofs (not checkboxes).
+- F-156: Mentor view (see mentee's weak spots with permission, suggest cards).
+- F-157: Pair-review mode (two learners grade each other's explanations).
+- F-158: Team calibration league (accuracy vs confidence, anonymized).
+- F-159: Subsystem ownership rotation planner.
+- F-160: Handoff packs (leaving dev exports their owned map for successor).
+- F-161: Interview loop support (candidate studies repo, proves understanding).
+- F-162: Contractor ramp packs (scoped to their work area only).
+- F-163: Classroom workspaces (teacher creates, students join via code).
+- F-164: Assignment builder (repo + concepts + deadline → track).
+- F-165: Anti-plagiarism by design (agents write code; humans prove it).
+- F-166: Gradebook export (owned proofs per student, CSV/LMS).
+- F-167: LTI integration for Canvas/Moodle (launch + grade passback).
+- F-168: Plagiarism-resistant exams (live variant generation per student).
+- F-169: Accessibility accommodations engine (extra time, formats, no stigma).
+- F-170: Parent/guardian view for kids mode (progress, no surveillance).
+- F-171: Study-group rooms (shared queue, turn-taking, local network).
+- F-172: Group retrospectives (what confused everyone → regenerate lessons).
+- F-173: Teacher analytics (class-wide weak concepts, no per-student shaming).
+- F-174: Curriculum mapping (modules → course outcomes matrix).
+- F-175: Prerequisite enforcement per syllabus (unlock weeks by proof).
+- F-176: Peer-teaching marketplace (students publish explainers, reviewed).
+- F-177: TA dashboard (who needs help, suggested by data, human decides).
+- F-178: Office-hours queue fed by confusing flags.
+- F-179: Exam-mode lockdown (timed, no hints, variant cards, honor pledge).
+- F-180: Certificates with verification hashes (portable, offline-checkable).
+- F-181: Open-badge 3.0 compliance for all credentials.
+- F-182: Team knowledge half-life report (what decayed since last quarter).
+- F-183: Rotation suggestions from decay + bus-factor combined.
+- F-184: Documentation coverage from owned maps (what nobody understands).
+- F-185: "Explain this service" on-call prep packs.
+- F-186: Incident-commander certification track (replay + diagnose + decide).
+- F-187: Postmortem-linked lessons (incident → concepts → cards auto-made).
+- F-188: Runbook comprehension checks (prove you grok the runbook).
+- F-189: Compliance training that actually verifies (SOX/PCI concepts owned).
+- F-190: Security-champions track (threat-model + scan types per service).
+- F-191: Accessibility-champions track (audit types per frontend).
+- F-192: Open-source contributor ladder (good-first-issue → owned subsystem).
+- F-193: Maintainer mentorship matching (by graph overlap + availability).
+- F-194: Foundation-sponsored pack grants (fund high-value OSS packs).
+- F-195: Conference workshop mode (2-hour guided module sprints).
+- F-196: Hackathon mode (team queue + live aggregate board, no individuals).
+- F-197: Alumni networks (keep owned proofs portable across jobs).
+- F-198: Reference letters auto-drafted from verified skills (human signs).
+- F-199: Salary-negotiation packet (your verified skill inventory, private).
+- F-200: Team rituals kit (weekly review club agenda generator).
+
+### O. Module packs & registry (F-201–250)
+
+- F-201: Pack format spec v1 (markdown + YAML + assets, signed).
+- F-202: Pack validator CLI (`groundwork pack lint`).
+- F-203: Pack preview renderer (see before importing).
+- F-204: One-click pack import from file/URL/git.
+- F-205: Pack export from any module set (share your repo tour).
+- F-206: Pack versioning + changelogs (semver for learning content).
+- F-207: Pack dependency declarations (needs "Python basics" first).
+- F-208: Pack compatibility matrix (repo version ranges it teaches).
+- F-209: Official packs: Python stdlib tour, Git internals, HTTP deep-dive.
+- F-210: Official packs: React reconciler, Postgres planner, Redis data structures.
+- F-211: Official packs: Rust ownership, Go concurrency, TS types.
+- F-212: Official packs: Docker layers, K8s objects, Terraform graphs.
+- F-213: Official packs: regex mastery, SQL window functions, CSS grid.
+- F-214: Community registry (static index, federated mirrors).
+- F-215: Registry search by topic, language, level, duration.
+- F-216: Pack ratings by delayed-recall outcomes (not stars).
+- F-217: Pack reviews with verified-completion badges.
+- F-218: Pack update notifications (new edition for your repo version).
+- F-219: Pack diffing (what changed between editions).
+- F-220: Remix packs (fork + adapt + republish with attribution).
+- F-221: Translation packs (same content, new language, linked).
+- F-222: Difficulty variants per pack (junior/senior tracks).
+- F-223: Pack authoring studio (repo in → draft pack out, human-curated).
+- F-224: Pack quality checklist (anchors, verification, calibration data).
+- F-225: Pack CI (generate → verify → report, badge on pass).
+- F-226: Signed packs (author identity via Sigstore-style transparency).
+- F-227: Malicious-content scanning for executable payloads in packs.
+- F-228: License declarations per pack (all open, machine-readable).
+- F-229: Commercial-use clarity per pack license.
+- F-230: Pack analytics for authors (completions, weak cards, no PII).
+- F-231: Pay-what-you-want pack tipping (author keeps 100%).
+- F-232: Bounty board (request a pack; fund it collectively).
+- F-233: Pack-a-thon events (community authoring sprints).
+- F-234: University pack partnerships (course-aligned, peer-reviewed).
+- F-235: Bootcamp pack tracks (job-ready sequences).
+- F-236: Certification packs (exam-aligned, proctored-mode ready).
+- F-237: Vendor packs (maintainers teaching their own OSS, verified badge).
+- F-238: Deprecated-pack sunset policy (clear migration paths).
+- F-239: Pack embedding API (render lessons inside external docs).
+- F-240: Pack-to-course compiler (sequence packs into a syllabus).
+- F-241: Course-to-pack splitter (import existing curricula).
+- F-242: SCORM/xAPI export for legacy LMS compatibility.
+- F-243: Print-ready pack books (typeset PDF pipeline).
+- F-244: Offline pack bundles (single file, sideload to air-gapped servers).
+- F-245: Pack checksums in module pages (prove content integrity).
+- F-246: Reproducible pack builds (same repo → same pack, hashed).
+- F-247: Pack minimalism score (5-minutes-per-idea audit).
+- F-248: "No invented code" certification per pack (anchor audit badge).
+- F-249: Pack accessibility certification (a11y checklist passed).
+- F-250: Hall of fame (most-effective packs by measured outcomes).
+
+### P. Analytics & knowledge insights (F-251–300)
+
+- F-251: Comprehension-debt meter v1 (agent lines vs demonstrated concepts).
+- F-252: Debt heatmap overlaid on the repo file tree.
+- F-253: Debt trend line (are we gaining or paying down?).
+- F-254: Debt alerts on thresholds ("auth/ is 80% unowned").
+- F-255: Debt-per-PR gating (block or warn on debt spikes).
+- F-256: Bus-factor-1 detector with remediation quests.
+- F-257: Churn-vs-mastery matrix (hot files nobody understands, prioritized).
+- F-258: Risk-weighted review queue (risky + due first).
+- F-259: Complexity-vs-ownership scatter per module.
+- F-260: Test-coverage-vs-comprehension join (covered but unowned = danger).
+- F-261: Incident-correlated concepts (outages point at what to learn).
+- F-262: Bug-density-vs-ownership study view (learn where bugs live).
+- F-263: Onboarding bottleneck finder (where newcomers stall longest).
+- F-264: Concept half-life estimator per repo (how fast knowledge decays).
+- F-265: Forgetting hotspots (concepts that never stick — redesign signal).
+- F-266: Card autopsy (why this card always fails: wording? timing?).
+- F-267: Type-effectiveness ranking by delayed recall (kill weak types).
+- F-268: Hint-dependence index per card (do hints actually help?).
+- F-269: Calibration drift monitor (overconfidence creeping back?).
+- F-270: Confidence-accuracy gap leaderboard of YOUR skills (private).
+- F-271: Time-to-owned per concept distribution (plan better).
+- F-272: Attempts-to-owned funnel (where do learners quit?).
+- F-273: Session-length sweet spot finder (your optimal minutes).
+- F-274: Time-of-day performance map (when do you learn best?).
+- F-275: Weekly rhythm report (private, gentle, actionable).
+- F-276: Learning velocity chart (owned/week, smoothed).
+- F-277: Plateau detector with prescribed variety ("try traces this week").
+- F-278: Regression alerts ("traces slipped 20% — revisit").
+- F-279: Skill-transfer graph (which owned concepts unlocked others).
+- F-280: Knowledge-compounding view (prereqs paying off downstream).
+- F-281: Repo-tour completion maps (shareable team progress).
+- F-282: Diff-coverage timeline (every agent session → module → owned?).
+- F-283: Agent-session ROI (lines written vs concepts owned after).
+- F-284: Prompt-quality correlation (which agent briefs produce learnable diffs?).
+- F-285: Model comparison (which agent's code you actually learn fastest).
+- F-286: Decision-density insight (documented decisions → faster ownership?).
+- F-287: TODO-hole conversion rate (holes → understood, measured).
+- F-288: Stale-card epidemiology (which files invalidate fastest).
+- F-289: Regeneration effectiveness (did v2 teach better than v1?).
+- F-290: Dispute analytics (which types get flagged, fixed systematically).
+- F-291: Export all analytics as SQLite views (query yourself).
+- F-292: Personal data download (one JSON, everything about you).
+- F-293: Analytics opt-out granularity (per metric, not all-or-nothing).
+- F-294: Differential-privacy aggregates for any shared stats.
+- F-295: No third-party analytics, ever (architectural guarantee page).
+- F-296: Insight explanations ("why am I seeing this chart?" footnotes).
+- F-297: Actionable next step under every chart (no dead-end data).
+- F-298: Chart accessibility (tables + text summaries alongside visuals).
+- F-299: Custom dashboard builder (pick your metrics, save views).
+- F-300: Monthly insights email, opt-in only, plain text, unsubscribe in one click.
+
+### Q. Agent collaboration (F-301–350)
+
+- F-301: Socratic partner mode (agent asks before generating, profile-driven).
+- F-302: Prediction prompts injected into agent replies ("guess the output first").
+- F-303: Generation friction dial (how much the agent leaves for you).
+- F-304: TODO-hole suggestions (agent proposes holes, you approve).
+- F-305: Hole difficulty auto-tuning (holes matched to your level).
+- F-306: Agent explains like YOUR level (reads profile before answering).
+- F-307: Agent quizzes after explaining (3 questions, logged to Groundwork).
+- F-308: Agent references your owned concepts ("like the X you own").
+- F-309: Agent avoids re-explaining owned concepts (links instead).
+- F-310: Agent slows down on your weak concepts (smaller steps, checks).
+- F-311: Pair-programming mode (driver/navigator swaps with the agent).
+- F-312: Navigator-agent mode (it reviews each hunk as you write).
+- F-313: Driver-agent mode (you review each hunk it writes, quiz-backed).
+- F-314: Handover protocol (agent summarizes session for module creation).
+- F-315: Auto-module on every agent task completion (configurable).
+- F-316: Module-worthy judgment (trivial diffs skip module creation).
+- F-317: Session-chaining (multi-task arcs become learning paths).
+- F-318: Agent-authored concept notes (drafted, human-approved).
+- F-319: Agent-authored purposes (drafted, human-edited).
+- F-320: Agent-suggested decisions (inferred, one-click confirm).
+- F-321: Disagreement mode (agent argues the alternative, you judge).
+- F-322: Devil's-advocate reviews (agent critiques your solution hard).
+- F-323: Second-opinion agents (two models explain; you compare).
+- F-324: Agent debate transcripts as lesson material.
+- F-325: "Show me, don't tell me" mode (agent writes tests, you implement).
+- F-326: "Tell me, don't show me" mode (agent describes, you write all code).
+- F-327: Faded collaboration (agent does less each week as you grow).
+- F-328: Graduation detection ("you don't need me for this file anymore").
+- F-329: Skill-handoff report (what the agent taught you, verified).
+- F-330: Agent personality for teaching (patient, terse, playful — your pick).
+- F-331: Teaching consistency (same mental models across sessions).
+- F-332: Cross-session memory of your misconceptions (with consent, local).
+- F-333: Misconception-targeted explanations (addresses YOUR wrong model).
+- F-334: Agent apologizes correctly (admits when its code confused you).
+- F-335: Blame-free postmortems of confusing agent code.
+- F-336: Agent code-quality pledge (readable diffs, named concepts, docs).
+- F-337: Diff-size discipline (agent splits huge changes for learnability).
+- F-338: Comment-quality gate (undocumented cleverness flagged pre-module).
+- F-339: Test-coverage gate (untested agent code flagged before teaching).
+- F-340: Agent self-review checklist before module creation.
+- F-341: Human-in-the-loop approval for module creation on huge diffs.
+- F-342: Agent leaderboard of YOUR repos (which codebase teaches best).
+- F-343: Prompt library for learning-oriented agent sessions.
+- F-344: Session templates (onboard me / extend X / fix Y, each with pedagogy).
+- F-345: Voice-driven agent sessions with spoken quizzes.
+- F-346: Screen-shared sessions (agent sees your confusion, adapts).
+- F-347: Async agent tutoring (questions queued, answered with modules).
+- F-348: Agent office hours (scheduled deep-dives on your weak spots).
+- F-349: Multi-agent study groups (agents role-play reviewer, tester, user).
+- F-350: Agent graduation ceremony (you own the repo; it says so nicely).
+
+### R. IDE & workflow integrations (F-351–400)
+
+- F-351: VS Code extension (Due in sidebar, answer inline, no browser needed).
+- F-352: JetBrains plugin (same loop, native UI).
+- F-353: Neovim plugin (review in a split, keyboard-first).
+- F-354: Emacs package (org-mode export of lessons, naturally).
+- F-355: Zed extension (lightweight, fast).
+- F-356: CLI review mode (`groundwork review` in terminal, full loop).
+- F-357: TUI dashboard (queue, progress, coach in your terminal).
+- F-358: Editor gutter marks (owned/stale/learning per function, via LSP-ish file).
+- F-359: Hover docs powered by your lessons (you wrote the understanding).
+- F-360: "Quiz me on this function" code action in the editor.
+- F-361: "Explain with my level" hover action (profile-aware).
+- F-362: Pre-commit hook (warn when committing code you don't own yet).
+- F-363: Pre-push hook (quiz on the pushed diff, warn mode).
+- F-364: GitHub Action (module link + debt delta per PR).
+- F-365: GitLab CI component (same, native).
+- F-366: PR quiz comments (3 questions inline, results back to Groundwork).
+- F-367: CODEOWNERS-by-comprehension (reviewers suggested by owned map).
+- F-368: Merge-queue integration (ownership proof as a merge requirement).
+- F-369: Jira/Linear integration (link modules to tickets, "learned" state).
+- F-370: Slack/Discord bot (due digest to yourself, never spam).
+- F-371: Calendar integration (schedule sessions as focus blocks).
+- F-372: Email digests (opt-in, plain text, weekly max).
+- F-373: RSS feed of your modules and milestones.
+- F-374: Webhook out (module.created, concept.owned for your automations).
+- F-375: Zapier/Make templates (no-code automations on webhooks).
+- F-376: Obsidian plugin (lessons as notes, backlinks to concepts).
+- F-377: Notion export (modules as database entries).
+- F-378: Anki export (cards incl. scheduling state).
+- F-379: SuperMemo export (for the scheduling nerds).
+- F-380: PDF workbook export (print the quarter, study offline).
+- F-381: ePub export (read lessons on e-reader).
+- F-382: Static-site export (publish your repo tour as a site).
+- F-383: GitHub Pages one-click publish of exported tours.
+- F-384: Embeddable lesson widgets (iframe your lesson in docs).
+- F-385: Docs integration (Docusaurus/MkDocs plugin pulling lessons).
+- F-386: README badges (concepts owned in this repo, live SVG).
+- F-387: Repo health badge (comprehension debt score, public).
+- F-388: Contributor onboarding bot (comments tour links on first PR).
+- F-389: Issue-to-module bridge ("learn this before fixing that").
+- F-390: Stack-trace upload → generates a diagnosis drill automatically.
+- F-391: Log-file upload → replay drill in sandbox.
+- F-392: Screenshot-to-code questions (OCR + anchor, experimental).
+- F-393: Whiteboard photo import (meeting sketch → lesson diagram).
+- F-394: Meeting-notes integration (decisions captured → rationale cards).
+- F-395: Design-doc linking (RFC sections → concepts → proofs).
+- F-396: ADR auto-suggest (decisions detected → draft ADR).
+- F-397: Changelog-to-lesson bridge (release notes → what to learn).
+- F-398: Dependency-update lessons (Renovate/Dependabot diffs → mini-modules).
+- F-399: Security-advisory drills (CVE in your dep → understand the fix).
+- F-400: Editor config sharing (your Groundwork setup as a dotfile).
+
+### S. Audio, voice & multimodal (F-401–450)
+
+- F-401: Audio flashcards (hear the front, answer aloud, self-rate).
+- F-402: Commute mode (audio-only queue, big touch targets, offline).
+- F-403: Spoken code (syntax-aware TTS that reads code listenably).
+- F-404: Voice answers (speech-to-text grading, offline models first).
+- F-405: Oral-exam mode (explain aloud, rubric + follow-ups).
+- F-406: Pronunciation guide for jargon (say "idempotent" right).
+- F-407: Podcast generator (your week's modules as a narrated episode).
+- F-408: 2x/0.75x playback with pitch correction.
+- F-409: Chapter marks per lesson in generated audio.
+- F-410: Audio-first onboarding (listen, then try).
+- F-411: Bedtime recap (calm 5-minute spoken review).
+- F-412: Wake-up warm-up (one spoken card with coffee).
+- F-413: Walking meetings with your codebase (location-free learning).
+- F-414: Hands-free lab mode (cook/clean while reviewing traces).
+- F-415: Voice-controlled navigation ("next card", "show hint").
+- F-416: Humming-proof pause (auto-pause on interruption, resume cleanly).
+- F-417: Transcript-first design (everything audible is readable).
+- F-418: Search across transcripts (find that thing the audio said).
+- F-419: Clip sharing (send a 30s explanation clip, transcribed).
+- F-420: Whiteboard video lessons (hand-drawn data flows, generated + human).
+- F-421: Screencast mode (trace execution visually, step by step).
+- F-422: Animated call graphs (watch the request flow through).
+- F-423: Animated diffs (see the change happen, then quiz).
+- F-424: State-evolution animations (variable values morphing per step).
+- F-425: Memory-layout visuals (stack/heap for the curious).
+- F-426: Concurrency visualizer (threads interleaving, race visible).
+- F-427: Network waterfall for the request path (timing intuition).
+- F-428: Regex railroad diagrams per pattern card.
+- F-429: SQL query-plan visuals for db cards.
+- F-430: Git-graph animations for history lessons.
+- F-431: Touch-drawn answers (sketch the data flow, graph-match graded).
+- F-432: Photo answers (whiteboard your design, attached to submission).
+- F-433: Diagram-builder exercises (drag nodes, auto-grade vs graph).
+- F-434: AR code overlay (point phone at screen, see ownership tints) — far future.
+- F-435: VR study room (walk your call graph) — far future, listed honestly.
+- F-436: Game-mode (debug the dungeon: each room a real bug) — playful but real.
+- F-437: Boss fights (incident replays as final exams per subsystem).
+- F-438: Speedrun mode (traces against the clock, personal bests only).
+- F-439: Puzzle mode (Parsons chains across files, epic ordering).
+- F-440: Mystery mode (diagnose with redacted logs, reveal progressively).
+- F-441: Escape room (multi-concept chain to "ship the fix").
+- F-442: Tournament of bugs (classic bug zoo, spaced across weeks).
+- F-443: Seasonal game events (October: haunted heisenbugs).
+- F-444: Co-op dungeon (two learners, split terminals, one bug).
+- F-445: Spectator mode (watch a friend's dungeon run, learn silently).
+- F-446: Replay theater (re-watch your best solves, annotated).
+- F-447: Failure museum (your greatest wrong answers, framed fondly).
+- F-448: Growth timelapse (your garden/map evolving over months).
+- F-449: Cinematic module trailers (30s "why this repo is cool" cuts).
+- F-450: ASMR code reading (whispered walkthroughs — why not).
+
+### T. Platform, API & self-hosting (F-451–500)
+
+- F-451: Public REST API (modules, cards, reviews, profiles) with OpenAPI spec.
+- F-452: API tokens with scopes (read / review / admin) per profile.
+- F-453: Webhook signatures (HMAC) on all outbound events.
+- F-454: Rate-limited public API with clear 429 guidance.
+- F-455: GraphQL endpoint for custom dashboards (read-only).
+- F-456: Bulk import API (repos, decisions, holes in one call).
+- F-457: Bulk export API (full-fidelity JSON, checksummed).
+- F-458: Plugin API stable v1 (generate/render/grade contract, versioned).
+- F-459: Plugin sandbox (third-party types run untrusted, capability-gated).
+- F-460: Plugin marketplace (install with one click, signed, reviewed).
+- F-461: Plugin CI template (test harness provided, badge on pass).
+- F-462: Theme plugin API (CSS variables + slots, no fork needed).
+- F-463: Grader plugin API (custom strategies: LLM judges, human raters).
+- F-464: Scheduler plugin API (SM-2, custom FSRS params, experimental).
+- F-465: Graph-adapter plugin API (new languages via tree-sitter packs).
+- F-466: LLM-provider plugin API (any OpenAI-compatible + local runners).
+- F-467: Sandbox-runner plugin API (Docker, WASM, remote executors).
+- F-468: Storage backend API (SQLite default, Postgres option).
+- F-469: Auth plugin API (OIDC, LDAP for team servers).
+- F-470: Notification plugin API (ntfy, webhooks, custom bots).
+- F-471: Language-pack plugin API (tree-sitter + generators per language).
+- F-472: Full language support: Go (tests, vet, race).
+- F-473: Full language support: Rust (cargo test, borrow-check reading).
+- F-474: Full language support: JavaScript/TypeScript (vitest, runtime traces).
+- F-475: Full language support: Java (JUnit, jshell traces).
+- F-476: Full language support: C# (dotnet test, async traces).
+- F-477: Full language support: Ruby (minitest, REPL traces).
+- F-478: Full language support: Elixir, Haskell, OCaml (functional traces).
+- F-479: Full language support: SQL-first repos (fixture DBs as sandbox).
+- F-480: Full language support: notebooks (Jupyter cell-level concepts).
+- F-481: Multi-file sandbox projects (imports across files, real layouts).
+- F-482: Dependency-aware sandboxes (install from lockfiles, cached).
+- F-483: Remote sandbox fleet (scale execution off the app server).
+- F-484: WASM sandboxes (zero-container isolation for safe languages).
+- F-485: Reproducible sandbox images (pinned toolchains, hashed).
+- F-486: Postgres backend for team scale (same schema, migrated).
+- F-487: Read-replica support for heavy dashboard servers.
+- F-488: Horizontal read scaling notes (SQLite primary + replicas).
+- F-489: S3-compatible backup target (encrypted, scheduled).
+- F-490: Zero-downtime upgrades (migrate-then-switch, documented).
+- F-491: Helm chart for Kubernetes self-hosters.
+- F-492: Nix flake for reproducible dev shells.
+- F-493: Guix + source-only bootstrap path (for the principled).
+- F-494: YunoHost/Cloudron packaging (one-click home server).
+- F-495: Umbrel app-store listing (learn on your home lab).
+- F-496: Offline air-gap distribution (signed tarball + checksums).
+- F-497: SBOM published per release (know what's inside).
+- F-498: Security audit published annually (funded, transparent).
+- F-499: Governance model (RFC process, maintainers, succession plan).
+- F-500: 1.0 roadmap published (what "done" means, then 2.0 bets).
+
+*Count check: 500 improvements (I-1–I-500) + 500 features (F-1–F-500).*
+

@@ -1,0 +1,37 @@
+#!/bin/sh
+# Warn (never block) when committing Python files nobody has proven
+# understanding of yet. Install with:
+#   cp hooks/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+#
+# Env: GW_DB (default: groundwork.db in the repo root).
+set -u
+
+ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || exit 0
+DB="${GW_DB:-$ROOT/groundwork.db}"
+[ -f "$DB" ] || exit 0
+
+STAGED="$(git diff --cached --name-only --diff-filter=ACM | grep '\.py$' || true)"
+[ -z "$STAGED" ] && exit 0
+
+export GW_DB_CHECK="$DB"
+echo "$STAGED" | python3 -c "
+import sqlite3, sys, os
+con = sqlite3.connect(os.environ['GW_DB_CHECK'])
+try:
+    for line in sys.stdin:
+        f = line.strip()
+        rows = con.execute(
+            'SELECT concepts.name FROM concepts'
+            ' LEFT JOIN cards ON cards.concept_id = concepts.id'
+            ' LEFT JOIN reviews ON reviews.card_id = cards.id'
+            ' AND reviews.grade >= 4'
+            ' WHERE concepts.file = ?'
+            ' GROUP BY concepts.id HAVING COUNT(reviews.id) = 0',
+            (f,)).fetchall()
+        for (name,) in rows:
+            print(f'groundwork: committing unproven concept \'{name}\' in '
+                  f'{f} - consider a review session first')
+finally:
+    con.close()
+"
+exit 0

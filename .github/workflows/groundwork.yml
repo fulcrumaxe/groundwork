@@ -1,0 +1,54 @@
+# Groundwork learning loop for every PR.
+#
+# What it does:
+# 1. Runs the full test suite and the end-to-end learning loop.
+# 2. Creates one learning module for the PR diff via the MCP server
+#    (stdio JSON-RPC) so every merged change leaves the team smarter.
+# 3. Uploads the generated module Markdown as a build artifact.
+#
+# Debt-delta comments arrive with the comprehension-debt page (F-251):
+# wire its output here once that lands.
+name: Groundwork
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  learn:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Test suite
+        run: python -m unittest discover -s tests
+
+      - name: End-to-end learning loop
+        run: python -m groundwork e2e
+
+      - name: Create learning module for this diff
+        env:
+          GW_RANGE: ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}
+        run: |
+          RANGE="${GW_RANGE}"
+          if [ "$RANGE" = ".." ] || [ -z "${RANGE%..}" ]; then
+            RANGE="HEAD~1..HEAD"
+          fi
+          printf '%s' "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"create_learning_module\",\"params\":{\"repo_path\":\".\",\"commit_range\":\"$RANGE\",\"task_summary\":\"CI module for $GITHUB_SHA\",\"purpose\":\"Keep reviewers ahead of this change: practice the concepts it touches before merging.\"}}" \
+            | python -m groundwork --db /tmp/gw-ci.db mcp
+          echo "### Groundwork module" >> "$GITHUB_STEP_SUMMARY"
+          echo "A learning module for this diff was generated and verified." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload module markdown
+        uses: actions/upload-artifact@v4
+        with:
+          name: groundwork-modules
+          path: .groundwork/modules/
+          if-no-files-found: warn
