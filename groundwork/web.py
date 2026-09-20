@@ -17,7 +17,9 @@ from urllib.parse import parse_qs, quote, urlparse
 from . import api as apimod
 from . import cards as cardsmod
 from . import db as dbmod
+from . import disputes as dismod
 from . import lessons as lesmod
+from . import results as resmod
 from . import exercises as exmod
 from . import exports as expmod
 from . import mcp as mcplib
@@ -428,31 +430,6 @@ def _parse_review_form(raw: str) -> tuple[str, int, str]:
         conf_i = 3
     origin = _safe_origin((form.get("origin", ["/due"]) or ["/due"])[0])
     return answer, conf_i, origin
-
-
-def result_nav(origin: str, mod_id: str) -> str:
-    """Never strand: back to origin, module, queue and history."""
-    back_link = f"/modules/{mod_id}" if mod_id else "/"
-    links = (f"<p><a class='btn' href='{html.escape(origin)}'>"
-             f"Continue where you left off</a>")
-    if back_link != origin:
-        links += f" · <a href='{back_link}'>Back to module</a>"
-    links += " · <a href='/due'>Due queue</a> · <a href='/reviews'>History</a></p>"
-    return links
-
-
-def render_result(passed: bool, feedback: str, back: str, next_due: str,
-                  origin: str, mod_id: str, due_left: int | None = None) -> str:
-    """Result screen: verdict first, explanation, then where to go next."""
-    cls = "ok" if passed else "stale"
-    verdict = "✓ Correct" if passed else "✗ Not yet"
-    left = (f"<p><small>{due_left} more card{'s' if due_left != 1 else ''} "
-            f"due.</small></p>" if due_left else "")
-    return (f"<p class='verdict {cls}'>{verdict} — {html.escape(feedback)}</p>"
-            f"<details open><summary>Explanation</summary><p>{html.escape(back)}</p></details>"
-            f"<p>Next review: {html.escape(next_due)}</p>"
-            f"{left}{result_nav(origin, mod_id)}")
-
 
 class Handler(BaseHTTPRequestHandler):
     db_path = "groundwork.db"
@@ -1025,29 +1002,6 @@ class Handler(BaseHTTPRequestHandler):
             out.setdefault(r["card_id"], []).append(dict(r))
         return out
 
-    def _submissions_html(self, entries: list[dict]) -> str:
-        """Submission history beneath a lesson's exercises."""
-        if not entries:
-            return "<p><small>No attempts yet — your tries will appear here.</small></p>"
-        items = []
-        for e in entries[:10]:
-            good = (e.get("grade") or 0) >= 4
-            cls = "ok" if good else "stale"
-            mark = "✓" if good else "✗"
-            sub = (e.get("submission") or "").strip()
-            excerpt = html.escape(sub[:200] + ("…" if len(sub) > 200 else ""))
-            if not sub:
-                excerpt = "<i>no text recorded</i>"
-            items.append(
-                f"<p class='{cls}'><small>{mark} grade {e.get('grade')}/5,"
-                f" confidence {e.get('confidence')}/5,"
-                f" {html.escape(e.get('reviewed_at') or '')}<br>"
-                f"tried: <code>{excerpt}</code></small></p>")
-        more = (f"<p><small>…and {len(entries) - 10} more.</small></p>"
-                if len(entries) > 10 else "")
-        return ("<details><summary>Past attempts "
-                f"({len(entries)})</summary>{''.join(items)}{more}</details>")
-
     def module_html(self, mid: str, level: str = "auto") -> str:
         con = self._con()
         try:
@@ -1153,7 +1107,7 @@ class Handler(BaseHTTPRequestHandler):
                     f"{lesmod.why_html(c)}"
                     f"<p>{html.escape(c['front'])}</p>"
                     f"{cardsmod.answer_widget(c, tries.get(c['id'], 0), base)}"
-                    f"{self._submissions_html(history.get(c['id'], []))}</article>")
+                    f"{lesmod.submissions_html(history.get(c['id'], []))}</article>")
             parts.append("</section>")
         parts.append("<a class='totop' href='#top'>Back to top ↑</a>")
         return "".join(parts)
@@ -1251,6 +1205,8 @@ class Handler(BaseHTTPRequestHandler):
             "loads it into another database. Reviews stay private; scheduling restarts fresh.</p>",
             "<h2 id='status-modular'>Module health</h2>" +
             modularitymod.status_rows() +
+            "<h2 id='status-disputes'>Grade disputes</h2>" +
+            dismod.queue_html(self.db_path) +
             "<h2 id='status-api'>Read-only API</h2>"
             "<p><a href='/api/modules.json'>/api/modules.json</a> lists "
             "every module with concept and card counts — the first slice "
@@ -1331,9 +1287,39 @@ class Handler(BaseHTTPRequestHandler):
             finally:
                 con.close()
             due_left = server.tool_list_due_reviews({"limit": 1000})["count"]
-            body = render_result(res["pass"], res["feedback"], back,
-                                 out["next_due"], origin, mod_id, due_left)
+            body = resmod.render_result(res["pass"], res["feedback"], back,
+                                        out["next_due"], origin, mod_id, due_left)
             self._send(page("Result", body, counts=self._nav_counts()))
+            return
+        if url.path.startswith("/cards/") and url.path.endswith("/dispute"):
+            card_id = url.path.split("/")[2]
+            form = parse_qs(raw, keep_blank_values=True)
+            origin = _safe_origin(form.get("origin", ["/due"])[0])
+            reason = (form.get("reason", [""])[0] or "")[:2000]
+            out = dismod.open_dispute(self.db_path, card_id, reason)
+            if "error" in out:
+                body = (f"<p>Could not file: {html.escape(out['error'])}</p>"
+                        f"<p><a class='btn' href='{html.escape(origin)}'>Back</a></p>")
+            else:
+                body = (f"<p>Dispute #{out['dispute_id']} filed — "
+                        f"maintainers review it on the Status page.</p>"
+                        f"<p><a class='btn' href='{html.escape(origin)}'>Back to queue</a></p>")
+            self._send(page("Dispute", body, counts=self._nav_counts()))
+            return
+        if url.path.startswith("/disputes/") and url.path.endswith("/resolve"):
+            try:
+                did = int(url.path.split("/")[2])
+            except ValueError:
+                did = -1
+            form = parse_qs(raw, keep_blank_values=True)
+            verdict = (form.get("verdict", [""])[0] or "")
+            out = dismod.resolve_dispute(self.db_path, did, verdict)
+            if "error" in out:
+                body = f"<p>Could not resolve: {html.escape(out['error'])}</p>"
+            else:
+                body = (f"<p>Dispute #{did} {html.escape(verdict)}.</p>")
+            body += "<p><a class='btn' href='/status'>Back to Status</a></p>"
+            self._send(page("Dispute", body, counts=self._nav_counts()))
             return
         self._send(b"not found", 404, "text/plain")
 

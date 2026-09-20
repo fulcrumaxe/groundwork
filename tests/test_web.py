@@ -5,6 +5,7 @@ from pathlib import Path
 from urllib.parse import urlencode
 
 from groundwork import cards as cardsmod
+from groundwork import results as resmod
 from groundwork import db as dbmod
 from groundwork import lessons as lesmod
 from groundwork import mcp as mcplib
@@ -407,10 +408,10 @@ class StyleSignalsTest(unittest.TestCase):
         self.assertIn("data-page", webmod.page("M", body, page_id="modules").decode())
 
     def test_result_nav_returns_to_origin(self):
-        same = webmod.result_nav("/modules/abc", "abc")
+        same = resmod.result_nav("/modules/abc", "abc")
         self.assertIn("Continue where you left off", same)
         self.assertNotIn("Back to module", same)
-        other = webmod.result_nav("/", "abc")
+        other = resmod.result_nav("/", "abc")
         self.assertIn("/modules/abc", other)
 
     def test_give_up_path_and_due_why(self):
@@ -439,19 +440,19 @@ class StyleSignalsTest(unittest.TestCase):
         self.assertNotIn("purple", css)
         self.assertIn("a:visited", webmod.CSS)
         self.assertIn("a.btn", webmod.CSS)
-        self.assertIn("class='btn'", webmod.result_nav("/", "abc"))
+        self.assertIn("class='btn'", resmod.result_nav("/", "abc"))
         self.assertIn("class='btn'", self.h.due_html())
 
     def test_render_result_verdict_and_due_left(self):
-        body = webmod.render_result(True, "nice", "because", "tomorrow",
+        body = resmod.render_result(True, "nice", "because", "tomorrow",
                                     "/", "abc", 3)
         self.assertIn("verdict ok", body)
         self.assertIn("3 more cards due", body)
-        solo = webmod.render_result(False, "try again", "because", "soon",
+        solo = resmod.render_result(False, "try again", "because", "soon",
                                     "/", "abc", 1)
         self.assertIn("verdict stale", solo)
         self.assertIn("1 more card due", solo)
-        empty = webmod.render_result(True, "nice", "because", "tomorrow",
+        empty = resmod.render_result(True, "nice", "because", "tomorrow",
                                      "/", "abc", 0)
         self.assertNotIn("more card", empty)
 

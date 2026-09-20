@@ -36,7 +36,7 @@ class RegistryShapeTest(unittest.TestCase):
         # Batch 1: 10 improvements + 12 features; Batch 2: +5 and +6;
         # Batch 3: guardrail + 5 improvements + 5 features as they land.
         self.assertEqual(kinds.count("improvement"), 18)
-        self.assertEqual(kinds.count("feature"), 19)
+        self.assertEqual(kinds.count("feature"), 20)
         self.assertEqual(len(set(kinds)), 3)  # + mvp baseline
 
     def test_ids_unique_and_complete(self):
@@ -105,7 +105,7 @@ class TourTargetsTest(unittest.TestCase):
         for sec in ("status-ci", "status-hooks", "status-cli",
                     "status-mcp", "status-exports", "status-share",
                     "status-seed", "status-sitemap", "status-csv",
-                    "status-api", "status-modular"):
+                    "status-api", "status-modular", "status-disputes"):
             self.assertIn(f"id='{sec}'", body)
         self.assertIn("/export/anki.tsv", body)
         self.assertIn("/feed.xml", body)

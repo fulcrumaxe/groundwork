@@ -37,8 +37,8 @@ New capability code lives in a new focused module
 (`groundwork/<area>.py`), never appended to web.py; web.py only gains
 thin delegation lines, route entries, and tour/status wiring. New tests
 go in focused files (`tests/test_<area>.py`). Enforced by
-`tests/test_modularity.py`: web.py stays under WEB_CEILING (1359
-after the cards/lessons extraction — ceilings only move
+`tests/test_modularity.py`: web.py stays under WEB_CEILING (1345
+after the results/submissions extraction — ceilings only move
 down), every registered area module stays under 350 lines.
 
 Batch 3 ships 5 improvements + 6 features, each with a tour entry +
@@ -53,6 +53,8 @@ status anchor + docs regen + MCP module + commit. Marked [x] as they land.
   (zero web.py growth: inline call, existing chip styles).
 - [x] I-181: Grading disclosures — every card states its contract
   (grading.py; mem-collapse offsets the one wiring line).
+- [x] I-193: Grade disputes — one-click filing, Status triage queue
+  (disputes.py; results.py + submissions move out of web.py).
 
 ## IMPROVEMENTS (500)
 

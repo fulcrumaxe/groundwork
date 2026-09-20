@@ -187,7 +187,10 @@ def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:
               f"<button class='giveup'>Give up — show me the answer</button></form>")
     from . import grading as gradingmod
     how = gradingmod.disclosure_html(etype)
-    return f"{open_form}{body}</form>" + hints_html(card, attempts) + how + giveup
+    from . import disputes as dismod
+    dispute = dismod.dispute_form_html(card["id"], origin)
+    return (f"{open_form}{body}</form>" + hints_html(card, attempts)
+            + how + dispute + giveup)
 
 
 def _difficulty_dots(difficulty, extra: str = "") -> str:

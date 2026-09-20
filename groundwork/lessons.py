@@ -52,3 +52,27 @@ def why_html(card) -> str:
         return (f"<p class='unstated'><small><b>Why this matters:</b> "
                 f"{html.escape(why)}</small></p>")
     return f"<p><small><b>Why this matters:</b> {html.escape(why)}</small></p>"
+
+
+def submissions_html(entries: list[dict]) -> str:
+    """Submission history beneath a lesson's exercises."""
+    if not entries:
+        return "<p><small>No attempts yet — your tries will appear here.</small></p>"
+    items = []
+    for e in entries[:10]:
+        good = (e.get("grade") or 0) >= 4
+        cls = "ok" if good else "stale"
+        mark = "✓" if good else "✗"
+        sub = (e.get("submission") or "").strip()
+        excerpt = html.escape(sub[:200] + ("…" if len(sub) > 200 else ""))
+        if not sub:
+            excerpt = "<i>no text recorded</i>"
+        items.append(
+            f"<p class='{cls}'><small>{mark} grade {e.get('grade')}/5,"
+            f" confidence {e.get('confidence')}/5,"
+            f" {html.escape(e.get('reviewed_at') or '')}<br>"
+            f"tried: <code>{excerpt}</code></small></p>")
+    more = (f"<p><small>…and {len(entries) - 10} more.</small></p>"
+            if len(entries) > 10 else "")
+    return ("<details><summary>Past attempts "
+            f"({len(entries)})</summary>{''.join(items)}{more}</details>")

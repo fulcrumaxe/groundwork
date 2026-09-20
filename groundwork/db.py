@@ -31,6 +31,14 @@ def init_db(db_path: str | Path = DEFAULT_DB) -> Path:
         rcols = [r[1] for r in con.execute("PRAGMA table_info(reviews)").fetchall()]
         if "submission" not in rcols:
             con.execute("ALTER TABLE reviews ADD COLUMN submission TEXT NOT NULL DEFAULT ''")
+        con.execute(
+            "CREATE TABLE IF NOT EXISTS disputes ("
+            " id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            " card_id TEXT NOT NULL REFERENCES cards(id) ON DELETE CASCADE,"
+            " reason TEXT NOT NULL DEFAULT '',"
+            " status TEXT NOT NULL DEFAULT 'open',"
+            " created_at TEXT NOT NULL DEFAULT"
+            " (strftime('%Y-%m-%dT%H:%M:%SZ','now')))")
         con.commit()
     finally:
         con.close()

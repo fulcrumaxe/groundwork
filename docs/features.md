@@ -25,6 +25,7 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | Read-only modules API | Modules with concept and card counts as JSON, for dashboards. | `/status#status-api` |
 | Read-only due-queue API | The live due queue as JSON — same order as the Due page. | `/status#status-api-due` |
 | Module health | Every capability area with its size and ceiling — web.py never grows. | `/status#status-modular` |
+| Grade disputes | Flag a wrong reference with one click; maintainers triage the queue. | `/status#status-disputes` |
 
 ## Improvements
 
