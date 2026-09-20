@@ -13,10 +13,13 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, quote, urlparse
 
 from . import api as apimod
+from . import autoscroll as autoscrollmod
 from . import badge as badgemod
 from . import cardlinks as cardlinksmod
 from . import cards as cardsmod
+from . import chiplinks as chiplinksmod
 from . import clarity as claritymod
+from . import clickcards as clickcardsmod
 from . import crumbs as crumbsmod
 from . import db as dbmod
 from . import debt as debtmod
@@ -33,6 +36,8 @@ from . import known as knownmod
 from . import lessons as lesmod
 from . import levelcarry as levelcarrymod
 from . import mcp as mcplib
+from . import modfilter as modfiltermod
+from . import modpages as modpagesmod
 from . import modularity as modularitymod
 from . import modules as modmod
 from . import ownership as ownmod
@@ -40,9 +45,11 @@ from . import pager as pagermod
 from . import queries as quemod
 from . import queue as qmod
 from . import readtime as readtimemod
+from . import recent as recentmod
 from . import related as relmod
 from . import reset as resetmod
 from . import results as resmod
+from . import reviewed as reviewedmod
 from . import sched as schedmod
 from . import scrollpos as scrollposmod
 from . import search as searchmod
@@ -55,6 +62,7 @@ from . import styleguide as styleguidemod
 from . import tochighlight as tochighlightmod
 from . import tour as tourmod
 from . import undo as undomod
+from . import unsaved as unsavedmod
 
 CSS = ("body{font-family:system-ui,-apple-system,sans-serif;max-width:48rem;"
        "margin:2rem auto;padding:0 1rem;line-height:1.55;color:#1a1a1a}"
@@ -98,11 +106,11 @@ CSS = ("body{font-family:system-ui,-apple-system,sans-serif;max-width:48rem;"
        "nav a[aria-current=page]{background:#1a1a1a;color:#fff}"
        ".crumbs{font-size:.85rem;color:#555;margin:.5rem 0}"
        ".crumbs a{color:inherit}"
-       "a.modcard{display:block;border:1px solid #bbb;border-radius:10px;"
+       ".modcard{display:block;border:1px solid #bbb;border-radius:10px;"
        "padding:.75rem 1rem;margin:.75rem 0;text-decoration:none;color:inherit;background:#fff}"
-       "a.modcard:hover{border-color:var(--accent,#1a1a1a)}"
-       "a.modcard h3{margin:.1rem 0}"
-       "a.modcard small{color:#555}"
+       ".modcard:hover{border-color:var(--accent,#1a1a1a)}"
+       ".modcard h3{margin:.1rem 0}"
+       ".modcard small{color:#555}"
        ".chip{display:inline-block;font-size:.75rem;border:1px solid #999;"
        "border-radius:999px;padding:.05rem .5rem;margin-right:.25rem;color:#333}"
        ".bar{height:.5rem;background:#e6e6e6;border-radius:4px;overflow:hidden;margin:.4rem 0}"
@@ -162,6 +170,7 @@ CSS = ("body{font-family:system-ui,-apple-system,sans-serif;max-width:48rem;"
        "kbd{border:1px solid #999;border-radius:4px;padding:0 .3rem;"
        "background:#f4f4f4;font-size:.8rem}")
 
+CSS += clickcardsmod.focus_css()  # Batch 7 I-16: stretched-link + focus ring
 
 GLOBAL_JS = """
 <script>
@@ -277,6 +286,7 @@ def page(title: str, body: str, active: str = "projects",
             f"<body data-page='{page_id}'>{head}<main id='main'>{body}</main>{foot}"
             f"{shortcutsmod.overlay_html()}{GLOBAL_JS}{shortcutsmod.script_js()}"
             f"{searchmod.script_js()}{scrollposmod.record_js()}"
+            f"{reviewedmod.script_js()}{unsavedmod.guard_js()}"
             f"</body></html>").encode()
 
 
@@ -394,9 +404,11 @@ class Handler(BaseHTTPRequestHandler):
         elif url.path == "/modules":
             repo = query.get("repo", [""])[0]
             sort = query.get("sort", ["newest"])[0]
+            status = query.get("status", ["all"])[0]
+            page_num = query.get("page", ["1"])[0]
             lede = (f"Modules in {repo} — pick one and study it." if repo
                     else "Every agent session as a lesson — pick one and study it.")
-            self._send(page("Modules", self.modules_html(repo, sort),
+            self._send(page("Modules", self.modules_html(repo, sort, status, page_num),
                             active="modules", page_id="modules",
                             lede=lede, counts=counts, tour=tour_ctx))
         elif url.path == "/debt":
@@ -500,7 +512,8 @@ class Handler(BaseHTTPRequestHandler):
     def due_html(self, level: str = "auto", one: bool = False) -> str:
         server = mcplib.MCPServer(self.db_path)
         due = server.tool_list_due_reviews({"limit": 20})["due"]
-        parts = [digestmod.section_html(self.db_path)]
+        parts = [digestmod.section_html(self.db_path),
+                 recentmod.strip_html()]
         if one and due:
             due = due[:1]
             parts.append("<p id='one-card-note'>One card is enough today — "
@@ -666,15 +679,17 @@ class Handler(BaseHTTPRequestHandler):
         parts.append("</div>")
         return "".join(parts)
 
-    def modules_html(self, repo: str = "", sort: str = "newest") -> str:
+    def modules_html(self, repo: str = "", sort: str = "newest",
+                     status: str = "all", page=1) -> str:
         """The library: every MCP session as a module card with progress."""
         if sort not in ("newest", "oldest"):
             sort = "newest"
+        status = modfiltermod.normalize(status)
         con = self._con()
         try:
             mods = con.execute(
                 "SELECT id, task_summary, created_at, repo, commit_range FROM modules"
-                " ORDER BY created_at DESC, rowid DESC LIMIT 50").fetchall()
+                " ORDER BY created_at DESC, rowid DESC").fetchall()
             cards = []
             for m in mods:
                 stats = con.execute(
@@ -700,22 +715,41 @@ class Handler(BaseHTTPRequestHandler):
                     "`create_learning_module` MCP tool and it appears here.</p>")
         if sort == "oldest":
             cards = cards[::-1]
+        enriched = []
+        for (m, stats, omap, order) in cards:
+            owned_n = sum(1 for _, o in omap.values() if o)
+            enriched.append((m, stats, omap, order, owned_n, len(omap),
+                             stats["stale"] or 0))
+        rows = [{"id": m["id"], "owned": owned_n, "total": total, "stale": stale}
+                for (m, _s, _o, _ord, owned_n, total, stale) in enriched]
         parts = []
         if repo:
             parts.append(f"<p class='crumbs'><a href='/'>Projects</a> › "
                          f"{html.escape(repo)}</p>")
         other = "oldest" if sort == "newest" else "newest"
-        qs = f"?sort={other}" + (f"&repo={quote(repo, safe='')}" if repo else "")
+        qs = (f"?sort={other}"
+              + (f"&repo={quote(repo, safe='')}" if repo else "")
+              + (f"&status={status}" if status != "all" else ""))
         here = f"<b>{sort.title()}</b>"
         there = f"<a href='/modules{qs}'>{other.title()}</a>"
         first, second = (here, there) if sort == "newest" else (there, here)
         parts.append(f"<p id='sort'><small>Sort: {first} · {second}</small></p>")
+        parts.append(modfiltermod.tabbar(rows, status, sort, repo))
+        keep_ids = {r["id"] for r in modfiltermod.filter_rows(rows, status)}
+        shown = [e for e in enriched if e[0]["id"] in keep_ids]
+        info = modpagesmod.paginate(shown, page)
+        keep_params = {}
+        if repo:
+            keep_params["repo"] = repo
+        if sort != "newest":
+            keep_params["sort"] = sort
+        if status != "all":
+            keep_params["status"] = status
         parts.append("<div id='library'>")
-        for mi, (m, stats, omap, order) in enumerate(cards):
+        if not shown:
+            parts.append("<p>No modules with this status yet.</p>")
+        for mi, (m, stats, omap, order, owned_n, total, stale) in enumerate(info["items"]):
             n = stats["n"] or 0
-            stale = stats["stale"] or 0
-            owned_n = sum(1 for _, o in omap.values() if o)
-            total = len(omap)
             pct = int(round(100 * owned_n / total)) if total else 0
             chips = f"<span class='chip'>{n} concept{'s' if n != 1 else ''}</span>"
             if stale:
@@ -729,13 +763,16 @@ class Handler(BaseHTTPRequestHandler):
             else:
                 resume = (f"<p><a class='btn'{rid} href='/modules/{m['id']}'>"
                           f"Review again</a></p>")
-            parts.append(
-                f"<a class='modcard' href='/modules/{m['id']}'>"
-                f"<h3>{html.escape(m['task_summary'] or m['id'])}</h3>"
-                f"<small>{html.escape(m['created_at'] or '')}</small>"
-                f"<div class='bar' aria-hidden='true'><i style='width:{pct}%'></i></div>"
-                f"<p><small>{owned_n}/{total} concepts owned</small> {chips}</p></a>"
-                f"{resume}")
+            inner = (f"<h3>{html.escape(m['task_summary'] or m['id'])}</h3>"
+                     f"<small>{html.escape(m['created_at'] or '')}</small>"
+                     f"<div class='bar' aria-hidden='true'><i style='width:{pct}%'></i></div>"
+                     f"<p><small>{owned_n}/{total} concepts owned</small> {chips}</p>")
+            parts.append(clickcardsmod.wrap_card(
+                inner, f"/modules/{m['id']}",
+                label=m["task_summary"] or m["id"]) + resume)
+        parts.append(modpagesmod.summary_html(len(shown), info["page"]))
+        parts.append(modpagesmod.pager_html(len(shown), info["page"],
+                                            "/modules", keep_params))
         parts.append("<p id='exports'><small>Export: <a href='/export/anki.tsv'>Anki TSV</a> · "
                      "<a href='/feed.xml'>RSS feed</a></small></p>")
         parts.append("</div>")
@@ -789,6 +826,7 @@ class Handler(BaseHTTPRequestHandler):
         if repo_line:
             parts.append(f"<p><small>Session: {html.escape(repo_line)}</small></p>")
         parts.append(resetmod.reset_link_html(mid))
+        parts.append(recentmod.record_js(mid, m["task_summary"] or mid))
         toc = []
         for row in concepts:
             node = row["cid"].split(":", 1)[1] if ":" in row["cid"] else row["cid"]
@@ -831,7 +869,7 @@ class Handler(BaseHTTPRequestHandler):
             parts.append(
                 f"<section id='lesson-{slug}'>"
                 f"<h2>{html.escape(row['name'])}"
-                f" <span class='chip'>{status}</span>"
+                f" {chiplinksmod.chip_link(mid, node, status)}"
                 f"{debtmod.ladder_html(ladders.get(row['cid'], -1), ladder_extra)}{stale}</h2>"
                 f"<p><small>{html.escape(row['kind'])} · "
                 f"{html.escape(row['file'])}:{row['line']}</small></p>")
@@ -847,6 +885,7 @@ class Handler(BaseHTTPRequestHandler):
             parts.append(knownmod.button_html(
                 row["cid"], known_pending.get(row["cid"], ""), base,
                 ci == 0))
+            parts.append(reviewedmod.mark_control(row["cid"], ci == 0))
             if concept_cards:
                 if not practice_tagged:
                     parts.append("<h3 id='practice'>Practice</h3>")
@@ -1015,8 +1054,10 @@ class Handler(BaseHTTPRequestHandler):
                 con.close()
             due_left = server.tool_list_due_reviews({"limit": 1000})["count"]
             body = (scrollposmod.restore_js(origin)
-                    + resmod.render_result(res["pass"], res["feedback"], back,
-                                           out["next_due"], origin, mod_id, due_left))
+                    + autoscrollmod.enhance_result(
+                        resmod.render_result(res["pass"], res["feedback"], back,
+                                             out["next_due"], origin, mod_id, due_left))
+                    + autoscrollmod.verdict_js())
             self._send(page("Result", body, counts=self._nav_counts()))
             return
         if url.path.startswith("/cards/") and url.path.endswith("/dispute"):

@@ -1,17 +1,9 @@
 """Race-hunt: spot the shared-state bug (type 37, F-14).
 
-The learner reads a snippet, names the line that touches shared mutable
-state (a module global, a shared cache, or a mutable class attribute),
-and proposes the fix (a local copy, a lock, or a parameter). Grading is
-a line-number match plus a fix-keyword checklist — deterministic, stdlib
-only. No threads are ever spawned: the race is reasoned about from the
-code alone, never run, so grading needs no sandbox runner.
-
-Plugin API: ``generate(ex_id, concept, snippet, ctx)``,
-``render(exercise) -> html``, ``grade(exercise, submission, runner)``.
-Import-safe standalone: stdlib only (``ast``/``html``/``re``),
-no groundwork imports. Registration lives in ``groundwork/exercises.py``
-(TYPES, GENERATORS, BLOOM_TYPES); see the parent's ===WIRES===.
+Name the line touching shared mutable state (module global, shared
+cache, mutable class attribute) and propose the fix (local copy, lock,
+or parameter). Line match plus fix-keyword checklist; no threads ever
+spawned, no sandbox needed. Stdlib only, no groundwork imports.
 """
 from __future__ import annotations
 
@@ -29,13 +21,12 @@ CODE_LIMIT = 800
 FIX_KEYWORDS = ("copy", "deepcopy", "local", "lock", "parameter",
                 "argument", "inject", "immutable", "tuple", "frozen")
 
+_OR_LOCK_PARAM = "(or guard it with a lock, or pass it as a parameter)"
+
 FIX_BY_KIND = {
-    "module-global": "copy it into a local "
-                     "(or guard it with a lock, or pass it as a parameter)",
-    "shared-cache": "copy the entry into a local "
-                    "(or guard the cache with a lock, or pass it as a parameter)",
-    "class-attribute": "copy it into a local "
-                       "(or guard it with a lock, or pass it as a parameter)",
+    "module-global": f"copy it into a local {_OR_LOCK_PARAM}",
+    "shared-cache": f"copy the entry into a local {_OR_LOCK_PARAM}",
+    "class-attribute": f"copy it into a local {_OR_LOCK_PARAM}",
     "mutable-default": "default to None and build a fresh object inside "
                        "(or pass it as a parameter)",
 }
@@ -172,7 +163,7 @@ def _ast_sites(tree) -> list[dict]:
 
 
 def _fallback_sites(code: str) -> list[dict]:
-    """Line-scan for `global X` when the snippet does not parse."""
+    """`global X` line-scan for unparseable snippets."""
     found = []
     for i, line in enumerate((code or "").splitlines()):
         match = _GLOBAL_RE.match(line)
@@ -187,7 +178,7 @@ def _fallback_sites(code: str) -> list[dict]:
 
 
 def find_sites(code: str) -> list[dict]:
-    """All shared-state sites, earliest line first. Never raises."""
+    """Shared-state sites, earliest first. Never raises."""
     try:
         sites = _ast_sites(_tree(code or ""))
         if sites:
@@ -209,11 +200,7 @@ def _concept_field(concept, name: str, default=""):
 
 
 def generate(ex_id, concept, snippet, ctx) -> dict:
-    """Build a type-37 card; ungrounded when no shared state is found.
-
-    Always returns a gradeable card: the pipeline skips it when
-    payload["grounded"] is False, mirroring smell/odd-one-out.
-    """
+    """Build a type-37 card; ungrounded when no shared state is found."""
     ctx = ctx or {}
     code = _code_from(concept, snippet, ctx)
     sites = find_sites(code)
@@ -275,14 +262,7 @@ def _fail(msg: str) -> dict:
 
 
 def grade(exercise: dict, submission: str, runner=None) -> dict:
-    """Line-number match plus fix-keyword checklist, pure stdlib.
-
-    Pass needs BOTH: the first integer in the submission must equal the
-    payload line, and the text must name a fix (copy/local, lock, or
-    parameter wording). ``runner`` is accepted for API symmetry and
-    ignored — no threads are spawned, so no sandbox is needed. Never
-    raises.
-    """
+    """Line-number match plus fix-keyword checklist. Never raises."""
     _ = runner
     try:
         payload = (exercise or {}).get("payload", {}) if isinstance(exercise, dict) else {}
@@ -350,7 +330,7 @@ def render(exercise: dict) -> str:
 
 def section_html(db_path: str = "") -> str:
     """Status-page home for this area (never in web.py)."""
-    _ = db_path  # pure section: no DB read needed
+    _ = db_path
     return ("<h3 id='status-b7-racehunt'>Race-hunt <small>(feature)</small></h3>"
             "<p>Type 37 exercises hand you a snippet with shared mutable "
             "state — name the line plus the fix (local copy, lock, or "
@@ -359,7 +339,7 @@ def section_html(db_path: str = "") -> str:
 
 
 def tour_entry() -> dict:
-    """Feature-tour registry entry (appended to tour.ENTRIES by parent)."""
+    """Feature-tour registry entry for the parent to append."""
     return {"id": "racehunt-type", "kind": "feature",
             "title": "Race-hunt",
             "blurb": "Spot the shared mutable state: name the line plus "
