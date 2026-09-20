@@ -97,6 +97,8 @@ entries, and WEB_CEILING moves up only to cover those wires.
   scheduling + mastery (undo.py + prev_* review columns + /reviews/undo).
 - [x] F-52: North-star dashboard — delayed accuracy on mature cards +
   owned count on Status (northstar.py).
+- [x] F-292: Personal data download — everything in one JSON via
+  /export/me.json, linked from Storage (exports.py).
 
 ## IMPROVEMENTS (500)
 

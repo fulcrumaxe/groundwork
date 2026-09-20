@@ -91,6 +91,17 @@ class DistinctPagesTest(unittest.TestCase):
         self.assertIn("/modules", due)
         self.assertNotIn("<h2>Modules</h2>", due)
 
+    def test_personal_data_download(self):
+        import json
+        data = json.loads(self.h.me_json())
+        for key in ("modules", "concepts", "cards", "reviews", "decisions",
+                    "holes", "disputes", "clarity_ratings", "known_skips",
+                    "journal", "tool_calls"):
+            self.assertIn(key, data)
+        self.assertTrue(data["modules"])
+        self.assertTrue(data["cards"])
+        self.assertIn("status-data", self.h.status_html())
+
     def test_anki_export_and_rss_feed(self):
         tsv = self.h.anki_tsv()
         rows = [l for l in tsv.splitlines() if l.strip()]

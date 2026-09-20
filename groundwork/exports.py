@@ -1,4 +1,4 @@
-"""Study-data exports: Anki TSV, review-log CSV, RSS feed.
+"""Study-data exports: Anki TSV, review-log CSV, RSS feed, personal JSON.
 
 Pure renderers over a database path — no HTTP, no page chrome.
 The web Handler delegates here so export logic never lives in web.py.
@@ -8,6 +8,7 @@ from __future__ import annotations
 import csv
 import html
 import io
+import json
 import re
 from email.utils import formatdate
 
@@ -99,3 +100,48 @@ def feed_xml(db_path: str, base_url: str) -> str:
             f"<link>{html.escape(base_url)}/modules</link>"
             "<description>Every agent session as a lesson.</description>"
             + "".join(items) + "</channel></rss>")
+
+
+def _dump(con, table: str, cols: str) -> list:
+    """Whole table as plain dicts; missing tables read as empty."""
+    try:
+        return [dict(r) for r in con.execute(
+            f"SELECT {cols} FROM {table} ORDER BY rowid").fetchall()]
+    except Exception:  # noqa: BLE001 — older DBs predate the table
+        return []
+
+
+def personal_json(db_path: str) -> str:
+    """Everything about you in one JSON (F-292): portable, private."""
+    con = dbmod.connect(db_path)
+    try:
+        data = {
+            "modules": _dump(con, "modules",
+                             "id, repo, task_summary, created_at"),
+            "concepts": _dump(con, "concepts",
+                              "id, module_id, name, kind, mastery"),
+            "cards": _dump(con, "cards",
+                           "id, concept_id, exercise_type, stability,"
+                           " difficulty, due, lapses, stale"),
+            "reviews": _dump(con, "reviews",
+                             "card_id, grade, confidence, reviewed_at,"
+                             " submission"),
+            "decisions": _dump(con, "decisions",
+                               "repo, symbol, chosen, rejected, reason,"
+                               " created_at"),
+            "holes": _dump(con, "holes",
+                           "repo, file, line, spec, status, created_at"),
+            "disputes": _dump(con, "disputes",
+                              "card_id, reason, status, created_at"),
+            "clarity_ratings": _dump(con, "clarity_ratings",
+                                     "concept_id, score, created_at"),
+            "known_skips": _dump(con, "known_skips",
+                                 "concept_id, verify_due, created_at"),
+            "journal": _dump(con, "journal_entries",
+                             "created_day, prompt, body, created_at"),
+            "tool_calls": _dump(con, "tool_calls",
+                                "method, ok, ms, created_at"),
+        }
+    finally:
+        con.close()
+    return json.dumps(data, indent=1, sort_keys=True)

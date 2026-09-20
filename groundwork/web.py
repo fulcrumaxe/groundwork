@@ -418,6 +418,9 @@ class Handler(BaseHTTPRequestHandler):
         elif url.path == "/export/reviews.csv":
             self._send(self.reviews_csv().encode(), 200,
                        "text/csv; charset=utf-8")
+        elif url.path == "/export/me.json":
+            self._send(self.me_json().encode(), 200,
+                       "application/json; charset=utf-8")
         elif url.path == "/api/modules.json":
             self._send(self.api_modules().encode(), 200,
                        "application/json; charset=utf-8")
@@ -560,6 +563,9 @@ class Handler(BaseHTTPRequestHandler):
 
     def reviews_csv(self) -> str:
         return expmod.reviews_csv(self.db_path)
+
+    def me_json(self) -> str:
+        return expmod.personal_json(self.db_path)
 
     def feed_xml(self, base_url: str) -> str:
         return expmod.feed_xml(self.db_path, base_url)

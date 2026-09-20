@@ -67,6 +67,8 @@ def section_html(db_path: str) -> str:
         f"<td>{m['reviews']}</td></tr>" for m in info["modules"])
     return ("<h2 id='status-storage'>Storage</h2>"
             f"<p><small>Database file: {html.escape(info['human'])} · "
-            f"{info['disputes']} dispute(s) on record.</small></p>"
+            f"{info['disputes']} dispute(s) on record. "
+            f"<span id='status-data'><a href='/export/me.json'>"
+            f"Personal data JSON</a></span>.</small></p>"
             "<table class='log'><tr><th>Module</th><th>Concepts</th>"
             f"<th>Cards</th><th>Reviews</th></tr>{cells}</table>")
