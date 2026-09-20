@@ -1467,6 +1467,12 @@ class Handler(BaseHTTPRequestHandler):
             "<p><code>python3 -m groundwork export-module --module ID --out share.json</code> "
             "downloads a module; <code>python3 -m groundwork import-module --in share.json</code> "
             "loads it into another database. Reviews stay private; scheduling restarts fresh.</p>",
+            "<h2 id='status-seed'>Groundwork seed</h2>"
+            "<p>Groundwork itself is a learnable project: "
+            "<code>python3 -m groundwork export-seed --repo PATH --out seed.json</code> "
+            "bundles every module under one repo into a portable seed file, and "
+            "<code>python3 -m groundwork import-seed --in seed.json</code> "
+            "loads it into any database — duplicates skip cleanly, reviews stay private.</p>",
         ])
 
     # -- POST

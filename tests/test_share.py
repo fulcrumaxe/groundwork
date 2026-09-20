@@ -65,5 +65,54 @@ class ShareRoundTripTest(unittest.TestCase):
         self.assertEqual(out["status"], "imported")
 
 
+class SeedRoundTripTest(unittest.TestCase):
+    def setUp(self):
+        self.tmp, self.db, self.server, self.out = make_module("seed mod")
+        self.mid = self.out["module_id"]
+
+    def test_export_seed_collects_repo_modules(self):
+        doc = sharemod.export_seed(self.db, str(self.tmp))
+        self.assertEqual(doc["format"], "groundwork-seed/1")
+        self.assertEqual(doc["repo"], "groundwork")
+        self.assertEqual(len(doc["modules"]), 1)
+        self.assertEqual(doc["modules"][0]["module"]["repo"], "groundwork")
+
+    def test_export_seed_ignores_other_repos(self):
+        doc = sharemod.export_seed(self.db, "/elsewhere")
+        self.assertEqual(doc["modules"], [])
+
+    def test_import_seed_into_fresh_db_then_skips(self):
+        doc = sharemod.export_seed(self.db, str(self.tmp))
+        other = str(Path(tempfile.mkdtemp(prefix="gw-seed-")) / "seed.db")
+        first = sharemod.import_seed(other, doc)
+        self.assertEqual(first[0]["status"], "imported")
+        con = dbmod.connect(other)
+        try:
+            reviews = con.execute("SELECT COUNT(*) FROM reviews").fetchone()[0]
+            self.assertEqual(reviews, 0)
+        finally:
+            con.close()
+        second = sharemod.import_seed(other, doc)
+        self.assertEqual(second[0]["status"], "skipped-duplicate")
+
+    def test_import_seed_accepts_single_module_and_relabel(self):
+        doc = sharemod.export_module(self.db, self.mid)
+        other = str(Path(tempfile.mkdtemp(prefix="gw-seed-")) / "one.db")
+        out = sharemod.import_seed(other, doc, relabel_repo="/mine")
+        self.assertEqual(out[0]["status"], "imported")
+        con = dbmod.connect(other)
+        try:
+            repo = con.execute("SELECT repo FROM modules WHERE id=?",
+                               (self.mid,)).fetchone()[0]
+            self.assertEqual(repo, "/mine")
+        finally:
+            con.close()
+
+    def test_import_seed_rejects_foreign_format(self):
+        other = str(Path(tempfile.mkdtemp(prefix="gw-seed-")) / "bad.db")
+        with self.assertRaises(ValueError):
+            sharemod.import_seed(other, {"format": "nope"})
+
+
 if __name__ == "__main__":
     unittest.main()

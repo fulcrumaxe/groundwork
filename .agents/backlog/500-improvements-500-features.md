@@ -3,6 +3,22 @@
 Goal: make Groundwork 1000x better. Improvements = polish/fix/upgrade of what
 exists. Features = new capabilities. Each item is one concrete, buildable unit.
 
+## Shipped ledger (do not re-pick these)
+
+Batch 1 shipped 10 improvements + 12 features (tour: nav-counts,
+resume-links, queue-position, difficulty-dots, confidence-pills,
+ctrl-enter, copy-buttons, answer-drafts, give-up, due-why;
+projects-landing, debt-meter, diagnose-page, bloom-ladder,
+coverage-timeline, anki-export, rss-feed, module-sharing, cli-review,
+ci-workflow, precommit-hook, docstring-type). Backlog hits marked [x].
+
+Batch 2 ships the seed feature (Groundwork itself as a learnable project)
+plus 5 improvements + 5 features, each with a tour entry + status anchor +
+docs regen + MCP module + commit. Marked [x] as they land.
+
+- [x] SEED: Groundwork seed — export-seed/import-seed CLI, status home,
+  tour entry (no fixed backlog number; the seed idea spans O. packs).
+
 ## IMPROVEMENTS (500)
 
 ### A. Navigation, IA & routing (I-1–50)

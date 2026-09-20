@@ -12,6 +12,8 @@ from . import db as dbmod
 from . import sched as schedmod
 
 FORMAT = "groundwork-module/1"
+SEED_FORMAT = "groundwork-seed/1"
+SEED_REPO = "groundwork"
 
 
 def export_module(db_path: str, mid: str) -> dict:
@@ -85,3 +87,39 @@ def import_module(db_path: str, doc: dict) -> dict:
         con.close()
     return {"module_id": mid, "status": "imported",
             "concepts": n_concepts, "cards": n_cards}
+
+
+def export_seed(db_path: str, repo_prefix: str) -> dict:
+    """Every module under one repo, relabeled to a portable seed name."""
+    prefix = repo_prefix.rstrip("/")
+    con = dbmod.connect(db_path)
+    try:
+        rows = con.execute("SELECT id, repo FROM modules").fetchall()
+    finally:
+        con.close()
+    mids = [r[0] for r in rows if (r[1] or "") == prefix
+            or (r[1] or "").startswith(prefix + "/")]
+    docs = []
+    for mid in mids:
+        doc = export_module(db_path, mid)
+        doc["module"]["repo"] = SEED_REPO
+        docs.append(doc)
+    return {"format": SEED_FORMAT, "repo": SEED_REPO, "modules": docs}
+
+
+def import_seed(db_path: str, doc: dict, relabel_repo: str = "") -> list[dict]:
+    """Load a seed file (or a single module doc); duplicates skip cleanly."""
+    if not isinstance(doc, dict):
+        raise ValueError("not a groundwork module file")
+    if doc.get("format") == FORMAT:
+        docs = [doc]
+    elif doc.get("format") == SEED_FORMAT:
+        docs = doc.get("modules", [])
+    else:
+        raise ValueError("not a groundwork module file")
+    out = []
+    for d in docs:
+        if relabel_repo:
+            d = {**d, "module": {**d["module"], "repo": relabel_repo}}
+        out.append(import_module(db_path, d))
+    return out

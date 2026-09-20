@@ -104,6 +104,10 @@ ENTRIES = [
     {"id": "docstring-type", "kind": "feature", "title": "Write-the-docstring exercises",
      "blurb": "Docstring exercise cards render an explanation box. Answer one below.",
      "path": "/due", "anchor": "up-next"},
+    # -- Batch 2: Groundwork itself as a learnable project, plus ten more --
+    {"id": "seed-modules", "kind": "feature", "title": "Groundwork seed",
+     "blurb": "Groundwork itself ships as learnable modules: export one repo's modules to a seed file, import it anywhere.",
+     "path": "/status", "anchor": "status-seed"},
 ]
 
 BY_ID = {e["id"]: e for e in ENTRIES}

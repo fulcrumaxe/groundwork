@@ -64,6 +64,39 @@ def cmd_import_module(args) -> int:
     return 0
 
 
+def cmd_export_seed(args) -> int:
+    """Every module under one repo, relabeled to the portable seed name."""
+    import json
+    from . import share as sharemod
+    doc = sharemod.export_seed(args.db, args.repo)
+    text = json.dumps(doc, indent=2)
+    if args.out:
+        with open(args.out, "w", encoding="utf-8") as f:
+            f.write(text)
+        print(f"exported seed {doc['repo']} -> {args.out} "
+              f"({len(doc['modules'])} modules)")
+    else:
+        print(text)
+    return 0
+
+
+def cmd_import_seed(args) -> int:
+    """Load a seed file (or single module); duplicates skip cleanly."""
+    import json
+    from . import share as sharemod
+    with open(args.src, encoding="utf-8") as f:
+        doc = json.load(f)
+    try:
+        out = sharemod.import_seed(args.db, doc, args.as_repo)
+    except ValueError as e:
+        print(f"error: {e}")
+        return 1
+    for r in out:
+        print(f"{r['status']}: {r['module_id']} "
+              f"({r['concepts']} concepts, {r['cards']} cards)")
+    return 0
+
+
 def cmd_docs(args) -> int:
     from . import docs as docsmod
     changed = docsmod.render_all()
@@ -217,6 +250,14 @@ def main(argv=None) -> int:
     im = sub.add_parser("import-module")
     im.add_argument("--in", dest="src", required=True)
     im.set_defaults(fn=cmd_import_module)
+    es = sub.add_parser("export-seed")
+    es.add_argument("--repo", default=".")
+    es.add_argument("--out", default="")
+    es.set_defaults(fn=cmd_export_seed)
+    isn = sub.add_parser("import-seed")
+    isn.add_argument("--in", dest="src", required=True)
+    isn.add_argument("--as-repo", default="")
+    isn.set_defaults(fn=cmd_import_seed)
     dc = sub.add_parser("docs")
     dc.add_argument("--check", action="store_true")
     dc.set_defaults(fn=cmd_docs)
