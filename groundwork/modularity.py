@@ -51,6 +51,7 @@ AREAS = {
     "badge": "badge.py",
     "tools": "tools.py",
     "letter": "letter.py",
+    "serendipity": "serendipity.py",
 }
 
 

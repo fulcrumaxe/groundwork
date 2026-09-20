@@ -224,6 +224,9 @@ ENTRIES = [
     {"id": "weekly-letter", "kind": "feature", "title": "Weekly letter",
      "blurb": "An auto-drafted private progress note — gentle, never streaky.",
      "path": "/status", "anchor": "status-letter"},
+    {"id": "serendipity", "kind": "feature", "title": "Serendipity cards",
+     "blurb": "An adjacent concept you might love — bonus, never duty.",
+     "path": "/due", "anchor": "serendipity"},
 ]
 
 BY_ID = {e["id"]: e for e in ENTRIES}

@@ -37,6 +37,7 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | README badge | Your live owned count as an embeddable SVG shield. | `/status#status-badge` |
 | Tool-call analytics | Which MCP tools fire, with failure rates and latency. | `/status#status-tools` |
 | Weekly letter | An auto-drafted private progress note — gentle, never streaky. | `/status#status-letter` |
+| Serendipity cards | An adjacent concept you might love — bonus, never duty. | `/due#serendipity` |
 
 ## Improvements
 

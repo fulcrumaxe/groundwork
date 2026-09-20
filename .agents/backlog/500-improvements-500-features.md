@@ -109,6 +109,8 @@ entries, and WEB_CEILING moves up only to cover those wires.
   per-tool table on Status (tools.py + tool_calls table).
 - [x] F-106: Weekly letter — auto-drafted private progress note with
   one next step on Status (letter.py).
+- [x] F-137: Serendipity cards — adjacent non-due concept as a labeled
+  bonus wander on Due (serendipity.py).
 
 ## IMPROVEMENTS (500)
 

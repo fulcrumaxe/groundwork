@@ -39,6 +39,7 @@ from . import related as relmod
 from . import reset as resetmod
 from . import results as resmod
 from . import sched as schedmod
+from . import serendipity as sermod
 from . import shortcuts as shortcutsmod
 from . import sitemap as sitemapmod
 from . import status as statusmod
@@ -493,6 +494,7 @@ class Handler(BaseHTTPRequestHandler):
         else:
             parts.append("<p><a id='one-card' href='/due?mode=one'>"
                          "Just one card</a> for low-energy days.</p>")
+        parts.append(sermod.section_html(self.db_path))
         if not due:
             parts.append("<p>Nothing due. Create a module via the MCP tool, "
                          "or browse <a href='/modules'>Modules</a>.</p>")
