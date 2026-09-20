@@ -212,6 +212,9 @@ ENTRIES = [
     {"id": "journal", "kind": "feature", "title": "Metacognition journal",
      "blurb": "Weekly what-did-you-misjudge prompt, answered privately.",
      "path": "/journal", "anchor": "journal"},
+    {"id": "one-card", "kind": "feature", "title": "Just-one-card mode",
+     "blurb": "Low energy? Answer a single card — no guilt design.",
+     "path": "/due", "anchor": "one-card"},
 ]
 
 BY_ID = {e["id"]: e for e in ENTRIES}

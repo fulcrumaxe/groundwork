@@ -65,5 +65,23 @@ class ModuleGroupsTest(unittest.TestCase):
         self.assertIn("<details open><summary", out)
 
 
+class OneCardTest(unittest.TestCase):
+    def setUp(self):
+        self.tmp, self.db, self.server, self.out = make_module("one mod")
+
+    def test_link_present_by_default(self):
+        out = handler_for(self.db).due_html()
+        self.assertIn("id='one-card'", out)
+        self.assertIn("/due?mode=one", out)
+
+    def test_one_mode_shows_single_card(self):
+        h = handler_for(self.db)
+        full = h.due_html()
+        one = h.due_html(one=True)
+        self.assertIn("id='one-card-note'", one)
+        self.assertLess(one.count("<article"), full.count("<article"))
+        self.assertEqual(one.count("<article"), 1)
+
+
 if __name__ == "__main__":
     unittest.main()

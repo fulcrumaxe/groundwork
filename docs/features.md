@@ -33,6 +33,7 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | North-star dashboard | Delayed accuracy on mature cards — the number that matters. | `/status#status-northstar` |
 | Personal data download | Everything about you in one JSON — portable, private. | `/status#status-data` |
 | Metacognition journal | Weekly what-did-you-misjudge prompt, answered privately. | `/journal#journal` |
+| Just-one-card mode | Low energy? Answer a single card — no guilt design. | `/due#one-card` |
 
 ## Improvements
 

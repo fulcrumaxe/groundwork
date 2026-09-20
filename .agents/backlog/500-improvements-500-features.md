@@ -101,6 +101,8 @@ entries, and WEB_CEILING moves up only to cover those wires.
   /export/me.json, linked from Storage (exports.py).
 - [x] F-68: Metacognition journal — data-driven weekly misjudgment
   prompt with private entries at /journal (journal.py).
+- [x] F-121: Just-one-card mode — /due?mode=one shows a single card
+  with a no-guilt note (due_html one flag).
 
 ## IMPROVEMENTS (500)
 

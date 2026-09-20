@@ -371,7 +371,8 @@ class Handler(BaseHTTPRequestHandler):
                             lede="Every repo you are learning — pick one and study it.",
                             counts=counts, tour=tour_ctx))
         elif url.path == "/due":
-            self._send(page("Due", self.due_html(level),
+            one = query.get("mode", [""])[0] == "one"
+            self._send(page("Due", self.due_html(level, one),
                             active="due", page_id="due",
                             lede="What to practice next — your spaced queue, one card at a time.",
                             counts=counts, tour=tour_ctx))
@@ -477,10 +478,17 @@ class Handler(BaseHTTPRequestHandler):
                             errmod.not_found_html(url.path),
                             counts=counts, tour=tour_ctx), 404)
 
-    def due_html(self, level: str = "auto") -> str:
+    def due_html(self, level: str = "auto", one: bool = False) -> str:
         server = mcplib.MCPServer(self.db_path)
         due = server.tool_list_due_reviews({"limit": 20})["due"]
         parts = [digestmod.section_html(self.db_path)]
+        if one and due:
+            due = due[:1]
+            parts.append("<p id='one-card-note'>One card is enough today — "
+                         "no guilt. <a id='one-card' href='/due'>Full queue</a></p>")
+        else:
+            parts.append("<p><a id='one-card' href='/due?mode=one'>"
+                         "Just one card</a> for low-energy days.</p>")
         if not due:
             parts.append("<p>Nothing due. Create a module via the MCP tool, "
                          "or browse <a href='/modules'>Modules</a>.</p>")
