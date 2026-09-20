@@ -27,6 +27,7 @@ from . import modularity as modularitymod
 from . import modules as modmod
 from . import ownership as ownmod
 from . import queries as quemod
+from . import queue as qmod
 from . import readtime as readtimemod
 from . import reset as resetmod
 from . import results as resmod
@@ -474,50 +475,63 @@ class Handler(BaseHTTPRequestHandler):
             tries = quemod.attempts(con2, [c["id"] for c in due])
         finally:
             con2.close()
-        for i, c in enumerate(due):
-            stale = " <span class='stale'>[stale]</span>" if c.get("stale") else ""
-            if c["id"] in study:
-                lesson_dict, mastery = study[c["id"]]
-                explainer = lesmod.render_levels(
-                    lesson_dict, mastery, tries.get(c["id"], 0), level, "/")
-                lesson = (f"<details><summary>Study first — explained your way</summary>"
-                          f"{explainer}</details>")
-            else:
-                lesson = ""
-            first = (i == 0)
-            tag = ("<p class='next-tag' id='up-next'>Up next</p>"
-                   if first else "")
-            cls = " class='next'" if first else ""
-            pos = f"<p><small>Card {i + 1} of {len(due)}</small></p>"
-            dots = cardsmod._difficulty_dots(
-                c.get("difficulty"), " id='difficulty'" if first else "")
-            widget = cardsmod.answer_widget(c, tries.get(c["id"], 0), "/due")
-            why_extra = ""
-            if first:
-                # Stable tour anchors on the lead card only.
-                why_extra = " id='due-why'"
-                widget = widget.replace(
-                    "<span class='conf-group'>",
-                    "<span class='conf-group' id='confidence'>", 1)
-                widget = widget.replace(
-                    "<button class='giveup'>",
-                    "<button class='giveup' id='giveup'>", 1)
-                widget = widget.replace("<details><summary>How grading works</summary>", "<details id='grading'><summary>How grading works</summary>", 1)
-            mem = cardsmod._memory_bar(c, " id='memory'" if first else "")
-            forecast = cardsmod.forecast_html(c, " id='forecast'" if first else "")
-            chip = cardsmod.status_chip(c, tries.get(c["id"], 0), " id='queue-status'" if first else "")
-            snooze_id = " id='snooze'" if first else ""
-            snooze = (
-                f"<form method='post' action='/cards/{c['id']}/snooze'>"
-                f"<input type='hidden' name='origin' value='/due'>"
-                f"<button{snooze_id}>Snooze until tomorrow</button></form>")
+        grouped = qmod.groups(self.db_path, due)
+        n = 0
+        for gi, g in enumerate(grouped):
+            mark = " id='queue-groups'" if gi == 0 else ""
+            nc = len(g["cards"])
             parts.append(
-                f"<article{cls}>{tag}{pos}{cardsmod._due_why(c, why_extra)}"
-                f"<h3>{html.escape(c.get('concept', ''))}{stale} {dots} {chip}</h3>"
-                f"{mem}{forecast}{lesson}"
-                f"{lesmod.why_html(c)}"
-                f"<p>{html.escape(c.get('front', ''))}</p>"
-                f"{widget}{snooze}</article>")
+                f"<details open><summary{mark}>"
+                f"{html.escape(g['title'])} — {nc} card{'s' if nc != 1 else ''}"
+                f" (<a href='/modules/{g['mid']}'>study</a>)</summary>")
+            for c in g["cards"]:
+                i = n
+                n += 1
+                stale = (" <span class='stale'>[stale]</span>"
+                         if c.get("stale") else "")
+                if c["id"] in study:
+                    lesson_dict, mastery = study[c["id"]]
+                    explainer = lesmod.render_levels(
+                        lesson_dict, mastery, tries.get(c["id"], 0), level, "/")
+                    lesson = (f"<details><summary>Study first — explained your way</summary>"
+                              f"{explainer}</details>")
+                else:
+                    lesson = ""
+                first = (i == 0)
+                tag = ("<p class='next-tag' id='up-next'>Up next</p>"
+                       if first else "")
+                cls = " class='next'" if first else ""
+                pos = f"<p><small>Card {i + 1} of {len(due)}</small></p>"
+                dots = cardsmod._difficulty_dots(
+                    c.get("difficulty"), " id='difficulty'" if first else "")
+                widget = cardsmod.answer_widget(c, tries.get(c["id"], 0), "/due")
+                why_extra = ""
+                if first:
+                    # Stable tour anchors on the lead card only.
+                    why_extra = " id='due-why'"
+                    widget = widget.replace(
+                        "<span class='conf-group'>",
+                        "<span class='conf-group' id='confidence'>", 1)
+                    widget = widget.replace(
+                        "<button class='giveup'>",
+                        "<button class='giveup' id='giveup'>", 1)
+                    widget = widget.replace("<details><summary>How grading works</summary>", "<details id='grading'><summary>How grading works</summary>", 1)
+                mem = cardsmod._memory_bar(c, " id='memory'" if first else "")
+                forecast = cardsmod.forecast_html(c, " id='forecast'" if first else "")
+                chip = cardsmod.status_chip(c, tries.get(c["id"], 0), " id='queue-status'" if first else "")
+                snooze_id = " id='snooze'" if first else ""
+                snooze = (
+                    f"<form method='post' action='/cards/{c['id']}/snooze'>"
+                    f"<input type='hidden' name='origin' value='/due'>"
+                    f"<button{snooze_id}>Snooze until tomorrow</button></form>")
+                parts.append(
+                    f"<article{cls}>{tag}{pos}{cardsmod._due_why(c, why_extra)}"
+                    f"<h3>{html.escape(c.get('concept', ''))}{stale} {dots} {chip}</h3>"
+                    f"{mem}{forecast}{lesson}"
+                    f"{lesmod.why_html(c)}"
+                    f"<p>{html.escape(c.get('front', ''))}</p>"
+                    f"{widget}{snooze}</article>")
+            parts.append("</details>")
         parts.append("<p><a class='btn' href='/modules'>Browse all modules</a> "
                      "<a class='btn' href='/reviews'>Review history</a> "
                      "<a class='btn' href='/diagnose'>Diagnose a traceback</a></p>")

@@ -3,6 +3,7 @@ import unittest
 from datetime import timedelta
 
 from groundwork import cards as cardsmod
+from groundwork import queue as qmod
 from groundwork import sched as schedmod
 
 from test_web import handler_for, make_module
@@ -35,6 +36,33 @@ class StatusChipTest(unittest.TestCase):
         body = h.due_html()
         self.assertIn("id='queue-status'", body)
         self.assertIn(">new<", body)
+
+
+class ModuleGroupsTest(unittest.TestCase):
+    def setUp(self):
+        self.tmp, self.db, self.server, self.out = make_module("queue mod")
+
+    def test_single_module_single_group(self):
+        due = self.server.tool_list_due_reviews({"limit": 20})["due"]
+        self.assertTrue(due)
+        groups = qmod.groups(self.db, due)
+        self.assertEqual(len(groups), 1)
+        self.assertEqual(len(groups[0]["cards"]), len(due))
+        self.assertIn("queue mod", groups[0]["title"])
+
+    def test_missing_concept_goes_to_tail_group(self):
+        due = self.server.tool_list_due_reviews({"limit": 20})["due"]
+        ghost = dict(due[0])
+        ghost["concept_id"] = "nope:gone"
+        groups = qmod.groups(self.db, due + [ghost])
+        self.assertEqual(groups[-1]["title"], "Unknown module")
+        self.assertEqual(groups[-1]["cards"], [ghost])
+
+    def test_due_page_renders_group_sections(self):
+        h = handler_for(self.db)
+        out = h.due_html()
+        self.assertIn("id='queue-groups'", out)
+        self.assertIn("<details open><summary", out)
 
 
 if __name__ == "__main__":

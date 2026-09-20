@@ -116,6 +116,7 @@ expected outputs are always *measured* in the sandbox, never invented.
 | Keyboard shortcuts | g then d jumps to Due, ? opens the cheat sheet — typing never hijacked. | `/#shortcuts` |
 | Skip links | Skip to content link plus header/nav/main/footer landmarks. | `/#main` |
 | Helpful 404 | Unknown paths get links and a project search, never a bare error. | `/404#not-found` |
+| Queue grouped by module | Due cards gather under collapsible per-module sections. | `/due#queue-groups` |
 <!-- GW-IMPROVEMENTS:END -->
 
 See also [docs/features.md](docs/features.md) and the in-app

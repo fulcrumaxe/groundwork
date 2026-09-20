@@ -179,6 +179,9 @@ ENTRIES = [
     {"id": "pretty-404", "kind": "improvement", "title": "Helpful 404",
      "blurb": "Unknown paths get links and a project search, never a bare error.",
      "path": "/404", "anchor": "not-found"},
+    {"id": "queue-groups", "kind": "improvement", "title": "Queue grouped by module",
+     "blurb": "Due cards gather under collapsible per-module sections.",
+     "path": "/due", "anchor": "queue-groups"},
 ]
 
 BY_ID = {e["id"]: e for e in ENTRIES}

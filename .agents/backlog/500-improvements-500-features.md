@@ -79,6 +79,8 @@ entries, and WEB_CEILING moves up only to cover those wires.
   landmarks in page chrome (web.py page(); test_skiplinks.py).
 - [x] I-13: Helpful 404 — unknown paths get links + repo search box
   (errors.py; all four miss sites wired; test_errors.py).
+- [x] I-44: Queue grouped by module — collapsible per-module sections
+  on Due (queue.py; WEB_CEILING 906 → 990 for batch wires).
 
 ## IMPROVEMENTS (500)
 
