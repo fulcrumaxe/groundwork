@@ -218,6 +218,9 @@ ENTRIES = [
     {"id": "readme-badge", "kind": "feature", "title": "README badge",
      "blurb": "Your live owned count as an embeddable SVG shield.",
      "path": "/status", "anchor": "status-badge"},
+    {"id": "tool-analytics", "kind": "feature", "title": "Tool-call analytics",
+     "blurb": "Which MCP tools fire, with failure rates and latency.",
+     "path": "/status", "anchor": "status-tools"},
 ]
 
 BY_ID = {e["id"]: e for e in ENTRIES}

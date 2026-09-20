@@ -67,10 +67,38 @@ class MCPServer:
         return dbmod.connect(self.db_path)
 
     def dispatch(self, method: str, params: dict):
+        import time
         handler = getattr(self, "tool_" + method, None)
         if handler is None:
+            self._log_call(method, False, 0.0)
             raise ValueError(f"unknown tool: {method}")
-        return handler(params or {})
+        start = time.perf_counter()
+        try:
+            out = handler(params or {})
+        except Exception:
+            self._log_call(method, False,
+                           (time.perf_counter() - start) * 1000.0)
+            raise
+        if isinstance(out, dict) and out.get("error"):
+            self._log_call(method, False,
+                           (time.perf_counter() - start) * 1000.0)
+        else:
+            self._log_call(method, True,
+                           (time.perf_counter() - start) * 1000.0)
+        return out
+
+    def _log_call(self, method: str, ok: bool, ms: float) -> None:
+        """Audit one tool call for the analytics page (F-389)."""
+        try:
+            con = self._con()
+            try:
+                con.execute("INSERT INTO tool_calls(method, ok, ms)"
+                            " VALUES(?,?,?)", (method, 1 if ok else 0, ms))
+                con.commit()
+            finally:
+                con.close()
+        except Exception:  # noqa: BLE001 — analytics never break tools
+            pass
 
     # ------------------------------------------------------------- tools
 

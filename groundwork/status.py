@@ -14,6 +14,7 @@ from . import disputes as dismod
 from . import mcp as mcplib
 from . import modularity as modularitymod
 from . import northstar as northstarmod
+from . import tools as toolsmod
 from . import sched as schedmod
 from . import storage as storagemod
 
@@ -66,6 +67,7 @@ def page_html(db_path: str) -> str:
         "<h2 id='status-modular'>Module health</h2>" +
         modularitymod.status_rows() +
         northstarmod.section_html(db_path) +
+        toolsmod.section_html(db_path) +
         "<h2 id='status-disputes'>Grade disputes</h2>" +
         dismod.queue_html(db_path) +
         storagemod.section_html(db_path) +

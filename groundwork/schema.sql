@@ -90,6 +90,14 @@ CREATE TABLE IF NOT EXISTS journal_entries (
   created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
 );
 
+CREATE TABLE IF NOT EXISTS tool_calls (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  method TEXT NOT NULL DEFAULT '',
+  ok INTEGER NOT NULL DEFAULT 1,
+  ms REAL NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+);
+
 CREATE TABLE IF NOT EXISTS known_skips (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   concept_id TEXT NOT NULL REFERENCES concepts(id) ON DELETE CASCADE,

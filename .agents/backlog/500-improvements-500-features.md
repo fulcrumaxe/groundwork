@@ -105,6 +105,8 @@ entries, and WEB_CEILING moves up only to cover those wires.
   with a no-guilt note (due_html one flag).
 - [x] F-386: README badge — live owned-count SVG at /badge.svg,
   linked from sharing (badge.py).
+- [x] F-389: Tool-call analytics — every dispatch logged with ok/ms,
+  per-tool table on Status (tools.py + tool_calls table).
 
 ## IMPROVEMENTS (500)
 

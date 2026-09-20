@@ -49,6 +49,7 @@ AREAS = {
     "northstar": "northstar.py",
     "journal": "journal.py",
     "badge": "badge.py",
+    "tools": "tools.py",
 }
 
 

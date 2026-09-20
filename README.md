@@ -92,6 +92,7 @@ expected outputs are always *measured* in the sandbox, never invented.
 | Metacognition journal | Weekly what-did-you-misjudge prompt, answered privately. | `/journal#journal` |
 | Just-one-card mode | Low energy? Answer a single card — no guilt design. | `/due#one-card` |
 | README badge | Your live owned count as an embeddable SVG shield. | `/status#status-badge` |
+| Tool-call analytics | Which MCP tools fire, with failure rates and latency. | `/status#status-tools` |
 <!-- GW-FEATURES:END -->
 
 ## Improvements
