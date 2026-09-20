@@ -203,6 +203,9 @@ ENTRIES = [
     {"id": "undo-review", "kind": "improvement", "title": "Undo last review",
      "blurb": "Misclick recovery within 60 seconds — scheduling restored.",
      "path": "/reviews", "anchor": "undo"},
+    {"id": "north-star", "kind": "feature", "title": "North-star dashboard",
+     "blurb": "Delayed accuracy on mature cards — the number that matters.",
+     "path": "/status", "anchor": "status-northstar"},
 ]
 
 BY_ID = {e["id"]: e for e in ENTRIES}

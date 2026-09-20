@@ -30,6 +30,7 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | Module reset | Start a module over from a confirm page — lessons stay, progress goes. | `/modules/&lt;id&gt;#reset` |
 | Component gallery | Every UI building block on one dev page, with class names. | `/styleguide#styleguide` |
 | Storage meter | Database size and per-module rows — growth never surprises. | `/status#status-storage` |
+| North-star dashboard | Delayed accuracy on mature cards — the number that matters. | `/status#status-northstar` |
 
 ## Improvements
 

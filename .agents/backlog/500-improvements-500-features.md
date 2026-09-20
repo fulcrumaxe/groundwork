@@ -95,6 +95,8 @@ entries, and WEB_CEILING moves up only to cover those wires.
   in 30 days (known.py + known_skips table + /concepts known route).
 - [x] I-224: Undo last review — 60-second misclick recovery restoring
   scheduling + mastery (undo.py + prev_* review columns + /reviews/undo).
+- [x] F-52: North-star dashboard — delayed accuracy on mature cards +
+  owned count on Status (northstar.py).
 
 ## IMPROVEMENTS (500)
 

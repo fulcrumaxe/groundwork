@@ -46,6 +46,7 @@ AREAS = {
     "clarity": "clarity.py",
     "known": "known.py",
     "undo": "undo.py",
+    "northstar": "northstar.py",
 }
 
 
