@@ -840,6 +840,9 @@ class Handler(BaseHTTPRequestHandler):
         elif url.path == "/export/anki.tsv":
             self._send(self.anki_tsv().encode(), 200,
                        "text/tab-separated-values; charset=utf-8")
+        elif url.path == "/export/reviews.csv":
+            self._send(self.reviews_csv().encode(), 200,
+                       "text/csv; charset=utf-8")
         elif url.path == "/feed.xml":
             host = self.headers.get("Host", "127.0.0.1:8765")
             self._send(self.feed_xml(f"http://{host}").encode(), 200,
@@ -1060,6 +1063,34 @@ class Handler(BaseHTTPRequestHandler):
                          .strip().lower())[:40]
             lines.append("\t".join(fields + [tag]))
         return "\n".join(lines) + ("\n" if lines else "")
+
+    def reviews_csv(self) -> str:
+        """Review log as CSV for personal analysis (I-231)."""
+        import csv
+        import io
+        con = self._con()
+        try:
+            rows = con.execute(
+                "SELECT reviews.reviewed_at, concepts.name AS concept,"
+                " modules.task_summary AS summary, reviews.grade,"
+                " reviews.confidence, reviews.submission"
+                " FROM reviews JOIN cards ON cards.id = reviews.card_id"
+                " JOIN concepts ON concepts.id = cards.concept_id"
+                " JOIN modules ON modules.id = concepts.module_id"
+                " ORDER BY reviews.id").fetchall()
+        finally:
+            con.close()
+        buf = io.StringIO()
+        w = csv.writer(buf)
+        w.writerow(["reviewed_at", "concept", "module", "grade",
+                    "confidence", "pass", "submission"])
+        for r in rows:
+            w.writerow([r["reviewed_at"] or "", r["concept"] or "",
+                        r["summary"] or "", r["grade"],
+                        r["confidence"],
+                        "yes" if (r["grade"] or 0) >= 4 else "no",
+                        r["submission"] or ""])
+        return buf.getvalue()
 
     def feed_xml(self, base_url: str) -> str:
         """RSS 2.0 feed of learning modules for external readers."""
@@ -1587,7 +1618,9 @@ class Handler(BaseHTTPRequestHandler):
             f"and <code>POST /mcp</code> — tools: {', '.join(tools)}.</p>",
             f"<h2 id='status-exports'>Exports</h2><p>{cards} cards in {mods} modules — "
             "<a href='/export/anki.tsv'>Anki TSV</a> · "
-            "<a href='/feed.xml'>RSS feed</a>.</p>",
+            "<a href='/feed.xml'>RSS feed</a> · "
+            "<span id='status-csv'><a href='/export/reviews.csv'>"
+            "Review log CSV</a></span>.</p>",
             "<h2 id='status-share'>Module sharing</h2>"
             "<p><code>python3 -m groundwork export-module --module ID --out share.json</code> "
             "downloads a module; <code>python3 -m groundwork import-module --in share.json</code> "

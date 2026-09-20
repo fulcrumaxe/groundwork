@@ -544,6 +544,34 @@ class ModuleSortTest(unittest.TestCase):
         self.assertIn("<b>Newest</b>", body)
 
 
+class ReviewsCsvTest(unittest.TestCase):
+    def setUp(self):
+        self.tmp, self.db, self.server, self.out = make_module("csv mod")
+        self.h = handler_for(self.db)
+
+    def test_csv_has_header_and_one_row_per_review(self):
+        import csv
+        import io
+        card = self.server.tool_list_due_reviews({"limit": 1})["due"][0]
+        self.server.submit_review(card["id"], "5", 4)
+        rows = list(csv.reader(io.StringIO(self.h.reviews_csv())))
+        self.assertEqual(rows[0], ["reviewed_at", "concept", "module",
+                                   "grade", "confidence", "pass",
+                                   "submission"])
+        self.assertEqual(len(rows), 2)
+        self.assertEqual(rows[1][5], "yes")
+
+    def test_csv_empty_without_reviews(self):
+        import csv
+        import io
+        rows = list(csv.reader(io.StringIO(self.h.reviews_csv())))
+        self.assertEqual(len(rows), 1)
+
+    def test_status_links_csv(self):
+        self.assertIn("id='status-csv'", self.h.status_html())
+        self.assertIn("/export/reviews.csv", self.h.status_html())
+
+
 class WeekReviewTest(unittest.TestCase):
     def setUp(self):
         self.tmp, self.db, self.server, self.out = make_module("week mod")

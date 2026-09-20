@@ -129,6 +129,9 @@ ENTRIES = [
     {"id": "week-review", "kind": "feature", "title": "Week in review",
      "blurb": "Attempts, active days and pass rate for the last 7 days — a weekly ritual.",
      "path": "/reviews", "anchor": "week"},
+    {"id": "reviews-csv", "kind": "feature", "title": "Review-log CSV export",
+     "blurb": "Every attempt as CSV for personal analysis — grades, confidence, answers.",
+     "path": "/status", "anchor": "status-csv"},
 ]
 
 BY_ID = {e["id"]: e for e in ENTRIES}
