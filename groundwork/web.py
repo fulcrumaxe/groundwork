@@ -13,6 +13,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, quote, urlparse
 
 from . import api as apimod
+from . import badge as badgemod
 from . import cards as cardsmod
 from . import clarity as claritymod
 from . import db as dbmod
@@ -434,6 +435,9 @@ class Handler(BaseHTTPRequestHandler):
         elif url.path == "/api/due.json":
             self._send(self.api_due().encode(), 200,
                        "application/json; charset=utf-8")
+        elif url.path == "/badge.svg":
+            self._send(self.badge_svg().encode(), 200,
+                       "image/svg+xml; charset=utf-8")
         elif url.path == "/feed.xml":
             host = self.headers.get("Host", "127.0.0.1:8765")
             self._send(self.feed_xml(f"http://{host}").encode(), 200,
@@ -580,6 +584,9 @@ class Handler(BaseHTTPRequestHandler):
 
     def me_json(self) -> str:
         return expmod.personal_json(self.db_path)
+
+    def badge_svg(self) -> str:
+        return badgemod.badge_svg(self.db_path)
 
     def feed_xml(self, base_url: str) -> str:
         return expmod.feed_xml(self.db_path, base_url)

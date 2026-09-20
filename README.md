@@ -91,6 +91,7 @@ expected outputs are always *measured* in the sandbox, never invented.
 | Personal data download | Everything about you in one JSON — portable, private. | `/status#status-data` |
 | Metacognition journal | Weekly what-did-you-misjudge prompt, answered privately. | `/journal#journal` |
 | Just-one-card mode | Low energy? Answer a single card — no guilt design. | `/due#one-card` |
+| README badge | Your live owned count as an embeddable SVG shield. | `/status#status-badge` |
 <!-- GW-FEATURES:END -->
 
 ## Improvements

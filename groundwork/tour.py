@@ -215,6 +215,9 @@ ENTRIES = [
     {"id": "one-card", "kind": "feature", "title": "Just-one-card mode",
      "blurb": "Low energy? Answer a single card — no guilt design.",
      "path": "/due", "anchor": "one-card"},
+    {"id": "readme-badge", "kind": "feature", "title": "README badge",
+     "blurb": "Your live owned count as an embeddable SVG shield.",
+     "path": "/status", "anchor": "status-badge"},
 ]
 
 BY_ID = {e["id"]: e for e in ENTRIES}

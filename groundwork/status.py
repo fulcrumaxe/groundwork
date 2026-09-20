@@ -60,7 +60,9 @@ def page_html(db_path: str) -> str:
         "<h2 id='status-share'>Module sharing</h2>"
         "<p><code>python3 -m groundwork export-module --module ID --out share.json</code> "
         "downloads a module; <code>python3 -m groundwork import-module --in share.json</code> "
-        "loads it into another database. Reviews stay private; scheduling restarts fresh.</p>",
+        "loads it into another database. Reviews stay private; scheduling restarts fresh. "
+        "<span id='status-badge'><a href='/badge.svg'>README badge</a></span> "
+        "embeds your live owned count in any README.</p>",
         "<h2 id='status-modular'>Module health</h2>" +
         modularitymod.status_rows() +
         northstarmod.section_html(db_path) +

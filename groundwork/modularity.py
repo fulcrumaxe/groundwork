@@ -12,7 +12,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 
-WEB_CEILING = 990
+WEB_CEILING = 1030
 AREA_CAP = 350
 
 # Capability area -> module implementing it. Batch 3 appends its areas here.
@@ -48,6 +48,7 @@ AREAS = {
     "undo": "undo.py",
     "northstar": "northstar.py",
     "journal": "journal.py",
+    "badge": "badge.py",
 }
 
 

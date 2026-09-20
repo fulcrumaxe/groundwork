@@ -103,6 +103,8 @@ entries, and WEB_CEILING moves up only to cover those wires.
   prompt with private entries at /journal (journal.py).
 - [x] F-121: Just-one-card mode — /due?mode=one shows a single card
   with a no-guilt note (due_html one flag).
+- [x] F-386: README badge — live owned-count SVG at /badge.svg,
+  linked from sharing (badge.py).
 
 ## IMPROVEMENTS (500)
 
