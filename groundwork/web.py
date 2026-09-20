@@ -16,11 +16,13 @@ from urllib.parse import parse_qs, quote, urlparse
 from . import api as apimod
 from . import cards as cardsmod
 from . import db as dbmod
+from . import diagnose as diamod
 from . import disputes as dismod
 from . import history as histmod
 from . import lessons as lesmod
 from . import ownership as ownmod
 from . import queries as quemod
+from . import styleguide as styleguidemod
 from . import readtime as readtimemod
 from . import reset as resetmod
 from . import results as resmod
@@ -251,13 +253,6 @@ def page(title: str, body: str, active: str = "projects",
             f"</body></html>").encode()
 
 
-def _slug(text: str) -> str:
-    """URL-fragment-safe anchor slug for a lesson section."""
-    out = "".join(ch.lower() if ch.isalnum() else "-" for ch in text)
-    out = "-".join(filter(None, out.split("-")))
-    return out or "lesson"
-
-
 BLOOM_RUNGS = ["recall", "explain", "apply", "analyse", "modify", "create"]
 
 
@@ -313,17 +308,6 @@ def _concept_status(stale: bool, attempts: int, owned: bool) -> str:
     if attempts == 0:
         return "New"
     return "Learning"
-
-
-def _trace_symbols(text: str) -> list[str]:
-    """Symbol names mentioned in a pasted Python traceback, most recent last."""
-    frames = re.findall(r'File "[^"]+", line \d+, in (\S+)', text)
-    names = re.findall(r"(?:NameError|AttributeError)[^:\n]*:?[^'\"]*['\"]([\w_]+)['\"]", text)
-    seen = []
-    for n in frames + names:
-        if n != "<module>" and n not in seen:
-            seen.append(n)
-    return seen
 
 
 def _parse_review_form(raw: str) -> tuple[str, int, str]:
@@ -427,9 +411,14 @@ class Handler(BaseHTTPRequestHandler):
                             lede="What changed versus what you can prove — pay it down.",
                             counts=counts, tour=tour_ctx))
         elif url.path == "/diagnose":
-            self._send(page("Diagnose", self.diagnose_html(),
+            self._send(page("Diagnose", diamod.diagnose_html(self.db_path),
                             active="due", page_id="due",
                             lede="Paste a traceback — study first, then fix.",
+                            counts=counts, tour=tour_ctx))
+        elif url.path == "/styleguide":
+            self._send(page("Styleguide", styleguidemod.page(),
+                            active="tour", page_id="tour",
+                            lede="Every component, one gallery.",
                             counts=counts, tour=tour_ctx))
         elif url.path == "/tour":
             self._send(page("Tour", self.tour_html(),
@@ -584,44 +573,6 @@ class Handler(BaseHTTPRequestHandler):
     def robots_txt(self, base_url: str) -> str:
         return sitemapmod.robots_txt(base_url)
 
-    def diagnose_html(self, trace: str = "") -> str:
-        """Paste-a-traceback bridge: mentioned symbols → their lessons."""
-        form = ("<form method='post' action='/diagnose' id='diagnose-form'>"
-                "<textarea name='trace' rows='8' cols='70' placeholder='Paste a Python traceback…'>"
-                f"{html.escape(trace)}</textarea><br>"
-                "<button>Find my lessons</button></form>")
-        if not trace.strip():
-            return (form + "<p><small>Paste the red text from a crash — "
-                    "every function it names links to its lesson.</small></p>")
-        names = _trace_symbols(trace)
-        if not names:
-            return form + "<p>No function names found in that text.</p>"
-        con = self._con()
-        try:
-            found = []
-            missing = []
-            for n in names:
-                row = con.execute(
-                    "SELECT concepts.id, concepts.name, concepts.module_id,"
-                    " modules.task_summary FROM concepts"
-                    " JOIN modules ON modules.id = concepts.module_id"
-                    " WHERE concepts.name = ? LIMIT 1", (n,)).fetchone()
-                (found if row else missing).append((n, row))
-        finally:
-            con.close()
-        parts = [form, "<h2>Study these, then diagnose</h2>"]
-        for n, row in found:
-            node = row["id"].split(":", 1)[1] if ":" in row["id"] else row["id"]
-            parts.append(
-                f"<p><a href='/modules/{row['module_id']}#lesson-{_slug(node)}'>"
-                f"{html.escape(n)}</a> "
-                f"<small>in {html.escape(row['task_summary'] or row['module_id'])}</small></p>")
-        if missing:
-            parts.append("<p><small>Unknown here: "
-                         + ", ".join(html.escape(n) for n, _ in missing)
-                         + "</small></p>")
-        return "".join(parts)
-
     def debt_html(self) -> str:
         """Comprehension debt: what changed vs what you can prove you own."""
         con = self._con()
@@ -760,7 +711,7 @@ class Handler(BaseHTTPRequestHandler):
             if target is not None:
                 node = target.split(":", 1)[1] if ":" in target else target
                 resume = (f"<p><a class='btn'{rid} "
-                          f"href='/modules/{m['id']}#lesson-{_slug(node)}'>Resume</a></p>")
+                          f"href='/modules/{m['id']}#lesson-{lesmod.slug(node)}'>Resume</a></p>")
             else:
                 resume = (f"<p><a class='btn'{rid} href='/modules/{m['id']}'>"
                           f"Review again</a></p>")
@@ -828,7 +779,7 @@ class Handler(BaseHTTPRequestHandler):
         for row in concepts:
             node = row["cid"].split(":", 1)[1] if ":" in row["cid"] else row["cid"]
             mins = readtimemod.minutes_for(lesson_map.get(node, {}))
-            toc.append(f"<a href='#lesson-{_slug(node)}'>{html.escape(row['name'])}</a> · {mins} min")
+            toc.append(f"<a href='#lesson-{lesmod.slug(node)}'>{html.escape(row['name'])}</a> · {mins} min")
         if toc:
             parts.append(f"<p class='toc' id='readtime'><small>In this module: {' · '.join(toc)}</small> <small>(minutes per lesson)</small></p>")
         if concepts:
@@ -847,7 +798,7 @@ class Handler(BaseHTTPRequestHandler):
         practice_tagged = False
         for ci, row in enumerate(concepts):
             node = row["cid"].split(":", 1)[1] if ":" in row["cid"] else row["cid"]
-            slug = _slug(node)
+            slug = lesmod.slug(node)
             concept_cards = cards_by_concept.get(row["cid"], [])
             concept_tries = sum(tries.get(c["id"], 0) for c in concept_cards)
             stale_any = any(c["stale"] for c in concept_cards)
@@ -906,7 +857,7 @@ class Handler(BaseHTTPRequestHandler):
         if c is None:
             return mid, ""
         node = c["id"].split(":", 1)[1] if ":" in c["id"] else c["id"]
-        return mid, f"lesson-{_slug(node)}"
+        return mid, f"lesson-{lesmod.slug(node)}"
 
     def tour_html(self) -> str:
         """Catalog of every web-facing item, each with a Show-me link."""
@@ -1020,7 +971,7 @@ class Handler(BaseHTTPRequestHandler):
         if url.path == "/diagnose":
             form = parse_qs(raw, keep_blank_values=True)
             trace = (form.get("trace", [""])[0] or "")[:20000]
-            body = self.diagnose_html(trace)
+            body = diamod.diagnose_html(self.db_path, trace)
             self._send(page("Diagnose", body, active="due", page_id="due",
                             lede="Paste a traceback — study first, then fix.",
                             counts=self._nav_counts()))

@@ -7,6 +7,7 @@ from urllib.parse import urlencode
 from groundwork import cards as cardsmod
 from groundwork import results as resmod
 from groundwork import db as dbmod
+from groundwork import diagnose as diamod
 from groundwork import history as histmod
 from groundwork import lessons as lesmod
 from groundwork import ownership as ownmod
@@ -102,15 +103,16 @@ class DistinctPagesTest(unittest.TestCase):
 
     def test_diagnose_links_traceback_to_lessons(self):
         self.assertEqual(
-            webmod._trace_symbols(
+            diamod._trace_symbols(
                 'File "a.py", line 10, in main\n'
                 'File "a.py", line 3, in add\n'
                 "NameError: name 'helper' is not defined"),
             ["main", "add", "helper"])
-        self.assertEqual(webmod._trace_symbols("no traceback here"), [])
-        empty = self.h.diagnose_html()
+        self.assertEqual(diamod._trace_symbols("no traceback here"), [])
+        empty = diamod.diagnose_html(self.db)
         self.assertIn("Paste a Python traceback", empty)
-        body = self.h.diagnose_html(
+        body = diamod.diagnose_html(
+            self.db,
             'File "calc.py", line 1, in add\n'
             'File "calc.py", line 9, in nosuchfn\n'
             "NameError: name 'add' is not defined")
@@ -335,7 +337,7 @@ class LessonPageTest(unittest.TestCase):
         # Same-day fluency alone never owns: a pass on the first visit
         # is still Learning.
         self.assertEqual(webmod._concept_status(False, 1, False), "Learning")
-        self.assertTrue(webmod._slug("mcp.py:MCPServer.submit_review").startswith("mcp-py"))
+        self.assertTrue(lesmod.slug("mcp.py:MCPServer.submit_review").startswith("mcp-py"))
 
     def test_owned_needs_spaced_modify_pass(self):
         con = dbmod.connect(self.db)

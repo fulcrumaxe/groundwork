@@ -54,6 +54,13 @@ def why_html(card) -> str:
     return f"<p><small><b>Why this matters:</b> {html.escape(why)}</small></p>"
 
 
+def slug(text: str) -> str:
+    """URL-fragment-safe anchor slug for a lesson section."""
+    out = "".join(ch.lower() if ch.isalnum() else "-" for ch in text)
+    out = "-".join(filter(None, out.split("-")))
+    return out or "lesson"
+
+
 def submissions_html(entries: list[dict]) -> str:
     """Submission history beneath a lesson's exercises."""
     if not entries:

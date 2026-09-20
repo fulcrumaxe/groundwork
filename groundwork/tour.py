@@ -163,6 +163,9 @@ ENTRIES = [
     {"id": "module-reset", "kind": "feature", "title": "Module reset",
      "blurb": "Start a module over from a confirm page — lessons stay, progress goes.",
      "path": "/modules/{mid}", "anchor": "reset"},
+    {"id": "style-guide", "kind": "feature", "title": "Component gallery",
+     "blurb": "Every UI building block on one dev page, with class names.",
+     "path": "/styleguide", "anchor": "styleguide"},
 ]
 
 BY_ID = {e["id"]: e for e in ENTRIES}

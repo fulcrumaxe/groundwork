@@ -1,6 +1,8 @@
 """Tour tests: every registry entry points at visible UI that exists."""
 import unittest
 
+from groundwork import diagnose as diamod
+from groundwork import styleguide as styleguidemod
 from groundwork import tour as tourmod
 from groundwork import web as webmod
 
@@ -20,7 +22,9 @@ def render_path(h, path, mid):
     elif path == "/debt":
         body = h.debt_html()
     elif path == "/diagnose":
-        body = h.diagnose_html()
+        body = diamod.diagnose_html(h.db_path)
+    elif path == "/styleguide":
+        body = styleguidemod.page()
     elif path == "/status":
         body = h.status_html()
     elif mid and path == f"/modules/{mid}":
@@ -36,7 +40,7 @@ class RegistryShapeTest(unittest.TestCase):
         # Batch 1: 10 improvements + 12 features; Batch 2: +5 and +6;
         # Batch 3: guardrail + 5 improvements + 5 features as they land.
         self.assertEqual(kinds.count("improvement"), 19)
-        self.assertEqual(kinds.count("feature"), 22)
+        self.assertEqual(kinds.count("feature"), 23)
         self.assertEqual(len(set(kinds)), 3)  # + mvp baseline
 
     def test_ids_unique_and_complete(self):
