@@ -40,6 +40,7 @@ AREAS = {
     "errors": "errors.py",
     "queue": "queue.py",
     "digest": "digest.py",
+    "monthreview": "monthreview.py",
 }
 
 

@@ -83,6 +83,8 @@ entries, and WEB_CEILING moves up only to cover those wires.
   on Due (queue.py; WEB_CEILING 906 → 990 for batch wires).
 - [x] I-242: Daily digest — today at a glance atop Due: due now, new,
   due tomorrow, suggested start (digest.py).
+- [x] I-244: Month in review — owned concepts, accuracy trend, effort
+  over 30 days on History (monthreview.py).
 
 ## IMPROVEMENTS (500)
 

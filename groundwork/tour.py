@@ -185,6 +185,9 @@ ENTRIES = [
     {"id": "daily-digest", "kind": "improvement", "title": "Daily digest",
      "blurb": "Today at a glance: due now, new cards, and where to start.",
      "path": "/due", "anchor": "digest"},
+    {"id": "month-review", "kind": "improvement", "title": "Month in review",
+     "blurb": "Concepts owned, accuracy trend and effort across the last 30 days.",
+     "path": "/reviews", "anchor": "month"},
 ]
 
 BY_ID = {e["id"]: e for e in ENTRIES}

@@ -11,6 +11,7 @@ from datetime import timedelta
 from . import cards as cardsmod
 from . import db as dbmod
 from . import exercises as exmod
+from . import monthreview as monthmod
 from . import ownership as ownmod
 from . import sched as schedmod
 from . import workload as workloadmod
@@ -145,6 +146,7 @@ def history_html(db_path: str) -> str:
     else:
         parts.append("<p>No attempts yet. Answer a card on the "
                      "<a href='/due'>Due</a> page and it will show up here.</p>")
+        parts.append(monthmod.section_html(db_path))
         return "".join(parts)
     if days:
         cells = "".join(
@@ -162,6 +164,7 @@ def history_html(db_path: str) -> str:
             f"{'s' if wdays != 1 else ''} · {wok} passed "
             f"({acc}) — your weekly review ritual: wins, weak spots, "
             f"next week on the <a href='/due'>Due</a> queue.</p>")
+        parts.append(monthmod.section_html(db_path))
     parts.append("<h2 id='attempts'>Attempts</h2>"
                      "<p id='timestamps'><small>Relative times "
                      "(“just now”, “3h ago”) — hover any time for "

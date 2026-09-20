@@ -59,6 +59,7 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | Helpful 404 | Unknown paths get links and a project search, never a bare error. | `/404#not-found` |
 | Queue grouped by module | Due cards gather under collapsible per-module sections. | `/due#queue-groups` |
 | Daily digest | Today at a glance: due now, new cards, and where to start. | `/due#digest` |
+| Month in review | Concepts owned, accuracy trend and effort across the last 30 days. | `/reviews#month` |
 
 ## The original loop
 
