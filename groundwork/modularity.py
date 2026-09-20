@@ -21,6 +21,7 @@ AREAS = {
     "api": "api.py",
     "cards": "cards.py",
     "lessons": "lessons.py",
+    "grading": "grading.py",
 }
 
 

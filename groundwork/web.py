@@ -619,8 +619,8 @@ class Handler(BaseHTTPRequestHandler):
                 widget = widget.replace(
                     "<button class='giveup'>",
                     "<button class='giveup' id='giveup'>", 1)
-            mem = cardsmod._memory_bar(
-                c, " id='memory'" if first else "")
+                widget = widget.replace("<details><summary>How grading works</summary>", "<details id='grading'><summary>How grading works</summary>", 1)
+            mem = cardsmod._memory_bar(c, " id='memory'" if first else "")
             forecast = cardsmod.forecast_html(c, " id='forecast'" if first else "")
             chip = cardsmod.status_chip(c, tries.get(c["id"], 0), " id='queue-status'" if first else "")
             snooze_id = " id='snooze'" if first else ""

@@ -148,6 +148,9 @@ ENTRIES = [
     {"id": "queue-chips", "kind": "improvement", "title": "Queue status chips",
      "blurb": "Due, overdue and new cards carry distinct chips in the queue.",
      "path": "/due", "anchor": "queue-status"},
+    {"id": "grading-how", "kind": "improvement", "title": "Grading disclosures",
+     "blurb": "Every card says how it is judged before you answer.",
+     "path": "/due", "anchor": "grading"},
 ]
 
 BY_ID = {e["id"]: e for e in ENTRIES}

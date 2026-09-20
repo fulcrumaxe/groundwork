@@ -51,6 +51,8 @@ status anchor + docs regen + MCP module + commit. Marked [x] as they land.
   to cards.py/lessons.py).
 - [x] I-219: Queue status chips — new/due/overdue chips on Due cards
   (zero web.py growth: inline call, existing chip styles).
+- [x] I-181: Grading disclosures — every card states its contract
+  (grading.py; mem-collapse offsets the one wiring line).
 
 ## IMPROVEMENTS (500)
 
