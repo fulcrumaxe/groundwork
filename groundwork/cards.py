@@ -270,6 +270,22 @@ def _rel_time(iso_ts: str) -> str:
             f"{html.escape(rel)}</time>")
 
 
+def status_chip(card, attempts: int = 0, extra: str = "") -> str:
+    """Due vs overdue vs new, at a glance (I-219)."""
+    get = card.get if isinstance(card, dict) else lambda k: card[k]
+    if not attempts:
+        return f"<span class='chip'{extra}>new</span>"
+    try:
+        from . import sched as schedmod
+        due = schedmod.parse_iso(str(get("due") or ""))
+        days = (schedmod.utcnow() - due).days
+    except Exception:  # noqa: BLE001 — bad date still renders
+        return f"<span class='chip'{extra}>due</span>"
+    if days >= 1:
+        return f"<span class='chip stale'{extra}>{days}d overdue</span>"
+    return f"<span class='chip'{extra}>due</span>"
+
+
 def forecast_html(card, extra: str = "") -> str:
     """Next-gap forecast at steady passes, from stability (I-203)."""
     from . import sched as schedmod

@@ -49,6 +49,8 @@ status anchor + docs regen + MCP module + commit. Marked [x] as they land.
 - [x] I-203: Next-gap forecast — Due cards estimate the gap at steady
   passes (cards.py + sched.forecast_gap; answer/lesson renderers move
   to cards.py/lessons.py).
+- [x] I-219: Queue status chips — new/due/overdue chips on Due cards
+  (zero web.py growth: inline call, existing chip styles).
 
 ## IMPROVEMENTS (500)
 

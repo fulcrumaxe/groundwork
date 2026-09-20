@@ -621,8 +621,8 @@ class Handler(BaseHTTPRequestHandler):
                     "<button class='giveup' id='giveup'>", 1)
             mem = cardsmod._memory_bar(
                 c, " id='memory'" if first else "")
-            forecast = cardsmod.forecast_html(
-                c, " id='forecast'" if first else "")
+            forecast = cardsmod.forecast_html(c, " id='forecast'" if first else "")
+            chip = cardsmod.status_chip(c, tries.get(c["id"], 0), " id='queue-status'" if first else "")
             snooze_id = " id='snooze'" if first else ""
             snooze = (
                 f"<form method='post' action='/cards/{c['id']}/snooze'>"
@@ -630,7 +630,7 @@ class Handler(BaseHTTPRequestHandler):
                 f"<button{snooze_id}>Snooze until tomorrow</button></form>")
             parts.append(
                 f"<article{cls}>{tag}{pos}{cardsmod._due_why(c, why_extra)}"
-                f"<h3>{html.escape(c.get('concept', ''))}{stale} {dots}</h3>"
+                f"<h3>{html.escape(c.get('concept', ''))}{stale} {dots} {chip}</h3>"
                 f"{mem}{forecast}{lesson}"
                 f"{lesmod.why_html(c)}"
                 f"<p>{html.escape(c.get('front', ''))}</p>"

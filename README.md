@@ -105,6 +105,7 @@ expected outputs are always *measured* in the sandbox, never invented.
 | Snooze a card | Not today? Snooze pushes one card to tomorrow — no grade recorded. | `/due#snooze` |
 | Back-to-top link | Long module pages grow a floating Back to top link. | `/modules#top` |
 | Next-gap forecast | Each Due card estimates its next gap at steady passes. | `/due#forecast` |
+| Queue status chips | Due, overdue and new cards carry distinct chips in the queue. | `/due#queue-status` |
 <!-- GW-IMPROVEMENTS:END -->
 
 See also [docs/features.md](docs/features.md) and the in-app

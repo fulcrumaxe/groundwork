@@ -46,6 +46,7 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | Snooze a card | Not today? Snooze pushes one card to tomorrow — no grade recorded. | `/due#snooze` |
 | Back-to-top link | Long module pages grow a floating Back to top link. | `/modules#top` |
 | Next-gap forecast | Each Due card estimates its next gap at steady passes. | `/due#forecast` |
+| Queue status chips | Due, overdue and new cards carry distinct chips in the queue. | `/due#queue-status` |
 
 ## The original loop
 
