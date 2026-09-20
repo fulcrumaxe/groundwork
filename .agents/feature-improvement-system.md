@@ -24,12 +24,22 @@ skip kinds of items; whatever is next in the backlog is what ships.
      functions, stdlib only, no DB/schema changes, no web.py edits);
    - draft its unittest + tour entry `{id, kind, title, blurb,
      path, anchor}` + one status-anchor line;
-   - run the Groundwork MCP for its contribution:
+   - run the Groundwork MCP for its contribution against the served
+     library DB (`--db groundwork.db`, never /tmp — /tmp DBs strand
+     modules outside the library, which is why batches 2–8 never grew
+     the module count):
      `echo '{"jsonrpc":"2.0","id":1,"method":"annotate_decision",
      "params":{"repo":".","symbol":"<area>.<fn>",
      "chosen":"...","rejected":"...","reason":"..."}}' |
-     python3 -m groundwork --db /tmp/gw-<id>.db mcp`
-     and report the result (note if unavailable);
+     python3 -m groundwork --db groundwork.db mcp`
+     plus one `create_learning_module` call covering the item's diff,
+     so every shipped item adds learning content, not just code;
+     the call MUST include agent-authored `lessons` (2–4, each with
+     `concept` + `summary` in your own words: what it does and why it
+     matters) and `exercises` (front/back you wrote, not template
+     filler) — the pipeline still verifies them, but the words must be
+     yours; report both results including `agent_errors`
+     (note if unavailable);
    - RETURN all five sections delimited; parent implements.
 
 3. **Wave 2 — feature subagents.** Same shape, `kind: "feature"`.

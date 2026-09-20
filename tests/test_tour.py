@@ -67,11 +67,25 @@ class RegistryShapeTest(unittest.TestCase):
         self.assertEqual(ctx["prev_url"], "/tour")
         seen.append(eid)
         while ctx["next_url"] != "/tour":
-            nxt = ctx["next_url"].split("tour=")[1]
+            nxt = ctx["next_url"].split("tour=")[1].split("#")[0]
             self.assertNotIn(nxt, seen)
             seen.append(nxt)
             ctx = tourmod.context(nxt)
         self.assertEqual(seen, tourmod.ORDER)
+
+    def test_step_url_keeps_tour_param_in_query(self):
+        # Guided mode only works when the server receives ?tour=: the
+        # query must precede the #anchor fragment (browsers never send
+        # anything after #). Regression: Show-me links once emitted
+        # /path#anchor?tour=id, which arrived with an empty query.
+        from urllib.parse import parse_qs, urlparse
+        for e in tourmod.ENTRIES:
+            with self.subTest(entry=e["id"]):
+                url = tourmod.step_url(e["id"], "m1", "lesson-add")
+                want_anchor = tourmod.resolve(e, "m1", "lesson-add").partition("#")[2]
+                parts = urlparse(url)
+                self.assertEqual(parse_qs(parts.query).get("tour"), [e["id"]])
+                self.assertEqual(parts.fragment, want_anchor)
 
     def test_placeholders_need_module_context(self):
         e = tourmod.BY_ID["bloom-ladder"]

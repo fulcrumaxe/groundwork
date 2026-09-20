@@ -30,6 +30,7 @@ from . import digest as digestmod
 from . import disputes as dismod
 from . import errors as errmod
 from . import exports as expmod
+from . import favicon as faviconmod
 from . import footnav as footnavmod
 from . import history as histmod
 from . import journal as journalmod
@@ -458,6 +459,9 @@ class Handler(BaseHTTPRequestHandler):
         elif url.path == "/badge.svg":
             self._send(self.badge_svg().encode(), 200,
                        "image/svg+xml; charset=utf-8")
+        elif url.path == "/favicon.ico":
+            self._send(self.favicon_svg().encode(), 200,
+                       "image/svg+xml; charset=utf-8")
         elif url.path == "/feed.xml":
             host = self.headers.get("Host", "127.0.0.1:8765")
             self._send(self.feed_xml(f"http://{host}").encode(), 200,
@@ -623,6 +627,9 @@ class Handler(BaseHTTPRequestHandler):
 
     def badge_svg(self) -> str:
         return badgemod.badge_svg(self.db_path)
+
+    def favicon_svg(self) -> str:
+        return faviconmod.favicon_svg()
 
     def feed_xml(self, base_url: str) -> str:
         return expmod.feed_xml(self.db_path, base_url)

@@ -483,8 +483,10 @@ def resolve(entry: dict, mid: str = "", lesson: str = "") -> str:
 def step_url(entry_id: str, mid: str = "", lesson: str = "") -> str:
     """Guided-mode URL for one tour step (banner + highlight on arrival)."""
     base = resolve(BY_ID[entry_id], mid, lesson)
-    sep = "&" if "?" in base else "?"
-    return f"{base}{sep}tour={entry_id}"
+    path, sep, frag = base.partition("#")
+    join = "&" if "?" in path else "?"
+    url = f"{path}{join}tour={entry_id}"
+    return f"{url}#{frag}" if sep else url
 
 
 def context(entry_id: str, mid: str = "", lesson: str = "") -> dict:

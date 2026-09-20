@@ -287,11 +287,111 @@ BLOOM_DEFAULT_TYPES = {
 }
 
 
+def _concept_index(concepts) -> dict:
+    by_key = {}
+    for c in concepts:
+        by_key[c.node_id] = c
+        by_key.setdefault(c.name, c)
+    return by_key
+
+
+def apply_agent_lessons(lessons: list, concepts, agent_lessons: list) -> list:
+    """Override templated lesson fields with the caller's own words.
+
+    Each item needs `concept` (selected node id or name) and a non-empty
+    `summary`; optional `how`, `key_lines`, `docstring`, `source`,
+    `callers`, `callees` replace the generated values. Measured fields
+    (`worked`) always stay. Returns per-item error strings.
+    """
+    errors = []
+    by_concept = {L["concept_id"]: L for L in lessons}
+    idx = _concept_index(concepts)
+    for i, item in enumerate(agent_lessons):
+        tag = f"lessons[{i}]"
+        if not isinstance(item, dict):
+            errors.append(f"{tag}: must be an object")
+            continue
+        key = item.get("concept") or item.get("name")
+        c = idx.get(str(key)) if key else None
+        if c is None or c.node_id not in by_concept:
+            errors.append(f"{tag}: unknown concept {key!r}")
+            continue
+        summary = str(item.get("summary") or "").strip()
+        if not summary:
+            errors.append(f"{tag}: missing summary")
+            continue
+        L = by_concept[c.node_id]
+        L["summary"] = summary[:2000]
+        for f in ("how", "key_lines", "docstring", "source",
+                  "callers", "callees"):
+            if item.get(f) is not None:
+                L[f] = item[f]
+        L["agent"] = True
+    return errors
+
+
+def build_agent_exercises(agent_exercises: list, concepts, start_n: int,
+                          commit: str, purpose: str, note_for) -> tuple:
+    """Caller-authored cards in generated-exercise shape.
+
+    Each item needs `concept` (selected node id or name) plus non-empty
+    `front`/`back`; `type` must be a known exercise id (default 1).
+    Returns (items, errors, next_n).
+    """
+    items, errors = [], []
+    idx = _concept_index(concepts)
+    n = start_n
+    for i, item in enumerate(agent_exercises):
+        tag = f"exercises[{i}]"
+        if not isinstance(item, dict):
+            errors.append(f"{tag}: must be an object")
+            continue
+        key = item.get("concept")
+        c = idx.get(str(key)) if key else None
+        if c is None:
+            errors.append(f"{tag}: unknown concept {key!r}")
+            continue
+        front = str(item.get("front") or "").strip()
+        back = str(item.get("back") or "").strip()
+        if not front or not back:
+            errors.append(f"{tag}: front and back are both required")
+            continue
+        t = item.get("type", 1)
+        if t not in ex.TYPES:
+            errors.append(f"{tag}: unknown type {t!r}")
+            continue
+        n += 1
+        payload = item.get("payload") or {}
+        if not isinstance(payload, dict):
+            errors.append(f"{tag}: payload must be an object")
+            continue
+        hints = item.get("hints") or []
+        items.append({
+            "id": f"ex{n:03d}", "type": t,
+            "type_name": ex.TYPES[t][0], "bloom": ex.TYPES[t][1],
+            "concept_id": c.node_id, "concept": c.name,
+            "file": c.file, "line": c.line, "commit": commit,
+            "front": front[:2000], "back": back[:2000],
+            "payload": payload, "hints": list(hints)[:8],
+            "why": why_for(note_for(c), purpose)})
+    return items, errors, n
+
+
 def create_module(con, repo: str, commit_range: str = "", task_summary: str = "",
                   touched_symbols: list[str] | None = None,
                   learner_level: str = "intermediate",
                   provider=None, runner=None, purpose: str = "",
-                  concept_notes: dict | None = None) -> dict:
+                  concept_notes: dict | None = None,
+                  agent_lessons: list | None = None,
+                  agent_exercises: list | None = None,
+                  agent_exercises_only: bool = False) -> dict:
+    # Caller-authored teaching content (the agent that made the change
+    # explains it in its own words) must be lists; per-item problems are
+    # collected, never silent.
+    if agent_lessons is not None and not isinstance(agent_lessons, list):
+        return {"error": "lessons must be a list"}
+    if agent_exercises is not None and not isinstance(agent_exercises, list):
+        return {"error": "exercises must be a list"}
     # Absolute repo: concept file anchors must resolve regardless of cwd.
     repo = str(Path(repo).resolve())
     repo_p = Path(repo)
@@ -326,6 +426,7 @@ def create_module(con, repo: str, commit_range: str = "", task_summary: str = ""
     wanted = {p["concept"]: p["bloom"] for p in plan["concepts"]}
     lessons = [lesson_for(repo, c, graph) for c in concepts]
     lesson_by_concept = {L["concept_id"]: L for L in lessons}
+    agent_errors = apply_agent_lessons(lessons, concepts, agent_lessons or [])
     exercises: list[dict] = []
     first_ctx = None
     n = 0
@@ -386,6 +487,19 @@ def create_module(con, repo: str, commit_range: str = "", task_summary: str = ""
         me = ex.generate(30, f"ex{n:03d}", c0, sn0, mctx)
         me["why"] = why_for(_note_for(c0), purpose)
         exercises.append(me)
+    # Caller-authored cards join the same queue and face the same sandbox
+    # verifier as generated ones — equal treatment, no free pass.
+    ax, ax_errors, n = build_agent_exercises(
+        agent_exercises or [], concepts, n, ",".join(d.commits[:2]),
+        purpose, _note_for)
+    agent_errors += ax_errors
+    if agent_exercises_only and (agent_exercises or []) and ax:
+        exercises = ax  # caller's cards replace template trivia
+    elif agent_exercises_only and (agent_exercises or []):
+        agent_errors.append(
+            "exercises: no usable agent cards; generated fallback kept")
+    else:
+        exercises.extend(ax)
     # Open learning holes become complete-the-function exercises (PRD
     # "learning mode"): the agent left a TODO, the learner writes it.
     holes = [dict(r) for r in con.execute(
@@ -428,7 +542,8 @@ def create_module(con, repo: str, commit_range: str = "", task_summary: str = ""
             "lessons": lessons, "exercises": kept,
             "purpose": purpose,
             "dropped": len(report["dropped"]),
-            "pass_rate": report["pass_rate"]}
+            "pass_rate": report["pass_rate"],
+            "agent_errors": agent_errors}
 
 
 UNSTATED_WHY = ("No reason given — the agent didn't say why this matters. "

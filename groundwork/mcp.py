@@ -36,6 +36,15 @@ TOOL_DOCS = {
                        "was given.",
             "concept_notes": {"symbol or node id (e.g. grade, mcp.py:MCPServer.submit_review)":
                               "why THIS symbol matters, one line"},
+            "lessons": [{"concept": "node id or name (must match a touched symbol)",
+                         "summary": "REQUIRED: what the learner should understand, in your own words",
+                         "how": ["optional: how it works, step by step"],
+                         "key_lines": "optional: the lines that matter"}],
+            "exercises": [{"concept": "node id or name",
+                           "type": "exercise id 1-48 (default 1)",
+                           "front": "REQUIRED: the question",
+                           "back": "REQUIRED: the answer"}],
+            "agent_exercises_only": "true: your cards replace generated ones",
         },
     },
     "annotate_decision": {"purpose": "Record chose-X-over-Y for rationale exercises.",
@@ -115,9 +124,14 @@ class MCPServer:
                 touched_symbols=p.get("touched_symbols", []),
                 learner_level=p.get("learner_level", "intermediate"),
                 purpose=p.get("purpose", ""),
-                concept_notes=p.get("concept_notes", {}))
+                concept_notes=p.get("concept_notes", {}),
+                agent_lessons=p.get("lessons"),
+                agent_exercises=p.get("exercises"),
+                agent_exercises_only=bool(p.get("agent_exercises_only", False)))
         finally:
             con.close()
+        if out.get("error"):
+            return out
         link = f"/modules/{out['module_id']}"
         return {"module link": link, **{k: v for k, v in out.items() if k != "exercises"},
                 "exercise_count": len(out["exercises"])}
