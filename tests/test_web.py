@@ -6,6 +6,7 @@ from urllib.parse import urlencode
 
 from groundwork import db as dbmod
 from groundwork import mcp as mcplib
+from groundwork import sched as schedmod
 from groundwork import web as webmod
 
 
@@ -484,6 +485,38 @@ class ProjectsPageTest(unittest.TestCase):
                             active="projects", page_id="projects").decode()
         self.assertIn("aria-current=\"page\"", shell)
         self.assertIn("href='/due'", shell)
+
+
+class RelativeTimesTest(unittest.TestCase):
+    def setUp(self):
+        self.tmp, self.db, self.server, self.out = make_module("times mod")
+        self.h = handler_for(self.db)
+
+    def _ago(self, **kw):
+        import datetime
+        return schedmod.iso(schedmod.utcnow() -
+                            datetime.timedelta(**kw))
+
+    def test_buckets(self):
+        self.assertIn("just now", webmod._rel_time(self._ago(seconds=10)))
+        self.assertIn("30m ago", webmod._rel_time(self._ago(minutes=30)))
+        self.assertIn("5h ago", webmod._rel_time(self._ago(hours=5)))
+        self.assertIn("3d ago", webmod._rel_time(self._ago(days=3)))
+        old = webmod._rel_time(self._ago(days=40))
+        self.assertIn("<time datetime=", old)
+        self.assertNotIn("ago", old)
+
+    def test_bad_input_still_renders(self):
+        self.assertIn("<time datetime=", webmod._rel_time("not-a-date"))
+        self.assertIn("<time datetime=", webmod._rel_time(""))
+
+    def test_history_attempts_use_relative_times(self):
+        card = self.server.tool_list_due_reviews({"limit": 1})["due"][0]
+        self.server.submit_review(card["id"], "5", 4)
+        body = self.h.history_html()
+        self.assertIn("id='timestamps'", body)
+        self.assertIn("<time datetime=", body)
+        self.assertIn("just now", body)
 
 
 if __name__ == "__main__":

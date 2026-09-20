@@ -33,7 +33,8 @@ def render_path(h, path, mid):
 class RegistryShapeTest(unittest.TestCase):
     def test_ten_improvements_plus_growing_features(self):
         kinds = [e["kind"] for e in tourmod.ENTRIES]
-        self.assertEqual(kinds.count("improvement"), 10)
+        # Batch 2 grows improvements 10 -> 15 as items land; features only grow.
+        self.assertEqual(kinds.count("improvement"), 11)
         self.assertGreaterEqual(kinds.count("feature"), 12)
         self.assertEqual(len(set(kinds)), 3)  # + mvp baseline
 

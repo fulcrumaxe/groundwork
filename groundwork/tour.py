@@ -108,6 +108,9 @@ ENTRIES = [
     {"id": "seed-modules", "kind": "feature", "title": "Groundwork seed",
      "blurb": "Groundwork itself ships as learnable modules: export one repo's modules to a seed file, import it anywhere.",
      "path": "/status", "anchor": "status-seed"},
+    {"id": "relative-times", "kind": "improvement", "title": "Relative timestamps",
+     "blurb": "History reads as “just now” and “3h ago” — hover any time for the exact timestamp.",
+     "path": "/reviews", "anchor": "timestamps"},
 ]
 
 BY_ID = {e["id"]: e for e in ENTRIES}

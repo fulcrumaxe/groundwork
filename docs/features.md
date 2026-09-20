@@ -34,6 +34,7 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | Answer drafts | Type an answer, reload the page — your text survives. Cleared on submit. | `/due#up-next` |
 | Give-up path | Stuck? Give up shows the answer and records the lapse honestly. | `/due#giveup` |
 | Due-why tooltips | Hover why-due: memory strength, days overdue, lapse count. | `/due#due-why` |
+| Relative timestamps | History reads as “just now” and “3h ago” — hover any time for the exact timestamp. | `/reviews#timestamps` |
 
 ## The original loop
 

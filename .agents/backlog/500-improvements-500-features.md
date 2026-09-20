@@ -18,6 +18,8 @@ docs regen + MCP module + commit. Marked [x] as they land.
 
 - [x] SEED: Groundwork seed — export-seed/import-seed CLI, status home,
   tour entry (no fixed backlog number; the seed idea spans O. packs).
+- [x] I-25/I-26/I-93: Relative timestamps — History attempts render
+  `<time datetime>` with relative text + exact on hover.
 
 ## IMPROVEMENTS (500)
 

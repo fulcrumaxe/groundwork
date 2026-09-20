@@ -512,6 +512,39 @@ def _due_why(card, extra: str = "") -> str:
             f"why due?</span></small>")
 
 
+_WEEK_SECS = 7 * 86400
+
+
+def _rel_time(iso_ts: str) -> str:
+    """Relative time with exact timestamp on hover (I-25, I-26, I-93).
+
+    Renders `<time datetime>` so dates read as "3h ago" but keep their
+    exact, timezone-explicit value one hover away.
+    """
+    raw = iso_ts or ""
+    try:
+        from . import sched as schedmod
+        stamp = schedmod.parse_iso(raw)
+        delta = schedmod.utcnow() - stamp
+        secs = int(delta.total_seconds())
+        if secs < 0:
+            rel = "in the future"
+        elif secs < 90:
+            rel = "just now"
+        elif secs < 5400:
+            rel = f"{secs // 60}m ago"
+        elif secs < 129600:
+            rel = f"{secs // 3600}h ago"
+        elif secs < _WEEK_SECS:
+            rel = f"{secs // 86400}d ago"
+        else:
+            rel = raw[:10]
+    except Exception:  # noqa: BLE001 — bad date still renders
+        rel = raw[:10] or "unknown"
+    return (f"<time datetime='{html.escape(raw)}' title='{html.escape(raw)}'>"
+            f"{html.escape(rel)}</time>")
+
+
 def _difficulty_dots(difficulty, extra: str = "") -> str:
     """5-dot difficulty meter from the FSRS difficulty estimate."""
     try:
@@ -935,14 +968,17 @@ class Handler(BaseHTTPRequestHandler):
             parts.append("<h2>Last 14 practice days</h2>"
                          f"<table class='log'><tr><th>Day</th><th>Attempts</th>"
                          f"<th>Passed</th></tr>{cells}</table>")
-        parts.append("<h2 id='attempts'>Attempts</h2>")
+        parts.append("<h2 id='attempts'>Attempts</h2>"
+                         "<p id='timestamps'><small>Relative times "
+                         "(“just now”, “3h ago”) — hover any time for "
+                         "the exact timestamp.</small></p>")
         for r in rows:
             cls = "ok" if (r["grade"] or 0) >= 4 else "stale"
             mark = "✓" if (r["grade"] or 0) >= 4 else "✗"
             parts.append(
                 f"<p class='{cls}'>{mark} {html.escape(r['concept'] or '')} — "
                 f"grade {r['grade']}/5, confidence {r['confidence']}/5 "
-                f"<small>{html.escape(r['reviewed_at'] or '')}</small><br>"
+                f"<small>{_rel_time(r['reviewed_at'] or '')}</small><br>"
                 f"<small>in <a href='/modules/{r['module_id']}'>"
                 f"{html.escape(r['summary'] or r['module_id'])}</a></small></p>")
         return "".join(parts)
