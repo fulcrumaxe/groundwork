@@ -71,6 +71,26 @@ def _ints(text: str) -> list[int]:
     return [int(tok) for tok in re.findall(r"-?\d+", str(text or ""))]
 
 
+_CALL_ARGS_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_]*\s*\([^()]*\)")
+
+
+def _line_ints(text: str) -> list[int]:
+    """Integers that read as line references, not call arguments.
+
+    Digits inside a call's parentheses (``ratio(4, 2)``) are arguments,
+    not line numbers — otherwise any wrong call containing the digit
+    would pass. A bare number alone still counts as a line guess.
+    """
+    text = str(text or "")
+    rest = _CALL_ARGS_RE.sub(" ", text)
+    ints = _ints(rest)
+    if ints:
+        return ints
+    if re.fullmatch(r"\s*-?\d+\s*", text):
+        return _ints(text)
+    return []
+
+
 def _hints(fname: str, reported: str, file: str, line: int) -> list[str]:
     where = f"{file}:{line}" if file and line else (file or "the linked file")
     return [
@@ -164,7 +184,7 @@ def grade(exercise: dict, submission: str, runner=None) -> dict:
                 pass  # runner trouble must not fail a good repro
         want = _canon(crash_call)
         call_ok = bool(want) and want in _canon(text)
-        line_ok = bool(crash_line) and crash_line in _ints(text)
+        line_ok = bool(crash_line) and crash_line in _line_ints(text)
         if call_ok and (not crash_line or line_ok):
             return {"pass": True, "score": 1.0,
                     "feedback": "Crasher reproduced at the right line."}
