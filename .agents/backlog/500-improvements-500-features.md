@@ -111,6 +111,8 @@ entries, and WEB_CEILING moves up only to cover those wires.
   one next step on Status (letter.py).
 - [x] F-137: Serendipity cards — adjacent non-due concept as a labeled
   bonus wander on Due (serendipity.py).
+- [x] F-184: Blind spots — lowest-mastery concepts with lesson links
+  on Status (blindspots.py).
 
 ## IMPROVEMENTS (500)
 

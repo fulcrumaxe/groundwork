@@ -95,6 +95,7 @@ expected outputs are always *measured* in the sandbox, never invented.
 | Tool-call analytics | Which MCP tools fire, with failure rates and latency. | `/status#status-tools` |
 | Weekly letter | An auto-drafted private progress note — gentle, never streaky. | `/status#status-letter` |
 | Serendipity cards | An adjacent concept you might love — bonus, never duty. | `/due#serendipity` |
+| Blind spots | Lowest-mastery concepts — study time goes where it matters. | `/status#status-blindspots` |
 <!-- GW-FEATURES:END -->
 
 ## Improvements

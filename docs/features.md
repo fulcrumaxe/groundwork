@@ -38,6 +38,7 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | Tool-call analytics | Which MCP tools fire, with failure rates and latency. | `/status#status-tools` |
 | Weekly letter | An auto-drafted private progress note — gentle, never streaky. | `/status#status-letter` |
 | Serendipity cards | An adjacent concept you might love — bonus, never duty. | `/due#serendipity` |
+| Blind spots | Lowest-mastery concepts — study time goes where it matters. | `/status#status-blindspots` |
 
 ## Improvements
 

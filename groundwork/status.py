@@ -10,6 +10,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from . import db as dbmod
+from . import blindspots as blindmod
 from . import disputes as dismod
 from . import letter as lettermod
 from . import mcp as mcplib
@@ -70,6 +71,7 @@ def page_html(db_path: str) -> str:
         northstarmod.section_html(db_path) +
         toolsmod.section_html(db_path) +
         lettermod.section_html(db_path) +
+        blindmod.section_html(db_path) +
         "<h2 id='status-disputes'>Grade disputes</h2>" +
         dismod.queue_html(db_path) +
         storagemod.section_html(db_path) +
