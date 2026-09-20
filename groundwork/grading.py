@@ -53,6 +53,14 @@ def disclosure(etype: str | int) -> str:
         30: "Every pair must match; partial credit per pair.",
         31: "Every annotation slot must match (spelling-normalized); partial credit per slot.",
         32: "Your >>> example must run green as a doctest, and one example must call the function.",
+        33: "Each assert line must hold against the shown code, and one must call the function.",
+        34: "Name the exact crashing call or the crashing line — either half counts.",
+        35: "Your rewrite must score strictly lower (AST-measured) and keep the hidden tests green.",
+        36: "Name the top-allocating line as file:line — exact match.",
+        37: "Name the exact shared-state line plus a fix (copy, lock, or parameter).",
+        38: "Remove the flagged dead code; the remaining tests must stay green.",
+        39: "Magic literals must live in named constants, bodies must not hold them; hidden tests stay green.",
+        40: "Every rubric point must hold: exact name, params, defaults, return annotation.",
     }
     return table.get(t, "Graded like its exercise family.")
 

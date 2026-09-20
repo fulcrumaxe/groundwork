@@ -14,11 +14,19 @@ import random
 import re
 from pathlib import Path
 
+from . import apidesign as apidesignmod
+from . import configex as configexmod
+from . import deadcode as deadcodemod
 from . import diretro as diretromod
 from . import docdoctest as docdoctestmod
 from . import errbranch as errbranchmod
+from . import fuzztriage as fuzztriagemod
 from . import golf as golfmod
 from . import logretro as logretromod
+from . import memprofile as memprofilemod
+from . import perffix as perffixmod
+from . import proptest as proptestmod
+from . import racehunt as racehuntmod
 from . import renameex as renameexmod
 from . import smell as smellmod
 from . import typeanno as typeannomod
@@ -57,16 +65,24 @@ TYPES = {
     30: ("match-pairs", "recall"),
     31: ("type-annotation", "apply"),
     32: ("doc-example", "apply"),
+    33: ("property-test", "apply"),
+    34: ("fuzz-triage", "analyse"),
+    35: ("perf-fix", "modify"),
+    36: ("memory-profile", "analyse"),
+    37: ("race-hunt", "analyse"),
+    38: ("dead-code", "modify"),
+    39: ("config-extract", "modify"),
+    40: ("api-design", "create"),
 }
 
 BLOOM_TYPES = {
     "recall": [1, 2, 3, 4],
     "explain": [5, 6, 7, 25, 1],
-    "apply": [8, 10, 11, 12, 9, 31, 32],
-    "analyse": [13, 14, 15, 16, 17, 18, 9, 26, 28, 29],
-    "modify": [12, 14, 19, 20, 27],
+    "apply": [8, 10, 11, 12, 9, 31, 32, 33],
+    "analyse": [13, 14, 15, 16, 17, 18, 9, 26, 28, 29, 34, 36, 37],
+    "modify": [12, 14, 19, 20, 27, 35, 38, 39],
     "evaluate": [21, 22],
-    "create": [24, 23],
+    "create": [24, 23, 40],
 }
 
 
@@ -740,6 +756,10 @@ GENERATORS = {
     26: golfmod.generate, 27: diretromod.generate, 28: errbranchmod.generate,
     29: logretromod.generate, 30: gen_match,
     31: typeannomod.generate, 32: docdoctestmod.generate,
+    33: proptestmod.generate, 34: fuzztriagemod.generate,
+    35: perffixmod.generate, 36: memprofilemod.generate,
+    37: racehuntmod.generate, 38: deadcodemod.generate,
+    39: configexmod.generate, 40: apidesignmod.generate,
 }
 
 
@@ -923,6 +943,22 @@ def grade(exercise: dict, submission: str, runner=None) -> dict:
         return typeannomod.grade(exercise, submission, runner)
     if t == 32:
         return docdoctestmod.grade(exercise, submission, runner)
+    if t == 33:
+        return proptestmod.grade(exercise, submission, runner)
+    if t == 34:
+        return fuzztriagemod.grade(exercise, submission, runner)
+    if t == 35:
+        return perffixmod.grade(exercise, submission, runner)
+    if t == 36:
+        return memprofilemod.grade(exercise, submission, runner)
+    if t == 37:
+        return racehuntmod.grade(exercise, submission, runner)
+    if t == 38:
+        return deadcodemod.grade(exercise, submission, runner)
+    if t == 39:
+        return configexmod.grade(exercise, submission, runner)
+    if t == 40:
+        return apidesignmod.grade(exercise, submission, runner)
     # Execution-graded types need the sandbox runner. Pure-order Parsons
     # (no harness) is graded without it, below.
     if runner is None and not (t == 11 and not p.get("tests")):
@@ -1029,6 +1065,22 @@ def render(exercise: dict) -> str:
         return typeannomod.render(exercise)
     if t == 32:
         return docdoctestmod.render(exercise)
+    if t == 33:
+        return proptestmod.render(exercise)
+    if t == 34:
+        return fuzztriagemod.render(exercise)
+    if t == 35:
+        return perffixmod.render(exercise)
+    if t == 36:
+        return memprofilemod.render(exercise)
+    if t == 37:
+        return racehuntmod.render(exercise)
+    if t == 38:
+        return deadcodemod.render(exercise)
+    if t == 39:
+        return configexmod.render(exercise)
+    if t == 40:
+        return apidesignmod.render(exercise)
     p = exercise.get("payload", {})
     front = html.escape(exercise.get("front", ""))
     body = f"<p>{front}</p>"

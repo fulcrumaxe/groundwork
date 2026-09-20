@@ -113,6 +113,14 @@ expected outputs are always *measured* in the sandbox, never invented.
 | Logging-retrofit exercises | Type 29 cards mark the lines that deserve a log call — you name each level, checklist-graded with no sandbox. | `/status#status-b6-logretro` |
 | Type-annotation retrofit | Unannotated function in, full annotations out — AST-graded per slot. See how it is judged. | `/status#status-b6-typeanno` |
 | Doc-example doctest | Write a >>> example that passes as a real doctest run. | `/status#status-b6-docdoctest` |
+| Property-test authoring | State assert invariants for a function — each one runs green or tells you which failed. | `/status#status-b7-proptest` |
+| Fuzz-target triage | Reproduce a fuzzer-found crash: write the minimal failing call and name the crashing line. | `/status#status-b7-fuzztriage` |
+| Perf-fix exercises | Rewrite a loop-heavy function so it scores lower — AST-measured, tests stay green. | `/status#status-b7-perffix` |
+| Memory-profile reading | Read a tracemalloc-style snapshot and name the top-allocating line. | `/status#status-b7-memprofile` |
+| Race-hunt | Spot the shared mutable state: name the line plus the fix — local copy, lock, or parameter. | `/status#status-b7-racehunt` |
+| Dead-code elimination | Cut the flagged dead function, branch, or import — remaining tests stay green. | `/status#status-b7-deadcode` |
+| Config extraction | Hoist magic values into named constants; hidden tests stay green. | `/status#status-b7-configex` |
+| API-signature design | Design a function signature — name, params with defaults, return annotation. | `/status#status-b7-apidesign` |
 <!-- GW-FEATURES:END -->
 
 ## Improvements
@@ -166,6 +174,14 @@ expected outputs are always *measured* in the sandbox, never invented.
 | Lesson pager | Each lesson article ends with previous/next card links — walk a module one card at a time. | `/status#status-b6-pager` |
 | Footer sitemap | Every page ends in a grouped site map — Due, Modules, History, About — so no page is a dead end. | `/#site-footer` |
 | Keep your place in the queue | Answering a card and coming back lands you where you left off, not at the top. | `/due#queue` |
+| Whole-card module links | Every module card is one big target with a visible keyboard focus ring. | `/status#status-b7-clickcards` |
+| Mark as reviewed | Re-read a lesson? Tick it reviewed — no answer, no grade, kept in your browser. | `/status#status-b7-reviewed` |
+| Module status filter | The Modules library filters by status — all, in-progress, owned, stale. | `/status#status-b7-modfilter` |
+| Modules pagination | Past 50 modules the library splits into pages — page links keep your filters. | `/status#status-b7-modpages` |
+| Concept chips link to lessons | Every concept's status chip jumps straight to its lesson section. | `/status#status-b7-chiplinks` |
+| Recently visited strip | Due opens with your last 8 modules — kept in this browser only. | `/status#status-b7-recent` |
+| Unsaved-answer guard | Start typing an answer and wander off and the browser asks first. | `/status#status-b7-unsaved` |
+| Result verdict auto-scroll | After grading, the verdict block takes focus and scrolls into view. | `/status#status-b7-autoscroll` |
 <!-- GW-IMPROVEMENTS:END -->
 
 See also [docs/features.md](docs/features.md) and the in-app
