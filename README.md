@@ -86,6 +86,7 @@ expected outputs are always *measured* in the sandbox, never invented.
 | Workload forecast | Reviews due per day for the next 30 days — see busy days coming. | `/reviews#workload` |
 | Module reset | Start a module over from a confirm page — lessons stay, progress goes. | `/modules/&lt;id&gt;#reset` |
 | Component gallery | Every UI building block on one dev page, with class names. | `/styleguide#styleguide` |
+| Storage meter | Database size and per-module rows — growth never surprises. | `/status#status-storage` |
 <!-- GW-FEATURES:END -->
 
 ## Improvements

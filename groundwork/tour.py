@@ -169,6 +169,9 @@ ENTRIES = [
     {"id": "shortcuts-cheatsheet", "kind": "improvement", "title": "Keyboard shortcuts",
      "blurb": "g then d jumps to Due, ? opens the cheat sheet — typing never hijacked.",
      "path": "/", "anchor": "shortcuts"},
+    {"id": "storage-meter", "kind": "feature", "title": "Storage meter",
+     "blurb": "Database size and per-module rows — growth never surprises.",
+     "path": "/status", "anchor": "status-storage"},
 ]
 
 BY_ID = {e["id"]: e for e in ENTRIES}

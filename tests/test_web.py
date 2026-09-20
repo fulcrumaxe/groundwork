@@ -7,6 +7,7 @@ from urllib.parse import urlencode
 from groundwork import cards as cardsmod
 from groundwork import results as resmod
 from groundwork import db as dbmod
+from groundwork import debt as debtmod
 from groundwork import diagnose as diamod
 from groundwork import history as histmod
 from groundwork import lessons as lesmod
@@ -318,11 +319,11 @@ class LessonPageTest(unittest.TestCase):
                 "INSERT INTO reviews(card_id, grade, confidence)"
                 " VALUES(?,?,?)", (card["id"], 5, 4))
             con.commit()
-            reached = webmod._bloom_reached(con, self.out["module_id"])
+            reached = debtmod.bloom_reached(con, self.out["module_id"])
         finally:
             con.close()
         from groundwork import exercises as exmod
-        want = webmod.BLOOM_RUNGS.index(exmod.TYPES[int(card["exercise_type"])][1])
+        want = debtmod.BLOOM_RUNGS.index(exmod.TYPES[int(card["exercise_type"])][1])
         self.assertEqual(reached[card["concept_id"]], want)
         body = self.h.module_html(self.out["module_id"])
         self.assertIn("class='on'", body)

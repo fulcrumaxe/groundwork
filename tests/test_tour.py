@@ -38,9 +38,9 @@ class RegistryShapeTest(unittest.TestCase):
     def test_batches_landed_improvements_and_features(self):
         kinds = [e["kind"] for e in tourmod.ENTRIES]
         # Batch 1: 10 improvements + 12 features; Batch 2: +5 and +6;
-        # Batch 3: guardrail + 5 improvements + 5 features as they land.
+        # Batch 3: guardrail + 5 improvements + 5 features.
         self.assertEqual(kinds.count("improvement"), 20)
-        self.assertEqual(kinds.count("feature"), 23)
+        self.assertEqual(kinds.count("feature"), 24)
         self.assertEqual(len(set(kinds)), 3)  # + mvp baseline
 
     def test_ids_unique_and_complete(self):
@@ -109,7 +109,8 @@ class TourTargetsTest(unittest.TestCase):
         for sec in ("status-ci", "status-hooks", "status-cli",
                     "status-mcp", "status-exports", "status-share",
                     "status-seed", "status-sitemap", "status-csv",
-                    "status-api", "status-modular", "status-disputes"):
+                    "status-api", "status-modular", "status-disputes",
+                    "status-storage"):
             self.assertIn(f"id='{sec}'", body)
         self.assertIn("/export/anki.tsv", body)
         self.assertIn("/feed.xml", body)

@@ -10,30 +10,31 @@ import html
 import json
 import re
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from pathlib import Path
 from urllib.parse import parse_qs, quote, urlparse
 
 from . import api as apimod
 from . import cards as cardsmod
 from . import db as dbmod
+from . import debt as debtmod
 from . import diagnose as diamod
 from . import disputes as dismod
+from . import exports as expmod
 from . import history as histmod
 from . import lessons as lesmod
+from . import mcp as mcplib
+from . import modularity as modularitymod
+from . import modules as modmod
 from . import ownership as ownmod
 from . import queries as quemod
-from . import shortcuts as shortcutsmod
-from . import styleguide as styleguidemod
 from . import readtime as readtimemod
 from . import reset as resetmod
 from . import results as resmod
-from . import exercises as exmod
-from . import exports as expmod
-from . import mcp as mcplib
-from . import modularity as modularitymod
-from . import sitemap as sitemapmod
-from . import modules as modmod
 from . import sched as schedmod
+from . import shortcuts as shortcutsmod
+from . import sitemap as sitemapmod
+from . import status as statusmod
+from . import storage as storagemod
+from . import styleguide as styleguidemod
 from . import tour as tourmod
 
 CSS = ("body{font-family:system-ui,-apple-system,sans-serif;max-width:48rem;"
@@ -258,43 +259,6 @@ def page(title: str, body: str, active: str = "projects",
             f"<body data-page='{page_id}'>{head}{body}{foot}"
             f"{shortcutsmod.overlay_html()}{GLOBAL_JS}{shortcutsmod.script_js()}"
             f"</body></html>").encode()
-
-
-BLOOM_RUNGS = ["recall", "explain", "apply", "analyse", "modify", "create"]
-
-
-def _bloom_reached(con, mid: str) -> dict:
-    """Highest Bloom rung with a passing review, per concept in a module."""
-    rung_of = {}
-    for t, (_name, bloom) in exmod.TYPES.items():
-        rung_of[str(t)] = BLOOM_RUNGS.index(bloom) if bloom in BLOOM_RUNGS else -1
-    out: dict[str, int] = {}
-    try:
-        rows = con.execute(
-            "SELECT cards.concept_id, cards.exercise_type FROM reviews"
-            " JOIN cards ON cards.id = reviews.card_id"
-            " JOIN concepts ON concepts.id = cards.concept_id"
-            " WHERE concepts.module_id=? AND reviews.grade >= 4",
-            (mid,)).fetchall()
-    except Exception:  # noqa: BLE001 — no reviews yet still renders
-        return out
-    for r in rows:
-        rung = rung_of.get(str(r["exercise_type"]), -1)
-        if rung >= 0:
-            out[r["concept_id"]] = max(out.get(r["concept_id"], -1), rung)
-    return out
-
-
-def _ladder_html(reached: int, extra: str = "") -> str:
-    """Six ascending rungs; lit rungs mark demonstrated skill tiers."""
-    bars = []
-    for i, bloom in enumerate(BLOOM_RUNGS):
-        cls = "on" if i <= reached else "off"
-        bars.append(f"<i class='{cls}' style='height:{4 + 2 * i}px' "
-                    f"title='{bloom}'></i>")
-    return (f"<span class='ladder'{extra} title='Highest demonstrated: "
-            f"{BLOOM_RUNGS[reached] if reached >= 0 else 'none yet'}'>"
-            + "".join(bars) + "</span>")
 
 
 def _first_unowned(owned: dict, cids_in_order: list[str]) -> str | None:
@@ -581,47 +545,7 @@ class Handler(BaseHTTPRequestHandler):
         return sitemapmod.robots_txt(base_url)
 
     def debt_html(self) -> str:
-        """Comprehension debt: what changed vs what you can prove you own."""
-        con = self._con()
-        try:
-            mods = con.execute(
-                "SELECT id, repo, task_summary FROM modules"
-                " ORDER BY created_at DESC").fetchall()
-            per_repo: dict[str, dict[str, list]] = {}
-            for m in mods:
-                omap = ownmod.owned_map(con, m["id"])
-                rows = con.execute(
-                    "SELECT id, file FROM concepts WHERE module_id=?",
-                    (m["id"],)).fetchall()
-                bucket = per_repo.setdefault(m["repo"] or "(unknown repo)", {})
-                for r in rows:
-                    cell = bucket.setdefault(r["file"] or "(unknown)", [0, 0])
-                    cell[1] += 1
-                    if omap.get(r["id"], (0, False))[1]:
-                        cell[0] += 1
-        finally:
-            con.close()
-        if not per_repo:
-            return ("<p>No modules yet — debt is zero because nothing "
-                    "has changed.</p>")
-        total_o = sum(c[0] for b in per_repo.values() for c in b.values())
-        total_n = sum(c[1] for b in per_repo.values() for c in b.values())
-        debt = 0 if not total_n else int(round(100 * (1 - total_o / total_n)))
-        parts = [f"<div class='bar' id='debt-meter' role='img' aria-label='{debt}% "
-                   f"comprehension debt'><i style='width:{debt}%'></i></div>"
-                   f"<p><strong>{debt}% comprehension debt</strong> "
-                   f"({total_o}/{total_n} concepts owned)</p>"]
-        for repo in sorted(per_repo):
-            parts.append(f"<h2>{html.escape(repo)}</h2>")
-            files = sorted(per_repo[repo].items(),
-                           key=lambda kv: (kv[1][0] / kv[1][1] if kv[1][1] else 1))
-            cells = "".join(
-                f"<tr><td>{html.escape(f)}</td><td>{o}/{n}</td>"
-                f"<td>{int(round(100 * (1 - o / n))) if n else 0}%</td></tr>"
-                for f, (o, n) in files)
-            parts.append("<table class='log'><tr><th>File</th><th>Owned</th>"
-                         "<th>Debt</th></tr>" + cells + "</table>")
-        return "".join(parts)
+        return debtmod.debt_html(self.db_path)
 
     def projects_html(self) -> str:
         """Projects landing: every repo with modules, newest activity first."""
@@ -750,7 +674,7 @@ class Handler(BaseHTTPRequestHandler):
             tries = quemod.attempts(con, [c["id"] for c in cards])
             history = quemod.history_by_card(con, mid)
             owned = ownmod.owned_map(con, mid)
-            ladders = _bloom_reached(con, mid)
+            ladders = debtmod.bloom_reached(con, mid)
         finally:
             con.close()
         base = f"/modules/{mid}"
@@ -817,7 +741,7 @@ class Handler(BaseHTTPRequestHandler):
                 f"<section id='lesson-{slug}'>"
                 f"<h2>{html.escape(row['name'])}"
                 f" <span class='chip'>{status}</span>"
-                f"{_ladder_html(ladders.get(row['cid'], -1), ladder_extra)}{stale}</h2>"
+                f"{debtmod.ladder_html(ladders.get(row['cid'], -1), ladder_extra)}{stale}</h2>"
                 f"<p><small>{html.escape(row['kind'])} · "
                 f"{html.escape(row['file'])}:{row['line']}</small></p>")
             if node in lesson_map:
@@ -850,69 +774,7 @@ class Handler(BaseHTTPRequestHandler):
         return tourmod.page_html(self.db_path)
 
     def status_html(self) -> str:
-        """Visible home for the non-page items: CI, hooks, CLI, MCP, exports."""
-        root = Path(__file__).resolve().parent.parent
-        ci = root / ".github" / "workflows" / "groundwork.yml"
-        hook = root / "hooks" / "pre-commit"
-        now = schedmod.iso(schedmod.utcnow())
-        con = self._con()
-        try:
-            due = con.execute(
-                "SELECT COUNT(*) FROM cards WHERE due <= ? AND stale = 0",
-                (now,)).fetchone()[0]
-            cards = con.execute("SELECT COUNT(*) FROM cards").fetchone()[0]
-            mods = con.execute("SELECT COUNT(*) FROM modules").fetchone()[0]
-        finally:
-            con.close()
-        tools = sorted(m[5:] for m in dir(mcplib.MCPServer)
-                       if m.startswith("tool_"))
-        ci_mark = ("<span class='status-ok'>present</span>"
-                   if ci.exists() else "<span class='status-missing'>missing</span>")
-        hook_ok = hook.exists() and bool(hook.stat().st_mode & 0o111)
-        hook_mark = ("<span class='status-ok'>present, executable</span>"
-                     if hook_ok
-                     else "<span class='status-missing'>missing or not executable</span>")
-        return "".join([
-            "<p>Machine-room items that have no page of their own live here, "
-            "so the tour can point at them.</p>",
-            f"<h2 id='status-ci'>CI workflow</h2><p>{ci_mark} — "
-            "<code>.github/workflows/groundwork.yml</code>, runs the test suite on push.</p>",
-            f"<h2 id='status-hooks'>Pre-commit hook</h2><p>{hook_mark} — "
-            "<code>hooks/pre-commit</code>.</p>",
-            f"<h2 id='status-cli'>CLI review</h2><p><code>python3 -m groundwork "
-            f"review --limit 20</code> — {due} cards due right now.</p>",
-            f"<h2 id='status-mcp'>MCP endpoint</h2><p><code>python3 -m groundwork mcp</code> "
-            f"and <code>POST /mcp</code> — tools: {', '.join(tools)}.</p>",
-            f"<h2 id='status-exports'>Exports</h2><p>{cards} cards in {mods} modules — "
-            "<a href='/export/anki.tsv'>Anki TSV</a> · "
-            "<a href='/feed.xml'>RSS feed</a> · "
-            "<span id='status-csv'><a href='/export/reviews.csv'>"
-            "Review log CSV</a></span>.</p>",
-            "<h2 id='status-share'>Module sharing</h2>"
-            "<p><code>python3 -m groundwork export-module --module ID --out share.json</code> "
-            "downloads a module; <code>python3 -m groundwork import-module --in share.json</code> "
-            "loads it into another database. Reviews stay private; scheduling restarts fresh.</p>",
-            "<h2 id='status-modular'>Module health</h2>" +
-            modularitymod.status_rows() +
-            "<h2 id='status-disputes'>Grade disputes</h2>" +
-            dismod.queue_html(self.db_path) +
-            "<h2 id='status-api'>Read-only API</h2>"
-            "<p><a href='/api/modules.json'>/api/modules.json</a> lists "
-            "every module with concept and card counts — the first slice "
-            "of a public read API for dashboards. "
-            "<span id='status-api-due'><a href='/api/due.json'>"
-            "/api/due.json</a> exposes the live due queue.</span></p>",
-            "<h2 id='status-sitemap'>Sitemap</h2>"
-            "<p><a href='/sitemap.xml'>sitemap.xml</a> lists every page and "
-            "module for self-hosters; <a href='/robots.txt'>robots.txt</a> "
-            "points crawlers at it.</p>",
-            "<h2 id='status-seed'>Groundwork seed</h2>"
-            "<p>Groundwork itself is a learnable project: "
-            "<code>python3 -m groundwork export-seed --repo PATH --out seed.json</code> "
-            "bundles every module under one repo into a portable seed file, and "
-            "<code>python3 -m groundwork import-seed --in seed.json</code> "
-            "loads it into any database — duplicates skip cleanly, reviews stay private.</p>",
-        ])
+        return statusmod.page_html(self.db_path)
 
     # -- POST
     def do_POST(self):
