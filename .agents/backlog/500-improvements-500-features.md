@@ -116,11 +116,42 @@ entries, and WEB_CEILING moves up only to cover those wires.
 - [x] F-101: Personal bests — strongest memory, most practiced,
   sharpest skill on History (bests.py).
 
+## Batch 5 rule — parallel eight-and-eight (this run)
+
+Same workflow as Batch 4 (tour entry + docs regen + MCP run + commit
+per item), parallelized: 8 improvement subagents then 8 feature
+subagents (max 7 concurrent + root), each running the Groundwork MCP
+(`annotate_decision`) for its contribution. New code lives in focused
+area modules registered in `modularity.AREAS`; web.py untouched
+(stays 1036 ≤ 1040). Tour entries point at the new Status
+`status-b5-*` anchors; README + docs regen via `python -m groundwork docs`.
+
+Batch 5 ships 8 improvements + 8 features, each committed locally
+per item on branch `batch5-f8-i8`, merged to main at the end.
+Detail lines below marked [x] as they land.
+
+- [x] I-1: Unique page titles with context (titles.py + test_titles.py).
+- [x] I-12: Empty states with next action (empty.py + test_empty.py).
+- [x] I-51: Palette CSS variables (palette.py + test_palette.py).
+- [x] I-28: Copy-link anchors (copylink.py + test_copylink.py).
+- [x] I-120: Reading-progress bar (readprogress.py + test_readprogress.py).
+- [x] I-153: Char/line counts (charcount.py + test_charcount.py).
+- [x] I-27: Print stylesheet (printcss.py + test_printcss.py).
+- [x] I-151: Empty-answer guard (answerguard.py + test_answerguard.py).
+- [x] I-47: Session-end summary (session.py + test_session.py).
+- [x] I-78: Gardener metaphor stages (garden.py + test_garden.py).
+- [x] I-74: Cover color from repo hash (cover.py + test_cover.py).
+- [x] I-128: File-map mini-view (filemap.py + test_filemap.py).
+- [x] I-147: Prerequisite chain path (prereq.py + test_prereq.py).
+- [x] I-113: Exit ticket question (exitticket.py + test_exitticket.py).
+- [x] I-111: Misconception callouts (misconceptions.py + test_misconceptions.py).
+- [x] I-118: Private lesson notes (lessonnotes.py + test_lessonnotes.py).
+
 ## IMPROVEMENTS (500)
 
 ### A. Navigation, IA & routing (I-1–50)
 
-- I-1: Give every page a unique `<title>` including context (module summary, lesson name).
+- [x] I-1: Give every page a unique `<title>` including context (module summary, lesson name).
 - I-2: Add a global header search (concepts, modules, symbols) with keyboard shortcut `/`.
 - I-3: Breadcrumb every nested page: Due/Modules/History › Module › Lesson › Card.
 - I-4: Persist `?level=` explainer choice per browser via query carry-over on all links.
@@ -131,7 +162,7 @@ entries, and WEB_CEILING moves up only to cover those wires.
 - I-9: Redirect legacy `/reviews` confusion: keep URL, but retitle and differentiate (done: History).
 - I-10: Add a site footer sitemap on every page (Due · Modules · History · About).
 - I-11: Show counts in nav: Due (n), Modules (n), History (total attempts).
-- I-12: Empty states for every page with a next action (no dead ends).
+- [x] I-12: Empty states for every page with a next action (no dead ends).
 - I-13: 404 page with search box and links instead of plain "not found".
 - I-14: Preserve scroll position when returning from a result screen via anchor origins.
 - I-15: Add skip-links ("skip to practice") for keyboard users.
@@ -146,8 +177,8 @@ entries, and WEB_CEILING moves up only to cover those wires.
 - I-24: Add a "recently visited" strip on Due.
 - I-25: Unify date/time formatting and add relative times ("2h ago", "due tomorrow").
 - I-26: Make all timestamps timezone-explicit with title tooltips.
-- I-27: Add print stylesheet so lessons print cleanly as study sheets.
-- I-28: Add "copy link" button per lesson section (copies anchor URL).
+- [x] I-27: Add print stylesheet so lessons print cleanly as study sheets.
+- [x] I-28: Add "copy link" button per lesson section (copies anchor URL).
 - I-29: Confirm before leaving a half-answered card (unsaved textarea guard).
 - I-30: After review, auto-scroll result into view on return.
 - I-31: Distinguish external vs internal links visually (repo paths vs routes).
@@ -166,14 +197,14 @@ entries, and WEB_CEILING moves up only to cover those wires.
 - I-44: Group Due queue by module with collapsible sections.
 - I-45: Add "snooze this card until tomorrow" per Due card.
 - I-46: One-click "start 5-minute session" that queues exactly ~5 min of cards.
-- I-47: Session-end summary screen (answered, accuracy, what returns when).
+- [x] I-47: Session-end summary screen (answered, accuracy, what returns when).
 - I-48: Resume interrupted sessions from History ("continue session").
 - I-49: Add URL-based session share (read-only snapshot link per module).
 - I-50: Audit every link quarterly with an automated link-check test.
 
 ### B. Visual design & delight (I-51–100)
 
-- I-51: Define a real palette (ink, paper, 3 page accents, pass/fail/stale) as CSS variables.
+- [x] I-51: Define a real palette (ink, paper, 3 page accents, pass/fail/stale) as CSS variables.
 - I-52: Add dark mode via `prefers-color-scheme` with tested contrast ratios.
 - I-53: Establish a type scale (display, h1-h4, body, small, code) and apply consistently.
 - I-54: Replace system-ui-only stack with a distinctive but offline-safe pairing.
@@ -196,11 +227,11 @@ entries, and WEB_CEILING moves up only to cover those wires.
 - I-71: Theme the History page like a logbook (mono dates, ruled rows).
 - I-72: Theme Modules like a library shelf (cover-style cards with spine accent).
 - I-73: Theme Due like a briefing (numbered mission cards).
-- I-74: Add per-module cover color derived from repo hash (stable identity).
+- [x] I-74: Add per-module cover color derived from repo hash (stable identity).
 - I-75: Show difficulty as a 5-dot meter on each card header.
 - I-76: Show stability/retrievability as a "memory strength" bar per card.
 - I-77: Replace ✓/✗ text with designed pass/fail stamps (CSS shapes, still text-readable).
-- I-78: Add a streak-free "gardener" metaphor: concepts grow from seed → sprout → tree.
+- [x] I-78: Add a streak-free "gardener" metaphor: concepts grow from seed → sprout → tree.
 - I-79: Confetti-free celebration: Owned triggers a calm full-width banner.
 - I-80: Add sound-free haptic-style micro-interactions (scale on press).
 - I-81: Loading skeletons for module pages generated mid-request.
@@ -236,16 +267,16 @@ entries, and WEB_CEILING moves up only to cover those wires.
 - I-108: Collapse long source blocks with "show full file context" expander.
 - I-109: Add per-lesson "why this matters" written from concept_notes when present.
 - I-110: Surface agent decision quotes inline in the lesson they motivated.
-- I-111: Add "common misconceptions" callout per lesson (LLM-seeded, flagged).
+- [x] I-111: Add "common misconceptions" callout per lesson (LLM-seeded, flagged).
 - I-112: Add "try it yourself" micro-prompts between study paragraphs.
-- I-113: End each lesson with a 1-question exit ticket (ungraded, retrieval).
+- [x] I-113: End each lesson with a 1-question exit ticket (ungraded, retrieval).
 - I-114: Let learners rate lesson clarity (feeds generation quality metrics).
 - I-115: Version lessons: "updated for commit X" banner when code moved on.
 - I-116: Diff view between lesson versions (what changed in the code).
 - I-117: Pin lessons to keep them atop the module regardless of order.
-- I-118: Add lesson-level notes (private markdown scratchpad per concept).
+- [x] I-118: Add lesson-level notes (private markdown scratchpad per concept).
 - I-119: Export single lesson as printable handout (HTML → print CSS).
-- I-120: Add reading-progress bar per module page.
+- [x] I-120: Add reading-progress bar per module page.
 - I-121: Remember collapsed/expanded explainer tabs per learner.
 - I-122: Auto-pick explainer level from recent calibration, not just mastery.
 - I-123: Add L1 "ELI5" and L5 "design tradeoffs" extremes beyond current 4 levels.
@@ -253,7 +284,7 @@ entries, and WEB_CEILING moves up only to cover those wires.
 - I-125: Add diagrams-per-lesson quality gate (every lesson gets ≥1 visual).
 - I-126: Render call graphs as inline SVG instead of text lists.
 - I-127: Sequence diagrams for the 3-step call chains (type-10 content reused).
-- I-128: File-map mini-view: where this concept sits in the repo tree.
+- [x] I-128: File-map mini-view: where this concept sits in the repo tree.
 - I-129: Add "see it in the real file" link with line anchor to repo viewer.
 - I-130: Support image attachments in concept_notes (screenshots, whiteboard).
 - I-131: Add lesson dependencies ("understand X first") with jump links.
@@ -272,16 +303,16 @@ entries, and WEB_CEILING moves up only to cover those wires.
 - I-144: Time-box reading with a gentle "still with us?" nudge after 10 idle min.
 - I-145: Let learners set a per-lesson difficulty vote (too easy/just/hard).
 - I-146: Feed difficulty votes into exercise-type selection weights.
-- I-147: Show prerequisite chain as a visual path at module top.
+- [x] I-147: Show prerequisite chain as a visual path at module top.
 - I-148: Unlock animation when a new lesson becomes available.
 - I-149: Weekly "lesson digest" page: what changed in code you studied.
 - I-150: Archive retired lessons with reason (renamed, deleted, split).
 
 ### D. Practice & answer UX (I-151–200)
 
-- I-151: Inline validation: "answer looks empty" warning before submit.
+- [x] I-151: Inline validation: "answer looks empty" warning before submit.
 - I-152: Save draft answers in localStorage so reloads never lose work.
-- I-153: Show character/line counts on code textareas.
+- [x] I-153: Show character/line counts on code textareas.
 - I-154: Add a real code editor (tab key, mono font, line numbers) replacing textarea.
 - I-155: Run button with shortcut (Ctrl+Enter) on all code exercises.
 - I-156: Show sandbox output inline without leaving the card.

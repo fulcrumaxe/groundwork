@@ -54,6 +54,22 @@ AREAS = {
     "serendipity": "serendipity.py",
     "blindspots": "blindspots.py",
     "bests": "bests.py",
+    "titles": "titles.py",
+    "empty": "empty.py",
+    "palette": "palette.py",
+    "copylink": "copylink.py",
+    "readprogress": "readprogress.py",
+    "charcount": "charcount.py",
+    "printcss": "printcss.py",
+    "answerguard": "answerguard.py",
+    "session": "session.py",
+    "garden": "garden.py",
+    "cover": "cover.py",
+    "filemap": "filemap.py",
+    "prereq": "prereq.py",
+    "exitticket": "exitticket.py",
+    "misconceptions": "misconceptions.py",
+    "lessonnotes": "lessonnotes.py",
 }
 
 
