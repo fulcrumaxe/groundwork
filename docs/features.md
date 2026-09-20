@@ -40,6 +40,14 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | Serendipity cards | An adjacent concept you might love — bonus, never duty. | `/due#serendipity` |
 | Blind spots | Lowest-mastery concepts — study time goes where it matters. | `/status#status-blindspots` |
 | Personal bests | Strongest memory, most practiced, sharpest skill — no streaks. | `/reviews#bests` |
+| Session summary | Answered, accuracy and what returns when — the debrief. | `/status#status-b5-session` |
+| Garden stages | Concepts grow seed to sprout to tree; no streaks. | `/status#status-b5-garden` |
+| Cover colors | Each module gets a stable cover hue from its repo hash. | `/status#status-b5-cover` |
+| File map | Breadcrumbs show where a concept sits in the repo tree. | `/status#status-b5-filemap` |
+| Prereq chain | Understand-X-first path with jump links atop each module. | `/status#status-b5-prereq` |
+| Exit ticket | Each lesson ends with one ungraded retrieval question. | `/status#status-b5-exitticket` |
+| Misconceptions | Lessons flag the wrong idea learners most often hold. | `/status#status-b5-misconceptions` |
+| Lesson notes | A per-lesson scratchpad kept in your browser only. | `/status#status-b5-lessonnotes` |
 
 ## Improvements
 
@@ -75,6 +83,14 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | Clarity votes | Rate each lesson 1–5; averages feed generation quality. | `/modules/&lt;id&gt;#clarity` |
 | Already-know skip | Know it? Skip the line — the cards verify you in 30 days. | `/modules/&lt;id&gt;#already-know` |
 | Undo last review | Misclick recovery within 60 seconds — scheduling restored. | `/reviews#undo` |
+| Unique page titles | Every page names its context; browser tabs stay distinct. | `/status#status-b5-titles` |
+| Empty states | No dead ends: every dry page offers a next step. | `/status#status-b5-empty` |
+| Palette variables | One :root token source for ink, paper, accents, pass/fail/stale. | `/status#status-b5-palette` |
+| Copy links | Every lesson section carries its own deep link. | `/status#status-b5-copylink` |
+| Reading progress | A slim bar shows how far through a module page you are. | `/status#status-b5-readprogress` |
+| Char counts | Code textareas report chars, lines and words as you type. | `/status#status-b5-charcount` |
+| Print stylesheet | Lessons print cleanly as serif study sheets. | `/status#status-b5-printcss` |
+| Answer guard | Blank submits get an inline warning instead of silence. | `/status#status-b5-answerguard` |
 
 ## The original loop
 

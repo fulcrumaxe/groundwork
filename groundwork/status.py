@@ -21,6 +21,71 @@ from . import sched as schedmod
 from . import storage as storagemod
 
 
+BATCH5 = [
+    ("titles", "improvement", "Unique page titles",
+     "Every page names its context; browser tabs stay distinct.",
+     "groundwork/titles.py"),
+    ("empty", "improvement", "Empty states with next action",
+     "No dead ends: every dry page offers a next step.",
+     "groundwork/empty.py"),
+    ("palette", "improvement", "Palette CSS variables",
+     "One :root token source for ink, paper, accents, pass/fail/stale.",
+     "groundwork/palette.py"),
+    ("copylink", "improvement", "Copy-link anchors",
+     "Every lesson section carries its own deep link.",
+     "groundwork/copylink.py"),
+    ("readprogress", "improvement", "Reading-progress bar",
+     "A slim bar shows how far through a module page you are.",
+     "groundwork/readprogress.py"),
+    ("charcount", "improvement", "Char/line counts",
+     "Code textareas report chars, lines and words as you type.",
+     "groundwork/charcount.py"),
+    ("printcss", "improvement", "Print stylesheet",
+     "Lessons print cleanly as serif study sheets.",
+     "groundwork/printcss.py"),
+    ("answerguard", "improvement", "Empty-answer guard",
+     "Blank submits get an inline warning instead of silence.",
+     "groundwork/answerguard.py"),
+    ("session", "feature", "Session-end summary",
+     "Answered, accuracy and what returns when — the 5-minute debrief.",
+     "groundwork/session.py"),
+    ("garden", "feature", "Gardener stages",
+     "Concepts grow seed to sprout to tree; no streaks.",
+     "groundwork/garden.py"),
+    ("cover", "feature", "Cover colors",
+     "Each module gets a stable cover hue from its repo hash.",
+     "groundwork/cover.py"),
+    ("filemap", "feature", "File-map mini-view",
+     "Breadcrumbs show where a concept sits in the repo tree.",
+     "groundwork/filemap.py"),
+    ("prereq", "feature", "Prerequisite chain",
+     "Understand-X-first path with jump links atop each module.",
+     "groundwork/prereq.py"),
+    ("exitticket", "feature", "Exit tickets",
+     "Each lesson ends with one ungraded retrieval question.",
+     "groundwork/exitticket.py"),
+    ("misconceptions", "feature", "Misconception callouts",
+     "Lessons flag the wrong idea learners most often hold.",
+     "groundwork/misconceptions.py"),
+    ("lessonnotes", "feature", "Private lesson notes",
+     "A per-lesson scratchpad kept in your browser only.",
+     "groundwork/lessonnotes.py"),
+]
+
+
+def batch5_html() -> str:
+    """Batch 5 home: one anchored subsection per shipped item."""
+    parts = ["<h2 id='status-batch5'>Batch 5: eight and eight</h2>"
+             "<p>Eight improvements plus eight features, each a focused "
+             "module under 350 lines. Page wiring lands next; every item "
+             "is inspectable here meanwhile.</p>"]
+    for slug, kind, title, blurb, mod in BATCH5:
+        parts.append(
+            f"<h3 id='status-b5-{slug}'>{title} <small>({kind})</small></h3>"
+            f"<p>{blurb} <code>{mod}</code>.</p>")
+    return "".join(parts)
+
+
 def page_html(db_path: str) -> str:
     """Visible home for the non-page items, plus the area sections."""
     root = Path(__file__).resolve().parent.parent
@@ -75,6 +140,7 @@ def page_html(db_path: str) -> str:
         "<h2 id='status-disputes'>Grade disputes</h2>" +
         dismod.queue_html(db_path) +
         storagemod.section_html(db_path) +
+        batch5_html() +
         "<h2 id='status-api'>Read-only API</h2>"
         "<p><a href='/api/modules.json'>/api/modules.json</a> lists "
         "every module with concept and card counts — the first slice "
