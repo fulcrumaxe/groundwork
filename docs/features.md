@@ -35,6 +35,7 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | Give-up path | Stuck? Give up shows the answer and records the lapse honestly. | `/due#giveup` |
 | Due-why tooltips | Hover why-due: memory strength, days overdue, lapse count. | `/due#due-why` |
 | Relative timestamps | History reads as “just now” and “3h ago” — hover any time for the exact timestamp. | `/reviews#timestamps` |
+| Memory-strength bars | Each Due card shows its FSRS memory strength in days, as a bar. | `/due#memory` |
 
 ## The original loop
 

@@ -545,6 +545,23 @@ def _rel_time(iso_ts: str) -> str:
             f"{html.escape(rel)}</time>")
 
 
+def _memory_bar(card, extra: str = "") -> str:
+    """Memory-strength bar from the FSRS stability estimate (I-76)."""
+    get = card.get if isinstance(card, dict) else lambda k: card[k]
+    try:
+        stab = float(get("stability") or 0.0)
+    except (TypeError, ValueError):
+        return ""
+    try:
+        retr = float(get("retrievability") or 0.0)
+    except (TypeError, ValueError):
+        retr = 0.0
+    pct = int(round(max(0.0, min(1.0, retr if retr > 0 else stab / 30.0)) * 100))
+    return (f"<p{extra}><small>Memory strength {stab:.1f}d</small>"
+            f"<span class='bar' aria-hidden='true'>"
+            f"<i style='width:{pct}%'></i></span></p>")
+
+
 def _difficulty_dots(difficulty, extra: str = "") -> str:
     """5-dot difficulty meter from the FSRS difficulty estimate."""
     try:
@@ -875,10 +892,12 @@ class Handler(BaseHTTPRequestHandler):
                 widget = widget.replace(
                     "<button class='giveup'>",
                     "<button class='giveup' id='giveup'>", 1)
+            mem = _memory_bar(
+                c, " id='memory'" if first else "")
             parts.append(
                 f"<article{cls}>{tag}{pos}{_due_why(c, why_extra)}"
                 f"<h3>{html.escape(c.get('concept', ''))}{stale} {dots}</h3>"
-                f"{lesson}"
+                f"{mem}{lesson}"
                 f"{why_html(c)}"
                 f"<p>{html.escape(c.get('front', ''))}</p>"
                 f"{widget}</article>")

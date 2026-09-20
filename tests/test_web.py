@@ -519,5 +519,23 @@ class RelativeTimesTest(unittest.TestCase):
         self.assertIn("just now", body)
 
 
+class MemoryStrengthTest(unittest.TestCase):
+    def setUp(self):
+        self.tmp, self.db, self.server, self.out = make_module("memory mod")
+        self.h = handler_for(self.db)
+
+    def test_due_cards_show_memory_bar(self):
+        body = self.h.due_html()
+        self.assertIn("id='memory'", body)
+        self.assertIn("Memory strength", body)
+        self.assertIn("class='bar'", body)
+
+    def test_zero_stability_renders_empty_bar(self):
+        self.assertIn("width:0%", webmod._memory_bar({}))
+
+    def test_garbage_stability_renders_nothing(self):
+        self.assertEqual(webmod._memory_bar({"stability": "high"}), "")
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -20,6 +20,8 @@ docs regen + MCP module + commit. Marked [x] as they land.
   tour entry (no fixed backlog number; the seed idea spans O. packs).
 - [x] I-25/I-26/I-93: Relative timestamps — History attempts render
   `<time datetime>` with relative text + exact on hover.
+- [x] I-76: Memory-strength bars — each Due card shows FSRS stability
+  in days, as a bar.
 
 ## IMPROVEMENTS (500)
 

@@ -111,6 +111,9 @@ ENTRIES = [
     {"id": "relative-times", "kind": "improvement", "title": "Relative timestamps",
      "blurb": "History reads as “just now” and “3h ago” — hover any time for the exact timestamp.",
      "path": "/reviews", "anchor": "timestamps"},
+    {"id": "memory-strength", "kind": "improvement", "title": "Memory-strength bars",
+     "blurb": "Each Due card shows its FSRS memory strength in days, as a bar.",
+     "path": "/due", "anchor": "memory"},
 ]
 
 BY_ID = {e["id"]: e for e in ENTRIES}
