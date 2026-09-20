@@ -20,6 +20,7 @@ from . import disputes as dismod
 from . import history as histmod
 from . import lessons as lesmod
 from . import ownership as ownmod
+from . import readtime as readtimemod
 from . import results as resmod
 from . import exercises as exmod
 from . import exports as expmod
@@ -866,9 +867,10 @@ class Handler(BaseHTTPRequestHandler):
         toc = []
         for row in concepts:
             node = row["cid"].split(":", 1)[1] if ":" in row["cid"] else row["cid"]
-            toc.append(f"<a href='#lesson-{_slug(node)}'>{html.escape(row['name'])}</a>")
+            mins = readtimemod.minutes_for(lesson_map.get(node, {}))
+            toc.append(f"<a href='#lesson-{_slug(node)}'>{html.escape(row['name'])}</a> · {mins} min")
         if toc:
-            parts.append(f"<p class='toc'><small>In this module: {' · '.join(toc)}</small></p>")
+            parts.append(f"<p class='toc' id='readtime'><small>In this module: {' · '.join(toc)}</small> <small>(minutes per lesson)</small></p>")
         if concepts:
             owned_n = 0
             for row in concepts:
@@ -1144,10 +1146,6 @@ def serve(host: str = "127.0.0.1", port: int = 8765, db_path: str = "groundwork.
     httpd = ThreadingHTTPServer((host, port), Handler)
     print(f"Groundwork UI at http://{host}:{port}/ (db: {db_path})")
     httpd.serve_forever()
-
-
-def render_exercise_preview(exercise: dict) -> str:
-    return exmod.render(exercise)
 
 
 def check_stale(db_path: str, repo: str) -> int:

@@ -109,6 +109,7 @@ expected outputs are always *measured* in the sandbox, never invented.
 | Next-gap forecast | Each Due card estimates its next gap at steady passes. | `/due#forecast` |
 | Queue status chips | Due, overdue and new cards carry distinct chips in the queue. | `/due#queue-status` |
 | Grading disclosures | Every card says how it is judged before you answer. | `/due#grading` |
+| Lesson read times | The module table of contents estimates minutes per lesson. | `/modules/&lt;id&gt;#readtime` |
 <!-- GW-IMPROVEMENTS:END -->
 
 See also [docs/features.md](docs/features.md) and the in-app
