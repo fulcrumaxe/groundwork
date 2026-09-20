@@ -42,9 +42,13 @@ def href_of(key: str, default: str = "") -> str:
 
 
 def _label(key: str, label: str, counts: dict | None) -> str:
-    """Label with an optional count badge (header only)."""
+    """Raw label with an optional count badge (header only).
+
+    Unescaped here: the _*_link renderers escape the composed label
+    exactly once, so hostile counts/labels cannot double-escape.
+    """
     if counts and counts.get(key) is not None:
-        return f"{label} ({html.escape(str(counts[key]))})"
+        return f"{label} ({counts[key]})"
     return label
 
 
