@@ -17,6 +17,7 @@ from . import cards as cardsmod
 from . import db as dbmod
 from . import debt as debtmod
 from . import diagnose as diamod
+from . import digest as digestmod
 from . import disputes as dismod
 from . import errors as errmod
 from . import exports as expmod
@@ -465,7 +466,7 @@ class Handler(BaseHTTPRequestHandler):
     def due_html(self, level: str = "auto") -> str:
         server = mcplib.MCPServer(self.db_path)
         due = server.tool_list_due_reviews({"limit": 20})["due"]
-        parts = []
+        parts = [digestmod.section_html(self.db_path)]
         if not due:
             parts.append("<p>Nothing due. Create a module via the MCP tool, "
                          "or browse <a href='/modules'>Modules</a>.</p>")

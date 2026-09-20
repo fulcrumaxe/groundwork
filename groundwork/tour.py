@@ -182,6 +182,9 @@ ENTRIES = [
     {"id": "queue-groups", "kind": "improvement", "title": "Queue grouped by module",
      "blurb": "Due cards gather under collapsible per-module sections.",
      "path": "/due", "anchor": "queue-groups"},
+    {"id": "daily-digest", "kind": "improvement", "title": "Daily digest",
+     "blurb": "Today at a glance: due now, new cards, and where to start.",
+     "path": "/due", "anchor": "digest"},
 ]
 
 BY_ID = {e["id"]: e for e in ENTRIES}

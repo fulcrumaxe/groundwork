@@ -81,6 +81,8 @@ entries, and WEB_CEILING moves up only to cover those wires.
   (errors.py; all four miss sites wired; test_errors.py).
 - [x] I-44: Queue grouped by module — collapsible per-module sections
   on Due (queue.py; WEB_CEILING 906 → 990 for batch wires).
+- [x] I-242: Daily digest — today at a glance atop Due: due now, new,
+  due tomorrow, suggested start (digest.py).
 
 ## IMPROVEMENTS (500)
 

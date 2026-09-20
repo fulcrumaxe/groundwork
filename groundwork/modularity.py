@@ -39,6 +39,7 @@ AREAS = {
     "storage": "storage.py",
     "errors": "errors.py",
     "queue": "queue.py",
+    "digest": "digest.py",
 }
 
 
