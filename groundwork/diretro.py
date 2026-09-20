@@ -165,9 +165,11 @@ def generate(ex_id, concept, snippet, ctx) -> dict:
     fn = _func_node(body, concept.name)
     taken = ([a.arg for a in fn.args.args] +
              [a.arg for a in fn.args.kwonlyargs]) if fn is not None else []
-    dep = ctx.get("dep") or next(iter(_called_globals(body)), None)
-    if not dep or not str(dep).isidentifier():
-        dep = _FALLBACK_DEP
+    raw_dep = ctx.get("dep") or next(iter(_called_globals(body)), None)
+    if not raw_dep or not str(raw_dep).isidentifier():
+        dep, from_fallback = _FALLBACK_DEP, True
+    else:
+        dep, from_fallback = raw_dep, False
     param = ctx.get("dep_param") or _param_for(dep, taken)
     reference = _inject_reference(body, concept.name, dep, param)
     tests = ctx.get("tests", "")
@@ -192,7 +194,8 @@ def generate(ex_id, concept, snippet, ctx) -> dict:
         back=reference,
         payload={"dep": dep, "param": param, "func": concept.name,
                  "original": body, "reference": reference,
-                 "tests": tests, "grounded": bool(tests)})
+                 "tests": tests,
+                 "grounded": bool(tests) and not from_fallback})
     return ex
 
 

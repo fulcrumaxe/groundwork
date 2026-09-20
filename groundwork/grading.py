@@ -35,7 +35,9 @@ def disclosure(etype: str | int) -> str:
         12: _EXEC,
         13: "The exact buggy line number wins.",
         14: _EXEC,
+        15: "Single choice — exact answer text wins.",
         16: "Single choice — exact answer text wins.",
+        17: "Your new name must be snake_case and meaningful; your reason must cover at least half the key points.",
         18: "Single choice — exact answer text wins.",
         19: _EXEC,
         20: "The optional parameter must exist (AST-checked) and old tests must stay green.",
@@ -44,7 +46,13 @@ def disclosure(etype: str | int) -> str:
         23: _EXEC,
         24: _RUBRIC,
         25: _RUBRIC,
+        26: "Your rewrite must nest less deeply (AST-measured) and keep the hidden tests green.",
+        27: "The dependency must arrive as a parameter defaulting to the original, and old tests must stay green.",
+        28: _EXEC,
+        29: "Logging checklist — every marked line needs the right level; partial credit per line.",
         30: "Every pair must match; partial credit per pair.",
+        31: "Every annotation slot must match (spelling-normalized); partial credit per slot.",
+        32: "Your >>> example must run green as a doctest, and one example must call the function.",
     }
     return table.get(t, "Graded like its exercise family.")
 

@@ -59,12 +59,20 @@ def _base(ex_id: str, concept, commit: str) -> dict:
 
 
 def generate(ex_id, concept, snippet, ctx) -> dict:
-    """Build the retrofit card: unguarded code + fault harness."""
+    """Build the retrofit card: unguarded code + fault harness.
+
+    Pipeline cards show the verified-breaking mutation (ctx "buggy"):
+    the harness demonstrably fails on the shown code, so the card is
+    live. Plain runnable code passes its own harness, which would make
+    every card stale — those stay ungrounded.
+    """
     ctx = ctx or {}
-    code = ctx.get("runnable") or "\n".join(snippet or []) or "pass"
+    buggy = ctx.get("buggy", "")
+    code = buggy or ctx.get("runnable") or "\n".join(snippet or []) or "pass"
     tests = ctx.get("tests", "")
     reference = ctx.get("fixed", "")
-    fault = ctx.get("fault", "") or DEFAULT_FAULT
+    fault = ctx.get("fault", "") or ("the injected defect" if buggy
+                                     else DEFAULT_FAULT)
     ex = _base(ex_id, concept, ctx.get("commit", ""))
     ex.update(
         front=(f"Add the missing error-handling branch to "
@@ -73,7 +81,7 @@ def generate(ex_id, concept, snippet, ctx) -> dict:
                f"```python\n{code[:600]}\n```"),
         back=reference or f"Guard `{concept.name}` against {fault}.",
         payload={"code": code, "tests": tests, "reference": reference,
-                 "fault": fault, "grounded": bool(tests)})
+                 "fault": fault, "grounded": bool(tests) and bool(buggy)})
     return ex
 
 

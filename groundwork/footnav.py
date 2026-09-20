@@ -25,7 +25,7 @@ SECTIONS: tuple[tuple[str, tuple[tuple[str, str], ...]], ...] = (
     )),
     ("Modules", (
         ("Library", "/modules"),
-        ("Comprehension debt", "/debt"),
+        ("Debt", "/debt"),
     )),
     ("History", (
         ("Reviews", "/reviews"),

@@ -105,6 +105,14 @@ expected outputs are always *measured* in the sandbox, never invented.
 | Exit ticket | Each lesson ends with one ungraded retrieval question. | `/status#status-b5-exitticket` |
 | Misconceptions | Lessons flag the wrong idea learners most often hold. | `/status#status-b5-misconceptions` |
 | Lesson notes | A per-lesson scratchpad kept in your browser only. | `/status#status-b5-lessonnotes` |
+| Name-that-smell | Read a real snippet and name its dominant code smell — six smells, one choice. | `/status#status-b6-smell` |
+| Rename-symbol exercise | Propose a clearer name for a weak identifier; convention-checked, rubric-justified. | `/status#status-b6-renameex` |
+| Complexity golf | Rewrite a nested function so it nests less — AST-measured, tests stay green. | `/status#status-b6-golf` |
+| Dependency-injection swap | Rewrite a hardcoded dependency as a parameter; old tests stay green. | `/status#status-b6-diretro` |
+| Error-handling retrofit exercises | Add the missing error branch: a fault-injection harness fails until your guard handles it. Try one below. | `/due#up-next` |
+| Logging-retrofit exercises | Type 29 cards mark the lines that deserve a log call — you name each level, checklist-graded with no sandbox. | `/status#status-b6-logretro` |
+| Type-annotation retrofit | Unannotated function in, full annotations out — AST-graded per slot. See how it is judged. | `/status#status-b6-typeanno` |
+| Doc-example doctest | Write a >>> example that passes as a real doctest run. | `/status#status-b6-docdoctest` |
 <!-- GW-FEATURES:END -->
 
 ## Improvements
@@ -150,6 +158,14 @@ expected outputs are always *measured* in the sandbox, never invented.
 | Char counts | Code textareas report chars, lines and words as you type. | `/status#status-b5-charcount` |
 | Print stylesheet | Lessons print cleanly as serif study sheets. | `/status#status-b5-printcss` |
 | Answer guard | Blank submits get an inline warning instead of silence. | `/status#status-b5-answerguard` |
+| Header search | One box in the header searches concepts, modules, and symbols — press / to focus from any page. | `/#site-search` |
+| Page breadcrumbs | Every nested page opens with its trail — Due, Modules or History first, then module, lesson, card. | `/status#status-b6-crumbs` |
+| Explainer level carries over | Pick Plain words once and every link keeps it — the level rides the URL. | `/status#status-b6-levelcarry` |
+| Sticky TOC section highlight | The sticky module TOC now marks the section you are reading — scroll a module page and watch the current lesson light up. | `/modules/&lt;id&gt;#readtime` |
+| Card deep-links | Every History attempt links straight to the exact card on its module page — no more scrolling to find the one you missed. | `/reviews#attempts` |
+| Lesson pager | Each lesson article ends with previous/next card links — walk a module one card at a time. | `/status#status-b6-pager` |
+| Footer sitemap | Every page ends in a grouped site map — Due, Modules, History, About — so no page is a dead end. | `/#site-footer` |
+| Keep your place in the queue | Answering a card and coming back lands you where you left off, not at the top. | `/due#queue` |
 <!-- GW-IMPROVEMENTS:END -->
 
 See also [docs/features.md](docs/features.md) and the in-app

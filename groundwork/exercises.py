@@ -14,6 +14,15 @@ import random
 import re
 from pathlib import Path
 
+from . import diretro as diretromod
+from . import docdoctest as docdoctestmod
+from . import errbranch as errbranchmod
+from . import golf as golfmod
+from . import logretro as logretromod
+from . import renameex as renameexmod
+from . import smell as smellmod
+from . import typeanno as typeannomod
+
 # type number -> (name, bloom)
 TYPES = {
     1: ("flashcard", "recall"),
@@ -30,7 +39,9 @@ TYPES = {
     12: ("complete-function", "apply"),
     13: ("spot-bug", "analyse"),
     14: ("fix-bug", "analyse"),
+    15: ("name-that-smell", "analyse"),
     16: ("blast-radius", "analyse"),
+    17: ("rename-symbol", "analyse"),
     18: ("odd-one-out", "analyse"),
     19: ("refactor-under-test", "modify"),
     20: ("extend-feature", "modify"),
@@ -39,15 +50,21 @@ TYPES = {
     23: ("rebuild-from-spec", "create"),
     24: ("teach-it-back", "create"),
     25: ("write-docstring", "explain"),
+    26: ("complexity-golf", "analyse"),
+    27: ("dependency-injection", "modify"),
+    28: ("error-branch", "analyse"),
+    29: ("logging-retrofit", "analyse"),
     30: ("match-pairs", "recall"),
+    31: ("type-annotation", "apply"),
+    32: ("doc-example", "apply"),
 }
 
 BLOOM_TYPES = {
     "recall": [1, 2, 3, 4],
     "explain": [5, 6, 7, 25, 1],
-    "apply": [8, 10, 11, 12, 9],
-    "analyse": [13, 14, 16, 18, 9],
-    "modify": [12, 14, 19, 20],
+    "apply": [8, 10, 11, 12, 9, 31, 32],
+    "analyse": [13, 14, 15, 16, 17, 18, 9, 26, 28, 29],
+    "modify": [12, 14, 19, 20, 27],
     "evaluate": [21, 22],
     "create": [24, 23],
 }
@@ -716,10 +733,13 @@ GENERATORS = {
     5: gen_explain_words, 6: gen_explain_diff, 7: gen_design_rationale,
     8: gen_predict_output, 9: gen_trace_variable, 10: gen_call_path,
     11: gen_parsons, 12: gen_complete_function, 13: gen_spot_bug,
-    14: gen_fix_bug, 16: gen_blast_radius, 18: gen_odd_one_out,
+    14: gen_fix_bug, 15: smellmod.generate,
+    16: gen_blast_radius, 17: renameexmod.generate, 18: gen_odd_one_out,
     19: gen_refactor, 20: gen_extend, 21: gen_code_review,
     22: gen_compare, 23: gen_rebuild, 24: gen_teach_back, 25: gen_docstring,
-    30: gen_match,
+    26: golfmod.generate, 27: diretromod.generate, 28: errbranchmod.generate,
+    29: logretromod.generate, 30: gen_match,
+    31: typeannomod.generate, 32: docdoctestmod.generate,
 }
 
 
@@ -885,6 +905,24 @@ def grade(exercise: dict, submission: str, runner=None) -> dict:
         return {"pass": ok, "score": score,
                 "feedback": "All pairs matched." if ok else
                 f"Wrong: {', '.join(wrong)}. Check the study guide."}
+    # Batch 6 plugin types: each module owns its grader (pure checklist,
+    # AST, or sandbox-verified); every branch handles runner=None itself.
+    if t == 15:
+        return smellmod.grade(exercise, submission, runner)
+    if t == 17:
+        return renameexmod.grade(exercise, submission, runner)
+    if t == 26:
+        return golfmod.grade(exercise, submission, runner)
+    if t == 27:
+        return diretromod.grade(exercise, submission, runner)
+    if t == 28:
+        return errbranchmod.grade(exercise, submission, runner)
+    if t == 29:
+        return logretromod.grade(exercise, submission, runner)
+    if t == 31:
+        return typeannomod.grade(exercise, submission, runner)
+    if t == 32:
+        return docdoctestmod.grade(exercise, submission, runner)
     # Execution-graded types need the sandbox runner. Pure-order Parsons
     # (no harness) is graded without it, below.
     if runner is None and not (t == 11 and not p.get("tests")):
@@ -974,6 +1012,23 @@ def grade(exercise: dict, submission: str, runner=None) -> dict:
 
 def render(exercise: dict) -> str:
     t = exercise["type"]
+    # Batch 6 plugin types render through their own module (single source).
+    if t == 15:
+        return smellmod.render(exercise)
+    if t == 17:
+        return renameexmod.render(exercise)
+    if t == 26:
+        return golfmod.render(exercise)
+    if t == 27:
+        return diretromod.render(exercise)
+    if t == 28:
+        return errbranchmod.render(exercise)
+    if t == 29:
+        return logretromod.render(exercise)
+    if t == 31:
+        return typeannomod.render(exercise)
+    if t == 32:
+        return docdoctestmod.render(exercise)
     p = exercise.get("payload", {})
     front = html.escape(exercise.get("front", ""))
     body = f"<p>{front}</p>"

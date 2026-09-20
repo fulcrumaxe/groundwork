@@ -9,6 +9,7 @@ import html
 from datetime import timedelta
 
 from . import bests as bestsmod
+from . import cardlinks as cardlinksmod
 from . import cards as cardsmod
 from . import db as dbmod
 from . import exercises as exmod
@@ -88,6 +89,7 @@ def history_html(db_path: str) -> str:
                 "%Y-%m-%dT%H:%M:%SZ"),)).fetchone()
         rows = con.execute(
             "SELECT reviews.grade, reviews.confidence, reviews.reviewed_at,"
+            " reviews.card_id AS card_id,"
             " concepts.name AS concept, concepts.module_id AS module_id,"
             " modules.task_summary AS summary"
             " FROM reviews JOIN cards ON cards.id = reviews.card_id"
@@ -182,6 +184,5 @@ def history_html(db_path: str) -> str:
             f"<p class='{cls}'>{mark} {html.escape(r['concept'] or '')} — "
             f"grade {r['grade']}/5, confidence {r['confidence']}/5 "
             f"<small>{cardsmod._rel_time(r['reviewed_at'] or '')}</small><br>"
-            f"<small>in <a href='/modules/{r['module_id']}'>"
-            f"{html.escape(r['summary'] or r['module_id'])}</a></small></p>")
+            f"<small>in {cardlinksmod.history_link(r['module_id'], r['card_id'], r['summary'] or r['module_id'])}</small></p>")
     return "".join(parts)

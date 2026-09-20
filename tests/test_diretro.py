@@ -64,6 +64,14 @@ class GenerateTest(unittest.TestCase):
         self.assertFalse(ex["payload"]["grounded"])
         self.assertEqual(ex["payload"]["tests"], "")
 
+    def test_fallback_dep_never_grounds(self):
+        # A harness without a real hardcoded dep is no card: the
+        # fallback name ("today") would teach a phantom dependency.
+        plain = "def add(a=2, b=3):\n    return a + b"
+        ex = make_exercise(body=plain, tests="assert True")
+        self.assertEqual(ex["payload"]["dep"], "today")
+        self.assertFalse(ex["payload"]["grounded"])
+
     def test_reference_keeps_old_callers(self):
         ex = make_exercise()
         ref = ex["payload"]["reference"]

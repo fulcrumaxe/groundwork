@@ -37,12 +37,26 @@ class GenerateTest(unittest.TestCase):
         self.assertEqual(e["bloom"], "analyse")
         self.assertTrue(e["front"])
 
-    def test_grounded_with_tests(self):
+    def test_grounded_with_breaking_mutation(self):
+        # The shown code must fail the harness: pipeline cards show the
+        # verified-breaking mutation, never plain passing code.
+        buggy = "def ratio(a, b):\n    return a // b\n"
         e = errmod.generate("e1", make_concept(), BASE.splitlines(),
-                            {"runnable": BASE, "tests": TESTS,
+                            {"runnable": BASE, "buggy": buggy,
+                             "fixed": FIXED, "tests": TESTS,
                              "fault": "b=0"})
         self.assertTrue(e["payload"]["grounded"])
         self.assertEqual(e["payload"]["fault"], "b=0")
+        self.assertIn("a // b", e["payload"]["code"])
+        self.assertEqual(e["payload"]["reference"], FIXED)
+
+    def test_passing_code_never_grounds(self):
+        # Plain runnable code passes its own harness, so the card would
+        # grade every submission stale — it must not emit.
+        e = errmod.generate("e1", make_concept(), BASE.splitlines(),
+                            {"runnable": BASE, "tests": TESTS,
+                             "fault": "b=0"})
+        self.assertFalse(e["payload"]["grounded"])
 
     def test_ungrounded_without_tests(self):
         e = errmod.generate("e1", make_concept(), BASE.splitlines(), {})
