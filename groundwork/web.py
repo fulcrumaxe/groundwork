@@ -16,6 +16,7 @@ from . import api as apimod
 from . import cards as cardsmod
 from . import db as dbmod
 from . import debt as debtmod
+from . import decisions as decmod
 from . import diagnose as diamod
 from . import digest as digestmod
 from . import disputes as dismod
@@ -749,6 +750,9 @@ class Handler(BaseHTTPRequestHandler):
                 f"{len(concepts)} concepts owned'><i style='width:{pct}%'></i></div>"
                 f"<p><small>{owned_n}/{len(concepts)} concepts owned</small></p>")
         practice_tagged = False
+        dec_nodes = [r["cid"].split(":", 1)[1] if ":" in r["cid"] else r["cid"]
+                     for r in concepts]
+        dec_matches = decmod.matches_for_module(self.db_path, dec_nodes)
         for ci, row in enumerate(concepts):
             node = row["cid"].split(":", 1)[1] if ":" in row["cid"] else row["cid"]
             slug = lesmod.slug(node)
@@ -770,6 +774,8 @@ class Handler(BaseHTTPRequestHandler):
                 parts.append(lesmod.render_levels(
                     lesson_map[node], mastery_of[node], concept_tries,
                     level, base))
+            parts.append(decmod.lesson_block(
+                node, dec_matches.get(node, []), ci == 0))
             if concept_cards:
                 if not practice_tagged:
                     parts.append("<h3 id='practice'>Practice</h3>")

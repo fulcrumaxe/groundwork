@@ -191,6 +191,9 @@ ENTRIES = [
     {"id": "related-modules", "kind": "improvement", "title": "Related modules",
      "blurb": "Same repo or shared concepts — keep following the thread.",
      "path": "/modules/{mid}", "anchor": "related"},
+    {"id": "decision-quotes", "kind": "improvement", "title": "Decision quotes",
+     "blurb": "Agent chose-X-over-Y rationale quoted inside the lesson it shaped.",
+     "path": "/modules/{mid}", "anchor": "decisions"},
 ]
 
 BY_ID = {e["id"]: e for e in ENTRIES}

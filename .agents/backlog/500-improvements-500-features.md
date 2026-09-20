@@ -87,6 +87,8 @@ entries, and WEB_CEILING moves up only to cover those wires.
   over 30 days on History (monthreview.py).
 - [x] I-23: Related modules — same repo or shared concept names at
   module bottom (related.py).
+- [x] I-110: Decision quotes — agent chose-X-over-Y rationale inside
+  the lesson it motivated (decisions.py).
 
 ## IMPROVEMENTS (500)
 

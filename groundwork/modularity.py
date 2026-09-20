@@ -42,6 +42,7 @@ AREAS = {
     "digest": "digest.py",
     "monthreview": "monthreview.py",
     "related": "related.py",
+    "decisions": "decisions.py",
 }
 
 
