@@ -34,7 +34,7 @@ class RegistryShapeTest(unittest.TestCase):
     def test_ten_improvements_plus_growing_features(self):
         kinds = [e["kind"] for e in tourmod.ENTRIES]
         # Batch 2 grows improvements 10 -> 15 as items land; features only grow.
-        self.assertEqual(kinds.count("improvement"), 14)
+        self.assertEqual(kinds.count("improvement"), 15)
         self.assertGreaterEqual(kinds.count("feature"), 12)
         self.assertEqual(len(set(kinds)), 3)  # + mvp baseline
 

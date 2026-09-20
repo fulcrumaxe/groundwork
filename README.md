@@ -97,6 +97,7 @@ expected outputs are always *measured* in the sandbox, never invented.
 | Memory-strength bars | Each Due card shows its FSRS memory strength in days, as a bar. | `/due#memory` |
 | Module sorting | The Modules library toggles newest-first and oldest-first. | `/modules#sort` |
 | Snooze a card | Not today? Snooze pushes one card to tomorrow — no grade recorded. | `/due#snooze` |
+| Back-to-top link | Long module pages grow a floating Back to top link. | `/modules#top` |
 <!-- GW-IMPROVEMENTS:END -->
 
 See also [docs/features.md](docs/features.md) and the in-app

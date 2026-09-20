@@ -112,7 +112,12 @@ CSS = ("body{font-family:system-ui,-apple-system,sans-serif;max-width:48rem;"
        ".tour-steps{list-style:none;padding-left:0}"
        ".tour-steps li{margin:.6rem 0}"
        ".status-ok{color:#0a0;font-weight:700}"
-       ".status-missing{color:#a00;font-weight:700}")
+       ".status-missing{color:#a00;font-weight:700}"
+       "a.totop{position:fixed;bottom:1rem;right:1rem;background:#1a1a1a;"
+       "color:#fff;border-radius:999px;padding:.5rem .9rem;font-size:.85rem;"
+       "text-decoration:none}"
+       "a.totop:visited{color:#fff}"
+       "a.totop:hover{background:#333}")
 
 
 def _payload(card) -> dict:
@@ -427,7 +432,7 @@ def page(title: str, body: str, active: str = "projects",
         f"<a href='{href}'{(' aria-current=\"page\"' if key == active else '')}>"
         f"{_label(key, label)}</a>"
         for key, href, label in NAV)
-    head = (f"<header class='page-head'><nav id='sitenav'>{links}</nav>"
+    head = (f"<header class='page-head' id='top'><nav id='sitenav'>{links}</nav>"
             f"<h1>{html.escape(title)}</h1>")
     if lede:
         head += f"<p class='lede'>{html.escape(lede)}</p>"
@@ -1447,6 +1452,7 @@ class Handler(BaseHTTPRequestHandler):
                     f"{answer_widget(c, tries.get(c['id'], 0), base)}"
                     f"{self._submissions_html(history.get(c['id'], []))}</article>")
             parts.append("</section>")
+        parts.append("<a class='totop' href='#top'>Back to top ↑</a>")
         return "".join(parts)
 
     def _tour_targets(self) -> tuple[str, str]:

@@ -544,6 +544,21 @@ class ModuleSortTest(unittest.TestCase):
         self.assertIn("<b>Newest</b>", body)
 
 
+class BackToTopTest(unittest.TestCase):
+    def setUp(self):
+        self.tmp, self.db, self.server, self.out = make_module("top mod")
+        self.h = handler_for(self.db)
+
+    def test_module_page_has_floating_back_to_top(self):
+        body = self.h.module_html(self.out["module_id"])
+        self.assertIn("Back to top", body)
+        self.assertIn("href='#top'", body)
+
+    def test_shell_header_is_the_top_anchor(self):
+        shell = webmod.page("T", "<p>x</p>").decode()
+        self.assertIn("id='top'", shell)
+
+
 class SnoozeTest(unittest.TestCase):
     def setUp(self):
         self.tmp, self.db, self.server, self.out = make_module("snooze mod")
