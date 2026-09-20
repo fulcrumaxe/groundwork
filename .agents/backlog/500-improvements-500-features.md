@@ -211,6 +211,46 @@ Detail lines below marked [x] as they land.
 - [x] F-16: Config extraction, type 39 (configex.py + test_configex.py).
 - [x] F-17: API-signature design, type 40 (apidesign.py + test_apidesign.py).
 
+## Batch 8 rule — eight-and-eight, guards and authorship (this run)
+
+Same workflow as Batch 7 (tour entry + docs regen + MCP run + commit
+per item, pipeline emission for exercise types). New code lives in
+focused area modules registered in `modularity.AREAS`; web.py only
+gains delegation lines (1110 → 1103 — the sitenav merge deletes more
+than the autofocus embed adds — WEB_CEILING untouched at 1112).
+Corrections the run forced: extlinks href match tightened to
+well-formed attrs (hostile injections pass through); canonurl leading
+`//` fails closed like originguard; sitenav header keeps double-quote
+aria-current (pinned by test_web) and the grouped footer stays with
+footnav (I-10 intact); pageids CSS coverage asserts web CSS + supplement
+union; changelog keyword needs every token (lone "user" no longer names
+`fetch_user`); commitmsg passing subject must name the card's why words;
+repro requires a real `func(` call (mention-only comments fail);
+migration drops the old field and fails closed on empty fixtures;
+rebase conflict index clamps for 2-line defs (generic suite caught it);
+autofocus ships clean focus_js with bracket-scoped quote rule.
+
+Batch 8 ships 8 improvements + 8 features, each committed locally
+per item on branch `batch8-f8-i8`, merged to main at the end.
+Detail lines below marked [x] as they land.
+
+- [x] I-31: External vs internal link distinction (extlinks.py + test_extlinks.py).
+- [x] I-33: Canonical URLs + route contract (canonurl.py + test_canonurl.py).
+- [x] I-34: Origin allowlist guard (originguard.py + test_originguard.py).
+- [x] I-35: Primary-left button order + audit (buttons.py + test_buttons.py).
+- [x] I-37: Per-page data-page hook registry (pageids.py + test_pageids.py).
+- [x] I-38: Archived-module notice (archived.py + test_archived.py).
+- [x] I-39: Merged site nav table (sitenav.py + test_sitenav.py).
+- [x] I-41: Answer-field autofocus (autofocus.py + test_autofocus.py).
+- [x] F-18: Spec writing, type 41 (specwrite.py + test_specwrite.py).
+- [x] F-19: Commit-message authorship, type 42 (commitmsg.py + test_commitmsg.py).
+- [x] F-20: Changelog entry, type 43 (changelog.py + test_changelog.py).
+- [x] F-21: Issue reproduction, type 44 (repro.py + test_repro.py).
+- [x] F-22: Bisect drill, type 45 (bisect.py + test_bisect.py).
+- [x] F-23: Rebase-conflict resolution, type 46 (rebase.py + test_rebase.py).
+- [x] F-24: Migration authoring, type 47 (migration.py + test_migration.py).
+- [x] F-25: Rollback planning, type 48 (rollback.py + test_rollback.py).
+
 ## IMPROVEMENTS (500)
 
 ### A. Navigation, IA & routing (I-1–50)
@@ -245,17 +285,17 @@ Detail lines below marked [x] as they land.
 - [x] I-28: Add "copy link" button per lesson section (copies anchor URL).
 - [x] I-29: Confirm before leaving a half-answered card (unsaved textarea guard).
 - [x] I-30: After review, auto-scroll result into view on return.
-- I-31: Distinguish external vs internal links visually (repo paths vs routes).
+- [x] I-31: Distinguish external vs internal links visually (repo paths vs routes).
 - I-32: Add a sitemap.xml and robots stance for self-hosters exposing publicly.
-- I-33: Language-prefix-free canonical URLs; document URL contract in README.
-- I-34: Add `?origin` allowlist tests for every new page added later.
-- I-35: Standardize button order (primary left) across all forms.
+- [x] I-33: Language-prefix-free canonical URLs; document URL contract in README.
+- [x] I-34: Add `?origin` allowlist tests for every new page added later.
+- [x] I-35: Standardize button order (primary left) across all forms.
 - I-36: Put destructive/secondary actions (reset progress) behind confirm pages.
-- I-37: Add per-page `data-page` hooks for all future pages (coverage test).
-- I-38: Graceful "module archived" state instead of 404 for deleted modules.
-- I-39: Merge duplicate nav (header + footer) into one helper with active state.
+- [x] I-37: Add per-page `data-page` hooks for all future pages (coverage test).
+- [x] I-38: Graceful "module archived" state instead of 404 for deleted modules.
+- [x] I-39: Merge duplicate nav (header + footer) into one helper with active state.
 - I-40: Keyboard shortcuts: `g d/g m/g h`, `j/k` between cards, `?` overlay.
-- I-41: Focus the answer field automatically when a card scrolls into view.
+- [x] I-41: Focus the answer field automatically when a card scrolls into view.
 - I-42: Collapse answered-due cards in place with undo instead of full reload.
 - I-43: Show queue position ("card 3 of 12 due") on Due cards.
 - I-44: Group Due queue by module with collapsible sections.
@@ -764,14 +804,14 @@ Detail lines below marked [x] as they land.
 - [x] F-15: Dead-code elimination (remove unused paths; coverage-kept-green).
 - [x] F-16: Config extraction (move magic values to config; behavior identical).
 - [x] F-17: API design (design the signature for a new requirement; rubric).
-- F-18: Spec writing (write acceptance criteria; checklist vs hidden tests).
-- F-19: Commit-message authorship (summarize a diff; rubric vs intent).
-- F-20: Changelog entry (describe user impact; rubric).
-- F-21: Issue reproduction (write a repro script from a bug report; runner).
-- F-22: Bisect drill (find the breaking commit in a synthetic history).
-- F-23: Rebase-conflict resolution (resolve a planted conflict; tests green).
-- F-24: Migration authoring (write the schema migration; verifier).
-- F-25: Rollback planning (order the rollback steps; exact sequence).
+- [x] F-18: Spec writing (write acceptance criteria; checklist vs hidden tests).
+- [x] F-19: Commit-message authorship (summarize a diff; rubric vs intent).
+- [x] F-20: Changelog entry (describe user impact; rubric).
+- [x] F-21: Issue reproduction (write a repro script from a bug report; runner).
+- [x] F-22: Bisect drill (find the breaking commit in a synthetic history).
+- [x] F-23: Rebase-conflict resolution (resolve a planted conflict; tests green).
+- [x] F-24: Migration authoring (write the schema migration; verifier).
+- [x] F-25: Rollback planning (order the rollback steps; exact sequence).
 - F-26: Threat-model the function (list abuse cases; checklist).
 - F-27: Secret-scan (find the leaked credential pattern; exact match).
 - F-28: Input-validation audit (list unvalidated inputs; checklist).

@@ -13,6 +13,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, quote, urlparse
 
 from . import api as apimod
+from . import autofocus as autofocusmod
 from . import autoscroll as autoscrollmod
 from . import badge as badgemod
 from . import cardlinks as cardlinksmod
@@ -56,6 +57,7 @@ from . import search as searchmod
 from . import serendipity as sermod
 from . import shortcuts as shortcutsmod
 from . import sitemap as sitemapmod
+from . import sitenav as sitenavmod
 from . import status as statusmod
 from . import storage as storagemod
 from . import styleguide as styleguidemod
@@ -234,12 +236,9 @@ GLOBAL_JS = """
 
 
 
-NAV = (("projects", "/", "Projects"),
-       ("due", "/due", "Due"),
-       ("modules", "/modules", "Modules"),
-       ("history", "/reviews", "History"),
-       ("debt", "/debt", "Debt"),
-       ("tour", "/tour", "Tour"))
+# Single source of truth lives in groundwork/sitenav.py (I-39);
+# web.NAV stays as the alias existing callers import.
+NAV = sitenavmod.NAV
 
 
 def _safe_origin(value: str) -> str:
@@ -255,14 +254,8 @@ def _safe_origin(value: str) -> str:
 def page(title: str, body: str, active: str = "projects",
          page_id: str = "projects", lede: str = "",
          counts: dict | None = None, tour: dict | None = None) -> bytes:
-    def _label(key: str, label: str) -> str:
-        if counts and counts.get(key) is not None:
-            return f"{label} ({counts[key]})"
-        return label
-    links = " · ".join(
-        f"<a href='{href}'{(' aria-current=\"page\"' if key == active else '')}>"
-        f"{_label(key, label)}</a>"
-        for key, href, label in NAV)
+    # Header nav renders from the single sitenav table (I-39).
+    links = sitenavmod.header_nav(active, counts)
     head = (f"<a class='skip' href='#main'>Skip to content</a>"
             f"<header class='page-head' id='top'><nav id='sitenav'>{links}</nav>"
             f"<h1>{html.escape(title)}</h1>{searchmod.header_html()}")
@@ -279,14 +272,14 @@ def page(title: str, body: str, active: str = "projects",
             f"<a class='btn' href='{tour['prev_url']}'>‹ Prev</a> "
             f"<a class='btn' href='{tour['next_url']}'>Next ›</a> "
             f"<a href='/tour'>Exit tour</a></p>")
-    foot = footnavmod.footer(next((h for k, h, _ in NAV if k == active), ""))
+    foot = footnavmod.footer(sitenavmod.href_of(active))
     body = banner + body
     return (f"<!doctype html><html><head><meta charset='utf-8'>"
             f"<title>{html.escape(title)}</title><style>{CSS}</style></head>"
             f"<body data-page='{page_id}'>{head}<main id='main'>{body}</main>{foot}"
             f"{shortcutsmod.overlay_html()}{GLOBAL_JS}{shortcutsmod.script_js()}"
             f"{searchmod.script_js()}{scrollposmod.record_js()}"
-            f"{reviewedmod.script_js()}{unsavedmod.guard_js()}"
+            f"{reviewedmod.script_js()}{unsavedmod.guard_js()}{autofocusmod.focus_js()}"
             f"</body></html>").encode()
 
 

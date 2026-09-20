@@ -11,11 +11,18 @@ from pathlib import Path
 
 from . import db as dbmod
 from . import apidesign as apidesignmod
+from . import archived as archivedmod
+from . import autofocus as autofocusmod
 from . import autoscroll as autoscrollmod
+from . import bisect as bisectmod
 from . import blindspots as blindmod
+from . import buttons as buttonsmod
+from . import canonurl as canonurlmod
 from . import cardlinks as cardlinksmod
+from . import changelog as changelogmod
 from . import chiplinks as chiplinksmod
 from . import clickcards as clickcardsmod
+from . import commitmsg as commitmsgmod
 from . import configex as configexmod
 from . import crumbs as crumbsmod
 from . import deadcode as deadcodemod
@@ -23,6 +30,7 @@ from . import diretro as diretromod
 from . import disputes as dismod
 from . import docdoctest as docdoctestmod
 from . import errbranch as errbranchmod
+from . import extlinks as extlinksmod
 from . import footnav as footnavmod
 from . import fuzztriage as fuzztriagemod
 from . import golf as golfmod
@@ -31,20 +39,28 @@ from . import letter as lettermod
 from . import logretro as logretromod
 from . import mcp as mcplib
 from . import memprofile as memprofilemod
+from . import migration as migrationmod
 from . import modfilter as modfiltermod
 from . import modpages as modpagesmod
 from . import modularity as modularitymod
 from . import northstar as northstarmod
+from . import originguard as originguardmod
+from . import pageids as pageidsmod
 from . import pager as pagermod
 from . import perffix as perffixmod
 from . import proptest as proptestmod
 from . import racehunt as racehuntmod
+from . import rebase as rebasemod
 from . import recent as recentmod
 from . import renameex as renameexmod
+from . import repro as repromod
 from . import reviewed as reviewedmod
+from . import rollback as rollbackmod
 from . import scrollpos as scrollposmod
 from . import search as searchmod
+from . import sitenav as sitenavmod
 from . import smell as smellmod
+from . import specwrite as specwritemod
 from . import tools as toolsmod
 from . import unsaved as unsavedmod
 from . import tochighlight as tochighlightmod
@@ -178,6 +194,36 @@ def batch7_html(db_path: str) -> str:
     ])
 
 
+def batch8_html() -> str:
+    """Batch 8 home: one anchored subsection per shipped item.
+
+    Each section renders from its own area module (never web.py);
+    every Batch 8 section is db-free, so no db_path threads through.
+    """
+    return "".join([
+        "<h2 id='status-batch8'>Batch 8: nav, guards, and new exercises</h2>"
+        "<p>Eight improvements plus eight features, each a focused "
+        "module under 350 lines. The eight exercise types also emit "
+        "into lesson modules via the pipeline.</p>",
+        extlinksmod.section_html(),
+        canonurlmod.section_html(),
+        originguardmod.section_html(),
+        buttonsmod.section_html(),
+        pageidsmod.section_html(),
+        archivedmod.section_html(),
+        sitenavmod.section_html(),
+        autofocusmod.section_html(),
+        specwritemod.section_html(),
+        commitmsgmod.section_html(),
+        changelogmod.section_html(),
+        repromod.section_html(),
+        bisectmod.section_html(),
+        rebasemod.section_html(),
+        migrationmod.section_html(),
+        rollbackmod.section_html(),
+    ])
+
+
 def page_html(db_path: str) -> str:
     """Visible home for the non-page items, plus the area sections."""
     root = Path(__file__).resolve().parent.parent
@@ -235,6 +281,7 @@ def page_html(db_path: str) -> str:
         batch5_html() +
         batch6_html(db_path) +
         batch7_html(db_path) +
+        batch8_html() +
         "<h2 id='status-api'>Read-only API</h2>"
         "<p><a href='/api/modules.json'>/api/modules.json</a> lists "
         "every module with concept and card counts — the first slice "

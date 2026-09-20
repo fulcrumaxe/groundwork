@@ -61,6 +61,14 @@ def disclosure(etype: str | int) -> str:
         38: "Remove the flagged dead code; the remaining tests must stay green.",
         39: "Magic literals must live in named constants, bodies must not hold them; hidden tests stay green.",
         40: "Every rubric point must hold: exact name, params, defaults, return annotation.",
+        41: "Every acceptance point must appear in your criteria; partial credit per point.",
+        42: "Imperative subject of 72 chars or fewer naming the what and the why; partial credit per point.",
+        43: "The right ### section, one user-impact line naming the concept; partial credit per point.",
+        44: "Your script must run and reproduce the reported failure within the line budget.",
+        45: "Exact breaking-commit hash or index; off-by-one fails.",
+        46: "No markers remain, both sides kept, same def, parses; partial credit per point.",
+        47: "Migrated JSON rows must equal the expected rows exactly, old field dropped.",
+        48: "Exact step sequence; partial credit per correct adjacent pair.",
     }
     return table.get(t, "Graded like its exercise family.")
 
