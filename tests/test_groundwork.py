@@ -602,17 +602,17 @@ class LessonTest(unittest.TestCase):
         self.assertEqual(explainmod.auto_level(0.95, 9), 4)  # owns it
 
     def test_level_tabs_render(self):
-        from groundwork import web as webmod
+        from groundwork import lessons as lesmod
         lesson = {"concept_id": "c", "name": "add", "kind": "function",
                   "file": "calc.py", "line": 1, "summary": "Adds.",
                   "docstring": "", "callers": [], "callees": [],
                   "key_lines": "", "source": "def add(a, b):\n    return a + b\n",
                   "how": ["Hands back `a + b`."], "worked": None}
-        html_out = webmod.render_levels(lesson, 0.0, 0, "auto", "/")
+        html_out = lesmod.render_levels(lesson, 0.0, 0, "auto", "/")
         for title in ("Plain words", "Beginner", "Intermediate", "Expert"):
             self.assertIn(title, html_out)
         lesson["callers"] = ["main"]
-        forced = webmod.render_levels(lesson, 0.95, 9, "4", "/")
+        forced = lesmod.render_levels(lesson, 0.95, 9, "4", "/")
         self.assertIn("Blast radius", forced)
 
     def test_lessons_persisted(self):
@@ -746,28 +746,28 @@ class LessonTest(unittest.TestCase):
         self.assertIn("purpose", docs["create_learning_module"]["params"])
 
     def test_parsons_drag_widget(self):
-        from groundwork import web as webmod
+        from groundwork import cards as cardsmod
         card = {"id": "ex9", "exercise_type": "11",
                 "payload": json.dumps({"lines": ["a = 1", "b = 2"],
                                        "solution": ["a = 1", "b = 2"],
                                        "tests": ""})}
-        w = webmod.answer_widget(card)
+        w = cardsmod.answer_widget(card)
         self.assertIn("draggable", w)
         self.assertIn("answer_text", w)
         self.assertIn("po-ex9", w)
 
     def test_rich_widgets_render(self):
-        from groundwork import web as webmod
+        from groundwork import cards as cardsmod
         mc = {"id": "c8", "exercise_type": "8",
               "payload": json.dumps({"choices": ["5", "6"], "expected": "5"})}
-        self.assertIn("<button", webmod.answer_widget(mc))
+        self.assertIn("<button", cardsmod.answer_widget(mc))
         mt = {"id": "c30", "exercise_type": "30",
               "payload": json.dumps({"left": ["add"], "right": ["calc.py"],
                                      "pairs": [["add", "calc.py"]]})}
-        w = webmod.answer_widget(mt)
+        w = cardsmod.answer_widget(mt)
         self.assertIn("m0", w)
         fc = {"id": "c1", "exercise_type": "1", "payload": "{}"}
-        self.assertIn("recall", webmod.answer_widget(fc))
+        self.assertIn("recall", cardsmod.answer_widget(fc))
 
     def test_parsons_unrunnable_slice_grades_by_order(self):
         # Bug-hunt find: a correct order failed when the shown slice could

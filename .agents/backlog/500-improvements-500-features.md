@@ -37,8 +37,8 @@ New capability code lives in a new focused module
 (`groundwork/<area>.py`), never appended to web.py; web.py only gains
 thin delegation lines, route entries, and tour/status wiring. New tests
 go in focused files (`tests/test_<area>.py`). Enforced by
-`tests/test_modularity.py`: web.py stays under WEB_CEILING (1658
-after the exports/api/sitemap extraction — ceilings only move
+`tests/test_modularity.py`: web.py stays under WEB_CEILING (1359
+after the cards/lessons extraction — ceilings only move
 down), every registered area module stays under 350 lines.
 
 Batch 3 ships 5 improvements + 6 features, each with a tour entry +
@@ -46,6 +46,9 @@ status anchor + docs regen + MCP module + commit. Marked [x] as they land.
 
 - [x] GUARDRAIL: Module health — exports/api/sitemap extracted out of
   web.py (1773 → 1658 lines); Status table + enforced ceilings.
+- [x] I-203: Next-gap forecast — Due cards estimate the gap at steady
+  passes (cards.py + sched.forecast_gap; answer/lesson renderers move
+  to cards.py/lessons.py).
 
 ## IMPROVEMENTS (500)
 

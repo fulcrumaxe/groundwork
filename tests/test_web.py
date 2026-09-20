@@ -4,7 +4,9 @@ import unittest
 from pathlib import Path
 from urllib.parse import urlencode
 
+from groundwork import cards as cardsmod
 from groundwork import db as dbmod
+from groundwork import lessons as lesmod
 from groundwork import mcp as mcplib
 from groundwork import sched as schedmod
 from groundwork import web as webmod
@@ -207,7 +209,7 @@ class OriginFlowTest(unittest.TestCase):
     def test_answer_widget_carries_origin(self):
         card = {"id": "c1", "exercise_type": "8",
                 "payload": '{"expected": "5"}'}
-        w = webmod.answer_widget(card, 0, "/modules/abc")
+        w = cardsmod.answer_widget(card, 0, "/modules/abc")
         self.assertIn("name='origin' value='/modules/abc'", w)
 
     def test_safe_origin_rejects_offsite(self):
@@ -393,10 +395,10 @@ class StyleSignalsTest(unittest.TestCase):
         self.assertIn(f"Card 1 of {n}", body)
         self.assertIn(f"Card {n} of {n}", body)
         self.assertIn("Difficulty", body)
-        self.assertEqual(webmod._difficulty_dots(0.0).count("●"), 1)
-        self.assertEqual(webmod._difficulty_dots(1.0).count("●"), 5)
-        self.assertEqual(webmod._difficulty_dots(0.6).count("●"), 3)
-        self.assertIn("Difficulty 3/5", webmod._difficulty_dots(0.6))
+        self.assertEqual(cardsmod._difficulty_dots(0.0).count("●"), 1)
+        self.assertEqual(cardsmod._difficulty_dots(1.0).count("●"), 5)
+        self.assertEqual(cardsmod._difficulty_dots(0.6).count("●"), 3)
+        self.assertIn("Difficulty 3/5", cardsmod._difficulty_dots(0.6))
 
     def test_module_progress_bar_and_sticky_toc(self):
         body = self.h.module_html(self.out["module_id"])
@@ -414,10 +416,10 @@ class StyleSignalsTest(unittest.TestCase):
     def test_give_up_path_and_due_why(self):
         card = {"id": "c9", "exercise_type": "8",
                 "payload": '{"expected": "5"}'}
-        w = webmod.answer_widget(card)
+        w = cardsmod.answer_widget(card)
         self.assertIn("Give up", w)
         self.assertIn("name='confidence' value='1'", w)
-        why = webmod._due_why({"due": "2001-01-01T00:00:00Z",
+        why = cardsmod._due_why({"due": "2001-01-01T00:00:00Z",
                                "stability": 2.5, "lapses": 1})
         self.assertIn("why due?", why)
         self.assertIn("overdue", why)
@@ -425,7 +427,7 @@ class StyleSignalsTest(unittest.TestCase):
         self.assertIn("why due?", self.h.due_html())
 
     def test_confidence_pills_and_global_js(self):
-        pills = webmod._confidence()
+        pills = cardsmod._confidence()
         self.assertEqual(pills.count("type='radio'"), 5)
         self.assertIn("value='3' checked", pills)
         shell = webmod.page("T", "<p>x</p>").decode()
@@ -498,17 +500,17 @@ class RelativeTimesTest(unittest.TestCase):
                             datetime.timedelta(**kw))
 
     def test_buckets(self):
-        self.assertIn("just now", webmod._rel_time(self._ago(seconds=10)))
-        self.assertIn("30m ago", webmod._rel_time(self._ago(minutes=30)))
-        self.assertIn("5h ago", webmod._rel_time(self._ago(hours=5)))
-        self.assertIn("3d ago", webmod._rel_time(self._ago(days=3)))
-        old = webmod._rel_time(self._ago(days=40))
+        self.assertIn("just now", cardsmod._rel_time(self._ago(seconds=10)))
+        self.assertIn("30m ago", cardsmod._rel_time(self._ago(minutes=30)))
+        self.assertIn("5h ago", cardsmod._rel_time(self._ago(hours=5)))
+        self.assertIn("3d ago", cardsmod._rel_time(self._ago(days=3)))
+        old = cardsmod._rel_time(self._ago(days=40))
         self.assertIn("<time datetime=", old)
         self.assertNotIn("ago", old)
 
     def test_bad_input_still_renders(self):
-        self.assertIn("<time datetime=", webmod._rel_time("not-a-date"))
-        self.assertIn("<time datetime=", webmod._rel_time(""))
+        self.assertIn("<time datetime=", cardsmod._rel_time("not-a-date"))
+        self.assertIn("<time datetime=", cardsmod._rel_time(""))
 
     def test_history_attempts_use_relative_times(self):
         card = self.server.tool_list_due_reviews({"limit": 1})["due"][0]
@@ -705,10 +707,10 @@ class MemoryStrengthTest(unittest.TestCase):
         self.assertIn("class='bar'", body)
 
     def test_zero_stability_renders_empty_bar(self):
-        self.assertIn("width:0%", webmod._memory_bar({}))
+        self.assertIn("width:0%", cardsmod._memory_bar({}))
 
     def test_garbage_stability_renders_nothing(self):
-        self.assertEqual(webmod._memory_bar({"stability": "high"}), "")
+        self.assertEqual(cardsmod._memory_bar({"stability": "high"}), "")
 
 
 if __name__ == "__main__":

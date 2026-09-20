@@ -142,6 +142,9 @@ ENTRIES = [
     {"id": "module-health", "kind": "feature", "title": "Module health",
      "blurb": "Every capability area with its size and ceiling — web.py never grows.",
      "path": "/status", "anchor": "status-modular"},
+    {"id": "due-forecast", "kind": "improvement", "title": "Next-gap forecast",
+     "blurb": "Each Due card estimates its next gap at steady passes.",
+     "path": "/due", "anchor": "forecast"},
 ]
 
 BY_ID = {e["id"]: e for e in ENTRIES}

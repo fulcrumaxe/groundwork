@@ -104,6 +104,7 @@ expected outputs are always *measured* in the sandbox, never invented.
 | Module sorting | The Modules library toggles newest-first and oldest-first. | `/modules#sort` |
 | Snooze a card | Not today? Snooze pushes one card to tomorrow — no grade recorded. | `/due#snooze` |
 | Back-to-top link | Long module pages grow a floating Back to top link. | `/modules#top` |
+| Next-gap forecast | Each Due card estimates its next gap at steady passes. | `/due#forecast` |
 <!-- GW-IMPROVEMENTS:END -->
 
 See also [docs/features.md](docs/features.md) and the in-app

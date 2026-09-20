@@ -45,6 +45,7 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | Module sorting | The Modules library toggles newest-first and oldest-first. | `/modules#sort` |
 | Snooze a card | Not today? Snooze pushes one card to tomorrow — no grade recorded. | `/due#snooze` |
 | Back-to-top link | Long module pages grow a floating Back to top link. | `/modules#top` |
+| Next-gap forecast | Each Due card estimates its next gap at steady passes. | `/due#forecast` |
 
 ## The original loop
 

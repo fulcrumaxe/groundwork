@@ -34,8 +34,8 @@ class RegistryShapeTest(unittest.TestCase):
     def test_batches_landed_improvements_and_features(self):
         kinds = [e["kind"] for e in tourmod.ENTRIES]
         # Batch 1: 10 improvements + 12 features; Batch 2: +5 and +6;
-        # Batch 3: +5 and +5 (plus this guardrail feature itself).
-        self.assertEqual(kinds.count("improvement"), 15)
+        # Batch 3: guardrail + 5 improvements + 5 features as they land.
+        self.assertEqual(kinds.count("improvement"), 16)
         self.assertEqual(kinds.count("feature"), 19)
         self.assertEqual(len(set(kinds)), 3)  # + mvp baseline
 

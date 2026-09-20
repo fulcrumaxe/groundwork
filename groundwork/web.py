@@ -15,7 +15,9 @@ from pathlib import Path
 from urllib.parse import parse_qs, quote, urlparse
 
 from . import api as apimod
+from . import cards as cardsmod
 from . import db as dbmod
+from . import lessons as lesmod
 from . import exercises as exmod
 from . import exports as expmod
 from . import mcp as mcplib
@@ -125,22 +127,6 @@ CSS = ("body{font-family:system-ui,-apple-system,sans-serif;max-width:48rem;"
        "a.totop:hover{background:#333}")
 
 
-def _payload(card) -> dict:
-    raw = card.get("payload", "{}") if isinstance(card, dict) else card["payload"]
-    try:
-        return json.loads(raw or "{}")
-    except ValueError:
-        return {}
-
-
-def _confidence(extra: str = "") -> str:
-    pills = "".join(
-        f"<label class='conf'><input type='radio' name='confidence' "
-        f"value='{i}'{' checked' if i == 3 else ''}>{i}</label>"
-        for i in (1, 2, 3, 4, 5))
-    return f"<span class='conf-group'{extra}>Confidence {pills}</span> "
-
-
 GLOBAL_JS = """
 <script>
 (function () {
@@ -200,212 +186,7 @@ GLOBAL_JS = """
 </script>"""
 
 
-PARSONS_JS = """
-<script>
-if (!window.__parsonsInit) { window.__parsonsInit = true;
-function parsonsSync(ol) {
-  var ids = Array.prototype.map.call(
-    ol.querySelectorAll('li'), function (li) { return li.getAttribute('data-i'); });
-  document.getElementById('po-' + ol.id.slice(3)).value = ids.join(' ');
-}
-document.addEventListener('DOMContentLoaded', function () {
-  Array.prototype.forEach.call(document.querySelectorAll('ol.parsons'), function (ol) {
-    var dragged = null;
-    parsonsSync(ol);
-    ol.addEventListener('dragstart', function (e) {
-      dragged = e.target.closest('li'); e.dataTransfer.effectAllowed = 'move';
-    });
-    ol.addEventListener('dragover', function (e) {
-      e.preventDefault();
-      var li = e.target.closest('li');
-      if (li && li !== dragged) {
-        var r = li.getBoundingClientRect();
-        var after = (e.clientY - r.top) > r.height / 2;
-        ol.insertBefore(dragged, after ? li.nextSibling : li);
-      }
-    });
-    ol.addEventListener('drop', function (e) { e.preventDefault(); parsonsSync(ol); });
-    ol.addEventListener('click', function (e) {
-      var b = e.target.closest('button[data-move]'); if (!b) return;
-      var li = b.closest('li'); var d = parseInt(b.getAttribute('data-move'), 10);
-      if (d < 0 && li.previousElementSibling) ol.insertBefore(li, li.previousElementSibling);
-      if (d > 0 && li.nextElementSibling) ol.insertBefore(li.nextElementSibling, li);
-      parsonsSync(ol);
-    });
-  });
-});
-}
-</script>"""
 
-
-def render_levels(lesson: dict, mastery: float, attempts: int,
-                    level_override: str, base_path: str) -> str:
-    """Leveled explainer with tabs; auto-places from mastery by default."""
-    from . import explain as explainmod
-    levels = explainmod.levels_for(lesson)
-    if level_override in ("1", "2", "3", "4"):
-        active = int(level_override)
-    else:
-        active = explainmod.auto_level(mastery or 0.0, attempts)
-    tabs = []
-    for n in ("auto", "1", "2", "3", "4"):
-        label = "Auto" if n == "auto" else explainmod.LEVEL_TITLES[int(n)]
-        mark = " <b>(you are here)</b>" if (
-            (n == "auto" and level_override not in ("1", "2", "3", "4")) or
-            (n != "auto" and int(n) == active and
-             level_override in ("1", "2", "3", "4"))) else ""
-        tabs.append(f"<a href='{base_path}?level={n}'>{label}</a>{mark}")
-    out = [f"<p><small>Explain it {'simply' if active <= 2 else 'technically'}: "
-           f"{' · '.join(tabs)}</small></p>"]
-    lv = next(L for L in levels if L["n"] == active)
-    out.append(f"<h4>{html.escape(lv['title'])}</h4>")
-    for blk in lv["blocks"]:
-        body = html.escape(blk["b"])
-        if blk.get("pre"):
-            out.append(f"<h5>{html.escape(blk['h'])}</h5><pre>{body}</pre>")
-        else:
-            out.append(f"<h5>{html.escape(blk['h'])}</h5>"
-                       f"<p>{body.replace(chr(10), '<br>')}</p>")
-    if lv.get("code") and not any(b.get("pre") for b in lv["blocks"]):
-        out.append(f"<details><summary>Show me the code</summary>"
-                   f"<pre>{html.escape(lv['code'])}</pre></details>")
-    return "".join(out)
-
-
-def why_html(card) -> str:
-    from . import pipeline as pipelinemod
-    why = _payload(card).get("why", "")
-    if not why:
-        return ""
-    if why == pipelinemod.UNSTATED_WHY:
-        return (f"<p class='unstated'><small><b>Why this matters:</b> "
-                f"{html.escape(why)}</small></p>")
-    return f"<p><small><b>Why this matters:</b> {html.escape(why)}</small></p>"
-
-
-def hints_html(card, attempts: int = 0) -> str:
-    """Progressive hint reveal (adaptive scaffolding): the nudge is always
-    visible; each further attempt unlocks the next tier."""
-    hints = _payload(card).get("hints", [])
-    shown = hints[:min(len(hints), 1 + attempts)]
-    if not shown:
-        return ""
-    return "".join(
-        f"<details><summary>Hint {i + 1}</summary>{html.escape(h)}</details>"
-        for i, h in enumerate(shown))
-
-
-def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:
-    """Interaction matched to the exercise type — never just answer+submit.
-
-    `origin` records the page the card was answered from so the result
-    screen can link back to it (navigation contract: never strand).
-    """
-    cid = card["id"]
-    etype = str(card["exercise_type"] if isinstance(card, dict)
-                else card["exercise_type"])
-    p = _payload(card)
-    open_form = (f"<form method='post' action='/cards/{cid}/review'>"
-                 f"<input type='hidden' name='origin' value='{html.escape(origin, quote=True)}'>")
-    if etype == "1":
-        opts = "".join(f"<option value='{i}'>{i} — {w}</option>"
-                       for i, w in enumerate(
-                           ["blank", "wrong", "shaky", "close", "right", "easy"]))
-        body = (f"<label>Say it back in your own words first "
-                f"(optional, this is the recall):<br>"
-                f"<textarea name='recall' rows='3' cols='60'></textarea></label><br>"
-                f"<label>Then rate how well you recalled it: "
-                f"<select name='answer'>{opts}</select></label> "
-                f"{_confidence()}<button>Submit rating</button>")
-    elif etype == "2":
-        blanks = p.get("blanks") or [{"id": 0, "answers": p.get("answers", [])}]
-        fields = " ".join(
-            f"<label>___({b['id']}) <input name='b{b['id']}' size='12'></label>"
-            for b in blanks)
-        body = f"{fields} {_confidence()}<button>Check blanks</button>"
-    elif etype in ("4", "7", "16", "18"):
-        btns = " ".join(
-            f"<button name='answer' value='{html.escape(c)}'>{html.escape(c)}</button>"
-            for c in p.get("choices", []))
-        body = f"{btns} {_confidence()}"
-    elif etype in ("5", "6", "21", "22", "24", "25"):
-        hint = ("First line: A or B, then your reasons."
-                if etype == "22" else "Explain in your own words…")
-        body = (f"<textarea name='answer' rows='5' cols='70' "
-                f"placeholder='{hint}'></textarea><br>"
-                f"{_confidence()}<button>Submit explanation</button>")
-    elif etype == "8":
-        if p.get("choices"):
-            btns = " ".join(
-                f"<button name='answer' value='{html.escape(c)}'>{html.escape(c)}</button>"
-                for c in p["choices"])
-            body = (f"<p>Pick the output — or type it from memory when these feel easy:</p>"
-                    f"{btns}<br>"
-                    f"<label>Type it: <input name='answer' size='20'></label> "
-                    f"{_confidence()}<button>Check</button>")
-        else:
-            body = (f"<label>It prints/returns: <input name='answer' size='30'></label> "
-                    f"{_confidence()}<button>Check prediction</button>")
-    elif etype == "3" and p.get("choices"):
-        btns = " ".join(
-            f"<button name='answer' value='{html.escape(c)}'>{html.escape(c)}</button>"
-            for c in p["choices"])
-        body = (f"<p>Pick the signature — or write it from memory when these feel easy:</p>"
-                f"{btns}<br>"
-                f"<label>Write it: <input name='answer' size='40'></label> "
-                f"{_confidence()}<button>Check</button>")
-    elif etype == "30":
-        left = p.get("left", [])
-        right = p.get("right", [])
-        letters = " ".join(f"<b>{chr(ord('A') + i)}</b> {html.escape(b)}"
-                           for i, b in enumerate(right))
-        rows = "".join(
-            f"<tr><td><b>{i}</b> {html.escape(a)}</td>"
-            f"<td><input name='m{i}' size='3' placeholder='letter'></td></tr>"
-            for i, a in enumerate(left))
-        body = (f"<p>{letters}</p><table>{rows}</table>"
-                f"{_confidence()}<button>Check matches</button>")
-    elif etype == "9":
-        steps = p.get("expected", [])
-        rows = "".join(
-            f"<tr><td>Step {i + 1}</td>"
-            f"<td><input name='s{i}' size='12'></td></tr>"
-            for i in range(len(steps))) or \
-            "<tr><td>Value</td><td><input name='s0' size='12'></td></tr>"
-        body = (f"<table>{rows}</table>{_confidence()}"
-                f"<button>Check trace</button>")
-    elif etype in ("10", "11"):
-        items = "".join(
-            f"<li draggable='true' data-i='{i}'>"
-            f"<span class='grip'>⠿</span> {html.escape(l)} "
-            f"<button type='button' data-move='-1'>↑</button>"
-            f"<button type='button' data-move='1'>↓</button></li>"
-            for i, l in enumerate(p.get("lines", [])))
-        body = (f"<p>Drag the lines into order (or type the numbers):</p>"
-                f"<ol class='parsons' id='pl-{cid}'>{items}</ol>"
-                f"<input type='hidden' name='answer' id='po-{cid}' value=''>"
-                f"<label>Order (numbers): "
-                f"<input name='answer_text' size='30' placeholder='0 1 2 …'></label> "
-                f"{_confidence()}<button>Check order</button>{PARSONS_JS}")
-    elif etype in ("12", "14", "19", "20", "23"):
-        body = (f"<textarea name='answer' rows='12' cols='70' "
-                f"placeholder='Write your code here'></textarea><br>"
-                f"{_confidence()}<button>Run tests</button>")
-    elif etype == "13":
-        opts = "".join(
-            f"<label><input type='radio' name='answer' value='{i + 1}'> "
-            f"{html.escape(l)}</label><br>"
-            for i, l in enumerate(p.get("snippet", "").splitlines()))
-        body = f"{opts}{_confidence()}<button>Accuse this line</button>"
-    else:
-        body = (f"<input name='answer' size='50' placeholder='Your answer'> "
-                f"{_confidence()}<button>Submit</button>")
-    giveup = (f"<form method='post' action='/cards/{cid}/review'>"
-              f"<input type='hidden' name='answer' value=''>"
-              f"<input type='hidden' name='confidence' value='1'>"
-              f"<input type='hidden' name='origin' value='{html.escape(origin, quote=True)}'>"
-              f"<button class='giveup'>Give up — show me the answer</button></form>")
-    return f"{open_form}{body}</form>" + hints_html(card, attempts) + giveup
 
 
 NAV = (("projects", "/", "Projects"),
@@ -499,88 +280,6 @@ def _owned_map(con, mid: str) -> dict:
         attempts = r["attempts"] or 0
         out[r["cid"]] = (attempts, bool(r["own_pass"]) and attempts >= 2)
     return out
-
-
-def _due_why(card, extra: str = "") -> str:
-    """Scheduler explainability: why is this card due today?"""
-    get = card.get if isinstance(card, dict) else lambda k: card[k]
-    try:
-        from . import sched as schedmod
-        due = schedmod.parse_iso(str(get("due") or ""))
-        days = (schedmod.utcnow() - due).days
-        when = "due today" if days <= 0 else f"{days}d overdue"
-    except Exception:  # noqa: BLE001 — bad date still renders
-        when = "due now"
-    try:
-        stab = float(get("stability") or 0.0)
-    except (TypeError, ValueError):
-        stab = 0.0
-    lapses = get("lapses") or 0
-    tip = (f"{when}; memory strength {stab:.1f} days; "
-           f"lapses {lapses}")
-    return (f" <small><span{extra} title='{html.escape(tip)}'>"
-            f"why due?</span></small>")
-
-
-_WEEK_SECS = 7 * 86400
-
-
-def _rel_time(iso_ts: str) -> str:
-    """Relative time with exact timestamp on hover (I-25, I-26, I-93).
-
-    Renders `<time datetime>` so dates read as "3h ago" but keep their
-    exact, timezone-explicit value one hover away.
-    """
-    raw = iso_ts or ""
-    try:
-        from . import sched as schedmod
-        stamp = schedmod.parse_iso(raw)
-        delta = schedmod.utcnow() - stamp
-        secs = int(delta.total_seconds())
-        if secs < 0:
-            rel = "in the future"
-        elif secs < 90:
-            rel = "just now"
-        elif secs < 5400:
-            rel = f"{secs // 60}m ago"
-        elif secs < 129600:
-            rel = f"{secs // 3600}h ago"
-        elif secs < _WEEK_SECS:
-            rel = f"{secs // 86400}d ago"
-        else:
-            rel = raw[:10]
-    except Exception:  # noqa: BLE001 — bad date still renders
-        rel = raw[:10] or "unknown"
-    return (f"<time datetime='{html.escape(raw)}' title='{html.escape(raw)}'>"
-            f"{html.escape(rel)}</time>")
-
-
-def _memory_bar(card, extra: str = "") -> str:
-    """Memory-strength bar from the FSRS stability estimate (I-76)."""
-    get = card.get if isinstance(card, dict) else lambda k: card[k]
-    try:
-        stab = float(get("stability") or 0.0)
-    except (TypeError, ValueError):
-        return ""
-    try:
-        retr = float(get("retrievability") or 0.0)
-    except (TypeError, ValueError):
-        retr = 0.0
-    pct = int(round(max(0.0, min(1.0, retr if retr > 0 else stab / 30.0)) * 100))
-    return (f"<p{extra}><small>Memory strength {stab:.1f}d</small>"
-            f"<span class='bar' aria-hidden='true'>"
-            f"<i style='width:{pct}%'></i></span></p>")
-
-
-def _difficulty_dots(difficulty, extra: str = "") -> str:
-    """5-dot difficulty meter from the FSRS difficulty estimate."""
-    try:
-        n = int(round(float(difficulty if difficulty is not None else 0.5) * 5))
-    except (TypeError, ValueError):
-        n = 3
-    n = max(1, min(5, n))
-    return (f"<small{extra} title='Difficulty {n}/5'>"
-            f"{'●' * n}{'○' * (5 - n)}</small>")
 
 
 BLOOM_RUNGS = ["recall", "explain", "apply", "analyse", "modify", "create"]
@@ -896,7 +595,7 @@ class Handler(BaseHTTPRequestHandler):
             stale = " <span class='stale'>[stale]</span>" if c.get("stale") else ""
             if c["id"] in study:
                 lesson_dict, mastery = study[c["id"]]
-                explainer = render_levels(
+                explainer = lesmod.render_levels(
                     lesson_dict, mastery, tries.get(c["id"], 0), level, "/")
                 lesson = (f"<details><summary>Study first — explained your way</summary>"
                           f"{explainer}</details>")
@@ -907,9 +606,9 @@ class Handler(BaseHTTPRequestHandler):
                    if first else "")
             cls = " class='next'" if first else ""
             pos = f"<p><small>Card {i + 1} of {len(due)}</small></p>"
-            dots = _difficulty_dots(
+            dots = cardsmod._difficulty_dots(
                 c.get("difficulty"), " id='difficulty'" if first else "")
-            widget = answer_widget(c, tries.get(c["id"], 0), "/due")
+            widget = cardsmod.answer_widget(c, tries.get(c["id"], 0), "/due")
             why_extra = ""
             if first:
                 # Stable tour anchors on the lead card only.
@@ -920,18 +619,20 @@ class Handler(BaseHTTPRequestHandler):
                 widget = widget.replace(
                     "<button class='giveup'>",
                     "<button class='giveup' id='giveup'>", 1)
-            mem = _memory_bar(
+            mem = cardsmod._memory_bar(
                 c, " id='memory'" if first else "")
+            forecast = cardsmod.forecast_html(
+                c, " id='forecast'" if first else "")
             snooze_id = " id='snooze'" if first else ""
             snooze = (
                 f"<form method='post' action='/cards/{c['id']}/snooze'>"
                 f"<input type='hidden' name='origin' value='/due'>"
                 f"<button{snooze_id}>Snooze until tomorrow</button></form>")
             parts.append(
-                f"<article{cls}>{tag}{pos}{_due_why(c, why_extra)}"
+                f"<article{cls}>{tag}{pos}{cardsmod._due_why(c, why_extra)}"
                 f"<h3>{html.escape(c.get('concept', ''))}{stale} {dots}</h3>"
-                f"{mem}{lesson}"
-                f"{why_html(c)}"
+                f"{mem}{forecast}{lesson}"
+                f"{lesmod.why_html(c)}"
                 f"<p>{html.escape(c.get('front', ''))}</p>"
                 f"{widget}{snooze}</article>")
         parts.append("<p><a class='btn' href='/modules'>Browse all modules</a> "
@@ -1045,7 +746,7 @@ class Handler(BaseHTTPRequestHandler):
             parts.append(
                 f"<p class='{cls}'>{mark} {html.escape(r['concept'] or '')} — "
                 f"grade {r['grade']}/5, confidence {r['confidence']}/5 "
-                f"<small>{_rel_time(r['reviewed_at'] or '')}</small><br>"
+                f"<small>{cardsmod._rel_time(r['reviewed_at'] or '')}</small><br>"
                 f"<small>in <a href='/modules/{r['module_id']}'>"
                 f"{html.escape(r['summary'] or r['module_id'])}</a></small></p>")
         return "".join(parts)
@@ -1432,7 +1133,7 @@ class Handler(BaseHTTPRequestHandler):
                 f"<p><small>{html.escape(row['kind'])} · "
                 f"{html.escape(row['file'])}:{row['line']}</small></p>")
             if node in lesson_map:
-                parts.append(render_levels(
+                parts.append(lesmod.render_levels(
                     lesson_map[node], mastery_of[node], concept_tries,
                     level, base))
             if concept_cards:
@@ -1443,15 +1144,15 @@ class Handler(BaseHTTPRequestHandler):
                     parts.append("<h3>Practice</h3>")
             for c in concept_cards:
                 lesson = (f"<details><summary>Study first — explained your way</summary>"
-                          f"{render_levels(lesson_map[node], mastery_of.get(node, 0.0), tries.get(c['id'], 0), level, base)}</details>"
+                          f"{lesmod.render_levels(lesson_map[node], mastery_of.get(node, 0.0), tries.get(c['id'], 0), level, base)}</details>"
                           if node in lesson_map else "")
                 parts.append(
                     f"<article><h3>{html.escape(c['concept'])} "
-                    f"{_difficulty_dots(c['difficulty'])}</h3>"
+                    f"{cardsmod._difficulty_dots(c['difficulty'])}</h3>"
                     f"{lesson}"
-                    f"{why_html(c)}"
+                    f"{lesmod.why_html(c)}"
                     f"<p>{html.escape(c['front'])}</p>"
-                    f"{answer_widget(c, tries.get(c['id'], 0), base)}"
+                    f"{cardsmod.answer_widget(c, tries.get(c['id'], 0), base)}"
                     f"{self._submissions_html(history.get(c['id'], []))}</article>")
             parts.append("</section>")
         parts.append("<a class='totop' href='#top'>Back to top ↑</a>")

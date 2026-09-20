@@ -48,6 +48,18 @@ def review_card(stability: float, difficulty: float, grade: int,
             "retrievability": 1.0, "due": iso(due)}
 
 
+def forecast_gap(stability: float) -> str:
+    """Next-gap estimate at steady passes, from stability (I-203).
+
+    Mirrors the review_card interval so the Due forecast and the
+    scheduler agree: max(1, round(stability)) days.
+    """
+    try:
+        return f"≈{max(1, round(float(stability or 0.0)))}d"
+    except (TypeError, ValueError):
+        return "unknown"
+
+
 def snooze_due(now: datetime | None = None) -> str:
     """Next-day due timestamp for a snoozed card (no grade recorded)."""
     return iso((now or utcnow()) + timedelta(days=1))
