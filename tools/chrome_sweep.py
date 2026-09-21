@@ -1,9 +1,9 @@
-"""Chrome MCP verification sweep for Batch 11 improvements + features.
+"""Chrome MCP verification sweep for Batch 12 improvements + features.
 
 Serves the groundwork web app from a temp DB copy, opens each fixture
 page in a real headless Chrome via the chrome-devtools-mcp stdio server
-(tools/chrome_mcp.py), and asserts the rendered DOM for every Batch 11
-item (I-63..I-70, F-42..F-49 = types 65-72). Batch 9/10 checks are kept
+(tools/chrome_mcp.py), and asserts the rendered DOM for every Batch 12
+item (I-71..I-82, F-50..F-59). Batch 9/10/11 checks are kept
 so the sweep still guards the previous batches' surfaces. Ends with a
 live interaction: one real card review submitted on /due (verdict page
 proves the grade + collapse/undo flow), or the done-hero when the queue
@@ -166,6 +166,59 @@ CHECKS: list[tuple[str, str, str]] = [
      "() => !!document.querySelector('#status-b11-ratelimit')"),
     ("F-72", "/status",
      "() => !!document.querySelector('#status-b11-webhook')"),
+    # Batch 12 improvements (I-71..I-82): status anchor + head-wire token.
+    # (B12- prefix: sweep F-57..F-59 names belong to exercise types.)
+    ("B12-I71", "/status",
+     "() => !!document.querySelector('#status-b12-logbook')"),
+    ("B12-I71-css", "/",
+     "() => { const css=[...document.querySelectorAll('style')].map(s=>s.textContent).join('\\n'); return css.includes('table.log td{border-bottom'); }"),
+    ("B12-I72", "/status",
+     "() => !!document.querySelector('#status-b12-shelf')"),
+    ("B12-I72-css", "/",
+     "() => { const css=[...document.querySelectorAll('style')].map(s=>s.textContent).join('\\n'); return css.includes('--shelf-spine'); }"),
+    ("B12-I73", "/status",
+     "() => !!document.querySelector('#status-b12-briefing')"),
+    ("B12-I73-css", "/",
+     "() => { const css=[...document.querySelectorAll('style')].map(s=>s.textContent).join('\\n'); return css.includes('counter-reset:mission'); }"),
+    ("B12-I77", "/status",
+     "() => !!document.querySelector('#status-b12-verdicts')"),
+    ("B12-I77-css", "/",
+     "() => { const css=[...document.querySelectorAll('style')].map(s=>s.textContent).join('\\n'); return css.includes('.verdict-stamp'); }"),
+    ("B12-I79", "/status",
+     "() => !!document.querySelector('#status-b12-ownbanner')"),
+    ("B12-I79-css", "/",
+     "() => { const css=[...document.querySelectorAll('style')].map(s=>s.textContent).join('\\n'); return css.includes('.ownbanner'); }"),
+    ("B12-I80", "/status",
+     "() => !!document.querySelector('#status-b12-pressfx')"),
+    ("B12-I80-css", "/",
+     "() => { const css=[...document.querySelectorAll('style')].map(s=>s.textContent).join('\\n'); return css.includes('scale(0.97)'); }"),
+    ("B12-I81", "/status",
+     "() => !!document.querySelector('#status-b12-skeletons')"),
+    ("B12-I81-css", "/",
+     "() => { const css=[...document.querySelectorAll('style')].map(s=>s.textContent).join('\\n'); return css.includes('gw-sk-pulse'); }"),
+    ("B12-I82", "/status",
+     "() => !!document.querySelector('#status-b12-optimistic')"),
+    ("B12-I82-css", "/",
+     "() => { const css=[...document.querySelectorAll('style')].map(s=>s.textContent).join('\\n'); return css.includes('.gw-spinner'); }"),
+    ("B12-I82-js", "/due",
+     "() => !!document.querySelector('script[data-optimistic-submit]')"),
+    # Batch 12 features (F-50..F-59): one anchored section each.
+    ("B12-F50", "/status",
+     "() => !!document.querySelector('#status-b12-typecontract')"),
+    ("B12-F51", "/status",
+     "() => !!document.querySelector('#status-b12-retest')"),
+    ("B12-F54", "/status",
+     "() => !!document.querySelector('#status-b12-quests')"),
+    ("B12-F55", "/status",
+     "() => !!document.querySelector('#status-b12-diffdial')"),
+    ("B12-F56", "/status",
+     "() => !!document.querySelector('#status-b12-coldattempt')"),
+    ("B12-F57", "/status",
+     "() => !!document.querySelector('#status-b12-fading')"),
+    ("B12-F58", "/status",
+     "() => !!document.querySelector('#status-b12-selfexplain')"),
+    ("B12-F59", "/status",
+     "() => !!document.querySelector('#status-b12-elaboration')"),
 ]
 
 
