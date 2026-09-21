@@ -84,14 +84,20 @@ def trace_table(steps, states=None) -> str:
 
 
 def pack_html(concept: str = "", words: str = "",
-              steps=None, states=None) -> str:
-    """Full triple: words line + diagram + trace, all escaped."""
+              steps=None, states=None, wrapper: str = "article") -> str:
+    """Full triple: words line + diagram + trace, all escaped.
+
+    ``wrapper`` picks the outer tag; lesson rendering passes ``"div"``
+    so packs nested inside card markup never inflate card counts.
+    Unknown wrappers fail closed to ``article``.
+    """
     try:
+        tag = wrapper if wrapper in ("article", "div", "section") else "article"
         name = html.escape((concept or "this idea").strip()
                            or "this idea")
         prose = html.escape((words or "").strip())
         labels = clean_steps(steps)
-        parts = [f"<article class='dual-pack'><h4>{name}</h4>"]
+        parts = [f"<{tag} class='dual-pack'><h4>{name}</h4>"]
         if prose:
             parts.append(f"<p class='dual-words'>{prose}</p>")
         svg = diagram_svg(labels)
@@ -100,7 +106,7 @@ def pack_html(concept: str = "", words: str = "",
         tbl = trace_table(labels, states)
         if tbl:
             parts.append(tbl)
-        parts.append("</article>")
+        parts.append(f"</{tag}>")
         return "".join(parts)
     except Exception:  # noqa: BLE001 -- pack builder must never raise
         return "<article class='dual-pack'><h4>this idea</h4></article>"

@@ -151,9 +151,15 @@ def elaboration_drill(new_concept: dict, owned: list[dict]) -> dict:
                 "prompt": note, "bridge": note}
 
 
-def drill_html(drill) -> str:
-    """Escaped drill markup; bad input renders an empty state."""
+def drill_html(drill, wrapper: str = "article") -> str:
+    """Escaped drill markup; bad input renders an empty state.
+
+    ``wrapper`` picks the outer tag; lesson rendering passes ``"div"``
+    so drills nested inside card markup never inflate card counts.
+    Unknown wrappers fail closed to ``article``.
+    """
     try:
+        tag = wrapper if wrapper in ("article", "div", "section") else "article"
         if not isinstance(drill, dict):
             return "<p>No elaboration drill yet.</p>"
         concept = html.escape(str(drill.get("concept") or "this concept"))
@@ -161,14 +167,14 @@ def drill_html(drill) -> str:
         if not isinstance(partners, list) or not partners:
             prompt = html.escape(str(drill.get("prompt") or
                                      "Study two owned concepts first."))
-            return (f"<article><h4>{concept} — elaboration drill</h4>"
-                    f"<p>{prompt}</p></article>")
+            return (f"<{tag}><h4>{concept} — elaboration drill</h4>"
+                    f"<p>{prompt}</p></{tag}>")
         lis = "".join(f"<li>{html.escape(str(p))}</li>"
                       for p in partners[:2])
         prompt = html.escape(str(drill.get("prompt") or ""))
         bridge = html.escape(str(drill.get("bridge") or ""))
-        return (f"<article><h4>{concept} — elaboration drill</h4>"
-                f"<p>{prompt}</p><ul>{lis}</ul><p>{bridge}</p></article>")
+        return (f"<{tag}><h4>{concept} — elaboration drill</h4>"
+                f"<p>{prompt}</p><ul>{lis}</ul><p>{bridge}</p></{tag}>")
     except Exception:  # noqa: BLE001 -- markup never raises
         return "<p>No elaboration drill yet.</p>"
 

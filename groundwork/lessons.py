@@ -60,7 +60,7 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
         pack = dualmod.pack_html(
             lesson.get("name") or "",
             (lesson.get("summary") or "").splitlines()[0][:200],
-            steps, dc.get("states") or [])
+            steps, dc.get("states") or [], wrapper="div")
         if pack:
             out.append(pack)
     if lv.get("code") and not any(b.get("pre") for b in lv["blocks"]):
@@ -98,8 +98,24 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
             {"name": lesson.get("name") or "",
              "summary": lesson.get("summary") or ""}, owned_list)
         if drill.get("partners"):
-            out.append(elabmod.drill_html(drill))
+            out.append(elabmod.drill_html(drill, wrapper="div"))
     return "".join(out)
+
+
+def owned_lessons(lesson_map: dict, mastery_of: dict, node: str) -> list:
+    """Sibling lessons the learner masters (F-59 elaboration partners).
+
+    Mastery >= 0.85 is the top auto-level tier ("owns it"); those
+    siblings feed the elaboration drill for ``node``. Never raises.
+    """
+    try:
+        if not isinstance(lesson_map, dict) or not isinstance(mastery_of, dict):
+            return []
+        return [lesson_map[n] for n in lesson_map
+                if n != node and isinstance(lesson_map[n], dict)
+                and (mastery_of.get(n, 0.0) or 0.0) >= 0.85]
+    except Exception:  # noqa: BLE001 — partner lookup never raises
+        return []
 
 
 def _code_lang(file: str) -> str:
