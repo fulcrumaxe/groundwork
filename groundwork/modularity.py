@@ -26,6 +26,9 @@ Batch 13 follows it as well (seven area imports, the 500 wrapper, and
 the review-note line; CSS/head/foot/status joins stay same-line, so
 status.py holds exactly at AREA_CAP). Batch 13 sections join in
 batch13.py instead. (1190 -> 1219 for the wires.)
+Batch 17 follows it as well (dial/cold route wires, the quests
+delegation line + import, the dial apply + cold return in due_html;
+con fetch moved above the parts list. 1219 -> 1227 for the wires.)
 """
 from __future__ import annotations
 
@@ -33,7 +36,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 
-WEB_CEILING = 1219
+WEB_CEILING = 1227
 AREA_CAP = 350
 
 # Capability area -> module implementing it. Batch 3 appends its areas here.
@@ -223,6 +226,7 @@ AREAS = {
     "calibdrill": "calibdrill.py",
     "overconf": "overconf.py",
     "batch13": "batch13.py",
+    "contractaudit": "contractaudit.py",
 }
 
 

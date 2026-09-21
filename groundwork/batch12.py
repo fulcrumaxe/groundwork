@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from . import briefing as briefingmod
 from . import coldattempt as coldattemptmod
+from . import contractaudit as contractauditmod
 from . import diffdial as diffdialmod
 from . import elaboration as elaborationmod
 from . import fading as fadingmod
@@ -47,7 +48,7 @@ def batch12_html() -> str:
         pressfxmod.section_html(),
         skeletonsmod.section_html(),
         optimisticmod.section_html(),
-        typecontractmod.section_html(),
+        typecontractmod.section_html(contractauditmod.live_report()),
         retestmod.section_html(),
         questsmod.section_html(),
         diffdialmod.section_html(),

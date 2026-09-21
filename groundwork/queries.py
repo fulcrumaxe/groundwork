@@ -42,6 +42,15 @@ def attempts(con, card_ids: list[str]) -> dict:
     return {r["card_id"]: r["n"] for r in rows}
 
 
+def cold_rows(con) -> list:
+    """Concept rows for cold-attempt sessions: id, module, name, mastery."""
+    rows = con.execute(
+        "SELECT id, module_id, name, mastery FROM concepts").fetchall()
+    return [{"id": r["id"], "module_id": r["module_id"],
+             "name": r["name"], "mastery": r["mastery"] or 0.0}
+            for r in rows]
+
+
 def history_by_card(con, mid: str) -> dict:
     """Past reviews per card for one module, newest first."""
     try:
