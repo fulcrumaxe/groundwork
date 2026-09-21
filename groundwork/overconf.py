@@ -83,6 +83,51 @@ def intervention_html(gap_value, skill: str = "",
         return ""
 
 
+def coach_card(rows) -> str:
+    """Live intervention card over real attempts (Batch 15, F-67).
+
+    ``rows`` are (skill label, grade 0–5, confidence 1–5) — the same
+    attempts the calibration coach reads. Fires only at MIN_ATTEMPTS+
+    attempts with gap >= GAP_TRIGGER; the weakest skill is the
+    largest per-skill confidence-minus-accuracy gap. Accuracy here is
+    mean grade / 5 (the card states its own numbers, same scale as
+    gap()). Unparseable rows are skipped; never raises.
+    """
+    try:
+        items = []
+        for row in rows or []:
+            try:
+                skill, grade, conf = row
+                g = float(grade)
+                c = float(conf)
+                if g != g or c != c:  # NaN never intervenes
+                    continue
+                label = str(skill or "this skill").strip() or "this skill"
+                items.append((label, g, c))
+            except Exception:  # noqa: BLE001 -- bad row, skip it
+                continue
+        n = len(items)
+        if n < MIN_ATTEMPTS:
+            return ""
+        acc = sum(g for _, g, _ in items) / n / 5.0
+        mean_conf = sum(c for _, _, c in items) / n
+        g = gap(acc, mean_conf)
+        if not needs_intervention(g, n):
+            return ""
+        by_skill: dict = {}
+        for label, grade, conf in items:
+            by_skill.setdefault(label, []).append((grade, conf))
+        worst_label, worst_gap = "this skill", None
+        for label, rs in by_skill.items():
+            cell = sum(c for _, c in rs) / len(rs) / 5.0 - sum(
+                gr for gr, _ in rs) / len(rs) / 5.0
+            if worst_gap is None or cell > worst_gap:
+                worst_label, worst_gap = label, cell
+        return intervention_html(g, worst_label, n)
+    except Exception:  # noqa: BLE001 -- card must never raise
+        return ""
+
+
 def section_html() -> str:
     """Status-page subsection with a live dealt card."""
     demo = intervention_html(0.34, "cache invalidation", 24)
@@ -93,9 +138,10 @@ def section_html() -> str:
         "<code>gap()</code>, <code>needs_intervention()</code> (gap "
         "≥ 0.25 over ≥ 10 attempts — small samples and "
         "underconfidence stay silent), and "
-        "<code>intervention_html()</code>, a db-free library the "
-        "coach does not touch. A dealt card for a 34-point gap "
-        "renders below.</p>" + demo)
+        "<code>intervention_html()</code>. Since Batch 15 the History "
+        "coach deals <code>coach_card()</code> from live attempts, "
+        "naming the real weakest skill. A dealt card for a 34-point "
+        "gap renders below.</p>" + demo)
 
 
 def tour_entry() -> dict:

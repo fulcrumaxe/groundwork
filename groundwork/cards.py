@@ -22,7 +22,9 @@ def _payload(card) -> dict:
 
 def _confidence(extra: str = "") -> str:
     # Segmented control (I-64): same posted field, tappable segments.
-    return confslidermod.slider_html(3, extra=extra) + " "
+    # Explicit drill odds ride along (Batch 15, F-66): every stated
+    # confidence shows its price before the answer is graded.
+    return confslidermod.slider_html(3, extra=extra) + " " + confslidermod.odds_html()
 
 
 PARSONS_JS = """

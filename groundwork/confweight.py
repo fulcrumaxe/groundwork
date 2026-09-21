@@ -72,9 +72,11 @@ def section_html() -> str:
         "<p>Calibration now pays: <code>groundwork/confweight.py</code> "
         "provides <code>score()</code> (right earns its confidence, "
         "wrong loses it — brave-correct beats shy-correct beats "
-        "shy-wrong beats brave-wrong) and <code>rank_line()</code>, a "
-        "db-free library that leaves grading untouched. The table "
-        "below is computed live, not typed.</p>"
+        "shy-wrong beats brave-wrong) and <code>rank_line()</code>. "
+        "Since Batch 15 every submit banks <code>score()</code> into "
+        "<code>reviews.points</code>, the verdict shows it, and "
+        "History totals the bank. The table below is computed live, "
+        "not typed.</p>"
         "<table class='log'><tr><th>Answer</th><th>Points</th></tr>"
         f"{rows}</table>")
 
