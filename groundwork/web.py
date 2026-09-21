@@ -16,6 +16,14 @@ from urllib.parse import parse_qs, quote, urlparse
 from . import api as apimod
 from . import autofocus as autofocusmod
 from . import autoscroll as autoscrollmod
+from . import bloomchips as bloomchipsmod
+from . import carets as caretsmod
+from . import codelines as codelinesmod
+from . import highlight as highlightmod
+from . import ownedbadge as ownedbadgemod
+from . import progbar as progbarmod
+from . import stagger as staggermod
+from . import wordmark as wordmarkmod
 from . import badge as badgemod
 from . import cardlinks as cardlinksmod
 from . import cards as cardsmod
@@ -190,7 +198,7 @@ CSS = ("body{font-family:system-ui,-apple-system,sans-serif;max-width:48rem;"
 # concatenated into CSS (that nests <style> inside <style>, closes the
 # head stylesheet early, and dumps all later CSS into <body> as text).
 FOCUS_CSS = clickcardsmod.focus_css()
-CSS += palettemod.palette_css() + darkmodemod.dark_css() + typescalemod.scale_css() + fontstackmod.stack_css()  # Batch 9 I-51/52/53/54: token variables, dark overrides, type scale, font stacks
+CSS += palettemod.palette_css() + darkmodemod.dark_css() + typescalemod.scale_css() + fontstackmod.stack_css() + wordmarkmod.wordmark_css() + bloomchipsmod.chip_css() + progbarmod.progbar_css() + ownedbadgemod.badge_css() + staggermod.stagger_css() + caretsmod.carets_css() + codelinesmod.codelines_css() + highlightmod.highlight_css()  # Batch 9 I-51/52/53/54: token variables, dark overrides, type scale, font stacks. Batch 10 I-55..I-62: wordmark, bloom chips, progress motion, owned badge, stagger, carets, code lines, highlight.
 
 GLOBAL_JS = """
 <script>
@@ -276,7 +284,7 @@ def page(title: str, body: str, active: str = "projects",
     links = sitenavmod.header_nav(active, counts)
     head = (f"<a class='skip' href='#main'>Skip to content</a>"
             f"<header class='page-head' id='top'><nav id='sitenav'>{links}</nav>"
-            f"<h1>{html.escape(title)}</h1>{searchmod.header_html()}")
+            f"<h1>{wordmarkmod.wordmark_svg()} {html.escape(title)}</h1>{searchmod.header_html()}")
     if lede:
         head += f"<p class='lede'>{html.escape(lede)}</p>"
     head += "</header>"
@@ -616,7 +624,7 @@ class Handler(BaseHTTPRequestHandler):
                 parts.append(
                     f"<article{cls} id='{scrollposmod.card_anchor(c['id'])}'>"
                     f"{tag}{pos}{cardsmod._due_why(c, why_extra)}"
-                    f"<h3>{html.escape(c.get('concept', ''))}{stale} {dots} {chip}</h3>"
+                    f"<h3>{html.escape(c.get('concept', ''))}{stale} {dots} {chip} {cardsmod.bloom_chip(c)}</h3>"
                     f"{mem}{forecast}{lesson}"
                     f"{lesmod.why_html(c)}"
                     f"<p>{html.escape(c.get('front', ''))}</p>"

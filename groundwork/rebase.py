@@ -232,7 +232,9 @@ def render(exercise: dict) -> str:
     front = html.escape(str(exercise.get("front", "")))
     concept = html.escape(str(exercise.get("concept", "")))
     type_name = html.escape(str(exercise.get("type_name", TYPE_NAME)))
+    from . import codelines as codelinesmod
     conflicted = html.escape(str(payload.get("conflicted", "")))
+    numbered = codelinesmod.numbered_html(str(payload.get("conflicted", "")))
     file_line = f"{exercise.get('file', '')}:{exercise.get('line', 0)}"
     hints = "".join(
         f"<details><summary>Hint {i + 1}</summary>{html.escape(h)}</details>"
@@ -240,7 +242,7 @@ def render(exercise: dict) -> str:
     return (
         f"<article><h3>{concept} · {type_name}</h3>"
         f"<p>{front}</p>"
-        f"<pre>{conflicted}</pre>"
+        f"<pre>{numbered}</pre>"
         f"<details><summary>How grading works</summary>"
         f"<p><small>No conflict markers remain, every kept line from both "
         f"sides is present, and the code parses — checked statically, no "

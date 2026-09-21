@@ -96,8 +96,11 @@ class DistinctPagesTest(unittest.TestCase):
     def test_due_and_history_have_distinct_titles(self):
         due = webmod.page("Due", self.h.due_html()).decode()
         hist = webmod.page("History", self.h.history_html()).decode()
-        self.assertIn("<h1>Due</h1>", due)
-        self.assertIn("<h1>History</h1>", hist)
+        # Batch 10 I-55: every page header carries the wordmark before
+        # the title text.
+        self.assertIn("class='wordmark'", due)
+        self.assertIn("Due</h1>", due)
+        self.assertIn("History</h1>", hist)
         self.assertNotEqual(due, hist)
 
     def test_due_links_to_modules_not_embeds_list(self):

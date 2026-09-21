@@ -211,7 +211,8 @@ def render(exercise: dict) -> str:
     code = html.escape(p.get("code", ""))
     body = f"<p>{front}</p>"
     if code and code not in front:
-        body += f"<pre><code>{code}</code></pre>"
+        from . import codelines as codelinesmod
+        body += f"<pre><code>{codelinesmod.numbered_html(p.get('code', ''))}</code></pre>"
     body += ("<form method='post'><textarea name='answer' rows='3' cols='70' "
              "placeholder='new_name — why it fits'></textarea><br>"
              "<button>Submit</button></form>")
