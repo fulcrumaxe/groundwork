@@ -11,6 +11,7 @@ from pathlib import Path
 
 from . import db as dbmod
 from . import exercises as exmod
+from . import interleave as interleavemod
 from . import modules as modmod
 from . import pipeline as pipelinemod
 from . import sched as schedmod
@@ -193,9 +194,18 @@ class MCPServer:
                 " ORDER BY cards.due LIMIT ?",
                 (now, int(p.get("limit", 20)))).fetchall()
             cards = [dict(r) for r in rows]
+            mrows = con.execute(
+                "SELECT cards.concept_id, cards.exercise_type,"
+                " AVG(reviews.grade) AS g, COUNT(reviews.id) AS n"
+                " FROM cards LEFT JOIN reviews"
+                " ON reviews.card_id = cards.id"
+                " GROUP BY cards.concept_id, cards.exercise_type").fetchall()
+            mastery = {(r["concept_id"], r["exercise_type"]): r["g"]
+                       for r in mrows if r["n"]}
         finally:
             con.close()
-        return {"due": schedmod.interleave(cards), "count": len(cards)}
+        return {"due": interleavemod.order_due(cards, mastery),
+                "count": len(cards)}
 
     def snooze_card(self, card_id: str) -> dict:
         """Push one card to tomorrow without recording a grade (I-45)."""
@@ -240,7 +250,11 @@ class MCPServer:
             else:
                 result = exmod.grade(exercise, submission, sbmod.SandboxRunner())
                 grade_val = 5 if result["pass"] else 1
-            upd = schedmod.review_card(card["stability"], card["difficulty"], grade_val)
+            hist = [r[0] for r in con.execute(
+                "SELECT grade FROM reviews WHERE card_id=? ORDER BY rowid",
+                (card_id,)).fetchall()]
+            upd = schedmod.review_card(card["stability"], card["difficulty"],
+                                       grade_val, grades=hist + [grade_val])
             prev_mastery = con.execute(
                 "SELECT mastery FROM concepts WHERE id=?",
                 (card["concept_id"],)).fetchone()

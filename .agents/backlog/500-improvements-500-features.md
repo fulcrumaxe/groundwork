@@ -486,6 +486,47 @@ Detail lines below marked [x] as they land.
 - [x] F-66: Calibration drills (calibdrill.py + test_calibdrill.py).
 - [x] F-67: Overconfidence cards (overconf.py + test_overconf.py).
 
+## Integration ledger — demos become behavior (Batch 14+; standing decision)
+
+Every db-free engine below renders a Status demo no learner path
+calls. Each row names its real target and batch; a row is done only
+per the Integration rule (real caller + behavioral-effect test +
+legacy fallback). No schema changes in Batch 14; one migration
+allowed per batch from 15 on.
+
+Batch 14 (sched core, no schema):
+- [x] F-62 spacingopt → `sched.review_card(grades=)` + `submit_review`
+  trailing history; streak stretches the gap, legacy default untouched.
+  Shipped on branch `batch14-int-sched` (effect tests in
+  tests/test_batch14.py); stretch-only guard keeps hyper-stable gaps.
+- [x] F-61 interleave → `tool_list_due_reviews` ordering via an
+  `order_due` bridge (merges with, not beside, `sched.interleave`;
+  empty mastery falls back byte-identical). Shipped on branch
+  `batch14-int-sched`; mastery keys normalized str-to-str.
+
+Batch 15 (schema: points + probes; one migration):
+- [ ] F-65 confweight → `submit_review` banks signed points (new
+  nullable column); grades stay pass/fail.
+- [ ] F-66 calibdrill → drills surfaced with real stakes; `settle`
+  recorded per answer.
+- [ ] F-67 overconf → coach deals cards from live accuracy/confidence
+  on a real study surface (not the Status demo values).
+- [ ] F-51 retest → probe windows resurface owned cards in the Due
+  queue; answering records `last_probe` (new nullable column).
+
+Batch 16 (generation/rendering; pipeline touches capped):
+- [ ] F-60 dualcode → key ideas emit diagram+trace in generated lessons.
+- [ ] F-63 retrieval → template enforcement in generated lessons.
+- [ ] F-64 predict → lesson rendering wraps snippets in covers.
+- [ ] F-57 fading, F-58 selfexplain, F-59 elaboration → worked-example
+  rendering in lessons.
+
+Batch 17 (surfaces):
+- [ ] F-54 quests → locked/unlocked skills view from live mastery.
+- [ ] F-55 diffdial → working dial control; minisession/Due respect it.
+- [ ] F-56 coldattempt → session-mode entry point (like `?mode=one`).
+- [ ] F-50 typecontract → CI audit gate (already complete as a library).
+
 ## IMPROVEMENTS (500)
 
 ### A. Navigation, IA & routing (I-1–50)

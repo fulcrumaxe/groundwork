@@ -82,6 +82,95 @@ def is_interleaved(seq) -> bool:
         return False
 
 
+def _cell_key(card: dict) -> tuple[str, str]:
+    """(concept, type) labels for one due card; blanks become named."""
+    try:
+        concept = str(card.get("concept_id") or "unfiled").strip() or "unfiled"
+        kind = str(card.get("exercise_type", "general")).strip() or "general"
+        return concept, kind
+    except Exception:  # noqa: BLE001 -- key must never raise
+        return "unfiled", "general"
+
+
+def order_due(cards, mastery=None) -> list:
+    """Due queue order via the engine (Batch 14, F-61).
+
+    ``mastery`` maps (concept, type) or plain concept ids to average
+    grades 0..5 (unknown concepts score 0.0 — unpracticed, never
+    mastered, per the engine's own rule). Cells rank weakest-first
+    with contrast; cards deal round-robin across the ranked cells,
+    the same shape as ``sched.interleave`` with a smarter group
+    order. Empty/missing mastery falls back to ``sched.interleave``
+    byte-identical — the legacy default. Never raises; garbage rows
+    keep their relative order at the end.
+    """
+    try:
+        from . import sched as schedmod
+    except Exception:  # noqa: BLE001 -- fallback must never raise
+        schedmod = None
+    try:
+        items = [c for c in (cards or []) if isinstance(c, dict)]
+        if not items:
+            return []
+        if not isinstance(mastery, dict) or not mastery:
+            if schedmod is None:
+                return list(items)
+            return schedmod.interleave(items)
+        # Normalize keys: sqlite hands back ints for exercise_type
+        # while cards may carry strings — compare str to str.
+        norm: dict = {}
+        for k, v in mastery.items():
+            try:
+                if isinstance(k, (list, tuple)) and len(k) == 2:
+                    norm[(str(k[0]), str(k[1]))] = v
+                else:
+                    norm[str(k)] = v
+            except Exception:  # noqa: BLE001 -- bad key, skip it
+                continue
+        mastery = norm
+        groups: dict = {}
+        gorder: list = []
+        for c in items:
+            key = _cell_key(c)
+            if key not in groups:
+                groups[key] = []
+                gorder.append(key)
+            groups[key].append(c)
+
+        def _level(key) -> float:
+            concept, kind = key
+            for cand in ((concept, kind), concept):
+                try:
+                    if cand in mastery:
+                        return min(1.0, max(0.0, float(mastery[cand]) / 5.0))
+                except Exception:  # noqa: BLE001 -- bad value, try next
+                    continue
+            return 0.0
+
+        cells = [(concept, kind, _level((concept, kind)))
+                 for concept, kind in gorder]
+        ranked = schedule(cells, len(cells))
+        label_to_key = {(c, t): (c, t) for c, t in gorder}
+        ranked_keys = [label_to_key.get((c, t), gorder[0]) for c, t, _ in ranked]
+        # Cover cells the engine skipped (it never should, but the
+        # queue must never lose a card).
+        for key in gorder:
+            if key not in ranked_keys:
+                ranked_keys.append(key)
+        queues = {k: list(groups[k]) for k in ranked_keys}
+        out = []
+        while any(queues.values()):
+            for k in ranked_keys:
+                if queues[k]:
+                    out.append(queues[k].pop(0))
+        return out
+    except Exception:  # noqa: BLE001 -- ordering must never raise
+        try:
+            return list(cards or [])
+        except Exception:  # noqa: BLE001 -- last resort
+            return []
+
+
 def section_html() -> str:
     """Status-page subsection: visible home for this item."""
     demo = schedule([("retry", "predict", 0.2), ("retry", "author", 0.8),
@@ -94,9 +183,11 @@ def section_html() -> str:
         "<code>groundwork/interleave.py</code> provides "
         "<code>schedule()</code> (weakest concept × type cell that does "
         "not repeat the last concept — neighbors always differ) and "
-        "<code>is_interleaved()</code> (sequence audit), a db-free "
-        "library that leaves <code>sched.py</code> untouched. Four "
-        "sample picks render below.</p>"
+        "<code>is_interleaved()</code> (sequence audit). Since Batch 14 "
+        "the Due queue calls it for real: <code>order_due()</code> "
+        "ranks concept × type cells by live mastery and deals "
+        "round-robin across them (empty mastery falls back to the "
+        "legacy order). Four sample picks render below.</p>"
         "<table class='log'><tr><th>Concept</th><th>Type</th>"
         f"<th>Mastery</th></tr>{rows}</table>")
 

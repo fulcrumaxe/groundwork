@@ -33,8 +33,18 @@ def retrievability(stability: float, elapsed_days: float) -> float:
 
 
 def review_card(stability: float, difficulty: float, grade: int,
-                now: datetime | None = None) -> dict:
-    """Apply one review. Returns {stability, difficulty, retrievability, due}."""
+                now: datetime | None = None, grades=None) -> dict:
+    """Apply one review. Returns {stability, difficulty, retrievability, due}.
+
+    ``grades`` is the oldest-first grade history INCLUDING the current
+    grade (Batch 14, F-62): the trailing pass streak stretches the due
+    gap via the spacing optimizer, so strong concepts return later.
+    ``None`` (or empty) means today's behavior exactly — the legacy
+    default every existing caller relies on. The streak only ever
+    stretches; collapse stays the stability model's job (halving on
+    real fails), and pass here means grade >= 4 while the stability
+    model moves at >= 3.
+    """
     now = now or utcnow()
     g = max(0, min(5, grade))
     difficulty = min(1.0, max(0.1, difficulty - 0.1 * (g - 3)))
@@ -43,21 +53,38 @@ def review_card(stability: float, difficulty: float, grade: int,
     else:
         stability = max(0.1, stability * 0.5)
     interval = max(1, round(stability))
+    if grades is not None:
+        from . import spacingopt as spacingoptmod
+        stretched = max(1, int(round(spacingoptmod.next_interval(
+            grades, interval))))
+        # The optimizer stretches, never shrinks: above its ceiling
+        # the stability model's own (uncapped) gap still rules.
+        interval = max(interval, stretched)
     due = now + timedelta(days=interval)
     return {"stability": stability, "difficulty": difficulty,
             "retrievability": 1.0, "due": iso(due)}
 
 
-def forecast_gap(stability: float) -> str:
+def forecast_gap(stability: float, streak: int = 0) -> str:
     """Next-gap estimate at steady passes, from stability (I-203).
 
     Mirrors the review_card interval so the Due forecast and the
-    scheduler agree: max(1, round(stability)) days.
+    scheduler agree: max(1, round(stability)) days, stretched by the
+    pass streak when one is given (Batch 14, F-62). The default call
+    is byte-identical to before.
     """
     try:
-        return f"≈{max(1, round(float(stability or 0.0)))}d"
+        base = max(1, round(float(stability or 0.0)))
     except (TypeError, ValueError):
         return "unknown"
+    try:
+        n = max(0, int(streak))
+    except (TypeError, ValueError):
+        n = 0
+    if n:
+        from . import spacingopt as spacingoptmod
+        base = max(1, int(round(spacingoptmod.apply_streak(float(base), n))))
+    return f"≈{base}d"
 
 
 def snooze_due(now: datetime | None = None) -> str:
