@@ -65,12 +65,16 @@ CHECKS: list[tuple[str, str, str]] = [
     # I-54: offline-safe font pairing (system font stack, no remote fonts)
     ("I-54", "/",
      "() => { const b=getComputedStyle(document.body).fontFamily||''; return (b.includes('Segoe UI')||b.includes('system')) + '|' + !/fonts\\.googleapis/.test(document.documentElement.innerHTML); }"),
-    # F-26..F-33: exercise types 49-56 appear in Modules listing
-    ("F-types", "/modules",
-     "() => { const t=document.body.textContent; return [49,50,51,52,53,54,55,56].filter(n=>t.includes('exercise type '+n)).join(','); }"),
-    # F-33: cssfix render names properties but hides expected values
-    ("F-33", "/modules",
-     "() => /css-fix|cssfix/i.test(document.body.textContent)"),
+    # F-26..F-33: exercise types 49-56 render anchored status sections.
+    # (Deterministic registry hooks, Batch-10 precedent: the old
+    # Modules-listing text rotted once 124 modules paginated the Batch-9
+    # summaries carrying those strings off page 1.)
+    ("F-types", "/status",
+     "() => ['status-b9-threatmodel','status-b9-secretscan','status-b9-inputaudit','status-b9-a11yaudit','status-b9-i18n','status-b9-regexex','status-b9-sqlex','status-b9-cssfix'].filter(a=>!document.querySelector('#'+a)).join(',')"),
+    # F-33: cssfix status section renders (names-properties/hides-values
+    # is pinned by test_render_hides_expected_values).
+    ("F-33", "/status",
+     "() => !!document.querySelector('#status-b9-cssfix')"),
     # Batch 10 improvements (I-55..I-62)
     # I-55: inline SVG wordmark in every page header
     ("I-55", "/",
@@ -189,7 +193,7 @@ def judge(item: str, val) -> tuple[bool, str]:
     if item == "I-54":
         return s == "true|true", s[:200]
     if item == "F-types":
-        return s == "49,50,51,52,53,54,55,56", f"types-present=[{s}]"
+        return s == "", f"types-missing=[{s}]" if s else "all-8-present"
     if item == "I-56":
         return s == "7", f"tier-chips=[{s}]"
     return val is True, s[:200]
