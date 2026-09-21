@@ -100,6 +100,88 @@ def quest_path(target, edges=None, owned=None) -> dict:
             return {"chain": [], "unlocked": False, "next": None}
 
 
+OWNED_MASTERY = 0.85
+
+
+def _node_of(cid) -> str:
+    """Bare node from a concept id (``calc.py:add`` -> ``add``)."""
+    try:
+        cid = str(cid or "")
+        return cid.split(":", 1)[1] if ":" in cid else cid
+    except Exception:  # noqa: BLE001 — id split never raises
+        return ""
+
+
+def skills_view(concepts, lesson_map=None, mastery_of=None) -> str:
+    """Locked/unlocked skills section from live module data (F-54).
+
+    ``concepts`` rows carry ``cid``/``name`` (sqlite rows or dicts);
+    ``lesson_map`` gives each node's ``callees`` as its unlock
+    prerequisites (own the dependencies to unlock the dependent) and
+    ``mastery_of`` gives live mastery (≥0.85 owns it). Every concept
+    renders its quest path with locked/unlocked steps. Empty or
+    hostile input renders "". Never raises.
+    """
+    try:
+        rows = list(concepts or [])
+    except TypeError:
+        return ""
+    try:
+        lesson_map = lesson_map if isinstance(lesson_map, dict) else {}
+        mastery_of = mastery_of if isinstance(mastery_of, dict) else {}
+        names: dict = {}
+        entries: list = []
+        for r in rows:
+            try:
+                cid = r["cid"]
+                name = str(r["name"] or "").strip()
+            except (TypeError, KeyError, IndexError):
+                continue
+            if not name:
+                continue
+            node = _node_of(cid)
+            names[node] = name
+            names[name] = name
+            try:
+                lesson = lesson_map.get(node, {})
+                callees = lesson.get("callees", []) if isinstance(lesson, dict) else []
+            except Exception:  # noqa: BLE001 — one bad lesson skips
+                callees = []
+            try:
+                mastery = float(mastery_of.get(node, 0.0) or 0.0)
+            except (TypeError, ValueError):
+                mastery = 0.0
+            entries.append((name, list(callees or []), mastery))
+        if not entries:
+            return ""
+        edges: dict = {}
+        for name, callees, _m in entries:
+            reqs = []
+            for c in callees:
+                try:
+                    key = str(c or "").strip()
+                except Exception:  # noqa: BLE001 — bad prereq skips
+                    continue
+                if key:
+                    reqs.append(names.get(key, key))
+            edges[name] = reqs
+        owned = [name for name, _c, m in entries if m >= OWNED_MASTERY]
+        parts = ["<section id='quests'><h2>Unlock quests</h2>",
+                 f"<p><small>{len(owned)} of {len(entries)} skills "
+                 f"unlocked — own the dependencies to unlock the rest.</small></p>"]
+        for name, _c, _m in entries:
+            path = quest_path(name, edges, owned)
+            state = ("unlocked" if path["unlocked"]
+                     else f"locked — next: {path['next']}")
+            parts.append(f"<h3>{htmlmod.escape(name)} "
+                         f"<small>({htmlmod.escape(str(state))})</small></h3>"
+                         + quests_html(path))
+        parts.append("</section>")
+        return "".join(parts)
+    except Exception:  # noqa: BLE001 — section never raises
+        return ""
+
+
 def quests_html(path) -> str:
     """Ordered-list unlock path with locked/unlocked classes.
 

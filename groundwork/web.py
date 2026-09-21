@@ -75,6 +75,7 @@ from . import pressfx as pressfxmod
 from . import queries as quemod
 from . import radius as radiusmod
 from . import queue as qmod
+from . import quests as questsmod
 from . import readtime as readtimemod
 from . import recent as recentmod
 from . import related as relmod
@@ -956,6 +957,7 @@ class Handler(BaseHTTPRequestHandler):
                 f"<div class='bar' role='img' aria-label='{owned_n} of "
                 f"{len(concepts)} concepts owned'><i style='width:{pct}%'></i></div>"
                 f"<p><small>{owned_n}/{len(concepts)} concepts owned</small></p>")
+        parts.append(questsmod.skills_view(concepts, lesson_map, mastery_of))
         practice_tagged = False
         dec_nodes = [r["cid"].split(":", 1)[1] if ":" in r["cid"] else r["cid"]
                      for r in concepts]
