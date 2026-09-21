@@ -223,6 +223,7 @@ AREAS = {
     "calibdrill": "calibdrill.py",
     "overconf": "overconf.py",
     "batch13": "batch13.py",
+    "contractaudit": "contractaudit.py",
 }
 
 
