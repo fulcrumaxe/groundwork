@@ -14,6 +14,7 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
     from . import codelines as codelinesmod
     from . import dualcode as dualmod
     from . import explain as explainmod
+    from . import fading as fadingmod
     from . import predict as predictmod
     levels = explainmod.levels_for(lesson)
     if level_override in ("1", "2", "3", "4"):
@@ -64,6 +65,17 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
             out.append(
                 f"<details><summary>Show me the code</summary>"
                 f"<pre>{codelinesmod.numbered_html(lv['code'])}</pre></details>")
+    # F-57: support fades with practice — full steps live above, so the
+    # faded section only appears once the learner has attempts.
+    try:
+        tries = int(attempts or 0)
+    except (TypeError, ValueError):
+        tries = 0
+    if how and tries >= 1:
+        seq = fadingmod.fade_sequence(how)
+        if len(seq) == 3:
+            out.append("<h5>Faded recall</h5>"
+                       + fadingmod.fading_html([seq[2] if tries >= 3 else seq[1]]))
     return "".join(out)
 
 
