@@ -21,9 +21,10 @@ def text_content(html):
 class SkeletonHtmlTest(unittest.TestCase):
     def test_structure_mirrors_module_page(self):
         html = skmod.skeleton_html()
-        self.assertIn("[REDACTED]", html)  # title bar
+        self.assertIn("sk-titlebar", html)  # title bar
         self.assertIn("class='bar", html)  # real progress-bar selectors
-        self.assertIn("[REDACTED]", html)
+        self.assertIn("sk-titlebar", html)
+        self.assertIn("sk-progress", html)
         self.assertEqual(html.count("sk-row'>"), 3)  # default 3 lesson rows
 
     def test_row_count_follows_argument(self):
@@ -38,8 +39,8 @@ class SkeletonHtmlTest(unittest.TestCase):
 
     def test_aria_busy_parent_and_hidden_inner(self):
         html = skmod.skeleton_html()
-        self.assertIn('aria-busy="true"', html)
-        self.assertIn('aria-hidden="true"', html)
+        self.assertIn("aria-busy='true'", html)
+        self.assertIn("aria-hidden='true'", html)
         busy_at = html.index("aria-busy")
         hidden_at = html.index("aria-hidden")
         self.assertLess(busy_at, hidden_at)
