@@ -1,19 +1,10 @@
 """Threat-model-the-function exercise (type 49, F-26, bloom: analyse).
 
-The learner reads a real function snippet and lists its abuse cases /
-threat-model items (injection surfaces, unvalidated inputs, auth gaps,
-secret handling). The checklist is derived statically (``ast`` + line
-scans) — deterministic, sandbox-free, import-safe standalone: stdlib
-only (``ast``/``re``/``html``), no groundwork imports.
-
-Plugin API: ``generate(ex_id, concept, snippet, ctx)``,
-``render(exercise) -> html``, ``grade(exercise, submission, runner)``.
-Registration lives in ``groundwork/exercises.py``
-(TYPES, GENERATORS, BLOOM_TYPES); pipeline needs no skip guard.
-
-No attack surface (or analysis failure) yields an ungrounded card
-the emission loop drops — never ``None``, so the all-types-generate
-contract holds. It never raises.
+List a function's abuse cases against a statically derived checklist
+(``ast`` + line scans; deterministic, sandbox-free; stdlib only, no
+groundwork imports). No attack surface yields an ungrounded card the
+pipeline drops — never ``None`` (all-types-generate contract holds).
+Never raises. Registered in ``groundwork/exercises.py``.
 """
 from __future__ import annotations
 
@@ -193,28 +184,16 @@ def _keys(ids: list[str]) -> list[list[str]]:
 
 
 def _empty_card(ex_id, name, file, line, commit, code):
-    """Ungrounded card for a snippet with no attack surface.
-
-    The pipeline drops grounded=False cards, and test_all_types_generate
-    requires every type to build a front — so "nothing to threat-model"
-    is a card, never None. Grading stays fail-closed (no checklist).
-    """
+    """Ungrounded card: no attack surface, pipeline drops it, never None."""
     front = (f"Threat-model `{name}`: list its abuse cases, one per line.\n"
              f"```python\n{code[:CODE_LIMIT]}\n```\n"
-             "Static analysis found no attack surface here (no sinks, "
-             "secrets, auth-relevant parameters, or broad handlers) — "
-             "this card is skipped in lesson modules.")
-    return {
-        "id": ex_id, "type": TYPE_NUM, "type_name": TYPE_NAME,
-        "bloom": BLOOM, "concept_id": name,
-        "concept": name, "file": file, "line": line, "commit": commit,
-        "hints": ["No sinks, no secrets, no auth parameters: nothing to list.",
-                  "Compare with a function that calls eval, open, or os.system.",
-                  "Recognizing safe code is the skill — then move on."],
-        "front": front, "back": "No attack surface found.",
-        "payload": {"items": [], "keys": [], "solution": [],
-                    "surface": [], "grounded": False},
-    }
+             "No attack surface found here — this card is skipped.")
+    return {"id": ex_id, "type": TYPE_NUM, "type_name": TYPE_NAME,
+            "bloom": BLOOM, "concept_id": name, "concept": name,
+            "file": file, "line": line, "commit": commit,
+            "hints": ["No sinks, secrets, or auth parameters: nothing to list."],
+            "front": front, "back": "No attack surface found.",
+            "payload": {"items": [], "grounded": False}}
 
 
 def generate(ex_id, concept, snippet, ctx):
@@ -262,13 +241,7 @@ def generate(ex_id, concept, snippet, ctx):
                         "grounded": True},
         }
     except Exception:  # never raise, never None: ungrounded card
-        try:
-            return _empty_card(ex_id, "function", "", 0, "", "")
-        except Exception:  # noqa: BLE001 -- absolute last resort
-            return {"id": ex_id, "type": TYPE_NUM, "type_name": TYPE_NAME,
-                    "bloom": BLOOM, "front": "Threat-model this function.",
-                    "back": "No attack surface found.",
-                    "payload": {"items": [], "grounded": False}}
+        return _empty_card(ex_id, "function", "", 0, "", "")
 
 
 def _fail(msg: str) -> dict:

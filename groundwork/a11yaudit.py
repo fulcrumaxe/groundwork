@@ -1,22 +1,11 @@
 """Accessibility audit of rendered output (type 52, F-29, bloom: analyse).
 
-The learner lists a snippet's accessibility violations; grading is a
-pure checklist match against CLOSED RULES (one finding per rule, RULES
-order, deterministic), so no sandbox runner is needed. Guards (never
-flag): alt="" (decorative), aria-label/ledby or wrapped/for labels,
-any role on clickable divs, any lang, named links, no-<html> / no-heading
-fragments. Out of scope: low-contrast pairs (need computed CSS).
-Parsing uses html.parser (never regex-only): escaped entities never
-parse as tags, so hostile injections pass through unflagged.
-
-Nothing auditable (no surface, violation-free, or unparsable) yields
-an ungrounded card the pipeline drops — never None, so the
-all-types-generate contract holds. Nothing here ever raises.
-
-Pure functions, stdlib only (html/html.parser), no groundwork imports:
-import-safe standalone. Registration lives in groundwork/exercises.py
-(TYPES, GENERATORS, BLOOM_TYPES plus thin grade/render branches); the
-pipeline analyse list gains 52 with no harness/mutation guard.
+List a snippet's violations against CLOSED RULES (one finding per rule,
+RULES order; pure checklist grade, no sandbox). Guards never flag:
+alt="", aria/wrapped/for labels, any div role, any lang, named links,
+no-<html>/no-heading fragments. html.parser only (escaped entities pass
+through). Nothing auditable yields an ungrounded card the pipeline
+drops — never None. Stdlib only, no groundwork imports. Never raises.
 """
 from __future__ import annotations
 
@@ -28,14 +17,9 @@ TYPE_NAME = "a11y-audit"
 BLOOM = "analyse"
 STATUS_ANCHOR = "status-b9-a11yaudit"
 
-RULES = (
-    "img-missing-alt",
-    "input-missing-label",
-    "div-with-onclick-no-role",
-    "html-missing-lang",
-    "empty-link-text",
-    "h1-skip",
-)
+RULES = ("img-missing-alt", "input-missing-label",
+         "div-with-onclick-no-role", "html-missing-lang",
+         "empty-link-text", "h1-skip")
 
 _RULE_WHY = {
     "img-missing-alt": "images need alt text (or alt=\"\" when decorative)",
@@ -45,8 +29,6 @@ _RULE_WHY = {
     "empty-link-text": "links need an accessible name",
     "h1-skip": "headings should start at h1, not skip to h2+",
 }
-
-_MAX_ITEMS = 6  # == len(RULES): at most one finding per rule
 
 # Tolerant aliases: rule id -> accepted plain-word spellings
 # (lowercase, "_" -> "-", collapsed whitespace).
@@ -107,12 +89,11 @@ class _AuditParser(HTMLParser):
                     frame["named"] = True
         elif tag == "input":
             if ad.get("type", "").lower() != "hidden":
-                self._inputs.append(
-                    {"id": ad.get("id", ""),
-                     "aria": bool(ad.get("aria-label", "").strip()
-                                  or ad.get("aria-labelledby", "").strip()),
-                     "wrapped": self._label_depth > 0,
-                     "element": el, "line": line})
+                aria = ad.get("aria-label", "") + ad.get("aria-labelledby", "")
+                self._inputs.append({"id": ad.get("id", ""),
+                                     "aria": bool(aria.strip()),
+                                     "wrapped": self._label_depth > 0,
+                                     "element": el, "line": line})
         elif tag == "label":
             self._label_depth += 1
             if ad.get("for", "").strip():
@@ -130,10 +111,9 @@ class _AuditParser(HTMLParser):
             elif not self._saw_h1:  # no headings at all: not applicable
                 self._note("h1-skip", el, line)
         if tag == "a":
-            self._link_stack.append(
-                {"named": bool(ad.get("aria-label", "").strip()),
-                 "href": "href" in ad, "element": el, "line": line,
-                 "text": []})
+            self._link_stack.append({"named": bool(ad.get("aria-label", "").strip()),
+                                     "href": "href" in ad, "element": el,
+                                     "line": line, "text": []})
 
     def handle_endtag(self, tag: str) -> None:
         if tag == "label":
@@ -142,8 +122,7 @@ class _AuditParser(HTMLParser):
             frame = self._link_stack.pop()
             name = "".join(frame["text"]).strip()
             if frame["href"] and not name and not frame["named"]:
-                self._note("empty-link-text", frame["element"],
-                           frame["line"])
+                self._note("empty-link-text", frame["element"], frame["line"])
 
     def handle_data(self, data: str) -> None:
         if self._link_stack:
@@ -152,11 +131,9 @@ class _AuditParser(HTMLParser):
     def close(self) -> None:
         super().close()
         for inp in self._inputs:
-            if inp["aria"]:  # aria-label/ledby satisfies labeling
-                continue
-            if inp["id"] and inp["id"] in self._label_fors:
-                continue
-            if inp["wrapped"]:
+            # aria-label/ledby, matching <label for>, or wrapping label: ok
+            if inp["aria"] or inp["wrapped"] or (
+                    inp["id"] and inp["id"] in self._label_fors):
                 continue
             self._note("input-missing-label", inp["element"], inp["line"])
 
@@ -175,47 +152,31 @@ def audit(snippet) -> list[dict]:
         parser.close()
         if not parser.surface:
             return []
-        return [parser.findings[r] for r in RULES if r in parser.findings][
-            :_MAX_ITEMS]
+        return [parser.findings[r] for r in RULES if r in parser.findings]
     except Exception:  # noqa: BLE001 -- audit must never raise
         return []
 
 
 def _empty_card(ex_id, name, file, line, commit, shown_body):
-    """Ungrounded card for a snippet with nothing auditable.
-
-    The pipeline drops grounded=False cards, and test_all_types_generate
-    requires every type to build a front — so "nothing to audit" is a
-    card, never None. Grading stays fail-closed (no checklist).
-    """
-    front = ("Read this rendered HTML and list every accessibility "
-             "violation, one per line as `id=rule`.\n"
+    """Ungrounded card: nothing auditable, pipeline drops it, never None."""
+    front = ("List every accessibility violation, one per line as `id=rule`.\n"
              f"```html\n{shown_body[:900]}\n```\n"
-             "Static analysis found nothing auditable here (no auditable "
-             "elements, or no violations) — this card is skipped in "
-             "lesson modules.")
-    return {
-        "id": ex_id, "type": TYPE_NUM, "type_name": TYPE_NAME,
-        "bloom": BLOOM, "concept_id": name, "concept": name,
-        "file": file, "line": line, "commit": commit,
-        "hints": ["No auditable elements, or no violations: nothing to list.",
-                  "Compare with a snippet missing alt, labels, or lang.",
-                  "Recognizing clean markup is the skill — then move on."],
-        "front": front, "back": "No violations found.",
-        "payload": {"checklist": [], "rules": list(RULES),
-                    "grounded": False},
-    }
+             "Nothing auditable found here — this card is skipped.")
+    return {"id": ex_id, "type": TYPE_NUM, "type_name": TYPE_NAME,
+            "bloom": BLOOM, "concept_id": name, "concept": name,
+            "file": file, "line": line, "commit": commit,
+            "hints": ["Nothing auditable, or no violations: nothing to list."],
+            "front": front, "back": "No violations found.",
+            "payload": {"checklist": [], "rules": list(RULES), "grounded": False}}
 
 
 def generate(ex_id, concept, snippet, ctx):
-    """Build the type-52 exercise dict (never raises, never None).
-
-    Nothing auditable (no surface, violation-free, or unparsable)
-    yields an ungrounded card the pipeline drops."""
+    """Build the type-52 exercise dict (never raises, never None)."""
     try:
         ctx = ctx or {}
-        findings = audit(snippet if isinstance(snippet, list)
-                         else [str(snippet or "")] if snippet else [])
+        raw = (snippet if isinstance(snippet, list)
+               else [str(snippet or "")] if snippet else [])
+        findings = audit(raw)
         name = _concept_field(concept, "name", "page") or "page"
         node = _concept_field(concept, "node_id", name)
         file = _concept_field(concept, "file")
@@ -224,53 +185,32 @@ def generate(ex_id, concept, snippet, ctx):
         except (TypeError, ValueError):
             line = 0
         commit = str(ctx.get("commit", "") or "")
-        raw = (snippet if isinstance(snippet, list)
-               else [str(snippet or "")] if snippet else [])
         if not findings:
-            return _empty_card(ex_id, name, file, line, commit,
-                               "\n".join(raw))
+            return _empty_card(ex_id, name, file, line, commit, "\n".join(raw))
+        body = "\n".join(raw)
         shown = "\n".join(
             f"{i}: {f['element']} (line {f['line']})" for i, f in enumerate(findings))
-        rules = ", ".join(RULES)
-        body = snippet if isinstance(snippet, list) else [str(snippet or "")]
-        body = "\n".join(body)
-        front = ("Read this rendered HTML and list every accessibility "
-                 "violation, one per line as `id=rule` "
-                 "(plain words count too, e.g. `0=missing alt text`).\n"
-                 f"Rule ids: {rules}.\n```html\n"
-                 f"{body[:900]}\n```\n"
-                 f"Marked elements:\n{shown}")
-        back = "\n".join(f"{i}={f['rule']}" for i, f in enumerate(findings))
         first = findings[0]
-        first_line = (snippet or [""])[0] if isinstance(snippet, list) \
-            else str(snippet or "")
-        hints = [
-            "Check images, form fields, clickable divs, links, page "
-            "language, and heading order -- one rule per item.",
-            (f"Look at {file}:{line}: `{first_line.strip()}`"
-             if (snippet and file) else "Re-read the snippet."),
-            f"Worked step: item 0 ({first['element']}) is "
-            f"`{first['rule']}` ({first['why']}). Now name the rest.",
-        ]
+        hints = ["Check images, fields, clickable divs, links, language, headings.",
+                 (f"Look at {file}:{line}." if (snippet and file)
+                  else "Re-read the snippet."),
+                 f"Worked step: item 0 is `{first['rule']}` ({first['why']})."]
         return {
             "id": ex_id, "type": TYPE_NUM, "type_name": TYPE_NAME,
             "bloom": BLOOM, "concept_id": node, "concept": name,
-            "file": file, "line": line, "commit": commit,
-            "hints": hints, "front": front, "back": back,
+            "file": file, "line": line, "commit": commit, "hints": hints,
+            "front": ("List every accessibility violation as `id=rule` "
+                      "(plain words count, e.g. `0=missing alt text`).\n"
+                      f"Rule ids: {', '.join(RULES)}.\n```html\n{body[:900]}\n```\n"
+                      f"Marked elements:\n{shown}"),
+            "back": "\n".join(f"{i}={f['rule']}" for i, f in enumerate(findings)),
             "payload": {"checklist": [
                 {"id": i, "rule": f["rule"], "element": f["element"],
-                 "line": f["line"], "why": f["why"]}
-                for i, f in enumerate(findings)],
+                 "line": f["line"], "why": f["why"]} for i, f in enumerate(findings)],
                 "rules": list(RULES), "grounded": True},
         }
     except Exception:  # noqa: BLE001 -- generate never raises, never None
-        try:
-            return _empty_card(ex_id, "page", "", 0, "", "")
-        except Exception:  # noqa: BLE001 -- absolute last resort
-            return {"id": ex_id, "type": TYPE_NUM, "type_name": TYPE_NAME,
-                    "bloom": BLOOM, "front": "Audit this HTML.",
-                    "back": "No violations found.",
-                    "payload": {"checklist": [], "grounded": False}}
+        return _empty_card(ex_id, "page", "", 0, "", "")
 
 
 def _norm_claim(raw: str) -> str | None:
