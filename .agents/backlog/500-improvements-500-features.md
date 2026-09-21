@@ -293,6 +293,59 @@ Detail lines below marked [x] as they land.
 - [x] F-32: SQL authoring, type 55 (sqlex.py + test_sqlex.py).
 - [x] F-33: CSS layout fix, type 56 (cssfix.py + test_cssfix.py).
 
+## Batch 10 rule — eight-and-eight, wired surfaces (this run)
+
+Same workflow as Batch 9 (tour entry + docs regen + MCP run + commit
+per item, pipeline emission for exercise types). New code lives in
+focused area modules registered in `modularity.AREAS`; web.py only
+gains delegation lines (1147 → 1156 — eight head-wire CSS imports plus
+the wordmark header line). status.py sits exactly at AREA_CAP (350),
+so the sixteen Batch 10 sections join in a new batch10.py home module
+instead of status.py (status.py grows by one import line only, landing
+exactly on the cap). Improvements are wired to real surfaces, not just
+CSS: bloom chips render on Due cards (cards.bloom_chip), the History
+coach table, and module concept chips gain the Owned reveal
+(chiplinks via ownedbadge.badge_class); every `<pre>` code block
+numbers its lines (numbered_html adoption in lessons + eight exercise
+renderers); the wordmark ships in every page header. grading.py gains
+one-line disclosures for types 57-64. Corrections the run forced:
+highlight flush() must yield from (bare generator call drops plain
+chunks); flame _frames partition rewritten (backwards subtraction gave
+3 frames and could break the 15-point dominance gap — 300-seed sweep
+test pins 5 frames, exact 100, gap >= 15); crashdump accepts `key:
+value` colon answers (its own widget placeholder invites them);
+stagger keyframe trimmed 400ms → 250ms so each card's motion stays
+under the 300ms budget; codelines adds numbered_html so line numbers
+have a markup hook; wordmark _word rejects non-strings and drops the
+invalid width='auto' attr; test-only fixes: wordmark xmlns namespace
+is not a network fetch, bloomchips section copy may use em dashes,
+codelines scalar coercion follows readtime precedent, web h1 titles
+now carry the wordmark, chiplinks Owned assertions expect the reveal
+class. One deliberate scoping call: highlight ships as tested library
++ live status demo + global CSS; renderer-wide auto-highlighting is
+deferred (language detection would misfire on mixed snippets).
+
+Batch 10 ships 8 improvements + 8 features, each committed locally
+per item on branch `batch10-f8-i8`, merged to main at the end.
+Detail lines below marked [x] as they land.
+
+- [x] I-55: Design a wordmark/logo (SVG, inline) for header and module exports (wordmark.py + test_wordmark.py).
+- [x] I-56: Give each Bloom tier its own chip color used in cards, History, and coach table (bloomchips.py + test_bloomchips.py).
+- [x] I-57: Animate progress bars with width transitions, reduced-motion safe (progbar.py + test_progbar.py).
+- [x] I-58: Celebrate Owned status with a non-emoji badge reveal animation (ownedbadge.py + test_ownedbadge.py).
+- [x] I-59: Card entrance stagger on Due, CSS only (stagger.py + test_stagger.py).
+- [x] I-60: Style details/summary markers consistently with custom carets (carets.py + test_carets.py).
+- [x] I-61: Code block line numbers and a copy button (codelines.py + test_codelines.py).
+- [x] I-62: Syntax-highlight Python/TS snippets, tiny tokenizer (highlight.py + test_highlight.py).
+- [x] F-34: CLI UX review, type 57 (cliux.py + test_cliux.py).
+- [x] F-35: Log reading, type 58 (logread.py + test_logread.py).
+- [x] F-36: Metrics reading, type 59 (metrics.py + test_metrics.py).
+- [x] F-37: Flame-graph reading, type 60 (flame.py + test_flame.py).
+- [x] F-38: Core-dump-lite triage, type 61 (crashdump.py + test_crashdump.py).
+- [x] F-39: Dependency upgrade, type 62 (depupgrade.py + test_depupgrade.py).
+- [x] F-40: License compatibility check, type 63 (licensecheck.py + test_licensecheck.py).
+- [x] F-41: Containerize it, type 64 (containerize.py + test_containerize.py).
+
 ## IMPROVEMENTS (500)
 
 ### A. Navigation, IA & routing (I-1–50)
@@ -354,14 +407,14 @@ Detail lines below marked [x] as they land.
 - [x] I-52: Add dark mode via `prefers-color-scheme` with tested contrast ratios.
 - [x] I-53: Establish a type scale (display, h1-h4, body, small, code) and apply consistently.
 - [x] I-54: Replace system-ui-only stack with a distinctive but offline-safe pairing.
-- I-55: Design a wordmark/logo (SVG, inline) for header and module exports.
-- I-56: Give each Bloom tier its own chip color used in cards, History, and coach table.
-- I-57: Animate progress bars with width transitions (reduced-motion safe).
-- I-58: Celebrate Owned status with a non-emoji badge reveal animation.
-- I-59: Add subtle card entrance stagger on Due (CSS only, no framework).
-- I-60: Style `details/summary` markers consistently with custom carets.
-- I-61: Give code blocks line numbers and a copy button.
-- I-62: Syntax-highlight Python/TS snippets without dependencies (tiny tokenizer).
+- [x] I-55: Design a wordmark/logo (SVG, inline) for header and module exports.
+- [x] I-56: Give each Bloom tier its own chip color used in cards, History, and coach table.
+- [x] I-57: Animate progress bars with width transitions (reduced-motion safe).
+- [x] I-58: Celebrate Owned status with a non-emoji badge reveal animation.
+- [x] I-59: Add subtle card entrance stagger on Due (CSS only, no framework).
+- [x] I-60: Style `details/summary` markers consistently with custom carets.
+- [x] I-61: Give code blocks line numbers and a copy button.
+- [x] I-62: Syntax-highlight Python/TS snippets without dependencies (tiny tokenizer).
 - I-63: Differentiate hint tiers visually (nudge vs pointer vs worked step).
 - I-64: Style confidence input as a 1–5 segmented slider, not a text box.
 - I-65: Add focus-visible rings everywhere; never remove outlines.
@@ -862,14 +915,14 @@ Detail lines below marked [x] as they land.
 - [x] F-31: Regex authoring (match the required cases; test-suite graded).
 - [x] F-32: SQL authoring from spec (result-set graded on fixture DB).
 - [x] F-33: CSS layout fix (match the wireframe; pixel-diff gate, tolerant).
-- F-34: CLI UX review (spot the usability flaw in --help output).
-- F-35: Log reading (diagnose from logs only; exact root cause).
-- F-36: Metrics reading (which graph shows the regression; choice).
-- F-37: Flame-graph reading (which frame dominates; choice + why).
-- F-38: Core-dump-lite triage (read a traceback; name frame + fix).
-- F-39: Dependency upgrade (resolve the breaking change; tests green).
-- F-40: License compatibility check (is this dep OK; exact + reason).
-- F-41: Containerize it (write the Dockerfile; build gate).
+- [x] F-34: CLI UX review (spot the usability flaw in --help output).
+- [x] F-35: Log reading (diagnose from logs only; exact root cause).
+- [x] F-36: Metrics reading (which graph shows the regression; choice).
+- [x] F-37: Flame-graph reading (which frame dominates; choice + why).
+- [x] F-38: Core-dump-lite triage (read a traceback; name frame + fix).
+- [x] F-39: Dependency upgrade (resolve the breaking change; tests green).
+- [x] F-40: License compatibility check (is this dep OK; exact + reason).
+- [x] F-41: Containerize it (write the Dockerfile; build gate).
 - F-42: CI pipeline authoring (YAML that passes a dry-run linter).
 - F-43: Feature-flag removal (clean up the flag; tests + grep gate).
 - F-44: Backfill script (migrate old data shapes; fixture-verified).
