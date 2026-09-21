@@ -354,6 +354,22 @@ def _concept_status(stale: bool, attempts: int, owned: bool) -> str:
     return "Learning"
 
 
+def _owned_lessons(lesson_map: dict, mastery_of: dict, node: str) -> list:
+    """Sibling lessons the learner masters (F-59 elaboration partners).
+
+    Mastery >= 0.85 is the top auto-level tier ("owns it"); those
+    siblings feed the elaboration drill for ``node``. Never raises.
+    """
+    try:
+        if not isinstance(lesson_map, dict) or not isinstance(mastery_of, dict):
+            return []
+        return [lesson_map[n] for n in lesson_map
+                if n != node and isinstance(lesson_map[n], dict)
+                and (mastery_of.get(n, 0.0) or 0.0) >= 0.85]
+    except Exception:  # noqa: BLE001 — partner lookup never raises
+        return []
+
+
 def _parse_review_form(raw: str) -> tuple[str, int, str]:
     """Split a card-review POST body into (answer, confidence, origin)."""
     form = parse_qs(raw, keep_blank_values=True)
@@ -984,7 +1000,8 @@ class Handler(BaseHTTPRequestHandler):
             if node in lesson_map:
                 parts.append(lesmod.render_levels(
                     lesson_map[node], mastery_of[node], concept_tries,
-                    level, base))
+                    level, base,
+                    owned=_owned_lessons(lesson_map, mastery_of, node)))
             parts.append(decmod.lesson_block(
                 node, dec_matches.get(node, []), ci == 0))
             avg, nvotes = cl_sums.get(row["cid"], (0.0, 0))
@@ -1002,7 +1019,7 @@ class Handler(BaseHTTPRequestHandler):
                     parts.append("<h3>Practice</h3>")
             for c in concept_cards:
                 lesson = (f"<details><summary>Study first — explained your way</summary>"
-                          f"{lesmod.render_levels(lesson_map[node], mastery_of.get(node, 0.0), tries.get(c['id'], 0), level, base)}</details>"
+                          f"{lesmod.render_levels(lesson_map[node], mastery_of.get(node, 0.0), tries.get(c['id'], 0), level, base, owned=_owned_lessons(lesson_map, mastery_of, node))}</details>"
                           if node in lesson_map else "")
                 parts.append(
                     f"{cardlinksmod.article_open(c['id'])}<h3>{html.escape(c['concept'])} "

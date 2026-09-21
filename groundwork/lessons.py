@@ -9,10 +9,17 @@ import html
 
 
 def render_levels(lesson: dict, mastery: float, attempts: int,
-                    level_override: str, base_path: str) -> str:
-    """Leveled explainer with tabs; auto-places from mastery by default."""
+                    level_override: str, base_path: str, owned=None) -> str:
+    """Leveled explainer with tabs; auto-places from mastery by default.
+
+    ``owned`` is an optional list of sibling lesson dicts the learner
+    already masters; when two or more are given an elaboration drill
+    connects this concept to them (F-59). ``None``/empty renders the
+    legacy page with no drill.
+    """
     from . import codelines as codelinesmod
     from . import dualcode as dualmod
+    from . import elaboration as elabmod
     from . import explain as explainmod
     from . import fading as fadingmod
     from . import predict as predictmod
@@ -81,6 +88,17 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
     sexplain = semod.prompts_html(semod.selfexplain_prompts(how))
     if sexplain:
         out.append("<h5>Explain it back</h5>" + sexplain)
+    # F-59: connect this concept to mastered siblings when given.
+    try:
+        owned_list = [o for o in (owned or []) if isinstance(o, dict)]
+    except TypeError:
+        owned_list = []
+    if owned_list:
+        drill = elabmod.elaboration_drill(
+            {"name": lesson.get("name") or "",
+             "summary": lesson.get("summary") or ""}, owned_list)
+        if drill.get("partners"):
+            out.append(elabmod.drill_html(drill))
     return "".join(out)
 
 
