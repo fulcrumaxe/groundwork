@@ -1,9 +1,10 @@
-"""Chrome MCP verification sweep for Batch 9 improvements + features.
+"""Chrome MCP verification sweep for Batch 10 improvements + features.
 
 Serves the groundwork web app from a temp DB copy, opens each fixture
 page in a real headless Chrome via the chrome-devtools-mcp stdio server
-(tools/chrome_mcp.py), and asserts the rendered DOM for every Batch 9
-item (I-42/I-46/I-48/I-49/I-50/I-52/I-53/I-54, F-26..F-33 = types 49-56).
+(tools/chrome_mcp.py), and asserts the rendered DOM for every Batch 10
+item (I-55..I-62, F-34..F-41 = types 57-64). Batch 9 checks are kept so
+the sweep still guards the previous batch's surfaces.
 
 Usage:
   python3 tools/chrome_sweep.py [--shot-dir DIR] [--keep] [--port N]
@@ -67,6 +68,51 @@ CHECKS: list[tuple[str, str, str]] = [
     # F-33: cssfix render names properties but hides expected values
     ("F-33", "/modules",
      "() => /css-fix|cssfix/i.test(document.body.textContent)"),
+    # Batch 10 improvements (I-55..I-62)
+    # I-55: inline SVG wordmark in every page header
+    ("I-55", "/",
+     "() => !!document.querySelector('h1 svg.wordmark')"),
+    # I-56: seven tier chips in the Batch 10 status section
+    ("I-56", "/status",
+     "() => document.querySelectorAll('.chip[class*=\"bloom-\"]').length"),
+    # I-57: progress width transition in the head wire
+    ("I-57", "/",
+     "() => { const css=[...document.querySelectorAll('style')].map(s=>s.textContent).join('\\n'); return css.includes('.bar i{transition:width'); }"),
+    # I-58: live Owned badge sample in the Batch 10 status section
+    ("I-58", "/status",
+     "() => !!document.querySelector('.owned-badge')"),
+    # I-59: card stagger keyframe in the head wire
+    ("I-59", "/",
+     "() => { const css=[...document.querySelectorAll('style')].map(s=>s.textContent).join('\\n'); return css.includes('gw-card-in'); }"),
+    # I-60: disclosure caret rules in the head wire
+    ("I-60", "/",
+     "() => { const css=[...document.querySelectorAll('style')].map(s=>s.textContent).join('\\n'); return css.includes('summary::before'); }"),
+    # I-61: line-number counter rules in the head wire
+    ("I-61", "/",
+     "() => { const css=[...document.querySelectorAll('style')].map(s=>s.textContent).join('\\n'); return css.includes('counter(codeline)'); }"),
+    # I-62: live highlight demo in the Batch 10 status section
+    ("I-62", "/status",
+     "() => !!document.querySelector('.tok-keyword')"),
+    # Batch 10 features: one anchored section per new exercise type.
+    # (The Modules listing reflects DB cards, not the registry, so the
+    # deterministic per-type hook is the status anchor; registry
+    # coverage for types 57-64 is pinned by test_all_types_generate.)
+    ("F-57", "/status",
+     "() => !!document.querySelector('#status-b10-cliux')"),
+    ("F-58", "/status",
+     "() => !!document.querySelector('#status-b10-logread')"),
+    ("F-59", "/status",
+     "() => !!document.querySelector('#status-b10-metrics')"),
+    ("F-60", "/status",
+     "() => !!document.querySelector('#status-b10-flame')"),
+    ("F-61", "/status",
+     "() => !!document.querySelector('#status-b10-crashdump')"),
+    ("F-62", "/status",
+     "() => !!document.querySelector('#status-b10-depupgrade')"),
+    ("F-63", "/status",
+     "() => !!document.querySelector('#status-b10-licensecheck')"),
+    ("F-64", "/status",
+     "() => !!document.querySelector('#status-b10-containerize')"),
 ]
 
 
@@ -95,6 +141,8 @@ def judge(item: str, val) -> tuple[bool, str]:
         return s == "true|true", s[:200]
     if item == "F-types":
         return s == "49,50,51,52,53,54,55,56", f"types-present=[{s}]"
+    if item == "I-56":
+        return s == "7", f"tier-chips=[{s}]"
     return val is True, s[:200]
 
 
@@ -176,7 +224,7 @@ def main() -> int:
     ap.add_argument("--port", type=int, default=8765)
     args = ap.parse_args()
 
-    tmp = Path(tempfile.mkdtemp(prefix="b9chrome"))
+    tmp = Path(tempfile.mkdtemp(prefix="b10chrome"))
     shot_dir = Path(args.shot_dir) if args.shot_dir else tmp / "shots"
     shot_dir.mkdir(parents=True, exist_ok=True)
     db_src = ROOT / "groundwork.db"
