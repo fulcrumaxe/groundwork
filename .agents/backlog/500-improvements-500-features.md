@@ -392,6 +392,51 @@ Detail lines below marked [x] as they land.
 - [x] F-48: Rate-limit design, type 71 (ratelimit.py + test_ratelimit.py).
 - [x] F-49: Webhook verification, type 72 (webhook.py + test_webhook.py).
 
+## Batch 12 rule — eight-and-eight, themes + learning science (this run)
+
+Same workflow as Batch 11 (tour entry + docs regen + MCP run + commit
+per item, no new exercise types so no pipeline emission). New code
+lives in focused area modules registered in `modularity.AREAS`;
+web.py gains eight area imports plus same-line CSS joins and the
+optimistic foot embed (1181 -> 1189, WEB_CEILING 1182 -> 1190 for
+the wires). status.py holds exactly at AREA_CAP via same-line edits,
+so the sixteen Batch 12 sections join in a new batch12.py home
+module. results.py adopts the verdict stamps (outer verdict ok/stale
+classes kept); the shelf per-card spine override stays future work
+(CSS fallback covers unstyled cards). No new graded card types:
+F-50..F-59 ship as db-free libraries, so TYPES/GENERATORS/pipeline/
+grading are untouched. Corrections the run forced: briefing uses the
+real --accent-due token (no generic --accent exists); ownbanner
+borders on --ink for the same reason; diffdial params carry their
+level so describe() tiers stay honest; coldattempt dedupes via a
+seen-set (the tuple-index check raised on the second concept);
+selfexplain rotation compares number-normalized shapes (templates
+embed step numbers); skeletons ships real sk-titlebar/sk-progress/
+sk-row-title classes; typecontract's no-import test asserts import
+statements, not prose. Two red commits repaired by follow-ups
+(skeletons class names, optimistic guard scope).
+
+Batch 12 ships 8 improvements + 8 features, each committed locally
+per item on branch `batch12-f8-i8`, merged to main at the end.
+Detail lines below marked [x] as they land.
+
+- [x] I-71: History logbook theme (logbook.py + test_logbook.py).
+- [x] I-72: Modules library-shelf theme (shelf.py + test_shelf.py).
+- [x] I-73: Due briefing theme (briefing.py + test_briefing.py).
+- [x] I-77: Pass/fail verdict stamps (verdicts.py + test_verdicts.py).
+- [x] I-79: Owned celebration banner (ownbanner.py + test_ownbanner.py).
+- [x] I-80: Press micro-interactions (pressfx.py + test_pressfx.py).
+- [x] I-81: Loading skeletons (skeletons.py + test_skeletons.py).
+- [x] I-82: Optimistic submit guard (optimistic.py + test_optimistic.py).
+- [x] F-50: Type completeness contract (typecontract.py + test_typecontract.py).
+- [x] F-51: Delayed-retest engine (retest.py + test_retest.py).
+- [x] F-54: Prerequisite unlock quests (quests.py + test_quests.py).
+- [x] F-55: Desirable-difficulty dial (diffdial.py + test_diffdial.py).
+- [x] F-56: Cold-attempt sessions (coldattempt.py + test_coldattempt.py).
+- [x] F-57: Worked-example fading (fading.py + test_fading.py).
+- [x] F-58: Self-explanation prompts (selfexplain.py + test_selfexplain.py).
+- [x] F-59: Elaboration drills (elaboration.py + test_elaboration.py).
+
 ## IMPROVEMENTS (500)
 
 ### A. Navigation, IA & routing (I-1–50)
@@ -469,18 +514,18 @@ Detail lines below marked [x] as they land.
 - [x] I-68: Add whitespace rhythm: consistent section spacing scale.
 - [x] I-69: Design empty-state illustrations (inline SVG, one per page).
 - [x] I-70: Add a "session complete" illustration + summary hero for empty Due.
-- I-71: Theme the History page like a logbook (mono dates, ruled rows).
-- I-72: Theme Modules like a library shelf (cover-style cards with spine accent).
-- I-73: Theme Due like a briefing (numbered mission cards).
+- [x] I-71: Theme the History page like a logbook (mono dates, ruled rows).
+- [x] I-72: Theme Modules like a library shelf (cover-style cards with spine accent).
+- [x] I-73: Theme Due like a briefing (numbered mission cards).
 - [x] I-74: Add per-module cover color derived from repo hash (stable identity).
 - I-75: Show difficulty as a 5-dot meter on each card header.
 - I-76: Show stability/retrievability as a "memory strength" bar per card.
-- I-77: Replace ✓/✗ text with designed pass/fail stamps (CSS shapes, still text-readable).
+- [x] I-77: Replace ✓/✗ text with designed pass/fail stamps (CSS shapes, still text-readable).
 - [x] I-78: Add a streak-free "gardener" metaphor: concepts grow from seed → sprout → tree.
-- I-79: Confetti-free celebration: Owned triggers a calm full-width banner.
-- I-80: Add sound-free haptic-style micro-interactions (scale on press).
-- I-81: Loading skeletons for module pages generated mid-request.
-- I-82: Optimistic UI on review submit (disable + spinner) to hide latency.
+- [x] I-79: Confetti-free celebration: Owned triggers a calm full-width banner.
+- [x] I-80: Add sound-free haptic-style micro-interactions (scale on press).
+- [x] I-81: Loading skeletons for module pages generated mid-request.
+- [x] I-82: Optimistic UI on review submit (disable + spinner) to hide latency.
 - I-83: Error pages with the same header/footer (no naked stack traces).
 - I-84: Style form validation errors inline (confidence out of range, empty answer).
 - I-85: Add `::selection` color matching page accent.
@@ -977,19 +1022,19 @@ Detail lines below marked [x] as they land.
 - [x] F-47: Idempotency design (make the handler re-runnable; double-run gate).
 - [x] F-48: Rate-limit design (pick limits with reasoning; rubric).
 - [x] F-49: Webhook verification (implement signature check; vector tests).
-- F-50: Every new type ships with generator + grader + widget + e2e answer.
+- [x] F-50: Every new type ships with generator + grader + widget + e2e answer.
 
 ### L. Mastery & learning science (F-51–100)
 
-- F-51: Delayed-retest engine: 7/30-day probe cards measuring true retention.
+- [x] F-51: Delayed-retest engine: 7/30-day probe cards measuring true retention.
 - F-52: North-star dashboard (delayed accuracy) for the learner, not just devs.
 - F-53: Bloom-ladder visualization per concept (rungs light up as owned).
-- F-54: Prerequisite unlock quests (own X to unlock Y, shown as a path).
-- F-55: Desirable-difficulty dial: learner-tunable challenge level.
-- F-56: Productive-failure sessions (attempt cold before any study, primed).
-- F-57: Worked-example fading sequences (full → partial → solo per concept).
-- F-58: Self-explanation prompts after every worked step ("why does this line exist?").
-- F-59: Elaboration drills (connect new concept to two you already own).
+- [x] F-54: Prerequisite unlock quests (own X to unlock Y, shown as a path).
+- [x] F-55: Desirable-difficulty dial: learner-tunable challenge level.
+- [x] F-56: Productive-failure sessions (attempt cold before any study, primed).
+- [x] F-57: Worked-example fading sequences (full → partial → solo per concept).
+- [x] F-58: Self-explanation prompts after every worked step ("why does this line exist?").
+- [x] F-59: Elaboration drills (connect new concept to two you already own).
 - F-60: Dual-coding packs (every key idea gets words + diagram + trace).
 - F-61: Interleaving engine v2 (concept × type matrix scheduler).
 - F-62: Spacing optimizer (per-learner intervals from recall data).

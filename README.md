@@ -153,6 +153,14 @@ expected outputs are always *measured* in the sandbox, never invented.
 | Idempotency double-run | Make the handler re-runnable — the grader runs it twice and both runs must agree. | `/status#status-b11-idempot` |
 | Rate-limit it | Pick per-key + global limits, a window, burst handling, and 429 + Retry-After — rubric-graded with partial credit. | `/status#status-b11-ratelimit` |
 | Webhook verify | Verify an HMAC-signed webhook — valid passes, tampered, wrong-secret, and replayed deliveries rejected. | `/status#status-b11-webhook` |
+| Type completeness contract | Every exercise type proves six parts — generator, grader, widget, disclosure, emission, e2e answer — audited live below. | `/status#status-b12-typecontract` |
+| Delayed retest | 7- and 30-day probe cards resurface owned concepts so recalls measure true retention. | `/status#status-b12-retest` |
+| Unlock quests | Own X to unlock Y — each locked skill shows its unlock path, step by step. | `/status#status-b12-quests` |
+| Difficulty dial | Tune challenge 1-5 from gentle to spicy — sets how forgotten review cards may be and how many new cards join each short session. | `/status#status-b12-diffdial` |
+| Cold-attempt sessions | Attempt unseen concepts cold before studying — struggle first, then learn. | `/status#status-b12-coldattempt` |
+| Worked-example fading | Worked traces fade per concept: full trace, then the last step hides, then only the first shows — recall grows as support shrinks. | `/status#status-b12-fading` |
+| Self-explanation prompts | Every worked step asks why it exists — explain each line in your own words before moving on. | `/status#status-b12-selfexplain` |
+| Elaboration drills | Connect a new concept to two you already own — shared tokens pick the partners. | `/status#status-b12-elaboration` |
 <!-- GW-FEATURES:END -->
 
 ## Improvements
@@ -246,6 +254,14 @@ expected outputs are always *measured* in the sandbox, never invented.
 | Section spacing rhythm | Every section gap comes from one ratio-based scale, so pages breathe evenly. | `/status#status-b11-spacing` |
 | Empty-state illustrations | Dry pages greet you with a small line illustration above the next step — never a blank wall. | `/status#status-b11-emptyart` |
 | Session-complete hero | An empty Due queue greets you with a calm all-caught-up banner — celebration, still with a next step. | `/status#status-b11-donehero` |
+| Logbook History | History reads like a logbook: monospace dates, ruled rows, muted headers. | `/status#status-b12-logbook` |
+| Library shelf | Module cards stand like books on a shelf — a spine accent in each module's own cover color with a subtle lift. | `/status#status-b12-shelf` |
+| Due briefing | Due cards read as numbered mission cards — queue order needs no markup. | `/status#status-b12-briefing` |
+| Verdict stamps | Result verdicts stamp PASS or FAIL in rotated bordered type — plain words, never emoji. | `/status#status-b12-verdicts` |
+| Owned banner | Owned concepts get a calm full-width banner — no confetti, just the milestone. | `/status#status-b12-ownbanner` |
+| Press micro-interactions | Buttons and cards press back a touch while you hold them — silent, instant, and still for reduced-motion users. | `/status#status-b12-pressfx` |
+| Loading skeletons | Module pages show a static placeholder shell — title, progress, lesson rows — while lessons generate. | `/status#status-b12-skeletons` |
+| Optimistic submit | Submit a card and its buttons lock with a spinner and Working status — no double grades while grading runs. | `/status#status-b12-optimistic` |
 <!-- GW-IMPROVEMENTS:END -->
 
 See also [docs/features.md](docs/features.md) and the in-app
