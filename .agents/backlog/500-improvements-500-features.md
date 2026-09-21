@@ -495,11 +495,14 @@ legacy fallback). No schema changes in Batch 14; one migration
 allowed per batch from 15 on.
 
 Batch 14 (sched core, no schema):
-- [ ] F-62 spacingopt → `sched.review_card(grades=)` + `submit_review`
+- [x] F-62 spacingopt → `sched.review_card(grades=)` + `submit_review`
   trailing history; streak stretches the gap, legacy default untouched.
-- [ ] F-61 interleave → `tool_list_due_reviews` ordering via an
+  Shipped on branch `batch14-int-sched` (effect tests in
+  tests/test_batch14.py); stretch-only guard keeps hyper-stable gaps.
+- [x] F-61 interleave → `tool_list_due_reviews` ordering via an
   `order_due` bridge (merges with, not beside, `sched.interleave`;
-  empty mastery falls back byte-identical).
+  empty mastery falls back byte-identical). Shipped on branch
+  `batch14-int-sched`; mastery keys normalized str-to-str.
 
 Batch 15 (schema: points + probes; one migration):
 - [ ] F-65 confweight → `submit_review` banks signed points (new
