@@ -14,6 +14,7 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
     from . import codelines as codelinesmod
     from . import dualcode as dualmod
     from . import explain as explainmod
+    from . import predict as predictmod
     levels = explainmod.levels_for(lesson)
     if level_override in ("1", "2", "3", "4"):
         active = int(level_override)
@@ -54,9 +55,27 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
         if pack:
             out.append(pack)
     if lv.get("code") and not any(b.get("pre") for b in lv["blocks"]):
-        out.append(f"<details><summary>Show me the code</summary>"
-                   f"<pre>{codelinesmod.numbered_html(lv['code'])}</pre></details>")
+        # F-64: snippets hide under a predict-then-reveal cover.
+        cover = predictmod.cover_html(
+            lv["code"], _code_lang(lesson.get("file") or ""))
+        if predictmod.is_covered(cover):
+            out.append(cover)
+        else:
+            out.append(
+                f"<details><summary>Show me the code</summary>"
+                f"<pre>{codelinesmod.numbered_html(lv['code'])}</pre></details>")
     return "".join(out)
+
+
+def _code_lang(file: str) -> str:
+    """Predict-cover language from a source filename; defaults to python."""
+    try:
+        ext = (file or "").rsplit(".", 1)[-1].lower() if "." in (file or "") else ""
+    except Exception:  # noqa: BLE001 — filename sniffing never raises
+        return "python"
+    if ext in ("js", "jsx", "ts", "tsx", "mjs", "cjs"):
+        return "javascript"
+    return "python"
 
 
 def why_html(card) -> str:
