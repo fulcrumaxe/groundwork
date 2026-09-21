@@ -12,8 +12,11 @@ skip kinds of items; whatever is next in the backlog is what ships.
 
 ## Procedure
 
-1. **Branch.** `git checkout -b batch<N>-f<M>-i<K>` from main.
+1. **Branch + back up.** `git checkout -b batch<N>-f<M>-i<K>` from main.
    Work never lands directly on main; it merges at the end.
+   Batch MCP writes go straight into the served library DB, which also
+   holds personal reviews and scheduling — so snapshot it first:
+   `cp groundwork.db /tmp/groundwork.db.pre-batch<N>`.
 
 2. **Wave 1 — improvement subagents (max 7 concurrent + root).**
    Spawn one read-only child per item (`subagent_spawn`, shared
