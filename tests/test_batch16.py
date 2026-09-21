@@ -19,7 +19,6 @@ from groundwork import pipeline as pipelinemod
 from groundwork import predict as predictmod
 from groundwork import retrieval as retmod
 from groundwork import select as selectmod
-from groundwork import web as webmod
 
 from test_groundwork import make_repo
 from test_web import handler_for, make_module
@@ -77,6 +76,8 @@ class DualcodeGenerationTest(unittest.TestCase):
         html_out = lesmod.render_levels(_lesson(), 0.0, 0, "auto", "/")
         self.assertIn("dual-diagram", html_out)
         self.assertIn("dual-trace", html_out)
+        # Packs nest inside card markup: never an <article> (card counter).
+        self.assertNotIn("<article", html_out)
 
     def test_legacy_lesson_without_steps_renders_no_pack(self):
         lesson = _lesson(how=[], dualcode={"steps": [], "states": []})
@@ -160,6 +161,7 @@ class ElaborationRenderTest(unittest.TestCase):
                                         owned=self.OWNED)
         self.assertIn("elaboration drill", html_out)
         self.assertIn("total", html_out)
+        self.assertNotIn("<article", html_out)
 
     def test_no_owned_means_no_drill(self):
         for owned in (None, [], [{"name": "solo", "summary": "only one"}]):
@@ -171,10 +173,10 @@ class ElaborationRenderTest(unittest.TestCase):
         lesson_map = {"a": {"name": "a"}, "b": {"name": "b"},
                       "c": {"name": "c"}}
         mastery_of = {"a": 0.9, "b": 0.4, "c": 0.85}
-        owned = webmod._owned_lessons(lesson_map, mastery_of, "a")
+        owned = lesmod.owned_lessons(lesson_map, mastery_of, "a")
         self.assertEqual([o["name"] for o in owned], ["c"])
-        self.assertEqual(webmod._owned_lessons({}, {}, "a"), [])
-        self.assertEqual(webmod._owned_lessons(None, None, "a"), [])
+        self.assertEqual(lesmod.owned_lessons({}, {}, "a"), [])
+        self.assertEqual(lesmod.owned_lessons(None, None, "a"), [])
 
 
 class LessonPageTest(unittest.TestCase):
