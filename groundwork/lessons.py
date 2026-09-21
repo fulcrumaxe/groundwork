@@ -16,6 +16,7 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
     from . import explain as explainmod
     from . import fading as fadingmod
     from . import predict as predictmod
+    from . import selfexplain as semod
     levels = explainmod.levels_for(lesson)
     if level_override in ("1", "2", "3", "4"):
         active = int(level_override)
@@ -76,6 +77,10 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
         if len(seq) == 3:
             out.append("<h5>Faded recall</h5>"
                        + fadingmod.fading_html([seq[2] if tries >= 3 else seq[1]]))
+    # F-58: self-explanation prompts under the worked steps.
+    sexplain = semod.prompts_html(semod.selfexplain_prompts(how))
+    if sexplain:
+        out.append("<h5>Explain it back</h5>" + sexplain)
     return "".join(out)
 
 
