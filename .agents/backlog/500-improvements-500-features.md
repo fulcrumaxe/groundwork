@@ -547,10 +547,31 @@ Batch 16 (generation/rendering; pipeline touches capped):
 Batch 16 migration: none (no schema changes).
 
 Batch 17 (surfaces):
-- [ ] F-54 quests → locked/unlocked skills view from live mastery.
-- [ ] F-55 diffdial → working dial control; minisession/Due respect it.
-- [ ] F-56 coldattempt → session-mode entry point (like `?mode=one`).
-- [ ] F-50 typecontract → CI audit gate (already complete as a library).
+- [x] F-54 quests → locked/unlocked skills view from live mastery.
+  Shipped on branch `batch17-surfaces`; `skills_view` builds unlock
+  paths over lesson callees with ≥0.85 mastery owning, rendered as a
+  section on the modules page (empty input renders nothing).
+- [x] F-55 diffdial → working dial control; minisession/Due respect it.
+  Shipped on branch `batch17-surfaces`; `/due?dial=N` filters the
+  queue by the level floor and caps new cards (attempts-backed
+  newness, order preserved); absent dial returns the legacy queue
+  untouched; the control always shows with the active level described.
+- [x] F-56 coldattempt → session-mode entry point (like `?mode=one`).
+  Shipped on branch `batch17-surfaces`; `/due?mode=cold` renders the
+  cold round (primes + study links, mastered/due excluded) instead of
+  the queue, with a Full-queue link back; empty pool renders the note.
+- [x] F-50 typecontract → CI audit gate (already complete as a library).
+  Shipped on branch `batch17-surfaces`; new `contractaudit` module
+  derives the six-part registry from live code (GENERATORS keys,
+  grade/widget branches, disclosure table, BLOOM emission map, e2e
+  answer dispatch); the Status demo eats the live report and the
+  suite gate pins per-part baselines (generator/grader/disclosure
+  strict-complete; widget/emission/e2e ratcheted, improvements pass).
+
+Batch 17 migration: none (no schema changes).
+
+Batch 17 wires: WEB_CEILING 1219 → 1227 (dial/cold route parsing,
+quests delegation line + import, dial apply + cold return in due_html).
 
 ## IMPROVEMENTS (500)
 
