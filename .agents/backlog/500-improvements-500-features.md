@@ -251,6 +251,48 @@ Detail lines below marked [x] as they land.
 - [x] F-24: Migration authoring, type 47 (migration.py + test_migration.py).
 - [x] F-25: Rollback planning, type 48 (rollback.py + test_rollback.py).
 
+## Batch 9 rule — eight-and-eight, never-None generation (this run)
+
+Same workflow as Batch 8 (tour entry + docs regen + MCP run + commit
+per item, pipeline emission for exercise types). New code lives in
+focused area modules registered in `modularity.AREAS`; web.py gains
+delegation lines plus in-place CSS token migration (1110 → 1141,
+WEB_CEILING 1112 → 1142 for the wires — Batch 6/7 precedent).
+Corrections the run forced: new generators never return None
+(test_all_types_generate contract) — no-surface yields an ungrounded
+card the pipeline drops (threatmodel/a11yaudit/i18n), and the pipeline
+gains a None-guard for declining generators (pre-existing
+rollback/golf/apidesign paths); secretscan line match is isolated-only
+(snippet dumps fail, fuzztriage spirit); cssfix render names properties
+but hides expected values; fontstack sets family only (sizes stay
+typescale); linkcheck LANGS mirror pinned by a sync test and
+RealPagesTest audits rendered pages; minisession guarantee keeps the
+most-overdue card; typescale display stays variable-only; no cards.py
+widget branches (generic else, Batch 6-8 pattern); e2e answers added
+for types 49-56. Wave-1 MCP re-runs went parent-side with
+file:symbol concepts after the modules landed.
+
+Batch 9 ships 8 improvements + 8 features, each committed locally
+per item on branch `batch9-f8-i8`, merged to main at the end.
+Detail lines below marked [x] as they land.
+
+- [x] I-42: Collapse answered-due cards in place with undo (collapse.py + test_collapse.py).
+- [x] I-46: One-click 5-minute session queue (minisession.py + test_minisession.py).
+- [x] I-48: Resume interrupted sessions from History (resume.py + test_resume.py).
+- [x] I-49: URL-based session share snapshot link (snapshot.py + test_snapshot.py).
+- [x] I-50: Quarterly link audit as automated test (linkcheck.py + test_linkcheck.py).
+- [x] I-52: Dark mode via prefers-color-scheme (darkmode.py + test_darkmode.py).
+- [x] I-53: Type scale display/h1-h4/body/small/code (typescale.py + test_typescale.py).
+- [x] I-54: Offline-safe font pairing (fontstack.py + test_fontstack.py).
+- [x] F-26: Threat-model the function, type 49 (threatmodel.py + test_threatmodel.py).
+- [x] F-27: Secret-scan, type 50 (secretscan.py + test_secretscan.py).
+- [x] F-28: Input-validation audit, type 51 (inputaudit.py + test_inputaudit.py).
+- [x] F-29: Accessibility audit, type 52 (a11yaudit.py + test_a11yaudit.py).
+- [x] F-30: i18n extraction, type 53 (i18n.py + test_i18n.py).
+- [x] F-31: Regex authoring, type 54 (regexex.py + test_regexex.py).
+- [x] F-32: SQL authoring, type 55 (sqlex.py + test_sqlex.py).
+- [x] F-33: CSS layout fix, type 56 (cssfix.py + test_cssfix.py).
+
 ## IMPROVEMENTS (500)
 
 ### A. Navigation, IA & routing (I-1–50)
@@ -296,22 +338,22 @@ Detail lines below marked [x] as they land.
 - [x] I-39: Merge duplicate nav (header + footer) into one helper with active state.
 - I-40: Keyboard shortcuts: `g d/g m/g h`, `j/k` between cards, `?` overlay.
 - [x] I-41: Focus the answer field automatically when a card scrolls into view.
-- I-42: Collapse answered-due cards in place with undo instead of full reload.
+- [x] I-42: Collapse answered-due cards in place with undo instead of full reload.
 - I-43: Show queue position ("card 3 of 12 due") on Due cards.
 - I-44: Group Due queue by module with collapsible sections.
 - I-45: Add "snooze this card until tomorrow" per Due card.
-- I-46: One-click "start 5-minute session" that queues exactly ~5 min of cards.
+- [x] I-46: One-click "start 5-minute session" that queues exactly ~5 min of cards.
 - [x] I-47: Session-end summary screen (answered, accuracy, what returns when).
-- I-48: Resume interrupted sessions from History ("continue session").
-- I-49: Add URL-based session share (read-only snapshot link per module).
-- I-50: Audit every link quarterly with an automated link-check test.
+- [x] I-48: Resume interrupted sessions from History ("continue session").
+- [x] I-49: Add URL-based session share (read-only snapshot link per module).
+- [x] I-50: Audit every link quarterly with an automated link-check test.
 
 ### B. Visual design & delight (I-51–100)
 
 - [x] I-51: Define a real palette (ink, paper, 3 page accents, pass/fail/stale) as CSS variables.
-- I-52: Add dark mode via `prefers-color-scheme` with tested contrast ratios.
-- I-53: Establish a type scale (display, h1-h4, body, small, code) and apply consistently.
-- I-54: Replace system-ui-only stack with a distinctive but offline-safe pairing.
+- [x] I-52: Add dark mode via `prefers-color-scheme` with tested contrast ratios.
+- [x] I-53: Establish a type scale (display, h1-h4, body, small, code) and apply consistently.
+- [x] I-54: Replace system-ui-only stack with a distinctive but offline-safe pairing.
 - I-55: Design a wordmark/logo (SVG, inline) for header and module exports.
 - I-56: Give each Bloom tier its own chip color used in cards, History, and coach table.
 - I-57: Animate progress bars with width transitions (reduced-motion safe).
@@ -812,14 +854,14 @@ Detail lines below marked [x] as they land.
 - [x] F-23: Rebase-conflict resolution (resolve a planted conflict; tests green).
 - [x] F-24: Migration authoring (write the schema migration; verifier).
 - [x] F-25: Rollback planning (order the rollback steps; exact sequence).
-- F-26: Threat-model the function (list abuse cases; checklist).
-- F-27: Secret-scan (find the leaked credential pattern; exact match).
-- F-28: Input-validation audit (list unvalidated inputs; checklist).
-- F-29: Accessibility audit of rendered output (checklist on HTML snippets).
-- F-30: i18n extraction (find hardcoded strings; exact set match).
-- F-31: Regex authoring (match the required cases; test-suite graded).
-- F-32: SQL authoring from spec (result-set graded on fixture DB).
-- F-33: CSS layout fix (match the wireframe; pixel-diff gate, tolerant).
+- [x] F-26: Threat-model the function (list abuse cases; checklist).
+- [x] F-27: Secret-scan (find the leaked credential pattern; exact match).
+- [x] F-28: Input-validation audit (list unvalidated inputs; checklist).
+- [x] F-29: Accessibility audit of rendered output (checklist on HTML snippets).
+- [x] F-30: i18n extraction (find hardcoded strings; exact set match).
+- [x] F-31: Regex authoring (match the required cases; test-suite graded).
+- [x] F-32: SQL authoring from spec (result-set graded on fixture DB).
+- [x] F-33: CSS layout fix (match the wireframe; pixel-diff gate, tolerant).
 - F-34: CLI UX review (spot the usability flaw in --help output).
 - F-35: Log reading (diagnose from logs only; exact root cause).
 - F-36: Metrics reading (which graph shows the regression; choice).

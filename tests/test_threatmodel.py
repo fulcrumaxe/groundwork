@@ -39,15 +39,21 @@ class GenerateTest(unittest.TestCase):
         self.assertIn("unvalidated", labels)
         self.assertIn("authorization", labels)
 
-    def test_no_surface_returns_none(self):
-        self.assertIsNone(mod.generate("ex49", make_concept(), [CLEAN], {}))
-        self.assertIsNone(mod.generate("ex49", make_concept(), [""], {}))
-        self.assertIsNone(mod.generate("ex49", make_concept(), None, None))
+    def test_no_surface_yields_ungrounded_card(self):
+        # Never None (all-types-generate contract): no surface is an
+        # ungrounded card the pipeline drops.
+        for snippet in ([CLEAN], [""], None):
+            e = mod.generate("ex49", make_concept(), snippet, {})
+            self.assertTrue(e["front"])
+            self.assertFalse(e["payload"]["grounded"])
+            self.assertEqual(e["payload"]["items"], [])
 
-    def test_never_raises(self):
-        self.assertIsNone(mod.generate("ex49", None, None, None))
+    def test_never_raises_never_none(self):
+        e = mod.generate("ex49", None, None, None)
+        self.assertTrue(e["front"])
+        self.assertFalse(e["payload"]["grounded"])
         e = mod.generate("ex49", make_concept(), ["def f(:\n  ???"], {})
-        self.assertTrue(e is None or e["front"])
+        self.assertTrue(e["front"])
 
     def test_tolerates_suite_ctx(self):
         e = mod.generate("ex49", make_concept(), [EVIL], GENERIC_CTX)

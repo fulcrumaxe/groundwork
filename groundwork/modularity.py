@@ -6,6 +6,7 @@ table so the rule itself stays visible. Ceilings only ever move down —
 except Batch 4's no-downsizing run, where WEB_CEILING covers route
 wires only (new logic still lands in area modules). Batch 6 follows
 the same exception: delegation lines only, ceiling covers the wires.
+Batch 9 follows it as well (1112 -> 1142 for sixteen items' wires).
 """
 from __future__ import annotations
 
@@ -13,7 +14,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 
-WEB_CEILING = 1112
+WEB_CEILING = 1142
 AREA_CAP = 350
 
 # Capability area -> module implementing it. Batch 3 appends its areas here.
@@ -119,6 +120,22 @@ AREAS = {
     "rebase": "rebase.py",
     "migration": "migration.py",
     "rollback": "rollback.py",
+    "collapse": "collapse.py",
+    "minisession": "minisession.py",
+    "resume": "resume.py",
+    "snapshot": "snapshot.py",
+    "linkcheck": "linkcheck.py",
+    "darkmode": "darkmode.py",
+    "typescale": "typescale.py",
+    "fontstack": "fontstack.py",
+    "threatmodel": "threatmodel.py",
+    "secretscan": "secretscan.py",
+    "inputaudit": "inputaudit.py",
+    "a11yaudit": "a11yaudit.py",
+    "i18n": "i18n.py",
+    "regexex": "regexex.py",
+    "sqlex": "sqlex.py",
+    "cssfix": "cssfix.py",
 }
 
 

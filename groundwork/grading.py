@@ -69,6 +69,14 @@ def disclosure(etype: str | int) -> str:
         46: "No markers remain, both sides kept, same def, parses; partial credit per point.",
         47: "Migrated JSON rows must equal the expected rows exactly, old field dropped.",
         48: "Exact step sequence; partial credit per correct adjacent pair.",
+        49: "Name at least half the abuse cases — checklist match with partial credit per item.",
+        50: "Exact leaked value (quotes/whitespace ignored) or exact line number.",
+        51: "Exact unvalidated-input set required; partial credit per correct name.",
+        52: "Name every required rule; partial credit per rule, plain words accepted.",
+        53: "Exact string set required — every string present, nothing extra.",
+        54: "Your pattern must fullmatch every required case and reject every negative case; partial credit per case.",
+        55: "Your query must return the spec'd result set on the fixture; order matters only under ORDER BY.",
+        56: "Every spec property must be present with a matching value; harmless extras allowed up to 2.",
     }
     return table.get(t, "Graded like its exercise family.")
 

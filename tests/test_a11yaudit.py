@@ -41,26 +41,35 @@ class GenerateTest(unittest.TestCase):
         self.assertTrue(e["payload"]["grounded"])
 
     def test_false_positive_guards(self):
-        self.assertIsNone(mod.generate("ex52", make_concept(), CLEAN, {}))
+        e = mod.generate("ex52", make_concept(), CLEAN, {})
+        self.assertTrue(e["front"])
+        self.assertFalse(e["payload"]["grounded"])
 
     def test_escaped_entities_not_flagged(self):
         e = mod.generate("ex52", make_concept(),
                          ["<p>&lt;img src=x&gt; &lt;div onclick=y&gt;</p>"],
                          {})
-        self.assertIsNone(e)
+        self.assertTrue(e["front"])
+        self.assertFalse(e["payload"]["grounded"])
 
-    def test_no_surface_returns_none(self):
-        self.assertIsNone(mod.generate("ex52", make_concept(),
-                                       ["<p>just text</p>"], {}))
+    def test_no_surface_yields_ungrounded_card(self):
+        # Never None (all-types-generate contract): nothing auditable is
+        # an ungrounded card the pipeline drops.
+        e = mod.generate("ex52", make_concept(), ["<p>just text</p>"], {})
+        self.assertTrue(e["front"])
+        self.assertFalse(e["payload"]["grounded"])
+        self.assertEqual(e["payload"]["checklist"], [])
 
-    def test_never_raises(self):
+    def test_never_raises_never_none(self):
         for ex_id, concept, snippet, ctx in [
                 ("x", None, None, None), (None, None, [], {}),
                 ("x", make_concept(), None, None)]:
             try:
-                mod.generate(ex_id, concept, snippet, ctx)
+                e = mod.generate(ex_id, concept, snippet, ctx)
             except Exception as exc:  # noqa: BLE001
                 self.fail(f"generate raised {exc!r}")
+            self.assertTrue(e["front"])
+            self.assertFalse(e["payload"]["grounded"])
 
     def test_deterministic(self):
         a = mod.generate("ex52", make_concept(), FULL, {})

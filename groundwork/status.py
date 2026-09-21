@@ -10,6 +10,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from . import db as dbmod
+from . import a11yaudit as a11yauditmod
 from . import apidesign as apidesignmod
 from . import archived as archivedmod
 from . import autofocus as autofocusmod
@@ -22,24 +23,32 @@ from . import cardlinks as cardlinksmod
 from . import changelog as changelogmod
 from . import chiplinks as chiplinksmod
 from . import clickcards as clickcardsmod
+from . import collapse as collapsemod
 from . import commitmsg as commitmsgmod
 from . import configex as configexmod
 from . import crumbs as crumbsmod
+from . import cssfix as cssfixmod
+from . import darkmode as darkmodemod
 from . import deadcode as deadcodemod
 from . import diretro as diretromod
 from . import disputes as dismod
 from . import docdoctest as docdoctestmod
 from . import errbranch as errbranchmod
 from . import extlinks as extlinksmod
+from . import fontstack as fontstackmod
 from . import footnav as footnavmod
 from . import fuzztriage as fuzztriagemod
 from . import golf as golfmod
+from . import i18n as i18nmod
+from . import inputaudit as inputauditmod
 from . import levelcarry as levelcarrymod
 from . import letter as lettermod
+from . import linkcheck as linkcheckmod
 from . import logretro as logretromod
 from . import mcp as mcplib
 from . import memprofile as memprofilemod
 from . import migration as migrationmod
+from . import minisession as minisessionmod
 from . import modfilter as modfiltermod
 from . import modpages as modpagesmod
 from . import modularity as modularitymod
@@ -52,21 +61,28 @@ from . import proptest as proptestmod
 from . import racehunt as racehuntmod
 from . import rebase as rebasemod
 from . import recent as recentmod
+from . import regexex as regexexmod
 from . import renameex as renameexmod
 from . import repro as repromod
+from . import resume as resumemod
 from . import reviewed as reviewedmod
 from . import rollback as rollbackmod
 from . import scrollpos as scrollposmod
 from . import search as searchmod
+from . import secretscan as secretscanmod
 from . import sitenav as sitenavmod
 from . import smell as smellmod
+from . import snapshot as snapshotmod
 from . import specwrite as specwritemod
+from . import sqlex as sqlexmod
+from . import threatmodel as threatmodelmod
 from . import tools as toolsmod
 from . import unsaved as unsavedmod
 from . import tochighlight as tochighlightmod
 from . import sched as schedmod
 from . import storage as storagemod
 from . import typeanno as typeannomod
+from . import typescale as typescalemod
 
 
 BATCH5 = [
@@ -224,6 +240,36 @@ def batch8_html() -> str:
     ])
 
 
+def batch9_html() -> str:
+    """Batch 9 home: one anchored subsection per shipped item.
+
+    Each section renders from its own area module (never web.py).
+    Improvements first, then the eight new exercise types.
+    """
+    return "".join([
+        "<h2 id='status-batch9'>Batch 9: queue flow and new exercises</h2>"
+        "<p>Eight improvements plus eight features, each a focused "
+        "module under 350 lines. The eight exercise types also emit "
+        "into lesson modules via the pipeline.</p>",
+        collapsemod.section_html(),
+        minisessionmod.section_html(),
+        resumemod.section_html(),
+        snapshotmod.section_html(),
+        linkcheckmod.section_html(),
+        darkmodemod.section_html(),
+        typescalemod.section_html(),
+        fontstackmod.section_html(),
+        threatmodelmod.section_html(),
+        secretscanmod.section_html(),
+        inputauditmod.section_html(),
+        a11yauditmod.section_html(),
+        i18nmod.section_html(),
+        regexexmod.section_html(),
+        sqlexmod.section_html(),
+        cssfixmod.section_html(),
+    ])
+
+
 def page_html(db_path: str) -> str:
     """Visible home for the non-page items, plus the area sections."""
     root = Path(__file__).resolve().parent.parent
@@ -282,6 +328,7 @@ def page_html(db_path: str) -> str:
         batch6_html(db_path) +
         batch7_html(db_path) +
         batch8_html() +
+        batch9_html() +
         "<h2 id='status-api'>Read-only API</h2>"
         "<p><a href='/api/modules.json'>/api/modules.json</a> lists "
         "every module with concept and card counts — the first slice "

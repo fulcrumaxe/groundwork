@@ -4,6 +4,10 @@ import unittest
 
 from groundwork import canonurl
 from groundwork import linkcheck as mod
+from groundwork import tour as tourmod
+
+from test_tour import render_path
+from test_web import handler_for, make_module
 
 SAMPLE_ROUTES = (
     ("/", "Projects landing"),
@@ -117,6 +121,28 @@ class ReportTest(unittest.TestCase):
                 line = mod.audit_report(bad)
                 self.assertTrue(line.startswith("Link audit:"))
                 self.assertNotIn("\n", line)
+
+
+class RealPagesTest(unittest.TestCase):
+    """The quarterly audit itself: every served page's internal links
+    resolve against the canonical route table (I-50)."""
+
+    def test_rendered_pages_have_no_broken_links(self):
+        _tmp, db, _server, _out = make_module("link audit mod")
+        h = handler_for(db)
+        mid, _lesson = tourmod.targets(db)
+        report = {}
+        for path in ("/", "/due", "/modules", "/reviews", "/debt",
+                     "/diagnose", "/styleguide", "/status", "/journal",
+                     f"/modules/{mid}"):
+            html = render_path(h, path, mid)
+            result = mod.audit_links(mod.extract_links(html),
+                                     canonurl.ROUTES)
+            report[path] = result
+            self.assertEqual(result["broken"], [],
+                             f"{path}: {mod.audit_report(result)}")
+        total = sum(len(r["ok"]) for r in report.values())
+        self.assertGreater(total, 10)  # audit actually saw links
 
 
 class SectionTest(unittest.TestCase):

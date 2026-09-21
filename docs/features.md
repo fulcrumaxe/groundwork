@@ -72,6 +72,14 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | Rebase-conflict resolution | Resolve a planted git-conflict block keeping both sides; static check stays green. | `/status#status-b8-rebase` |
 | Migration authoring | Rename a record field with a default across fixture rows. | `/status#status-b8-migration` |
 | Rollback planning | Order the rollback steps for a bad deploy — freeze, flag, revert, verify. | `/status#status-b8-rollback` |
+| Threat modelling | List a function's abuse cases — injections, auth gaps, secrets. | `/status#status-b9-threatmodel` |
+| Secret-scan | Spot the leaked credential in a snippet — quote the exact value or its line. | `/status#status-b9-secretscan` |
+| Input-validation audit | Spot the inputs that reach dangerous sinks without validation. | `/status#status-b9-inputaudit` |
+| Accessibility audit | Spot the access barriers in rendered HTML — missing alt, labels, roles, lang, link names, heading order. | `/status#status-b9-a11yaudit` |
+| i18n extraction | List the hardcoded UI strings to extract for translation — exact set match. | `/status#status-b9-i18n` |
+| Regex authoring | Write a regex that matches every required case and rejects the rest — graded on a fixed case-suite. | `/status#status-b9-regexex` |
+| SQL authoring | Write a SELECT from a spec — graded on the rows it returns. | `/status#status-b9-sqlex` |
+| CSS layout fix | Fix a broken CSS block to match the wireframe — static tolerant grading. | `/status#status-b9-cssfix` |
 
 ## Improvements
 
@@ -139,6 +147,14 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | Archived-module notice | Deleted modules explain themselves with search and siblings, not a bare 404. | `/status#status-b8-archived` |
 | Merged site nav | Header and footer render from one nav table — one active state, no drift. | `/status#status-b8-sitenav` |
 | Answer-field autofocus | Cards focus their answer box as they scroll into view — just start typing. | `/status#status-b8-autofocus` |
+| Collapse answered cards | Answered Due cards collapse in place with an inline undo button instead of a full reload. | `/status#status-b9-collapse` |
+| Five-minute session | One click queues about five minutes of the most-overdue cards and starts you on them. | `/status#status-b9-minisession` |
+| Continue interrupted sessions | History rows offer a continue link that rebuilds the queue as it was — cards still due, same module. | `/status#status-b9-resume` |
+| Shareable session snapshot | A link showing one module's answered count and accuracy — read-only, no login, no private data. | `/status#status-b9-snapshot` |
+| Quarterly link audit | Every internal link the app emits is extracted from rendered HTML and checked against the canonical route table, so broken routes are caught in CI instead of once a quarter by hand. | `/status#status-b9-linkcheck` |
+| Dark mode | Dark-OS users get a tested dark palette; every body-text pair passes WCAG AA contrast. | `/status#status-b9-darkmode` |
+| Type scale | One ratio-based scale for every font size — headings, body, small and code share a single source, not scattered literals. | `/status#status-b9-typescale` |
+| Distinctive offline-safe fonts | Headings, body, and code each get their own system-font voice — no downloads — with generic-family fallbacks that always render. | `/status#status-b9-fontstack` |
 
 ## The original loop
 

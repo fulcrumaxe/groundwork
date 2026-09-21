@@ -9,6 +9,7 @@ from __future__ import annotations
 import html
 import json
 import re
+import secrets
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, quote, urlparse
 
@@ -21,7 +22,9 @@ from . import cards as cardsmod
 from . import chiplinks as chiplinksmod
 from . import clarity as claritymod
 from . import clickcards as clickcardsmod
+from . import collapse as collapsemod
 from . import crumbs as crumbsmod
+from . import darkmode as darkmodemod
 from . import db as dbmod
 from . import debt as debtmod
 from . import decisions as decmod
@@ -31,6 +34,7 @@ from . import disputes as dismod
 from . import errors as errmod
 from . import exports as expmod
 from . import favicon as faviconmod
+from . import fontstack as fontstackmod
 from . import footnav as footnavmod
 from . import history as histmod
 from . import journal as journalmod
@@ -38,12 +42,14 @@ from . import known as knownmod
 from . import lessons as lesmod
 from . import levelcarry as levelcarrymod
 from . import mcp as mcplib
+from . import minisession as minisessionmod
 from . import modfilter as modfiltermod
 from . import modpages as modpagesmod
 from . import modularity as modularitymod
 from . import modules as modmod
 from . import ownership as ownmod
 from . import pager as pagermod
+from . import palette as palettemod
 from . import queries as quemod
 from . import queue as qmod
 from . import readtime as readtimemod
@@ -51,6 +57,7 @@ from . import recent as recentmod
 from . import related as relmod
 from . import reset as resetmod
 from . import results as resmod
+from . import resume as resumemod
 from . import reviewed as reviewedmod
 from . import sched as schedmod
 from . import scrollpos as scrollposmod
@@ -59,25 +66,30 @@ from . import serendipity as sermod
 from . import shortcuts as shortcutsmod
 from . import sitemap as sitemapmod
 from . import sitenav as sitenavmod
+from . import snapshot as snapshotmod
 from . import status as statusmod
 from . import storage as storagemod
 from . import styleguide as styleguidemod
 from . import tochighlight as tochighlightmod
 from . import tour as tourmod
+from . import typescale as typescalemod
 from . import undo as undomod
 from . import unsaved as unsavedmod
 
+_SNAPSHOT_SECRET = secrets.token_hex(16)  # Batch 9 I-49: process-lifetime
+# share-link secret (links verify while this server process runs).
+
 CSS = ("body{font-family:system-ui,-apple-system,sans-serif;max-width:48rem;"
-       "margin:2rem auto;padding:0 1rem;line-height:1.55;color:#1a1a1a}"
+       "margin:2rem auto;padding:0 1rem;line-height:1.55;color:var(--ink);background:var(--paper)}"
        "nav{margin-bottom:1rem}nav a{margin-right:.25rem}"
        ".skip{position:absolute;left:-999px}.skip:focus{left:.5rem;top:.5rem;"
-       "background:#fff;padding:.4rem;z-index:9}"
+       "background:var(--paper);padding:.4rem;z-index:9}"
        "h1{font-size:1.6rem}h2{font-size:1.25rem;margin-top:2rem;"
-       "border-bottom:2px solid #1a1a1a;padding-bottom:.25rem}"
+       "border-bottom:2px solid var(--ink);padding-bottom:.25rem}"
        "h3{font-size:1.05rem}h4{font-size:1rem;margin-bottom:.25rem}"
-       "h5{font-size:.9rem;margin-bottom:.15rem;color:#333}"
+       "h5{font-size:.9rem;margin-bottom:.15rem;color:var(--ink)}"
        "article{border:1px solid #bbb;border-radius:10px;padding:1rem 1.25rem;"
-       "margin:1rem 0;background:#fff}"
+       "margin:1rem 0;background:var(--paper)}"
        "section{margin:1rem 0}"
        "pre{background:#f2f2f2;border:1px solid #ddd;border-radius:6px;"
        "padding:.6rem;overflow:auto;font-size:.85rem}"
@@ -87,7 +99,7 @@ CSS = ("body{font-family:system-ui,-apple-system,sans-serif;max-width:48rem;"
        "padding:.45rem .9rem;margin:.2rem;cursor:pointer;font-size:.9rem}"
        "button:hover{background:#333}"
        "input,select,textarea{border:1px solid #999;border-radius:6px;"
-       "padding:.4rem;font-size:.9rem;margin:.15rem}"
+       "padding:.4rem;font-size:.9rem;margin:.15rem;color:var(--ink);background:var(--paper)}"
        "textarea{width:100%;max-width:100%;box-sizing:border-box}"
        "table{border-collapse:collapse;margin:.5rem 0}"
        "td,th{border:1px solid #ccc;padding:.35rem .6rem;text-align:left}"
@@ -104,28 +116,28 @@ CSS = ("body{font-family:system-ui,-apple-system,sans-serif;max-width:48rem;"
        "header.page-head{border-bottom:3px solid var(--accent,#1a1a1a);"
        "padding-bottom:.5rem;margin-bottom:1rem}"
        "header.page-head h1{margin:.4rem 0 .2rem}"
-       ".lede{color:#444;margin:.1rem 0 .5rem}"
-       "nav a{padding:.2rem .5rem;border-radius:6px;text-decoration:none;color:#1a1a1a}"
+       ".lede{color:var(--stale);margin:.1rem 0 .5rem}"
+       "nav a{padding:.2rem .5rem;border-radius:6px;text-decoration:none;color:var(--ink)}"
        "nav a[aria-current=page]{background:#1a1a1a;color:#fff}"
-       ".crumbs{font-size:.85rem;color:#555;margin:.5rem 0}"
+       ".crumbs{font-size:.85rem;color:var(--stale);margin:.5rem 0}"
        ".crumbs a{color:inherit}"
        ".modcard{display:block;border:1px solid #bbb;border-radius:10px;"
-       "padding:.75rem 1rem;margin:.75rem 0;text-decoration:none;color:inherit;background:#fff}"
+       "padding:.75rem 1rem;margin:.75rem 0;text-decoration:none;color:inherit;background:var(--paper)}"
        ".modcard:hover{border-color:var(--accent,#1a1a1a)}"
        ".modcard h3{margin:.1rem 0}"
-       ".modcard small{color:#555}"
+       ".modcard small{color:var(--stale)}"
        ".chip{display:inline-block;font-size:.75rem;border:1px solid #999;"
-       "border-radius:999px;padding:.05rem .5rem;margin-right:.25rem;color:#333}"
+       "border-radius:999px;padding:.05rem .5rem;margin-right:.25rem;color:var(--ink)}"
        ".bar{height:.5rem;background:#e6e6e6;border-radius:4px;overflow:hidden;margin:.4rem 0}"
        ".bar i{display:block;height:100%;background:var(--accent,#1a1a1a)}"
        "table.log{width:100%}"
        "footer.page-foot{margin-top:2rem;padding-top:.75rem;border-top:1px solid #ddd;"
-       "font-size:.85rem;color:#555}"
+       "font-size:.85rem;color:var(--stale)}"
        "html{scroll-behavior:smooth}"
        "@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}"
        "article.next{border:2px solid var(--accent,#1a1a1a)}"
        ".next-tag{font-weight:700;color:var(--accent,#1a1a1a);margin:.2rem 0}"
-       "p.toc{position:sticky;top:0;background:#fff;padding:.4rem 0;"
+       "p.toc{position:sticky;top:0;background:var(--paper);padding:.4rem 0;"
        "border-bottom:1px solid #ddd;z-index:1}"
        ".verdict{font-size:1.15rem;font-weight:700}"
        "ol.parsons{padding-left:1.2rem}"
@@ -137,9 +149,9 @@ CSS = ("body{font-family:system-ui,-apple-system,sans-serif;max-width:48rem;"
        "padding:.05rem .45rem;margin:.1rem;cursor:pointer;font-size:.85rem}"
        ".conf input{accent-color:#1a1a1a;margin-right:.2rem}"
        ".codewrap{position:relative}"
-       "button.giveup{background:none;color:#666;text-decoration:underline;"
+       "button.giveup{background:none;color:var(--stale);text-decoration:underline;"
        "padding:.2rem;font-size:.85rem}"
-       "button.giveup:hover{background:none;color:#1a1a1a}"
+       "button.giveup:hover{background:none;color:var(--ink)}"
        ".ladder{display:inline-flex;align-items:flex-end;gap:2px;margin-left:.4rem}"
        ".ladder i{width:8px;background:#ddd;border-radius:2px}"
        ".ladder i.on{background:var(--accent,#1a1a1a)}"
@@ -147,7 +159,7 @@ CSS = ("body{font-family:system-ui,-apple-system,sans-serif;max-width:48rem;"
        "padding:.2rem .5rem}"
        "a{color:var(--accent,#1a1a1a)}"
        "a:visited{color:var(--accent,#1a1a1a)}"
-       "nav a:visited{color:#1a1a1a}"
+       "nav a:visited{color:var(--ink)}"
        "nav a[aria-current=page]:visited{color:#fff}"
        "a.btn{display:inline-block;background:#1a1a1a;color:#fff;"
        "border-radius:6px;padding:.45rem .9rem;margin:.2rem;"
@@ -156,8 +168,8 @@ CSS = ("body{font-family:system-ui,-apple-system,sans-serif;max-width:48rem;"
        "a.btn:visited{color:#fff}"
        ":target{outline:3px solid var(--accent,#1a1a1a);outline-offset:3px}"
        ".tour-banner{border:2px solid var(--accent,#1a1a1a);border-radius:10px;"
-       "padding:.6rem .9rem;margin:0 0 1rem;background:#fff}"
-       ".tour-banner small{color:#555}"
+       "padding:.6rem .9rem;margin:0 0 1rem;background:var(--paper)}"
+       ".tour-banner small{color:var(--stale)}"
        ".tour-steps{list-style:none;padding-left:0}"
        ".tour-steps li{margin:.6rem 0}"
        ".status-ok{color:#0a0;font-weight:700}"
@@ -174,6 +186,7 @@ CSS = ("body{font-family:system-ui,-apple-system,sans-serif;max-width:48rem;"
        "background:#f4f4f4;font-size:.8rem}")
 
 CSS += clickcardsmod.focus_css()  # Batch 7 I-16: stretched-link + focus ring
+CSS += palettemod.palette_css() + darkmodemod.dark_css() + typescalemod.scale_css() + fontstackmod.stack_css()  # Batch 9 I-51/52/53/54: token variables, dark overrides, type scale, font stacks
 
 GLOBAL_JS = """
 <script>
@@ -281,7 +294,7 @@ def page(title: str, body: str, active: str = "projects",
             f"{shortcutsmod.overlay_html()}{GLOBAL_JS}{shortcutsmod.script_js()}"
             f"{searchmod.script_js()}{scrollposmod.record_js()}"
             f"{reviewedmod.script_js()}{unsavedmod.guard_js()}{autofocusmod.focus_js()}"
-            f"</body></html>").encode()
+            f"{collapsemod.collapse_js()}</body></html>").encode()
 
 
 def _first_unowned(owned: dict, cids_in_order: list[str]) -> str | None:
@@ -386,7 +399,8 @@ class Handler(BaseHTTPRequestHandler):
                             counts=counts, tour=tour_ctx))
         elif url.path == "/due":
             one = query.get("mode", [""])[0] == "one"
-            self._send(page("Due", self.due_html(level, one),
+            resume_key = query.get("resume", [""])[0]
+            self._send(page("Due", self.due_html(level, one, resume_key),
                             active="due", page_id="due",
                             lede="What to practice next — your spaced queue, one card at a time.",
                             counts=counts, tour=tour_ctx))
@@ -470,6 +484,19 @@ class Handler(BaseHTTPRequestHandler):
             host = self.headers.get("Host", "127.0.0.1:8765")
             self._send(self.sitemap_xml(f"http://{host}").encode(), 200,
                        "application/xml; charset=utf-8")
+        elif url.path.startswith("/share/"):
+            snap = snapshotmod.decode_snapshot(url.path[len("/share/"):],
+                                               _SNAPSHOT_SECRET)
+            if snap is None:
+                self._send(page("Not found",
+                                errmod.not_found_html(url.path),
+                                counts=counts, tour=tour_ctx), 404)
+            else:
+                self._send(page("Shared session",
+                                snapshotmod.snapshot_html(snap),
+                                active="tour", page_id="tour",
+                                counts=counts, tour=tour_ctx))
+            return
         elif url.path == "/robots.txt":
             host = self.headers.get("Host", "127.0.0.1:8765")
             self._send(self.robots_txt(f"http://{host}").encode(), 200,
@@ -506,11 +533,15 @@ class Handler(BaseHTTPRequestHandler):
                             errmod.not_found_html(url.path),
                             counts=counts, tour=tour_ctx), 404)
 
-    def due_html(self, level: str = "auto", one: bool = False) -> str:
+    def due_html(self, level: str = "auto", one: bool = False,
+                 resume_key: str = "") -> str:
         server = mcplib.MCPServer(self.db_path)
         due = server.tool_list_due_reviews({"limit": 20})["due"]
+        due = resumemod.session_cards(due, resume_key or "")
         parts = [digestmod.section_html(self.db_path),
-                 recentmod.strip_html()]
+                 recentmod.strip_html(),
+                 minisessionmod.session_box_html(due),
+                 resumemod.resume_box_html(resume_key or "", len(due))]
         if one and due:
             due = due[:1]
             parts.append("<p id='one-card-note'>One card is enough today — "

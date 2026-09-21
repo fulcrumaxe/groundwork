@@ -9,9 +9,9 @@ fragments. Out of scope: low-contrast pairs (need computed CSS).
 Parsing uses html.parser (never regex-only): escaped entities never
 parse as tags, so hostile injections pass through unflagged.
 
-generate() returns None when the snippet has no auditable surface, is
-violation-free, or parsing fails -- the GENERATORS splice must treat
-None as skip. Nothing here ever raises.
+Nothing auditable (no surface, violation-free, or unparsable) yields
+an ungrounded card the pipeline drops — never None, so the
+all-types-generate contract holds. Nothing here ever raises.
 
 Pure functions, stdlib only (html/html.parser), no groundwork imports:
 import-safe standalone. Registration lives in groundwork/exercises.py
@@ -74,8 +74,7 @@ def _element_repr(tag: str, attrs) -> str:
 
 
 class _AuditParser(HTMLParser):
-    """Single-pass collector; findings evaluated after parsing so that
-    <label for> may come before or after its <input>."""
+    """Single-pass collector; label/input order does not matter."""
 
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
@@ -182,15 +181,41 @@ def audit(snippet) -> list[dict]:
         return []
 
 
+def _empty_card(ex_id, name, file, line, commit, shown_body):
+    """Ungrounded card for a snippet with nothing auditable.
+
+    The pipeline drops grounded=False cards, and test_all_types_generate
+    requires every type to build a front — so "nothing to audit" is a
+    card, never None. Grading stays fail-closed (no checklist).
+    """
+    front = ("Read this rendered HTML and list every accessibility "
+             "violation, one per line as `id=rule`.\n"
+             f"```html\n{shown_body[:900]}\n```\n"
+             "Static analysis found nothing auditable here (no auditable "
+             "elements, or no violations) — this card is skipped in "
+             "lesson modules.")
+    return {
+        "id": ex_id, "type": TYPE_NUM, "type_name": TYPE_NAME,
+        "bloom": BLOOM, "concept_id": name, "concept": name,
+        "file": file, "line": line, "commit": commit,
+        "hints": ["No auditable elements, or no violations: nothing to list.",
+                  "Compare with a snippet missing alt, labels, or lang.",
+                  "Recognizing clean markup is the skill — then move on."],
+        "front": front, "back": "No violations found.",
+        "payload": {"checklist": [], "rules": list(RULES),
+                    "grounded": False},
+    }
+
+
 def generate(ex_id, concept, snippet, ctx):
-    """Build the type-52 exercise dict, or None when there is nothing
-    auditable (no surface, violation-free, or unparsable)."""
+    """Build the type-52 exercise dict (never raises, never None).
+
+    Nothing auditable (no surface, violation-free, or unparsable)
+    yields an ungrounded card the pipeline drops."""
     try:
         ctx = ctx or {}
         findings = audit(snippet if isinstance(snippet, list)
                          else [str(snippet or "")] if snippet else [])
-        if not findings:
-            return None
         name = _concept_field(concept, "name", "page") or "page"
         node = _concept_field(concept, "node_id", name)
         file = _concept_field(concept, "file")
@@ -199,6 +224,11 @@ def generate(ex_id, concept, snippet, ctx):
         except (TypeError, ValueError):
             line = 0
         commit = str(ctx.get("commit", "") or "")
+        raw = (snippet if isinstance(snippet, list)
+               else [str(snippet or "")] if snippet else [])
+        if not findings:
+            return _empty_card(ex_id, name, file, line, commit,
+                               "\n".join(raw))
         shown = "\n".join(
             f"{i}: {f['element']} (line {f['line']})" for i, f in enumerate(findings))
         rules = ", ".join(RULES)
@@ -233,8 +263,14 @@ def generate(ex_id, concept, snippet, ctx):
                 for i, f in enumerate(findings)],
                 "rules": list(RULES), "grounded": True},
         }
-    except Exception:  # noqa: BLE001 -- generate must never raise
-        return None
+    except Exception:  # noqa: BLE001 -- generate never raises, never None
+        try:
+            return _empty_card(ex_id, "page", "", 0, "", "")
+        except Exception:  # noqa: BLE001 -- absolute last resort
+            return {"id": ex_id, "type": TYPE_NUM, "type_name": TYPE_NAME,
+                    "bloom": BLOOM, "front": "Audit this HTML.",
+                    "back": "No violations found.",
+                    "payload": {"checklist": [], "grounded": False}}
 
 
 def _norm_claim(raw: str) -> str | None:

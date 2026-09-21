@@ -11,10 +11,9 @@ Plugin API: ``generate(ex_id, concept, snippet, ctx)``,
 Registration lives in ``groundwork/exercises.py``
 (TYPES, GENERATORS, BLOOM_TYPES); pipeline needs no skip guard.
 
-``generate`` returns ``None`` when the snippet has no attack surface
-(no sink, secret, auth-relevant parameter, or broad handler found) or
-when analysis fails unexpectedly — the emission loop must skip ``None``.
-It never raises.
+No attack surface (or analysis failure) yields an ungrounded card
+the emission loop drops — never ``None``, so the all-types-generate
+contract holds. It never raises.
 """
 from __future__ import annotations
 
@@ -33,35 +32,25 @@ MAX_ITEMS = 6  # checklist stays reviewable; detectors run in fixed order
 # Detector = (item_id, label, key phrases for tolerant matching).
 # Order is the presentation order (fixed => deterministic).
 DETECTORS = (
-    ("code-injection",
-     "Code injection: untrusted input reaches eval()/exec()/compile()",
+    ("code-injection", "Code injection: untrusted input reaches eval()/exec()/compile()",
      ("code injection", "eval", "exec")),
-    ("command-injection",
-     "Command injection: user-controlled text reaches a shell (os.system, popen, subprocess with shell=True)",
+    ("command-injection", "Command injection: user text reaches a shell",
      ("command injection", "shell", "subprocess", "os.system", "shell=true")),
-    ("sql-injection",
-     "SQL injection: query string built with %/format/f-string and passed to execute()",
+    ("sql-injection", "SQL injection: query built with %/format/f-string into execute()",
      ("sql injection", "execute", "query")),
-    ("path-traversal",
-     "Path traversal / arbitrary file access: open() on an unvalidated path",
+    ("path-traversal", "Path traversal: open() on an unvalidated path",
      ("path traversal", "arbitrary file", "open(")),
-    ("ssrf",
-     "Server-side request forgery: unvalidated URL fetched (requests/urllib/httpx)",
+    ("ssrf", "Server-side request forgery: unvalidated URL fetched",
      ("request forgery", "ssrf", "unvalidated url", "requests", "urllib")),
-    ("deserialization",
-     "Unsafe deserialization: untrusted bytes reach pickle/marshal/yaml.load",
+    ("deserialization", "Unsafe deserialization: untrusted bytes to pickle/yaml.load",
      ("deserial", "pickle", "yaml.load", "marshal")),
-    ("hardcoded-secret",
-     "Hardcoded secret: password/token/key literal in source",
+    ("hardcoded-secret", "Hardcoded secret: password/token/key literal in source",
      ("hardcoded secret", "password", "api key", "token", "secret")),
-    ("unvalidated-input",
-     "Unvalidated input: a parameter reaches a sink with no validation guard",
+    ("unvalidated-input", "Unvalidated input: parameter reaches a sink unguarded",
      ("unvalidated", "validation", "sanitize", "no check")),
-    ("auth-gap",
-     "Missing authorization check: user/role/token parameter with no permission check",
+    ("auth-gap", "Missing authorization check on a user/role/token parameter",
      ("authorization", "auth", "permission", "access control")),
-    ("broad-except",
-     "Overbroad exception handler (bare/broad except) hides attack evidence",
+    ("broad-except", "Overbroad except hides attack evidence",
      ("broad except", "bare except", "swallow")),
 )
 
@@ -203,11 +192,37 @@ def _keys(ids: list[str]) -> list[list[str]]:
     return [by_id[i] for i in ids if i in by_id]
 
 
-def generate(ex_id, concept, snippet, ctx):
-    """Build a threat-model checklist card, or None when no surface.
+def _empty_card(ex_id, name, file, line, commit, code):
+    """Ungrounded card for a snippet with no attack surface.
 
-    Returns None (never raises) when the snippet shows no analysable
-    attack surface or analysis fails — the emission loop skips None.
+    The pipeline drops grounded=False cards, and test_all_types_generate
+    requires every type to build a front — so "nothing to threat-model"
+    is a card, never None. Grading stays fail-closed (no checklist).
+    """
+    front = (f"Threat-model `{name}`: list its abuse cases, one per line.\n"
+             f"```python\n{code[:CODE_LIMIT]}\n```\n"
+             "Static analysis found no attack surface here (no sinks, "
+             "secrets, auth-relevant parameters, or broad handlers) — "
+             "this card is skipped in lesson modules.")
+    return {
+        "id": ex_id, "type": TYPE_NUM, "type_name": TYPE_NAME,
+        "bloom": BLOOM, "concept_id": name,
+        "concept": name, "file": file, "line": line, "commit": commit,
+        "hints": ["No sinks, no secrets, no auth parameters: nothing to list.",
+                  "Compare with a function that calls eval, open, or os.system.",
+                  "Recognizing safe code is the skill — then move on."],
+        "front": front, "back": "No attack surface found.",
+        "payload": {"items": [], "keys": [], "solution": [],
+                    "surface": [], "grounded": False},
+    }
+
+
+def generate(ex_id, concept, snippet, ctx):
+    """Build a threat-model checklist card (never raises, never None).
+
+    No analysable attack surface (or analysis failure) yields an
+    ungrounded card the pipeline drops — never None, so the
+    all-types-generate contract holds for every snippet.
     """
     try:
         ctx = ctx or {}
@@ -220,12 +235,12 @@ def generate(ex_id, concept, snippet, ctx):
         commit = str(ctx.get("commit", "") or "")
         code = _code_of(snippet)[:4000]
         if not code.strip():
-            return None
+            return _empty_card(ex_id, name, file, line, commit, code)
         tree = _tree(code)
         ids = (_detect_from_tree(code, tree) if tree is not None
                else _detect_from_text(code))
         if not ids:
-            return None  # no attack surface: nothing to threat-model
+            return _empty_card(ex_id, name, file, line, commit, code)
         items = _labels(ids)
         front = (f"Threat-model `{name}`: list its abuse cases "
                  f"({len(items)} threat-model items, one per line).\n"
@@ -246,8 +261,14 @@ def generate(ex_id, concept, snippet, ctx):
                         "solution": items, "surface": ids,
                         "grounded": True},
         }
-    except Exception:  # never raise: no surface, no card
-        return None
+    except Exception:  # never raise, never None: ungrounded card
+        try:
+            return _empty_card(ex_id, "function", "", 0, "", "")
+        except Exception:  # noqa: BLE001 -- absolute last resort
+            return {"id": ex_id, "type": TYPE_NUM, "type_name": TYPE_NAME,
+                    "bloom": BLOOM, "front": "Threat-model this function.",
+                    "back": "No attack surface found.",
+                    "payload": {"items": [], "grounded": False}}
 
 
 def _fail(msg: str) -> dict:

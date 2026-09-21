@@ -57,8 +57,13 @@ class GenerateTest(unittest.TestCase):
         self.assertEqual(e["payload"]["count"], 3)
         self.assertIn("{...}", e["front"])
 
-    def test_no_strings_returns_none(self):
-        self.assertIsNone(mod.generate("ex53", make_concept(), ["x = 1"], {}))
+    def test_no_strings_yields_ungrounded_card(self):
+        # Never None (all-types-generate contract): no strings is an
+        # ungrounded card the pipeline drops.
+        e = mod.generate("ex53", make_concept(), ["x = 1"], {})
+        self.assertTrue(e["front"])
+        self.assertFalse(e["payload"]["grounded"])
+        self.assertEqual(e["payload"]["strings"], [])
 
     def test_fallback_never_raises(self):
         e = mod.generate("ex53", None, None, None)

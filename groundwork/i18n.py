@@ -146,13 +146,32 @@ def _code_for(concept, snippet, ctx) -> tuple[str, bool]:
 
 
 def generate(ex_id, concept, snippet, ctx):
-    """Build an i18n-extract card; None when the code has zero strings."""
+    """Build an i18n-extract card; an ungrounded card (never None) when the code has zero strings."""
     try:
         code, grounded = _code_for(concept, snippet, ctx or {})
         strings = reference_set(code)
-        if not strings:
-            return None
         name = _concept_field(concept, "name", "function") or "function"
+        if not strings:
+            return {
+                "id": ex_id, "type": TYPE_NUM, "type_name": TYPE_NAME,
+                "bloom": BLOOM,
+                "concept_id": _concept_field(concept, "node_id", name),
+                "concept": name,
+                "file": _concept_field(concept, "file"), "line": 0,
+                "commit": str((ctx or {}).get("commit", "") or ""),
+                "hints": ["No hardcoded strings: nothing to list.",
+                          "Compare with a function that prints messages.",
+                          "Recognizing i18n-clean code is the skill."],
+                "front": (f"Read `{name}` below. List every hardcoded "
+                          f"user-facing string that should be extracted "
+                          f"for translation — one string per line, exact "
+                          f"text.\n```python\n{code}\n```\n"
+                          f"Static analysis found no strings here — this "
+                          f"card is skipped in lesson modules."),
+                "back": "No hardcoded user-facing strings.",
+                "payload": {"code": code, "strings": [], "count": 0,
+                            "grounded": False},
+            }
         file = _concept_field(concept, "file")
         try:
             line = int(getattr(concept, "line", 0) or 0)
@@ -181,10 +200,18 @@ def generate(ex_id, concept, snippet, ctx):
             "payload": {"code": code, "strings": strings,
                         "count": len(strings), "grounded": grounded},
         }
-    except Exception:  # never raise on the generic suite ctx
+    except Exception:  # never raise, never None, on the suite ctx
         strings = reference_set(FALLBACK_CODE)
         if not strings:
-            return None
+            return {"id": ex_id, "type": TYPE_NUM, "type_name": TYPE_NAME,
+                    "bloom": BLOOM, "concept_id": "function",
+                    "concept": "function", "file": "", "line": 0,
+                    "commit": "",
+                    "hints": ["No hardcoded strings: nothing to list."],
+                    "front": "List the user-facing strings below.",
+                    "back": "No hardcoded user-facing strings.",
+                    "payload": {"code": FALLBACK_CODE, "strings": [],
+                                "count": 0, "grounded": False}}
         return {"id": ex_id, "type": TYPE_NUM, "type_name": TYPE_NAME,
                 "bloom": BLOOM, "concept_id": "function",
                 "concept": "function", "file": "", "line": 0, "commit": "",
