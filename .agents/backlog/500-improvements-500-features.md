@@ -505,14 +505,24 @@ Batch 14 (sched core, no schema):
   `batch14-int-sched`; mastery keys normalized str-to-str.
 
 Batch 15 (schema: points + probes; one migration):
-- [ ] F-65 confweight → `submit_review` banks signed points (new
-  nullable column); grades stay pass/fail.
-- [ ] F-66 calibdrill → drills surfaced with real stakes; `settle`
-  recorded per answer.
-- [ ] F-67 overconf → coach deals cards from live accuracy/confidence
-  on a real study surface (not the Status demo values).
-- [ ] F-51 retest → probe windows resurface owned cards in the Due
-  queue; answering records `last_probe` (new nullable column).
+- [x] F-65 confweight → `submit_review` banks signed points (new
+  nullable column); grades stay pass/fail. Shipped on branch
+  `batch15-pts-probes`; verdict shows the line, History totals it.
+- [x] F-66 calibdrill → drills surfaced with real stakes: odds ride
+  the confidence widget, the verdict settles the stated bet; the
+  banked currency stays score() (one account). Shipped on branch
+  `batch15-pts-probes`.
+- [x] F-67 overconf → coach deals cards from live accuracy/confidence
+  on History (`coach_card`, weakest skill named). Shipped on branch
+  `batch15-pts-probes`.
+- [x] F-51 retest → probe windows resurface owned cards in the Due
+  queue (capped extras flagged probe=7|30); answering records
+  `last_probe` (new nullable column). Shipped on branch
+  `batch15-pts-probes`.
+
+Batch 15 migration (downgrade: ALTER TABLE <t> DROP COLUMN <col> on
+SQLite 3.35+, or restore the pre-batch15 backup):
+reviews.points INTEGER NULL; cards.last_probe TEXT NULL.
 
 Batch 16 (generation/rendering; pipeline touches capped):
 - [ ] F-60 dualcode → key ideas emit diagram+trace in generated lessons.

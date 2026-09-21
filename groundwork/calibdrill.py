@@ -102,9 +102,10 @@ def section_html() -> str:
         "<code>groundwork/calibdrill.py</code> provides "
         "<code>offer()</code> (explicit win/lose odds per confidence, "
         "fair at the honest probability), <code>settle()</code>, and "
-        "<code>drill_html()</code>, a db-free library that leaves "
-        "grading untouched. Bet only what you believe — a live drill "
-        "renders below.</p>" + demo)
+        "<code>drill_html()</code>. Since Batch 15 the odds ride every "
+        "confidence widget and each verdict settles the stated bet — "
+        "the banked currency stays the review score, shown beside it. "
+        "Bet only what you believe — a live drill renders below.</p>" + demo)
 
 
 def tour_entry() -> dict:

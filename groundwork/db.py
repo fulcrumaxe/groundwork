@@ -39,6 +39,15 @@ def init_db(db_path: str | Path = DEFAULT_DB) -> Path:
                          ("prev_mastery", "REAL NOT NULL DEFAULT 0")):
             if col not in rcols:
                 con.execute(f"ALTER TABLE reviews ADD COLUMN {col} {typ}")
+        # Batch 15 migration (nullable, additive only): banked
+        # calibration points per review; last probe timestamp per card.
+        # Downgrade: ALTER TABLE <t> DROP COLUMN <col> (SQLite 3.35+)
+        # or restore the pre-batch15 backup.
+        if "points" not in rcols:
+            con.execute("ALTER TABLE reviews ADD COLUMN points INTEGER")
+        ccols = [r[1] for r in con.execute("PRAGMA table_info(cards)").fetchall()]
+        if "last_probe" not in ccols:
+            con.execute("ALTER TABLE cards ADD COLUMN last_probe TEXT")
         con.execute(
             "CREATE TABLE IF NOT EXISTS disputes ("
             " id INTEGER PRIMARY KEY AUTOINCREMENT,"

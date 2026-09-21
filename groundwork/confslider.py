@@ -60,6 +60,23 @@ def slider_html(value: int = 3, name: str = "confidence", extra: str = "") -> st
                 "</fieldset>")
 
 
+def odds_html() -> str:
+    """Explicit drill odds per confidence level (Batch 15, F-66).
+
+    One compact line — win/lose at fair odds for 1–5 — rendered where
+    confidence is stated, so every bet shows its price. Never raises.
+    """
+    try:
+        from . import calibdrill as drillmod
+        bits = []
+        for c in (1, 2, 3, 4, 5):
+            deal = drillmod.offer(c)
+            bits.append(f"{c}→+{deal['win']}/{deal['lose']}")
+        return "<small class='odds'>Odds — " + " · ".join(bits) + "</small>"
+    except Exception:  # noqa: BLE001 -- display must never raise
+        return ""
+
+
 def css() -> str:
     """Scoped segmented-bar styles; no global resets, outlines kept."""
     return (

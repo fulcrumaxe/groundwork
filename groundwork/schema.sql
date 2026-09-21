@@ -37,7 +37,8 @@ CREATE TABLE IF NOT EXISTS cards (
   retrievability REAL NOT NULL DEFAULT 1.0,
   due TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
   stale INTEGER NOT NULL DEFAULT 0,
-  lapses INTEGER NOT NULL DEFAULT 0
+  lapses INTEGER NOT NULL DEFAULT 0,
+  last_probe TEXT
 );
 
 CREATE TABLE IF NOT EXISTS reviews (
@@ -52,7 +53,8 @@ CREATE TABLE IF NOT EXISTS reviews (
   prev_retrievability REAL NOT NULL DEFAULT 0,
   prev_due TEXT NOT NULL DEFAULT '',
   prev_lapses INTEGER NOT NULL DEFAULT 0,
-  prev_mastery REAL NOT NULL DEFAULT 0
+  prev_mastery REAL NOT NULL DEFAULT 0,
+  points INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS decisions (

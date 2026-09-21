@@ -8,6 +8,10 @@ this module only selects and builds the probes — it never grades and
 never duplicates that metric. Pure functions of passed-in dicts,
 stdlib only, no groundwork imports, no DB/schema. Fail-closed:
 never raises.
+
+Since Batch 15 the Due queue lists probes_due() hits (capped extras
+flagged probe=7|30) and submit stamps last_probe on probe answers —
+cards.last_probe is the one migration; last_review comes from reviews.
 """
 from __future__ import annotations
 

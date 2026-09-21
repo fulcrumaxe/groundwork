@@ -16,6 +16,7 @@ from . import db as dbmod
 from . import emptyart as emptyartmod
 from . import exercises as exmod
 from . import monthreview as monthmod
+from . import overconf as overconfmod
 from . import ownership as ownmod
 from . import resume as resumemod
 from . import undo as undomod
@@ -77,7 +78,8 @@ def history_html(db_path: str) -> str:
     con = dbmod.connect(db_path)
     try:
         cal = con.execute(
-            "SELECT AVG(grade) AS g, AVG(confidence) AS c, COUNT(*) AS n FROM reviews"
+            "SELECT AVG(grade) AS g, AVG(confidence) AS c, COUNT(*) AS n,"
+            " COALESCE(SUM(points), 0) AS bank FROM reviews"
         ).fetchone()
         days = con.execute(
             "SELECT substr(reviewed_at, 1, 10) AS d, COUNT(*) AS n,"
@@ -128,9 +130,22 @@ def history_html(db_path: str) -> str:
         acc = (cal["g"] or 0) / 5.0
         conf = ((cal["c"] or 3) - 1) / 4.0
         parts.append(f"<p id='calibration'>Calibration: accuracy {acc:.0%} vs confidence {conf:.0%} "
-                     f"(gap {conf - acc:+.0%}, n={cal['n']})</p>")
+                     f"(gap {conf - acc:+.0%}, n={cal['n']}, "
+                     f"bank {int(cal['bank'] or 0):+d} pts)</p>")
         parts.append(calibration_coach(
             [(r[0], r[1], r[2]) for r in coach_rows]))
+        # Batch 15, F-67: the gap deals a live card, not just a number.
+        try:
+            labeled = []
+            for etype, grade, conf in coach_rows:
+                try:
+                    bloom = exmod.TYPES[int(etype)][1]
+                except (ValueError, KeyError, TypeError):
+                    bloom = "other"
+                labeled.append((bloom, grade, conf))
+            parts.append(overconfmod.coach_card(labeled))
+        except Exception:  # noqa: BLE001 -- card must never break history
+            pass
         if tl_mods:
             tl_rows = []
             for tm in tl_mods:

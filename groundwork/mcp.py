@@ -9,10 +9,14 @@ import json
 import sys
 from pathlib import Path
 
+from . import calibdrill as drillmod
+from . import confweight as confweightmod
 from . import db as dbmod
 from . import exercises as exmod
 from . import interleave as interleavemod
 from . import modules as modmod
+from . import ownership as ownmod
+from . import retest as retestmod
 from . import pipeline as pipelinemod
 from . import sched as schedmod
 
@@ -183,6 +187,64 @@ class MCPServer:
         _ = repo
         return {"mastered": mastered, "weak": weak, "unseen": unseen}
 
+    # Probes per listing: extra credit after the real queue, never
+    # displacing it. Capped so a long-owned library cannot flood Due.
+    PROBE_CAP = 5
+
+    def _probe_cards(self, con, now_iso: str) -> list:
+        """Owned/stable cards due for a 7/30-day probe (Batch 15, F-51).
+
+        Assembles engine dicts (owned via ownership.owned_map,
+        last_review from reviews, last_probe from the Batch 15 column)
+        and returns full card rows flagged probe=7|30, most overdue
+        first. Never raises; anything unreadable means no probes.
+        """
+        try:
+            rows = con.execute(
+                "SELECT cards.*, concepts.name AS concept,"
+                " concepts.module_id AS module_id,"
+                " (SELECT MAX(reviewed_at) FROM reviews"
+                " WHERE card_id = cards.id) AS last_review"
+                " FROM cards JOIN concepts ON concepts.id = cards.concept_id"
+                " WHERE cards.stale = 0 AND cards.stability >= 7.0").fetchall()
+            cands = [dict(r) for r in rows]
+            if not cands:
+                return []
+            omaps: dict = {}
+            for c in cands:
+                mid = c.get("module_id") or ""
+                if mid not in omaps:
+                    try:
+                        omaps[mid] = ownmod.owned_map(con, mid)
+                    except Exception:  # noqa: BLE001 -- no map, no probes
+                        omaps[mid] = {}
+            eng = []
+            for c in cands:
+                if not c.get("last_review"):
+                    continue
+                attempts, owned = omaps.get(
+                    c.get("module_id") or "", {}).get(
+                    c.get("concept_id"), (0, False))
+                if not owned:
+                    continue
+                eng.append({"id": c["id"], "card_id": c["id"], "owned": True,
+                            "stability": c.get("stability"),
+                            "last_review": c.get("last_review"),
+                            "last_probe": c.get("last_probe")})
+            hits = retestmod.probes_due(eng, now_iso)
+            by_id = {c["id"]: c for c in cands}
+            out = []
+            for h in hits[:self.PROBE_CAP]:
+                c = by_id.get(h["card_id"])
+                if c is None:
+                    continue
+                flagged = dict(c)
+                flagged["probe"] = h["window"]
+                out.append(flagged)
+            return out
+        except Exception:  # noqa: BLE001 -- probes must never break Due
+            return []
+
     def tool_list_due_reviews(self, p: dict) -> dict:
         now = schedmod.iso(schedmod.utcnow())
         con = self._con()
@@ -202,6 +264,9 @@ class MCPServer:
                 " GROUP BY cards.concept_id, cards.exercise_type").fetchall()
             mastery = {(r["concept_id"], r["exercise_type"]): r["g"]
                        for r in mrows if r["n"]}
+            probes = self._probe_cards(con, now)
+            known = {c["id"] for c in cards}
+            cards = cards + [p for p in probes if p["id"] not in known]
         finally:
             con.close()
         return {"due": interleavemod.order_due(cards, mastery),
@@ -258,20 +323,59 @@ class MCPServer:
             prev_mastery = con.execute(
                 "SELECT mastery FROM concepts WHERE id=?",
                 (card["concept_id"],)).fetchone()
+            # Batch 15, F-51: was this answer a probe? Pre-state only —
+            # the current review must not cover its own cycle.
+            try:
+                pre_review = con.execute(
+                    "SELECT MAX(reviewed_at) FROM reviews WHERE card_id=?",
+                    (card_id,)).fetchone()[0]
+                mod_row = con.execute(
+                    "SELECT module_id FROM concepts WHERE id=?",
+                    (card["concept_id"],)).fetchone()
+                try:
+                    omap = ownmod.owned_map(
+                        con, mod_row["module_id"] if mod_row else "")
+                except Exception:  # noqa: BLE001 -- no map, no probe
+                    omap = {}
+                try:
+                    old_probe = card["last_probe"]
+                except Exception:  # noqa: BLE001 -- pre-migration row
+                    old_probe = None
+                _, was_owned = omap.get(card["concept_id"], (0, False))
+                now_iso = schedmod.iso(schedmod.utcnow())
+                was_probe = bool(retestmod.probes_due(
+                    [{"id": card_id, "card_id": card_id, "owned": was_owned,
+                      "stability": card["stability"], "last_review": pre_review,
+                      "last_probe": old_probe}], now_iso))
+            except Exception:  # noqa: BLE001 -- probe check never blocks
+                now_iso, was_probe = schedmod.iso(schedmod.utcnow()), False
             con.execute(
                 "UPDATE cards SET stability=?, difficulty=?, retrievability=?, due=?"
                 " WHERE id=?",
                 (upd["stability"], upd["difficulty"], upd["retrievability"],
                  upd["due"], card_id))
+            if was_probe:
+                # Stamp after the INSERT so last_probe always covers the
+                # just-recorded review (same-second equality counts).
+                con.execute("UPDATE cards SET last_probe=? WHERE id=?",
+                            (schedmod.iso(schedmod.utcnow()), card_id))
+            # Batch 15, F-65: bank the confidence-weighted score with
+            # the review — one calibration currency for reviews.
+            try:
+                points = confweightmod.score(result.get("pass"),
+                                             int(confidence))
+            except Exception:  # noqa: BLE001 -- banking must never raise
+                points = 0
             con.execute(
                 "INSERT INTO reviews(card_id, grade, confidence, submission,"
                 " prev_stability, prev_difficulty, prev_retrievability,"
-                " prev_due, prev_lapses, prev_mastery)"
-                " VALUES(?,?,?,?,?,?,?,?,?,?)",
+                " prev_due, prev_lapses, prev_mastery, points)"
+                " VALUES(?,?,?,?,?,?,?,?,?,?,?)",
                 (card_id, grade_val, int(confidence), str(submission)[:4000],
                  card["stability"], card["difficulty"], card["retrievability"],
                  card["due"], card["lapses"],
-                 (prev_mastery["mastery"] or 0.0) if prev_mastery else 0.0))
+                 (prev_mastery["mastery"] or 0.0) if prev_mastery else 0.0,
+                 points))
             # Roll concept mastery toward latest performance.
             con.execute(
                 "UPDATE concepts SET mastery = mastery * 0.7 + ? * 0.3 WHERE id=?",
@@ -279,7 +383,18 @@ class MCPServer:
             con.commit()
         finally:
             con.close()
-        return {"result": result, "grade": grade_val, "next_due": upd["due"]}
+        # Batch 15, F-66: settle the stated bet at explicit odds for
+        # display. The banked currency stays score() (one account);
+        # the drill line shows the fair-odds outcome beside it.
+        try:
+            deal = drillmod.offer(int(confidence))
+            won = deal["win"] if result.get("pass") else deal["lose"]
+            drill = (f"Drill: stated {int(deal['p'] * 100)}% — fair odds"
+                     f" +{deal['win']}/{deal['lose']}, settled {won:+d}.")
+        except Exception:  # noqa: BLE001 -- display must never raise
+            drill = ""
+        return {"result": result, "grade": grade_val, "next_due": upd["due"],
+                "points": points, "drill": drill}
 
 
 def serve_stdio(db_path=None) -> None:
