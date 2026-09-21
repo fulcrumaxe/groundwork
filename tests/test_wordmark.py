@@ -16,8 +16,11 @@ class WordmarkTest(unittest.TestCase):
 
     def test_svg_has_no_emoji_no_hardcoded_ink_no_network(self):
         svg = wmmod.wordmark_svg()
-        for marker in ("http", "url(", "@import", "<image", "data:image"):
-            self.assertNotIn(marker, svg)
+        # The xmlns namespace identifier is not a network fetch.
+        inline = svg.replace("xmlns='http://www.w3.org/2000/svg'", "")
+        for marker in ("http://", "https://", "url(", "@import",
+                       "<image", "data:image"):
+            self.assertNotIn(marker, inline)
         # Painted shapes inherit the palette; no baked-in hex fills.
         self.assertNotIn("fill='#", svg)
         self.assertNotIn('fill="#', svg)
