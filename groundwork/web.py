@@ -457,9 +457,11 @@ class Handler(BaseHTTPRequestHandler):
                             lede="Every repo you are learning — pick one and study it.",
                             counts=counts, tour=tour_ctx))
         elif url.path == "/due":
-            one = query.get("mode", [""])[0] == "one"
+            mode = query.get("mode", [""])[0]
+            one, cold = mode == "one", mode == "cold"
+            dial = query.get("dial", [""])[0] or None
             resume_key = query.get("resume", [""])[0]
-            self._send(page("Due", self.due_html(level, one, resume_key),
+            self._send(page("Due", self.due_html(level, one, resume_key, dial, cold, mode),
                             active="due", page_id="due",
                             lede="What to practice next — your spaced queue, one card at a time.",
                             counts=counts, tour=tour_ctx))
@@ -608,14 +610,26 @@ class Handler(BaseHTTPRequestHandler):
         return summary
 
     def due_html(self, level: str = "auto", one: bool = False,
-                 resume_key: str = "") -> str:
+                 resume_key: str = "", dial=None, cold: bool = False,
+                 mode: str = "") -> str:
         server = mcplib.MCPServer(self.db_path)
         due = server.tool_list_due_reviews({"limit": 20})["due"]
         due = resumemod.session_cards(due, resume_key or "")
+        con2 = self._con()
+        try:
+            study = quemod.stored_lessons(con2, [c["id"] for c in due])
+            tries = quemod.attempts(con2, [c["id"] for c in due])
+            crows = quemod.cold_rows(con2) if cold else []
+        finally:
+            con2.close()
+        due = minisessionmod.apply_dial(due, dial, tries)
         parts = [digestmod.section_html(self.db_path),
                  recentmod.strip_html(),
                  minisessionmod.session_box_html(due),
+                 minisessionmod.dial_box(dial, mode),
                  resumemod.resume_box_html(resume_key or "", len(due))]
+        if cold:
+            return "<div id='queue'>" + "".join(parts[:2] + [minisessionmod.cold_box(crows, {c["concept_id"] for c in due})] + ["<p><a href='/due'>Full queue</a></p>"]) + "</div>"
         if one and due:
             due = due[:1]
             parts.append("<p id='one-card-note'>One card is enough today — "
@@ -628,12 +642,6 @@ class Handler(BaseHTTPRequestHandler):
             stats = self._hero_stats()
             parts.append(doneheromod.done_hero_html(
                 stats["answered"], stats["accuracy"], stats["next_due"]))
-        con2 = self._con()
-        try:
-            study = quemod.stored_lessons(con2, [c["id"] for c in due])
-            tries = quemod.attempts(con2, [c["id"] for c in due])
-        finally:
-            con2.close()
         grouped = qmod.groups(self.db_path, due)
         n = 0
         for gi, g in enumerate(grouped):

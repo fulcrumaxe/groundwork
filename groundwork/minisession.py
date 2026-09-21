@@ -110,6 +110,81 @@ def planned_seconds(picks, estimate_fn=None, new_secs=NEW_SECS,
     return total
 
 
+def _new_in(card: dict, tried: dict) -> bool:
+    """Never-attempted in the minisession _is_new sense."""
+    try:
+        cid = card.get("id") if isinstance(card, dict) else None
+        if cid in (tried or {}):
+            return int(tried[cid] or 0) <= 0
+        return _is_new(card)
+    except (TypeError, ValueError):
+        return True
+
+
+def apply_dial(due, dial, tries=None) -> list:
+    """F-55: shape the Due queue by the difficulty dial.
+
+    ``dial`` None/"" returns the legacy queue untouched; otherwise the
+    level's retrievability floor drops too-forgotten reviews and the
+    new-card cap keeps the first N never-attempted cards (attempts
+    from ``tries``). Queue order is preserved (filter only, so the
+    interleave bridge ordering survives). Never raises.
+    """
+    from . import diffdial as dialmod
+    from . import sched as schedmod
+    try:
+        if dial is None or (isinstance(dial, str) and not dial.strip()):
+            return due
+        params = dialmod.dial_params(dial)
+        floor = float(params.get("retrievability_floor", 0.0) or 0.0)
+        cap = int(params.get("new_cards", 0) or 0)
+        rows = [c for c in (due or []) if isinstance(c, dict)]
+        try:
+            tried = dict(tries or {})
+        except (TypeError, ValueError):
+            tried = {}
+        kept = []
+        for c in rows:
+            try:
+                iso = c.get("due", "")
+                r = schedmod.elapsed_retrievability(
+                    float(c.get("stability", 1.0) or 0.0),
+                    iso if isinstance(iso, str) else "")
+            except (TypeError, ValueError):
+                r = 1.0
+            if r >= floor:
+                kept.append(c)
+        fresh = [c for c in kept if _new_in(c, tried)]
+        if len(fresh) > cap:
+            drop = set(map(id, fresh[cap:]))
+            kept = [c for c in kept if id(c) not in drop]
+        return kept
+    except Exception:  # noqa: BLE001 — dial must never break the queue
+        return due
+
+
+def dial_box(dial=None, mode="") -> str:
+    """F-55: working difficulty control for the Due page.
+
+    Links carry the dial level (session mode preserved); the line
+    describes the active level via diffdial.describe. Always renders
+    so the queue state stays explainable. Never raises.
+    """
+    from . import diffdial as dialmod
+    try:
+        active = dialmod.normalize_level(dial)
+        params = dialmod.dial_params(active)
+        suffix = f"mode={mode}&" if mode in ("one", "cold") else ""
+        links = " · ".join(
+            f"<a href='/due?{suffix}dial={n}'>{dialmod.LABELS[n]}</a>"
+            + (" <b>(dialed)</b>" if n == active else "")
+            for n in dialmod.LEVELS)
+        return (f"<p id='dial'><small>Difficulty dial: {links}<br>"
+                f"{html.escape(dialmod.describe(params))}</small></p>")
+    except Exception:  # noqa: BLE001 — control never raises
+        return ""
+
+
 def session_box_html(due, minutes=DEFAULT_MINUTES, estimate_fn=None,
                      new_secs=NEW_SECS, review_secs=REVIEW_SECS) -> str:
     """Due-page banner: start button plus 'about N cards, ~M min' copy.
