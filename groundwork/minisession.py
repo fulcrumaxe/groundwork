@@ -163,6 +163,47 @@ def apply_dial(due, dial, tries=None) -> list:
         return due
 
 
+def cold_box(rows, due_concept_ids=None) -> str:
+    """F-56: cold-attempt round from live concepts (``/due?mode=cold``).
+
+    Mastered concepts (mastery ≥ 0.85) and concepts already due are
+    excluded via cold_session; each pick renders its priming line
+    with a study link. Empty pool renders the engine's note, never
+    an empty section. Never raises.
+    """
+    from . import coldattempt as coldmod
+    from . import lessons as lesmod
+    try:
+        items = [r for r in (rows or []) if isinstance(r, dict)]
+        owned = {str(r.get("id", "")) for r in items
+                 if (r.get("mastery") or 0.0) >= 0.85}
+        try:
+            due_ids = {str(i) for i in (due_concept_ids or []) if str(i)}
+        except TypeError:
+            due_ids = set()
+        session = coldmod.cold_session(items, owned_ids=owned, due_ids=due_ids)
+        meta = {str(r.get("id", "")): r for r in items}
+        lis = []
+        for it in session.get("items", []):
+            cid = str(it.get("concept_id", ""))
+            row = meta.get(cid, {})
+            name = str(row.get("name") or cid)
+            mid = str(row.get("module_id") or "")
+            anchor = f"/modules/{mid}#lesson-{lesmod.slug(name)}" if mid else "/modules"
+            lis.append(
+                f"<li>{html.escape(str(it.get('prime', '')))} — "
+                f"<a href='{html.escape(anchor, True)}'>"
+                f"Study {html.escape(name)}</a></li>")
+        body = "".join(lis)
+        note = html.escape(str(session.get("note", "")))
+        if body:
+            body = f"<ol>{body}</ol>"
+        return (f"<section id='cold'><h2>Cold round</h2>"
+                f"<p>{note}</p>{body}</section>")
+    except Exception:  # noqa: BLE001 — cold round never raises
+        return ""
+
+
 def dial_box(dial=None, mode="") -> str:
     """F-55: working difficulty control for the Due page.
 
