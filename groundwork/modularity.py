@@ -22,6 +22,10 @@ the CSS join and the optimistic foot embed share their lines, and the
 status join stays same-line, so status.py holds exactly at AREA_CAP).
 status.py stays exactly at AREA_CAP, so Batch 12 sections join in
 batch12.py instead.
+Batch 13 follows it as well (seven area imports, the 500 wrapper, and
+the review-note line; CSS/head/foot/status joins stay same-line, so
+status.py holds exactly at AREA_CAP). Batch 13 sections join in
+batch13.py instead. (1190 -> 1219 for the wires.)
 """
 from __future__ import annotations
 
@@ -29,7 +33,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 
-WEB_CEILING = 1190
+WEB_CEILING = 1219
 AREA_CAP = 350
 
 # Capability area -> module implementing it. Batch 3 appends its areas here.
@@ -202,6 +206,23 @@ AREAS = {
     "selfexplain": "selfexplain.py",
     "elaboration": "elaboration.py",
     "batch12": "batch12.py",
+    "errpage": "errpage.py",
+    "formerr": "formerr.py",
+    "selection": "selection.py",
+    "scrollbar": "scrollbar.py",
+    "pageicon": "pageicon.py",
+    "ogtags": "ogtags.py",
+    "density": "density.py",
+    "responsive": "responsive.py",
+    "dualcode": "dualcode.py",
+    "interleave": "interleave.py",
+    "spacingopt": "spacingopt.py",
+    "retrieval": "retrieval.py",
+    "predict": "predict.py",
+    "confweight": "confweight.py",
+    "calibdrill": "calibdrill.py",
+    "overconf": "overconf.py",
+    "batch13": "batch13.py",
 }
 
 

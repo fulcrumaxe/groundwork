@@ -38,6 +38,7 @@ from . import darkmode as darkmodemod
 from . import db as dbmod
 from . import debt as debtmod
 from . import decisions as decmod
+from . import density as densitymod
 from . import diagnose as diamod
 from . import digest as digestmod
 from . import disputes as dismod
@@ -49,6 +50,7 @@ from . import favicon as faviconmod
 from . import fontstack as fontstackmod
 from . import focusrings as focusringsmod
 from . import footnav as footnavmod
+from . import formerr as formerrmod
 from . import hinttiers as hinttiersmod
 from . import history as histmod
 from . import journal as journalmod
@@ -62,9 +64,11 @@ from . import modfilter as modfiltermod
 from . import modpages as modpagesmod
 from . import modularity as modularitymod
 from . import modules as modmod
+from . import ogtags as ogtagsmod
 from . import optimistic as optimisticmod
 from . import ownbanner as ownbannermod
 from . import ownership as ownmod
+from . import pageicon as pageiconmod
 from . import pager as pagermod
 from . import palette as palettemod
 from . import pressfx as pressfxmod
@@ -75,12 +79,15 @@ from . import readtime as readtimemod
 from . import recent as recentmod
 from . import related as relmod
 from . import reset as resetmod
+from . import responsive as responsivemod
 from . import results as resmod
 from . import resume as resumemod
 from . import reviewed as reviewedmod
 from . import sched as schedmod
+from . import scrollbar as scrollbarmod
 from . import scrollpos as scrollposmod
 from . import search as searchmod
+from . import selection as selectionmod
 from . import serendipity as sermod
 from . import session as sessionmod
 from . import shelf as shelfmod
@@ -215,7 +222,7 @@ CSS = ("body{font-family:system-ui,-apple-system,sans-serif;max-width:48rem;"
 # concatenated into CSS (that nests <style> inside <style>, closes the
 # head stylesheet early, and dumps all later CSS into <body> as text).
 FOCUS_CSS = clickcardsmod.focus_css()
-CSS += palettemod.palette_css() + darkmodemod.dark_css() + typescalemod.scale_css() + fontstackmod.stack_css() + wordmarkmod.wordmark_css() + bloomchipsmod.chip_css() + progbarmod.progbar_css() + ownedbadgemod.badge_css() + staggermod.stagger_css() + caretsmod.carets_css() + codelinesmod.codelines_css() + highlightmod.highlight_css() + hinttiersmod.hinttiers_css() + confslidermod.css() + focusringsmod.css() + taptargetsmod.target_css() + radiusmod.radius_css() + spacingmod.spacing_css() + doneheromod.hero_css() + logbookmod.logbook_css() + shelfmod.shelf_css() + briefingmod.briefing_css() + verdictsmod.verdicts_css() + ownbannermod.ownbanner_css() + pressfxmod.pressfx_css() + skeletonsmod.skeletons_css() + optimisticmod.optimistic_css()  # Batch 9 I-51/52/53/54: token variables, dark overrides, type scale, font stacks. Batch 10 I-55..I-62: wordmark, bloom chips, progress motion, owned badge, stagger, carets, code lines, highlight. Batch 11 I-63..I-70: hint tiers, confidence segments, focus rings, tap floor, radii, spacing, hero. Batch 12 I-71..I-73/I-77/I-79..I-82: logbook, shelf, briefing, verdicts, banner, press, skeletons, optimistic submit.
+CSS += palettemod.palette_css() + darkmodemod.dark_css() + typescalemod.scale_css() + fontstackmod.stack_css() + wordmarkmod.wordmark_css() + bloomchipsmod.chip_css() + progbarmod.progbar_css() + ownedbadgemod.badge_css() + staggermod.stagger_css() + caretsmod.carets_css() + codelinesmod.codelines_css() + highlightmod.highlight_css() + hinttiersmod.hinttiers_css() + confslidermod.css() + focusringsmod.css() + taptargetsmod.target_css() + radiusmod.radius_css() + spacingmod.spacing_css() + doneheromod.hero_css() + logbookmod.logbook_css() + shelfmod.shelf_css() + briefingmod.briefing_css() + verdictsmod.verdicts_css() + ownbannermod.ownbanner_css() + pressfxmod.pressfx_css() + skeletonsmod.skeletons_css() + optimisticmod.optimistic_css() + formerrmod.formerr_css() + selectionmod.selection_css() + scrollbarmod.scrollbar_css() + densitymod.density_css() + responsivemod.narrow_css()  # Batch 9 I-51/52/53/54: token variables, dark overrides, type scale, font stacks. Batch 10 I-55..I-62: wordmark, bloom chips, progress motion, owned badge, stagger, carets, code lines, highlight. Batch 11 I-63..I-70: hint tiers, confidence segments, focus rings, tap floor, radii, spacing, hero. Batch 12 I-71..I-73/I-77/I-79..I-82: logbook, shelf, briefing, verdicts, banner, press, skeletons, optimistic submit. Batch 13 I-84/I-85/I-86/I-89/I-90: field errors, selection, scrollbars, density, narrow phones.
 
 GLOBAL_JS = """
 <script>
@@ -301,7 +308,7 @@ def page(title: str, body: str, active: str = "projects",
     links = sitenavmod.header_nav(active, counts)
     head = (f"<a class='skip' href='#main'>Skip to content</a>"
             f"<header class='page-head' id='top'><nav id='sitenav'>{links}</nav>"
-            f"<h1>{wordmarkmod.wordmark_svg()} {html.escape(title)}</h1>{searchmod.header_html()}")
+            f"<h1>{wordmarkmod.wordmark_svg()} {html.escape(title)}</h1>{searchmod.header_html()}{densitymod.toggle_html()}")
     if lede:
         head += f"<p class='lede'>{html.escape(lede)}</p>"
     head += "</header>"
@@ -318,13 +325,13 @@ def page(title: str, body: str, active: str = "projects",
     foot = footnavmod.footer(sitenavmod.href_of(active))
     body = banner + body
     return (f"<!doctype html><html><head><meta charset='utf-8'>"
-            f"<title>{html.escape(title)}</title><style>{CSS}</style>"
+            f"<title>{html.escape(title)}</title>{pageiconmod.link_tag(counts)}{ogtagsmod.og_tags(title, lede)}<style>{CSS}</style>"
             f"{FOCUS_CSS}</head>"
             f"<body data-page='{page_id}'>{head}<main id='main'>{body}</main>{foot}"
             f"{shortcutsmod.overlay_html()}{GLOBAL_JS}{shortcutsmod.script_js()}"
             f"{searchmod.script_js()}{scrollposmod.record_js()}"
             f"{reviewedmod.script_js()}{unsavedmod.guard_js()}{autofocusmod.focus_js()}"
-            f"{collapsemod.collapse_js()}{optimisticmod.optimistic_js()}</body></html>").encode()
+            f"{collapsemod.collapse_js()}{optimisticmod.optimistic_js()}{densitymod.toggle_js()}</body></html>").encode()
 
 
 def _first_unowned(owned: dict, cids_in_order: list[str]) -> str | None:
@@ -381,6 +388,27 @@ class Handler(BaseHTTPRequestHandler):
 
     def log_message(self, *a):
         pass
+
+    # I-83: chrome error pages — an unhandled exception renders the
+    # 500 body inside page chrome instead of dropping the connection.
+    # Disconnects propagate; anything else becomes a safe 500 page.
+    def handle_one_request(self):
+        try:
+            super().handle_one_request()
+        except (ConnectionResetError, BrokenPipeError):
+            raise
+        except Exception as exc:  # noqa: BLE001 -- last-resort page
+            try:
+                from . import errpage as errpagemod
+                try:
+                    counts = self._nav_counts()
+                except Exception:  # noqa: BLE001 -- counts optional
+                    counts = None
+                self._send(page("Error",
+                                errpagemod.server_error_html(exc),
+                                counts=counts), 500)
+            except Exception:  # noqa: BLE001 -- never mask the cause
+                self.send_error(500)
 
     # -- helpers
     def _send(self, data: bytes, code: int = 200, ctype: str = "text/html"):
@@ -1112,6 +1140,7 @@ class Handler(BaseHTTPRequestHandler):
         if url.path.startswith("/cards/") and url.path.endswith("/review"):
             card_id = url.path.split("/")[2]
             answer, conf_i, origin = _parse_review_form(raw)
+            cerr = formerrmod.review_note(raw)
             origin = scrollposmod.origin_with_anchor(origin, card_id)
             server = mcplib.MCPServer(self.db_path)
             out = server.submit_review(card_id, answer, conf_i)
@@ -1132,7 +1161,7 @@ class Handler(BaseHTTPRequestHandler):
             finally:
                 con.close()
             due_left = server.tool_list_due_reviews({"limit": 1000})["count"]
-            body = (scrollposmod.restore_js(origin)
+            body = (cerr + scrollposmod.restore_js(origin)
                     + autoscrollmod.enhance_result(
                         resmod.render_result(res["pass"], res["feedback"], back,
                                              out["next_due"], origin, mod_id, due_left))

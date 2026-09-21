@@ -24,6 +24,20 @@ class FormerrTest(unittest.TestCase):
             self.assertIsInstance(
                 fmod.field_error_html(bad, bad), str)
 
+    def test_review_note_parses_like_handler(self):
+        self.assertEqual(fmod.review_note("answer=x&confidence=4"), "")
+        self.assertEqual(fmod.review_note("answer=x"), "")  # default
+        self.assertEqual(fmod.review_note(""), "")
+        self.assertEqual(fmod.review_note(None), "")
+        bad = fmod.review_note("answer=x&confidence=9")
+        self.assertIn("field-error", bad)
+        self.assertIn("role='alert'", bad)
+        self.assertIn("confidence", bad)
+        abc = fmod.review_note("confidence=abc")
+        self.assertTrue(abc)
+        self.assertIn("role='alert'", abc)
+        self.assertIsInstance(fmod.review_note(object()), str)
+
     def test_error_line_shape(self):
         line = fmod.field_error_html("confidence", "pick 1–5")
         self.assertIn("role='alert'", line)

@@ -16,6 +16,7 @@ functions, stdlib only (``html``), no I/O, no DB changes.
 from __future__ import annotations
 
 import html
+from urllib.parse import parse_qs
 
 STATUS_ANCHOR = "status-b13-formerr"
 
@@ -50,6 +51,21 @@ def confidence_error(raw) -> str:
     except Exception:  # noqa: BLE001 -- validation must never raise
         return (f"Confidence must be a whole number "
                 f"{CONF_MIN}–{CONF_MAX}.")
+
+
+def review_note(raw: str) -> str:
+    """Inline error line for a review POST body, or "" when clean.
+
+    Parses the raw body exactly like the handler (missing key means
+    the server default, no error); a present-but-bad confidence
+    renders the alert line the result page prepends. Never raises.
+    """
+    try:
+        form = parse_qs(raw or "", keep_blank_values=True)
+        msg = confidence_error(form.get("confidence", [None])[0])
+        return field_error_html("confidence", msg) if msg else ""
+    except Exception:  # noqa: BLE001 -- validation must never raise
+        return ""
 
 
 def field_error_html(field: str, message: str) -> str:
