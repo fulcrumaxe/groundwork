@@ -145,6 +145,14 @@ expected outputs are always *measured* in the sandbox, never invented.
 | Dependency upgrade | Migrate a caller across a breaking pin bump — new-API shape in, old shape out. | `/status#status-b10-depupgrade` |
 | License-check | Judge whether a dependency fits this AGPL-3.0 project -- verdict plus reason. | `/status#status-b10-licensecheck` |
 | Containerize it | Write a Dockerfile for a small service — static build gate, no partial credit. | `/status#status-b10-containerize` |
+| CI pipeline | Author a push-triggered CI pipeline — static dry-run lint, no partial credit. | `/status#status-b11-cipipe` |
+| Cut the stale flag | Remove a dead feature-flag branch — grep gate plus green hidden tests. | `/status#status-b11-flagcut` |
+| Backfill script | Write a backfill function that migrates old rows to the new shape — sandbox-executed over fixtures. | `/status#status-b11-backfill` |
+| Page the endpoint | Retrofit paging onto a list endpoint — slices, total, and stable order checked. | `/status#status-b11-pageapi` |
+| Cache invalidation | Name every mutation path that busts a cached value — exact set, no hot-path busts. | `/status#status-b11-cacheinv` |
+| Idempotency double-run | Make the handler re-runnable — the grader runs it twice and both runs must agree. | `/status#status-b11-idempot` |
+| Rate-limit it | Pick per-key + global limits, a window, burst handling, and 429 + Retry-After — rubric-graded with partial credit. | `/status#status-b11-ratelimit` |
+| Webhook verify | Verify an HMAC-signed webhook — valid passes, tampered, wrong-secret, and replayed deliveries rejected. | `/status#status-b11-webhook` |
 <!-- GW-FEATURES:END -->
 
 ## Improvements
@@ -230,6 +238,14 @@ expected outputs are always *measured* in the sandbox, never invented.
 | Consistent disclosure carets | Every hint and grading disclosure shares one chevron that rotates open — same affordance in every browser, keyboard and screen-reader behavior unchanged. | `/status#status-b10-carets` |
 | Code line numbers | Every code block numbers its lines via CSS counters, beside the Copy button it already had. | `/status#status-b10-codelines` |
 | Tiny syntax highlight | Python/TS code snippets get dependency-free coloring from a single-pass tokenizer that escapes raw text before wrapping tokens, so markup can never leak. | `/status#status-b10-highlight` |
+| Hint tiers at a glance | Hints show their weight: Nudge, Pointer, then Worked step — spend the cheapest help first. | `/status#status-b11-hinttiers` |
+| Segmented confidence slider | Rate confidence 1–5 on a tappable segmented control with arrow-key support — same rating, no typing. | `/status#status-b11-confslider` |
+| Focus-visible rings | Every link, button, field, and card shows one palette-matched ring the moment you Tab to it. | `/status#status-b11-focusrings` |
+| 44px tap targets | Every button and input is at least 44px tall — full-size even in compact density. | `/status#status-b11-taptargets` |
+| Unified corner radii | Cards round at 12px, controls at 8px, chips pill — one token source, no scattered literals. | `/status#status-b11-radius` |
+| Section spacing rhythm | Every section gap comes from one ratio-based scale, so pages breathe evenly. | `/status#status-b11-spacing` |
+| Empty-state illustrations | Dry pages greet you with a small line illustration above the next step — never a blank wall. | `/status#status-b11-emptyart` |
+| Session-complete hero | An empty Due queue greets you with a calm all-caught-up banner — celebration, still with a next step. | `/status#status-b11-donehero` |
 <!-- GW-IMPROVEMENTS:END -->
 
 See also [docs/features.md](docs/features.md) and the in-app

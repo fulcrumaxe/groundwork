@@ -212,6 +212,33 @@ def cmd_e2e(args) -> int:
             ans = p.get("reference", "")
         elif t == 56:
             ans = p.get("fixed", "")
+        elif t == 65:
+            ans = p.get("back", "")
+        elif t in (66, 67, 72):
+            ans = p.get("reference", "")
+        elif t == 68:
+            rows = p.get("rows", [])
+            n = p.get("per_page_default", 5)
+            total = p.get("total", len(rows))
+
+            def _pg(num):
+                s = (num - 1) * n
+                return json.dumps({"items": rows[s:s + n], "page": num,
+                                   "per_page": n, "total": total})
+            ans = f"page1={_pg(1)}\npage2={_pg(2)}\npage99={_pg(99)}\n"
+        elif t == 69:
+            ans = " ".join(p.get("answer", []))
+        elif t == 70:
+            from . import idempot as idempotmod
+            handler = p.get("handler", "handle")
+            ans = idempotmod.E2E[0].replace(
+                "def handle(", f"def {handler}(", 1)
+        elif t == 71:
+            ans = ("scope=10/min per IP plus 1000/min global\n"
+                   "window=60s fixed\nburst=token bucket 5\n"
+                   "retry=429 with Retry-After: 60\n"
+                   "why=per-key scope stops abusers while the global "
+                   "cap guards capacity")
         else:
             ans = ""
         r = server.submit_review(c["id"], ans, 4)

@@ -54,6 +54,14 @@ from . import specwrite as specwritemod
 from . import sqlex as sqlexmod
 from . import threatmodel as threatmodelmod
 from . import typeanno as typeannomod
+from . import cipipe as cipipemod
+from . import flagcut as flagcutmod
+from . import backfill as backfillmod
+from . import pageapi as pageapimod
+from . import cacheinv as cacheinvmod
+from . import idempot as idempotmod
+from . import ratelimit as ratelimitmod
+from . import webhook as webhookmod
 
 # type number -> (name, bloom)
 TYPES = {
@@ -121,17 +129,25 @@ TYPES = {
     62: ("dep-upgrade", "modify"),
     63: ("license-check", "evaluate"),
     64: ("containerize", "create"),
+    65: ("cipipe", "create"),
+    66: ("flag-cut", "modify"),
+    67: ("backfill-script", "modify"),
+    68: ("page-retrofit", "apply"),
+    69: ("cache-invalidation", "analyse"),
+    70: ("idempotency-fix", "modify"),
+    71: ("ratelimit", "evaluate"),
+    72: ("webhook", "apply"),
 }
 
 BLOOM_TYPES = {
     "recall": [1, 2, 3, 4],
     "explain": [5, 6, 7, 25, 1],
-    "apply": [8, 10, 11, 12, 9, 31, 32, 33, 44, 54, 55],
+    "apply": [8, 10, 11, 12, 9, 31, 32, 33, 44, 54, 55, 68, 72],
     "analyse": [13, 14, 15, 16, 17, 18, 9, 26, 28, 29, 34, 36, 37, 45,
-                49, 50, 51, 52, 53, 58, 59, 60, 61],
-    "modify": [12, 14, 19, 20, 27, 35, 38, 39, 46, 47, 56, 62],
-    "evaluate": [21, 22, 48, 57, 63],
-    "create": [24, 23, 40, 41, 42, 43, 64],
+                49, 50, 51, 52, 53, 58, 59, 60, 61, 69],
+    "modify": [12, 14, 19, 20, 27, 35, 38, 39, 46, 47, 56, 62, 66, 67, 70],
+    "evaluate": [21, 22, 48, 57, 63, 71],
+    "create": [24, 23, 40, 41, 42, 43, 64, 65],
 }
 
 
@@ -821,6 +837,10 @@ GENERATORS = {
     59: metricsmod.generate, 60: flamemod.generate,
     61: crashdumpmod.generate, 62: depupgrademod.generate,
     63: licensecheckmod.generate, 64: containerizemod.generate,
+    65: cipipemod.generate, 66: flagcutmod.generate,
+    67: backfillmod.generate, 68: pageapimod.generate,
+    69: cacheinvmod.generate, 70: idempotmod.generate,
+    71: ratelimitmod.generate, 72: webhookmod.generate,
 }
 
 
@@ -1068,6 +1088,22 @@ def grade(exercise: dict, submission: str, runner=None) -> dict:
         return licensecheckmod.grade(exercise, submission, runner)
     if t == 64:
         return containerizemod.grade(exercise, submission, runner)
+    if t == 65:
+        return cipipemod.grade(exercise, submission, runner)
+    if t == 66:
+        return flagcutmod.grade(exercise, submission, runner)
+    if t == 67:
+        return backfillmod.grade(exercise, submission, runner)
+    if t == 68:
+        return pageapimod.grade(exercise, submission, runner)
+    if t == 69:
+        return cacheinvmod.grade(exercise, submission, runner)
+    if t == 70:
+        return idempotmod.grade(exercise, submission, runner)
+    if t == 71:
+        return ratelimitmod.grade(exercise, submission, runner)
+    if t == 72:
+        return webhookmod.grade(exercise, submission, runner)
     # Execution-graded types need the sandbox runner. Pure-order Parsons
     # (no harness) is graded without it, below.
     if runner is None and not (t == 11 and not p.get("tests")):
@@ -1238,6 +1274,22 @@ def render(exercise: dict) -> str:
         return licensecheckmod.render(exercise)
     if t == 64:
         return containerizemod.render(exercise)
+    if t == 65:
+        return cipipemod.render(exercise)
+    if t == 66:
+        return flagcutmod.render(exercise)
+    if t == 67:
+        return backfillmod.render(exercise)
+    if t == 68:
+        return pageapimod.render(exercise)
+    if t == 69:
+        return cacheinvmod.render(exercise)
+    if t == 70:
+        return idempotmod.render(exercise)
+    if t == 71:
+        return ratelimitmod.render(exercise)
+    if t == 72:
+        return webhookmod.render(exercise)
     p = exercise.get("payload", {})
     front = html.escape(exercise.get("front", ""))
     body = f"<p>{front}</p>"

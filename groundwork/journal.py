@@ -9,6 +9,7 @@ from __future__ import annotations
 import html
 
 from . import db as dbmod
+from . import emptyart as emptyartmod
 from . import exercises as exmod
 from . import sched as schedmod
 
@@ -85,7 +86,8 @@ def page_html(db_path: str) -> str:
         f"<p>{html.escape(r['body'] or '')}</p></article>"
         for r in entries(db_path))
     if not past:
-        past = "<p>No entries yet — the first honest sentence is the hardest.</p>"
+        past = (emptyartmod.art_for("journal") +
+                "<p>No entries yet — the first honest sentence is the hardest.</p>")
     return (
         f"<div id='journal'><h2>This week's question</h2>"
         f"<p><b>{html.escape(prompt)}</b></p>"
