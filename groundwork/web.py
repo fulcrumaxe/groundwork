@@ -17,6 +17,7 @@ from . import api as apimod
 from . import autofocus as autofocusmod
 from . import autoscroll as autoscrollmod
 from . import bloomchips as bloomchipsmod
+from . import briefing as briefingmod
 from . import carets as caretsmod
 from . import codelines as codelinesmod
 from . import highlight as highlightmod
@@ -54,15 +55,19 @@ from . import journal as journalmod
 from . import known as knownmod
 from . import lessons as lesmod
 from . import levelcarry as levelcarrymod
+from . import logbook as logbookmod
 from . import mcp as mcplib
 from . import minisession as minisessionmod
 from . import modfilter as modfiltermod
 from . import modpages as modpagesmod
 from . import modularity as modularitymod
 from . import modules as modmod
+from . import optimistic as optimisticmod
+from . import ownbanner as ownbannermod
 from . import ownership as ownmod
 from . import pager as pagermod
 from . import palette as palettemod
+from . import pressfx as pressfxmod
 from . import queries as quemod
 from . import radius as radiusmod
 from . import queue as qmod
@@ -78,7 +83,9 @@ from . import scrollpos as scrollposmod
 from . import search as searchmod
 from . import serendipity as sermod
 from . import session as sessionmod
+from . import shelf as shelfmod
 from . import shortcuts as shortcutsmod
+from . import skeletons as skeletonsmod
 from . import sitemap as sitemapmod
 from . import sitenav as sitenavmod
 from . import snapshot as snapshotmod
@@ -92,6 +99,7 @@ from . import tour as tourmod
 from . import typescale as typescalemod
 from . import undo as undomod
 from . import unsaved as unsavedmod
+from . import verdicts as verdictsmod
 
 _SNAPSHOT_SECRET = secrets.token_hex(16)  # Batch 9 I-49: process-lifetime
 # share-link secret (links verify while this server process runs).
@@ -207,7 +215,7 @@ CSS = ("body{font-family:system-ui,-apple-system,sans-serif;max-width:48rem;"
 # concatenated into CSS (that nests <style> inside <style>, closes the
 # head stylesheet early, and dumps all later CSS into <body> as text).
 FOCUS_CSS = clickcardsmod.focus_css()
-CSS += palettemod.palette_css() + darkmodemod.dark_css() + typescalemod.scale_css() + fontstackmod.stack_css() + wordmarkmod.wordmark_css() + bloomchipsmod.chip_css() + progbarmod.progbar_css() + ownedbadgemod.badge_css() + staggermod.stagger_css() + caretsmod.carets_css() + codelinesmod.codelines_css() + highlightmod.highlight_css() + hinttiersmod.hinttiers_css() + confslidermod.css() + focusringsmod.css() + taptargetsmod.target_css() + radiusmod.radius_css() + spacingmod.spacing_css() + doneheromod.hero_css()  # Batch 9 I-51/52/53/54: token variables, dark overrides, type scale, font stacks. Batch 10 I-55..I-62: wordmark, bloom chips, progress motion, owned badge, stagger, carets, code lines, highlight. Batch 11 I-63..I-70: hint tiers, confidence segments, focus rings, tap floor, radii, spacing, hero.
+CSS += palettemod.palette_css() + darkmodemod.dark_css() + typescalemod.scale_css() + fontstackmod.stack_css() + wordmarkmod.wordmark_css() + bloomchipsmod.chip_css() + progbarmod.progbar_css() + ownedbadgemod.badge_css() + staggermod.stagger_css() + caretsmod.carets_css() + codelinesmod.codelines_css() + highlightmod.highlight_css() + hinttiersmod.hinttiers_css() + confslidermod.css() + focusringsmod.css() + taptargetsmod.target_css() + radiusmod.radius_css() + spacingmod.spacing_css() + doneheromod.hero_css() + logbookmod.logbook_css() + shelfmod.shelf_css() + briefingmod.briefing_css() + verdictsmod.verdicts_css() + ownbannermod.ownbanner_css() + pressfxmod.pressfx_css() + skeletonsmod.skeletons_css() + optimisticmod.optimistic_css()  # Batch 9 I-51/52/53/54: token variables, dark overrides, type scale, font stacks. Batch 10 I-55..I-62: wordmark, bloom chips, progress motion, owned badge, stagger, carets, code lines, highlight. Batch 11 I-63..I-70: hint tiers, confidence segments, focus rings, tap floor, radii, spacing, hero. Batch 12 I-71..I-73/I-77/I-79..I-82: logbook, shelf, briefing, verdicts, banner, press, skeletons, optimistic submit.
 
 GLOBAL_JS = """
 <script>
@@ -316,7 +324,7 @@ def page(title: str, body: str, active: str = "projects",
             f"{shortcutsmod.overlay_html()}{GLOBAL_JS}{shortcutsmod.script_js()}"
             f"{searchmod.script_js()}{scrollposmod.record_js()}"
             f"{reviewedmod.script_js()}{unsavedmod.guard_js()}{autofocusmod.focus_js()}"
-            f"{collapsemod.collapse_js()}</body></html>").encode()
+            f"{collapsemod.collapse_js()}{optimisticmod.optimistic_js()}</body></html>").encode()
 
 
 def _first_unowned(owned: dict, cids_in_order: list[str]) -> str | None:

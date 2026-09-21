@@ -17,6 +17,11 @@ hero-stats helper, the done-hero empty branch, the modules dry-art
 wires, and the confidence-anchor retarget; CSS joins share one line).
 status.py stays exactly at AREA_CAP, so Batch 11 sections join in
 batch11.py instead.
+Batch 12 follows it as well (1182 -> 1190 for eight area CSS imports;
+the CSS join and the optimistic foot embed share their lines, and the
+status join stays same-line, so status.py holds exactly at AREA_CAP).
+status.py stays exactly at AREA_CAP, so Batch 12 sections join in
+batch12.py instead.
 """
 from __future__ import annotations
 
@@ -24,7 +29,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 
-WEB_CEILING = 1182
+WEB_CEILING = 1190
 AREA_CAP = 350
 
 # Capability area -> module implementing it. Batch 3 appends its areas here.
@@ -180,6 +185,23 @@ AREAS = {
     "ratelimit": "ratelimit.py",
     "webhook": "webhook.py",
     "batch11": "batch11.py",
+    "logbook": "logbook.py",
+    "shelf": "shelf.py",
+    "briefing": "briefing.py",
+    "verdicts": "verdicts.py",
+    "ownbanner": "ownbanner.py",
+    "pressfx": "pressfx.py",
+    "skeletons": "skeletons.py",
+    "optimistic": "optimistic.py",
+    "typecontract": "typecontract.py",
+    "retest": "retest.py",
+    "quests": "quests.py",
+    "diffdial": "diffdial.py",
+    "coldattempt": "coldattempt.py",
+    "fading": "fading.py",
+    "selfexplain": "selfexplain.py",
+    "elaboration": "elaboration.py",
+    "batch12": "batch12.py",
 }
 
 
