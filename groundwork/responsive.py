@@ -88,11 +88,27 @@ def overflow_offenders(html: str = "") -> list[str]:
 
 
 def narrow_css() -> str:
-    """Phone-first driven fix: small tables, tighter padding <=640px."""
+    """Phone-first driven fixes (all <=640px, desktop untouched).
+
+    Small tables, tighter padding, capped fields (the dispute
+    form's ``size=50`` input overflowed 360px — and ``max-width`` is
+    ignored on inline ``label``s, so form labels stack as blocks), a
+    wrapping confidence slider (``inline-flex`` never wraps and
+    fieldsets refuse to shrink below min-content, so both are
+    overridden), and breakable prose (concept names, dots, and chips
+    share one h3 line; unspaced JSON fills card bodies — both
+    overflowed 360px until ``overflow-wrap`` gave them break
+    opportunities). Verified overflow-free in a real 360px viewport
+    during the batch run.
+    """
     return (
         f"@media(max-width:{NARROW_MAX}px){{"
         "main{padding:0 .5rem}"
-        "table{font-size:var(--fs-small)}}")
+        "table{font-size:var(--fs-small)}"
+        "input,select,textarea{max-width:100%;box-sizing:border-box}"
+        "form label{display:block;max-width:100%}"
+        ".confslider{flex-wrap:wrap;max-width:100%;min-inline-size:0}"
+        "p,h1,h2,h3,li,summary,td{overflow-wrap:anywhere}}")
 
 
 def section_html() -> str:
@@ -117,9 +133,13 @@ def section_html() -> str:
             "<code>groundwork/responsive.py</code> provides "
             "<code>coverage()</code>, <code>media_boundaries()</code>, "
             "and <code>overflow_offenders()</code>, plus "
-            "<code>narrow_css()</code>, the audit's first driven fix "
-            "(phone table text and padding). Tables still needing "
-            "scroll wrappers are counted for I-92, not silently fixed."
+            "<code>narrow_css()</code>, the audit's driven fixes "
+            "(phone table text and padding, capped inputs, a wrapping "
+            "confidence slider, breakable prose — the 360px overflows "
+            "found in a real viewport, where /due now measures zero "
+            "at all four widths). Wide data tables (Status overflows "
+            "even at 1440px) belong to I-92's scroll wrappers, not "
+            "silently fixed here."
             f" Width branches in the CSS: {bound_txt}.</p>"
             "<table class='log'><tr><th>Breakpoint</th><th>Reach</th></tr>"
             f"{rows}</table>")

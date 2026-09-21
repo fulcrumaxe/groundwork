@@ -38,6 +38,15 @@ class DensityTest(unittest.TestCase):
         # Section demo carries a live toggle.
         self.assertIn(f"id='{dmod.TOGGLE_ID}'", dmod.section_html())
 
+    def test_css_balanced_and_selectors_closed(self):
+        # Regression (Batch 13): the compact selector once missed its
+        # closing quote+bracket, cascading an unclosed string through
+        # later rules and dropping them from the parsed cascade.
+        css = dmod.density_css()
+        self.assertEqual(css.count("{"), css.count("}"))
+        self.assertIn("[data-density='compact']", css)
+        self.assertNotIn("'compact]", css)
+
     def test_section_html_anchor(self):
         html = dmod.section_html()
         self.assertIn("id='status-b13-density'", html)

@@ -454,6 +454,16 @@ junk (split maxsplit); interleave None input is vacuously ordered;
 confweight standard-clamps (-99 pins to 1) and a real wrong answer
 with unknown confidence scores default-shy (-3). One red commit
 repaired by follow-up (ogtags cap assertion).
+Chrome verification caught a real cascade bug the source tests
+missed: skeletons.py left its trailing @media unclosed (f-string }}
+emits one brace), swallowing every later stylesheet rule, and
+density.py had an unclosed attribute string plus stray closers —
+fixed with durable balance tests (per-emitter + shipped-CSS depth
+and quote parity). The I-90 viewport audit (/due 79px overflow at
+360px) drove narrow_css fixes (capped fields, stacking labels,
+wrapping slider, breakable prose): /due, /modules, /reviews now
+measure zero overflow at 360/768/1024/1440; Status data tables
+overflow at every width and belong to I-92.
 
 Batch 13 ships 8 improvements + 8 features, each committed locally
 per item on branch `batch13-f8-i8`, merged to main at the end.

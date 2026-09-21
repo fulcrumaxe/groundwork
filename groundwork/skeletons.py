@@ -109,7 +109,7 @@ def skeletons_css() -> str:
             "background:#e6e6e6;border-radius:999px}"
             "@media(prefers-reduced-motion:no-preference){"
             ".sk-line,.sk-chip,.bar.sk-progress i{"
-            f"animation:gw-sk-pulse {PULSE_MS}ms ease-in-out infinite alternate}}"
+            f"animation:gw-sk-pulse {PULSE_MS}ms ease-in-out infinite alternate}}}}"
             "@keyframes gw-sk-pulse{from{opacity:1}to{opacity:.55}}"
         )
     except Exception:  # noqa: BLE001 — CSS builder must never raise

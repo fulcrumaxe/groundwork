@@ -85,7 +85,7 @@ def formerr_css() -> str:
     return (
         f".{ERROR_CLASS}{{color:var(--fail);font-weight:700;"
         "margin:.4rem 0;padding:.3rem .6rem;"
-        "border-left:3px solid var(--fail);background:var(--paper)}}"
+        "border-left:3px solid var(--fail);background:var(--paper)}"
         f".{INVALID_CLASS}{{outline:2px solid var(--fail);outline-offset:2px}}"
         f".{ERROR_CLASS} b{{margin-right:.3rem}}")
 

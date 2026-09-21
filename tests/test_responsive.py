@@ -53,10 +53,18 @@ class ResponsiveTest(unittest.TestCase):
         css = rmod.narrow_css()
         self.assertIn("@media(max-width:640px)", css.replace(" ", ""))
         self.assertIn("var(--fs-small)", css)
+        # The audit's driven fixes: fields capped, labels stack,
+        # slider wraps within a shrinkable fieldset, prose breaks.
+        nospace = css.replace(" ", "")
+        self.assertIn("max-width:100%", nospace)
+        self.assertIn("formlabel{display:block", nospace)
+        self.assertIn("flex-wrap:wrap", nospace)
+        self.assertIn("min-inline-size:0", nospace)
+        self.assertIn("overflow-wrap:anywhere", nospace)
         self.assertNotIn("<style", css.lower())
-        # No layout rewrites: padding + type only.
-        self.assertNotIn("display", css)
+        # The only display rewrite is form labels stacking on phones.
         self.assertNotIn("position", css)
+        self.assertEqual(nospace.count("display:"), 1)
 
     def test_section_html_live_table(self):
         html = rmod.section_html()

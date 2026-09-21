@@ -25,12 +25,12 @@ TOGGLE_ID = "gw-density-toggle"
 def density_css() -> str:
     """Raw compact-density overrides plus the toggle's own shape."""
     return (
-        f"html[{ATTR}='{COMPACT}]{{--sp-section:.6rem;--sp-snug:.45rem}}"
+        f"html[{ATTR}='{COMPACT}']{{--sp-section:.6rem;--sp-snug:.45rem}}"
         f"html[{ATTR}='{COMPACT}'] body{{font-size:var(--fs-small)}}"
         f"html[{ATTR}='{COMPACT}'] h1{{font-size:var(--fs-h2)}}"
         f"#{TOGGLE_ID}{{font-size:.8rem;padding:.3rem .6rem;"
         "border:1px solid var(--stale);border-radius:var(--r-control);"
-        "background:var(--paper);color:var(--ink);cursor:pointer}}")
+        "background:var(--paper);color:var(--ink);cursor:pointer}")
 
 
 def toggle_js() -> str:

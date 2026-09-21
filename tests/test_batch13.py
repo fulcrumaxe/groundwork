@@ -108,6 +108,22 @@ class Batch13WiringTest(unittest.TestCase):
         finally:
             BaseHTTPRequestHandler.handle_one_request = orig
 
+    def test_shipped_css_parses_clean(self):
+        # Regression (Batch 13): an unclosed skeletons @media plus an
+        # unclosed density string silently swallowed every later rule
+        # (unit tests asserting text inclusion stayed green; only the
+        # rendered cascade noticed). The shipped stylesheet must close
+        # every block it opens and every string it starts.
+        css = webmod.CSS
+        depth = 0
+        for ch in css:
+            if ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth = max(0, depth - 1)
+        self.assertEqual(depth, 0)
+        self.assertEqual(css.count("'") % 2, 0)
+
     def test_review_note_wired(self):
         import inspect
         src = inspect.getsource(webmod.Handler.do_POST)

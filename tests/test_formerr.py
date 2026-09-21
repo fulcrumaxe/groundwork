@@ -52,6 +52,12 @@ class FormerrTest(unittest.TestCase):
         self.assertIn(".field-error", css)
         self.assertIn("var(--fail)", css)
         self.assertNotIn("<style", css.lower())
+
+    def test_css_braces_balanced(self):
+        # Regression (Batch 13): a stray closer in a plain-string
+        # continuation once rode along; every emitter must balance.
+        css = fmod.formerr_css()
+        self.assertEqual(css.count("{"), css.count("}"))
         # References only real palette tokens.
         self.assertNotIn("--accent", css)
 
