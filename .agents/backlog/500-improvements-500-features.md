@@ -525,11 +525,26 @@ SQLite 3.35+, or restore the pre-batch15 backup):
 reviews.points INTEGER NULL; cards.last_probe TEXT NULL.
 
 Batch 16 (generation/rendering; pipeline touches capped):
-- [ ] F-60 dualcode → key ideas emit diagram+trace in generated lessons.
-- [ ] F-63 retrieval → template enforcement in generated lessons.
-- [ ] F-64 predict → lesson rendering wraps snippets in covers.
-- [ ] F-57 fading, F-58 selfexplain, F-59 elaboration → worked-example
-  rendering in lessons.
+- [x] F-60 dualcode → key ideas emit diagram+trace in generated lessons.
+  Shipped on branch `batch16-gen-render`; `lesson_for` stores steps,
+  `create_module` fills measured states, `render_levels` emits the pack
+  (legacy lessons fall back to `how` steps, none → no pack).
+- [x] F-63 retrieval → template enforcement in generated lessons.
+  Shipped on branch `batch16-gen-render`; `levels_for` prepends a
+  recall probe and orders via `enforce_template` (questions first,
+  stable); empty/hostile blocks pass through unchanged.
+- [x] F-64 predict → lesson rendering wraps snippets in covers.
+  Shipped on branch `batch16-gen-render`; `render_levels` covers the
+  `lv["code"]` snippet (`is_covered` gates, legacy details survive as
+  fallback), language sniffed from the lesson filename.
+- [x] F-57 fading, F-58 selfexplain, F-59 elaboration → worked-example
+  rendering in lessons. Shipped on branch `batch16-gen-render`;
+  `render_levels` fades to partial at 1+ attempts and solo at 3+
+  (0 attempts → full steps only), always shows self-explain prompts
+  under worked steps, and drills elaboration when the modules page
+  passes 2+ mastered (≥0.85) siblings via `owned` (none → no drill).
+
+Batch 16 migration: none (no schema changes).
 
 Batch 17 (surfaces):
 - [ ] F-54 quests → locked/unlocked skills view from live mastery.
