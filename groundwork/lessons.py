@@ -9,10 +9,21 @@ import html
 
 
 def render_levels(lesson: dict, mastery: float, attempts: int,
-                    level_override: str, base_path: str) -> str:
-    """Leveled explainer with tabs; auto-places from mastery by default."""
+                    level_override: str, base_path: str, owned=None) -> str:
+    """Leveled explainer with tabs; auto-places from mastery by default.
+
+    ``owned`` is an optional list of sibling lesson dicts the learner
+    already masters; when two or more are given an elaboration drill
+    connects this concept to them (F-59). ``None``/empty renders the
+    legacy page with no drill.
+    """
     from . import codelines as codelinesmod
+    from . import dualcode as dualmod
+    from . import elaboration as elabmod
     from . import explain as explainmod
+    from . import fading as fadingmod
+    from . import predict as predictmod
+    from . import selfexplain as semod
     levels = explainmod.levels_for(lesson)
     if level_override in ("1", "2", "3", "4"):
         active = int(level_override)
@@ -38,10 +49,84 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
         else:
             out.append(f"<h5>{html.escape(blk['h'])}</h5>"
                        f"<p>{body.replace(chr(10), '<br>')}</p>")
+    # F-60: the generated lesson's key ideas as diagram + trace.
+    how = [s for s in (lesson.get("how") or [])
+           if isinstance(s, str) and s.strip()]
+    dc = lesson.get("dualcode")
+    dc = dc if isinstance(dc, dict) else {}
+    steps = [s for s in (dc.get("steps") or how)
+             if isinstance(s, str) and s.strip()]
+    if steps:
+        pack = dualmod.pack_html(
+            lesson.get("name") or "",
+            (lesson.get("summary") or "").splitlines()[0][:200],
+            steps, dc.get("states") or [], wrapper="div")
+        if pack:
+            out.append(pack)
     if lv.get("code") and not any(b.get("pre") for b in lv["blocks"]):
-        out.append(f"<details><summary>Show me the code</summary>"
-                   f"<pre>{codelinesmod.numbered_html(lv['code'])}</pre></details>")
+        # F-64: snippets hide under a predict-then-reveal cover.
+        cover = predictmod.cover_html(
+            lv["code"], _code_lang(lesson.get("file") or ""))
+        if predictmod.is_covered(cover):
+            out.append(cover)
+        else:
+            out.append(
+                f"<details><summary>Show me the code</summary>"
+                f"<pre>{codelinesmod.numbered_html(lv['code'])}</pre></details>")
+    # F-57: support fades with practice — full steps live above, so the
+    # faded section only appears once the learner has attempts.
+    try:
+        tries = int(attempts or 0)
+    except (TypeError, ValueError):
+        tries = 0
+    if how and tries >= 1:
+        seq = fadingmod.fade_sequence(how)
+        if len(seq) == 3:
+            out.append("<h5>Faded recall</h5>"
+                       + fadingmod.fading_html([seq[2] if tries >= 3 else seq[1]]))
+    # F-58: self-explanation prompts under the worked steps.
+    sexplain = semod.prompts_html(semod.selfexplain_prompts(how))
+    if sexplain:
+        out.append("<h5>Explain it back</h5>" + sexplain)
+    # F-59: connect this concept to mastered siblings when given.
+    try:
+        owned_list = [o for o in (owned or []) if isinstance(o, dict)]
+    except TypeError:
+        owned_list = []
+    if owned_list:
+        drill = elabmod.elaboration_drill(
+            {"name": lesson.get("name") or "",
+             "summary": lesson.get("summary") or ""}, owned_list)
+        if drill.get("partners"):
+            out.append(elabmod.drill_html(drill, wrapper="div"))
     return "".join(out)
+
+
+def owned_lessons(lesson_map: dict, mastery_of: dict, node: str) -> list:
+    """Sibling lessons the learner masters (F-59 elaboration partners).
+
+    Mastery >= 0.85 is the top auto-level tier ("owns it"); those
+    siblings feed the elaboration drill for ``node``. Never raises.
+    """
+    try:
+        if not isinstance(lesson_map, dict) or not isinstance(mastery_of, dict):
+            return []
+        return [lesson_map[n] for n in lesson_map
+                if n != node and isinstance(lesson_map[n], dict)
+                and (mastery_of.get(n, 0.0) or 0.0) >= 0.85]
+    except Exception:  # noqa: BLE001 — partner lookup never raises
+        return []
+
+
+def _code_lang(file: str) -> str:
+    """Predict-cover language from a source filename; defaults to python."""
+    try:
+        ext = (file or "").rsplit(".", 1)[-1].lower() if "." in (file or "") else ""
+    except Exception:  # noqa: BLE001 — filename sniffing never raises
+        return "python"
+    if ext in ("js", "jsx", "ts", "tsx", "mjs", "cjs"):
+        return "javascript"
+    return "python"
 
 
 def why_html(card) -> str:

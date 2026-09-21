@@ -36,6 +36,49 @@ PLAIN_KIND = {
 
 LEVEL_TITLES = {1: "Plain words", 2: "Beginner", 3: "Intermediate", 4: "Expert"}
 
+RECALL_HEAD = "Recall first"
+QUESTION_HEADS = frozenset({RECALL_HEAD, "Worth probing"})
+
+
+def _retrieval_first(name: str, blocks: list) -> list:
+    """Retrieval-first order: recall question, then questions, then prose.
+
+    The ordering itself comes from retrieval.enforce_template; block
+    indexes ride along as the probe text so the original block dicts
+    (headings, pre flags) survive the round trip. Empty or hostile
+    input returns the blocks unchanged.
+    """
+    from . import retrieval as retmod
+    try:
+        if not blocks:
+            return blocks
+        probes = [("question", "recall")]
+        for i, b in enumerate(blocks):
+            if not isinstance(b, dict):
+                continue
+            kind = ("question" if b.get("h") in QUESTION_HEADS else "prose")
+            probes.append((kind, str(i)))
+        ordered = retmod.enforce_template(probes)
+        if not ordered:
+            return blocks
+        recall = {
+            "h": RECALL_HEAD,
+            "b": (f"Before reading: from memory, what does {name} do, "
+                  f"and when would you reach for it? Say it in your own "
+                  f"words first, then check yourself below.")}
+        out = []
+        for _kind, tag in ordered:
+            if tag == "recall":
+                out.append(recall)
+            else:
+                try:
+                    out.append(blocks[int(tag)])
+                except (ValueError, IndexError, TypeError):
+                    continue
+        return out or blocks
+    except Exception:  # noqa: BLE001 — ordering must never raise
+        return blocks
+
 
 def find_terms(text: str) -> list[tuple[str, str]]:
     """Glossary terms appearing in text (word-boundary match)."""
@@ -151,10 +194,12 @@ def levels_for(lesson: dict) -> list[dict]:
     l4.append({"h": "Worth probing",
                "b": f"What breaks if {name} changes contract? Which caller would feel it first?"})
 
-    return [{"n": 1, "title": "Plain words", "blocks": l1,
-             "code": source[:2000]},
-            {"n": 2, "title": "Beginner", "blocks": l2,
-             "code": source[:2000]},
-            {"n": 3, "title": "Intermediate", "blocks": l3, "code": ""},
-            {"n": 4, "title": "Expert", "blocks": l4,
+    return [{"n": 1, "title": "Plain words",
+             "blocks": _retrieval_first(name, l1), "code": source[:2000]},
+            {"n": 2, "title": "Beginner",
+             "blocks": _retrieval_first(name, l2), "code": source[:2000]},
+            {"n": 3, "title": "Intermediate",
+             "blocks": _retrieval_first(name, l3), "code": ""},
+            {"n": 4, "title": "Expert",
+             "blocks": _retrieval_first(name, l4),
              "code": source.splitlines()[0] if source else ""}]

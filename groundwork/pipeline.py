@@ -188,13 +188,15 @@ def lesson_for(repo: str, concept, graph) -> dict:
             summary += f" It is used by {used_by}."
     source = func_source(repo, concept.file, concept.line)
     node = graph.nodes.get(concept.node_id)
+    how = walkthrough(source)
     return {"concept_id": concept.node_id, "name": concept.name,
             "kind": concept.kind, "file": concept.file, "line": concept.line,
             "summary": summary, "docstring": doc,
             "callers": callers[:8], "callees": (callees or calls)[:8],
             "key_lines": snippet, "source": source,
             "complexity": getattr(node, "complexity", 0) or 0,
-            "how": walkthrough(source), "worked": None}
+            "how": how, "worked": None,
+            "dualcode": {"steps": list(how), "states": []}}
 
 
 def _snippet_lines(repo: str, file: str, line: int, before: int = 2,
@@ -446,6 +448,10 @@ def create_module(con, repo: str, commit_range: str = "", task_summary: str = ""
             if "trace_expected" in ctx:
                 worked["trace"] = {"var": ctx["trace_var"],
                                    "steps": ctx["trace_expected"]}
+                # Dual-code states: measured values behind the diagram steps.
+                dc = ctx["lesson"].get("dualcode")
+                if isinstance(dc, dict):
+                    dc["states"] = [str(v) for v in ctx["trace_expected"]][:8]
             ctx["lesson"]["worked"] = worked
         drafts = llmmod.draft_exercises(
             provider, {"name": c.name, "kind": c.kind, "file": c.file, "line": c.line},
