@@ -111,13 +111,14 @@ class OptimisticTest(unittest.TestCase):
         self.assertTrue(e["blurb"])
         self.assertTrue(e["path"].startswith("/"))
 
-    def test_no_placeholders_or_redactions(self):
+    def test_no_placeholders_in_shipped_module(self):
+        # Scans the module only: this test's own source necessarily
+        # names the markers it guards against.
         import pathlib
-        for rel in ("groundwork/optimistic.py", "tests/test_optimistic.py"):
-            src = (pathlib.Path(__file__).resolve().parent.parent
-                   / rel).read_text(encoding="utf-8")
-            self.assertNotIn("REDACTED", src)
-            self.assertNotIn("TODO", src)
+        src = (pathlib.Path(__file__).resolve().parent.parent
+               / "groundwork" / "optimistic.py").read_text(encoding="utf-8")
+        for marker in ("[REDACTED]", "TODO", "FIXME", "XXX"):
+            self.assertNotIn(marker, src)
 
 
 if __name__ == "__main__":
