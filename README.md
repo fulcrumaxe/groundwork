@@ -48,15 +48,20 @@ Tools: `create_learning_module`, `annotate_decision`, `leave_learning_hole`,
 `get_learner_profile`, `list_due_reviews`. Same protocol is also served at
 `POST http://127.0.0.1:8765/mcp` while `serve` runs.
 
-## Ollama (optional, works offline without it)
+## Who writes the lessons (the agent that made the change)
+
+Learning content is authored by the agent that made the change: it calls
+`create_learning_module` over MCP with `lessons` and `exercises` in its
+own words, and the pipeline only fills the gaps. An LLM is optional
+gap-fill — any OpenAI-compatible server via `GW_BASE_URL`, `GW_API_KEY`,
+`GW_MODEL` (defaults to Ollama's `qwen2.5-coder:7b`):
 
 ```bash
-ollama pull qwen2.5-coder:7b
-export GW_MODEL=qwen2.5-coder:7b  # defaults work out of the box
+ollama pull qwen2.5-coder:7b  # or point GW_BASE_URL at any chat-completions server
 ```
 
-Without a reachable server, generation falls back to deterministic templates;
-expected outputs are always *measured* in the sandbox, never invented.
+With no reachable server, generation falls back to deterministic templates.
+Either way, expected outputs are always *measured* in the sandbox, never invented.
 
 ## Features
 
