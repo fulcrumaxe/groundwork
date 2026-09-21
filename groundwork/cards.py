@@ -291,6 +291,25 @@ def status_chip(card, attempts: int = 0, extra: str = "") -> str:
     return f"<span class='chip'{extra}>due</span>"
 
 
+def bloom_chip(card) -> str:
+    """Bloom-tier chip for a due card header (I-56).
+
+    Looks up the card's exercise type in the exercise registry and
+    renders the shared bloomchips hook; unknown/missing types render
+    nothing so a bad row can never break the queue. Never raises.
+    """
+    try:
+        from . import bloomchips as bloomchipsmod
+        from . import exercises as exmod
+        get = card.get if isinstance(card, dict) else lambda k: card[k]
+        tier = exmod.TYPES[int(get("exercise_type") or 0)][1]
+        if not tier or not isinstance(tier, str):
+            return ""
+        return bloomchipsmod.chip_html(tier)
+    except Exception:  # noqa: BLE001 — chips must never break cards
+        return ""
+
+
 def forecast_html(card, extra: str = "") -> str:
     """Next-gap forecast at steady passes, from stability (I-203)."""
     from . import sched as schedmod

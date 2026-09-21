@@ -41,7 +41,13 @@ class ChipLinksTest(unittest.TestCase):
     def test_chip_link_wraps_status_label(self):
         body = chipmod.chip_link("m1", "Add", "Owned")
         self.assertIn("href='/modules/m1#lesson-add'", body)
-        self.assertIn("<span class='chip'>Owned</span>", body)
+        # Batch 10 I-58: Owned chips carry the reveal class.
+        self.assertIn("<span class='chip owned-badge'>Owned</span>", body)
+
+    def test_non_owned_status_stays_plain_chip(self):
+        for label in ("New", "Stale", "Learning"):
+            body = chipmod.chip_link("m1", "Add", label)
+            self.assertIn(f"<span class='chip'>{label}</span>", body)
 
     def test_chip_link_escapes_label(self):
         body = chipmod.chip_link("m1", "Add", "<b>x</b>")
@@ -51,7 +57,8 @@ class ChipLinksTest(unittest.TestCase):
     def test_chip_link_without_module_is_plain_chip(self):
         body = chipmod.chip_link("", "Add", "Owned")
         self.assertNotIn("<a ", body)
-        self.assertIn("<span class='chip'>Owned</span>", body)
+        # Batch 10 I-58: Owned chips carry the reveal class.
+        self.assertIn("<span class='chip owned-badge'>Owned</span>", body)
 
     def test_never_raises(self):
         for mid in (None, 123, ["m1"], {"id": "m1"}):

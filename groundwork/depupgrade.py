@@ -210,6 +210,8 @@ def render(exercise: dict) -> str:
     payload = (exercise or {}).get("payload", {}) or {}
     front = html.escape(str(exercise.get("front", "")))
     old_caller = html.escape(str(payload.get("old_caller", "")))
+    from . import codelines as codelinesmod
+    numbered = codelinesmod.numbered_html(str(payload.get("old_caller", "")))
     concept = html.escape(str(exercise.get("concept", "")))
     type_name = html.escape(str(exercise.get("type_name", TYPE_NAME)))
     file_line = f"{exercise.get('file', '')}:{exercise.get('line', 0)}"
@@ -219,7 +221,7 @@ def render(exercise: dict) -> str:
     return (
         f"<article><h3>{concept} · {type_name}</h3>"
         f"<p>{front}</p>"
-        f"<pre>{old_caller}</pre>"
+        f"<pre>{numbered}</pre>"
         f"<details><summary>How grading works</summary>"
         f"<p><small>{html.escape(DISCLOSURE)}</small></p></details>"
         f"<form method='post'><textarea name='answer' rows='6' "

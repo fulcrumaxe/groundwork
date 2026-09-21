@@ -77,6 +77,14 @@ def disclosure(etype: str | int) -> str:
         54: "Your pattern must fullmatch every required case and reject every negative case; partial credit per case.",
         55: "Your query must return the spec'd result set on the fixture; order matters only under ORDER BY.",
         56: "Every spec property must be present with a matching value; harmless extras allowed up to 2.",
+        57: "Name the single flaw category — exact match after case/separator normalization.",
+        58: "Name the exact root-cause phrase — red herrings and pasted logs never count.",
+        59: "Reply with the single regressing-graph letter A, B, or C — exact match.",
+        60: "Name the dominant frame plus one why-word — both required, exact match.",
+        61: "Name the crashing function as an isolated answer plus the fix category — both required.",
+        62: "New-API shape present with no old-API shape left — static check, no sandbox.",
+        63: "Exact verdict (OK/NOT-OK) plus one reason keyword — both must match.",
+        64: "Every build-gate point must hold — pinned base, COPY, matching EXPOSE, exec launch, USER; no partial credit.",
     }
     return table.get(t, "Graded like its exercise family.")
 

@@ -137,6 +137,14 @@ expected outputs are always *measured* in the sandbox, never invented.
 | Regex authoring | Write a regex that matches every required case and rejects the rest — graded on a fixed case-suite. | `/status#status-b9-regexex` |
 | SQL authoring | Write a SELECT from a spec — graded on the rows it returns. | `/status#status-b9-sqlex` |
 | CSS layout fix | Fix a broken CSS block to match the wireframe — static tolerant grading. | `/status#status-b9-cssfix` |
+| CLI UX review | Spot the one usability flaw in a --help screen — name its category. | `/status#status-b10-cliux` |
+| Log reading | Diagnose an outage from logs alone — name the exact root cause, not a red herring. | `/status#status-b10-logread` |
+| Metrics reading | Spot which graph regressed at the deploy mark — reply with its letter. | `/status#status-b10-metrics` |
+| Flame-graph reading | Spot the frame that dominates a flame graph — name it and say why (widest bar wins). | `/status#status-b10-flame` |
+| Crash triage | Read a mini traceback — name the crashing function and the fix category. | `/status#status-b10-crashdump` |
+| Dependency upgrade | Migrate a caller across a breaking pin bump — new-API shape in, old shape out. | `/status#status-b10-depupgrade` |
+| License-check | Judge whether a dependency fits this AGPL-3.0 project -- verdict plus reason. | `/status#status-b10-licensecheck` |
+| Containerize it | Write a Dockerfile for a small service — static build gate, no partial credit. | `/status#status-b10-containerize` |
 <!-- GW-FEATURES:END -->
 
 ## Improvements
@@ -214,6 +222,14 @@ expected outputs are always *measured* in the sandbox, never invented.
 | Dark mode | Dark-OS users get a tested dark palette; every body-text pair passes WCAG AA contrast. | `/status#status-b9-darkmode` |
 | Type scale | One ratio-based scale for every font size — headings, body, small and code share a single source, not scattered literals. | `/status#status-b9-typescale` |
 | Distinctive offline-safe fonts | Headings, body, and code each get their own system-font voice — no downloads — with generic-family fallbacks that always render. | `/status#status-b9-fontstack` |
+| Wordmark logo | A single inline SVG lockup (G monogram plus word) in currentColor, so the header mark adapts to every palette including dark mode with no assets and no emoji. | `/status#status-b10-wordmark` |
+| Bloom chip colors | Each Bloom tier has its own chip color in cards, History, and the coach table — scan for weak skills at a glance. | `/status#status-b10-bloomchips` |
+| Animated progress bars | Progress bars ease to their new width in 200ms — instant when reduced motion is set. | `/status#status-b10-progbar` |
+| Owned badge reveal | Newly Owned concepts celebrate with a calm quarter-second badge reveal — CSS shapes only, motion-safe. | `/status#status-b10-ownedbadge` |
+| Due cards stagger in | Queue cards fade up one after another in 35ms steps (245ms total, motion-safe) — pure CSS, no JavaScript. | `/status#status-b10-stagger` |
+| Consistent disclosure carets | Every hint and grading disclosure shares one chevron that rotates open — same affordance in every browser, keyboard and screen-reader behavior unchanged. | `/status#status-b10-carets` |
+| Code line numbers | Every code block numbers its lines via CSS counters, beside the Copy button it already had. | `/status#status-b10-codelines` |
+| Tiny syntax highlight | Python/TS code snippets get dependency-free coloring from a single-pass tokenizer that escapes raw text before wrapping tokens, so markup can never leak. | `/status#status-b10-highlight` |
 <!-- GW-IMPROVEMENTS:END -->
 
 See also [docs/features.md](docs/features.md) and the in-app

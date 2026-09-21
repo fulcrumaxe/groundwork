@@ -229,7 +229,8 @@ def render(exercise: dict) -> str:
     """
     payload = (exercise or {}).get("payload", {})
     front = html.escape(str(exercise.get("front", "")))
-    broken = html.escape(str(payload.get("broken", "")))
+    from . import codelines as codelinesmod
+    broken = codelinesmod.numbered_html(str(payload.get("broken", "")))
     required = "".join(
         f"<li><code>{html.escape(p)}</code></li>"
         for p in payload.get("required", []))

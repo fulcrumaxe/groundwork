@@ -9,6 +9,7 @@ import html
 from datetime import timedelta
 
 from . import bests as bestsmod
+from . import bloomchips as bloomchipsmod
 from . import cardlinks as cardlinksmod
 from . import cards as cardsmod
 from . import db as dbmod
@@ -55,7 +56,7 @@ def calibration_coach(rows: list) -> str:
         acc = sum(1 for g, _ in rs if (g or 0) >= 4) / len(rs)
         avg_conf = sum(((c or 3) - 1) / 4 for _, c in rs) / len(rs)
         gap = avg_conf - acc
-        cells.append(f"<tr><td>{html.escape(bloom)}</td><td>{acc:.0%}</td>"
+        cells.append(f"<tr><td>{bloomchipsmod.chip_html(bloom)}</td><td>{acc:.0%}</td>"
                      f"<td>{avg_conf:.0%}</td><td>{gap:+.0%}</td></tr>")
         if len(rs) >= 3 and gap >= 0.15 and (worst is None or gap > worst[1]):
             worst = (bloom, gap, acc, avg_conf)

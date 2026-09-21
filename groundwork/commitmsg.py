@@ -195,7 +195,8 @@ def render(exercise: dict) -> str:
     front = html.escape(str(exercise.get("front", "")))
     concept = html.escape(str(exercise.get("concept", "")))
     type_name = html.escape(str(exercise.get("type_name", TYPE_NAME)))
-    diff = html.escape(str(payload.get("diff", ""))[:1500])
+    from . import codelines as codelinesmod
+    diff = codelinesmod.numbered_html(str(payload.get("diff", ""))[:1500])
     file_line = f"{exercise.get('file', '')}:{exercise.get('line', 0)}"
     hints = "".join(
         f"<details><summary>Hint {i + 1}</summary>{html.escape(h)}</details>"

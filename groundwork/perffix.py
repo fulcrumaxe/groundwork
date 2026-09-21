@@ -197,7 +197,8 @@ def render(exercise: dict) -> str:
     """Perf-fix card: metric line, original code, rewrite textarea, hints."""
     p = (exercise or {}).get("payload", {})
     front = html.escape(str(exercise.get("front", "")))
-    original = html.escape(str(p.get("original", "")))
+    from . import codelines as codelinesmod
+    original = codelinesmod.numbered_html(str(p.get("original", "")))
     concept = html.escape(str(exercise.get("concept", "")))
     type_name = html.escape(str(exercise.get("type_name", TYPE_NAME)))
     file_line = f"{exercise.get('file', '')}:{exercise.get('line', 0)}"

@@ -149,7 +149,8 @@ def render(exercise: dict) -> str:
     """Golf card: metric line, original code, rewrite textarea, hints."""
     p = exercise.get("payload", {})
     front = html.escape(exercise.get("front", ""))
-    original = html.escape(p.get("original", ""))
+    from . import codelines as codelinesmod
+    original = codelinesmod.numbered_html(p.get("original", ""))
     metric = (f"<p><small>Max nesting {p.get('depth')} → "
               f"target {p.get('target')} or less (AST-measured).</small></p>")
     body = (f"<p>{front}</p>{metric}<pre>{original}</pre>"

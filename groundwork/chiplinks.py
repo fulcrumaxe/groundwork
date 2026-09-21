@@ -61,7 +61,12 @@ def chip_link(module_id, concept, label=None, extra: str = "") -> str:
     else:
         text = ""
     tail = extra if isinstance(extra, str) else ""
-    body = f"<span class='chip'{tail}>{html.escape(text)}</span>"
+    try:
+        from . import ownedbadge as ownedbadgemod
+        cls = ownedbadgemod.badge_class(text)
+    except Exception:  # noqa: BLE001 — chips must never break links
+        cls = "chip"
+    body = f"<span class='{cls}'{tail}>{html.escape(text)}</span>"
     url = chip_href(module_id, concept)
     if not url:
         return body

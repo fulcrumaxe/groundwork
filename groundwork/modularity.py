@@ -9,6 +9,9 @@ the same exception: delegation lines only, ceiling covers the wires.
 Batch 9 follows it as well (1112 -> 1142 for sixteen items' wires).
 Post-Batch 9 Chrome verification found nested-<style> CSS breakage:
 1142 -> 1147 for the separate style-element wire (FOCUS_CSS).
+Batch 10 follows it as well (1147 -> 1156 for eight head-wire CSS
+imports plus the wordmark header line). status.py sits exactly at
+AREA_CAP, so Batch 10 sections join in batch10.py instead.
 """
 from __future__ import annotations
 
@@ -16,7 +19,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 
-WEB_CEILING = 1147
+WEB_CEILING = 1156
 AREA_CAP = 350
 
 # Capability area -> module implementing it. Batch 3 appends its areas here.
@@ -138,6 +141,23 @@ AREAS = {
     "regexex": "regexex.py",
     "sqlex": "sqlex.py",
     "cssfix": "cssfix.py",
+    "wordmark": "wordmark.py",
+    "bloomchips": "bloomchips.py",
+    "progbar": "progbar.py",
+    "ownedbadge": "ownedbadge.py",
+    "stagger": "stagger.py",
+    "carets": "carets.py",
+    "codelines": "codelines.py",
+    "highlight": "highlight.py",
+    "cliux": "cliux.py",
+    "logread": "logread.py",
+    "metrics": "metrics.py",
+    "flame": "flame.py",
+    "crashdump": "crashdump.py",
+    "depupgrade": "depupgrade.py",
+    "licensecheck": "licensecheck.py",
+    "containerize": "containerize.py",
+    "batch10": "batch10.py",
 }
 
 

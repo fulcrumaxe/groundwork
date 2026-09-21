@@ -18,19 +18,27 @@ from . import a11yaudit as a11yauditmod
 from . import apidesign as apidesignmod
 from . import bisect as bisectmod
 from . import changelog as changelogmod
+from . import cliux as cliuxmod
 from . import commitmsg as commitmsgmod
 from . import configex as configexmod
+from . import containerize as containerizemod
+from . import crashdump as crashdumpmod
 from . import cssfix as cssfixmod
 from . import deadcode as deadcodemod
+from . import depupgrade as depupgrademod
 from . import diretro as diretromod
 from . import docdoctest as docdoctestmod
 from . import errbranch as errbranchmod
 from . import fuzztriage as fuzztriagemod
+from . import flame as flamemod
 from . import golf as golfmod
 from . import i18n as i18nmod
 from . import inputaudit as inputauditmod
+from . import licensecheck as licensecheckmod
+from . import logread as logreadmod
 from . import logretro as logretromod
 from . import memprofile as memprofilemod
+from . import metrics as metricsmod
 from . import migration as migrationmod
 from . import perffix as perffixmod
 from . import proptest as proptestmod
@@ -105,6 +113,14 @@ TYPES = {
     54: ("regex-authoring", "apply"),
     55: ("sql-authoring", "apply"),
     56: ("css-fix", "modify"),
+    57: ("cli-ux-review", "evaluate"),
+    58: ("log-reading", "analyse"),
+    59: ("metrics-reading", "analyse"),
+    60: ("flamegraph-reading", "analyse"),
+    61: ("crash-triage", "analyse"),
+    62: ("dep-upgrade", "modify"),
+    63: ("license-check", "evaluate"),
+    64: ("containerize", "create"),
 }
 
 BLOOM_TYPES = {
@@ -112,10 +128,10 @@ BLOOM_TYPES = {
     "explain": [5, 6, 7, 25, 1],
     "apply": [8, 10, 11, 12, 9, 31, 32, 33, 44, 54, 55],
     "analyse": [13, 14, 15, 16, 17, 18, 9, 26, 28, 29, 34, 36, 37, 45,
-                49, 50, 51, 52, 53],
-    "modify": [12, 14, 19, 20, 27, 35, 38, 39, 46, 47, 56],
-    "evaluate": [21, 22, 48],
-    "create": [24, 23, 40, 41, 42, 43],
+                49, 50, 51, 52, 53, 58, 59, 60, 61],
+    "modify": [12, 14, 19, 20, 27, 35, 38, 39, 46, 47, 56, 62],
+    "evaluate": [21, 22, 48, 57, 63],
+    "create": [24, 23, 40, 41, 42, 43, 64],
 }
 
 
@@ -801,6 +817,10 @@ GENERATORS = {
     51: inputauditmod.generate, 52: a11yauditmod.generate,
     53: i18nmod.generate, 54: regexexmod.generate,
     55: sqlexmod.generate, 56: cssfixmod.generate,
+    57: cliuxmod.generate, 58: logreadmod.generate,
+    59: metricsmod.generate, 60: flamemod.generate,
+    61: crashdumpmod.generate, 62: depupgrademod.generate,
+    63: licensecheckmod.generate, 64: containerizemod.generate,
 }
 
 
@@ -1032,6 +1052,22 @@ def grade(exercise: dict, submission: str, runner=None) -> dict:
         return sqlexmod.grade(exercise, submission, runner)
     if t == 56:
         return cssfixmod.grade(exercise, submission, runner)
+    if t == 57:
+        return cliuxmod.grade(exercise, submission, runner)
+    if t == 58:
+        return logreadmod.grade(exercise, submission, runner)
+    if t == 59:
+        return metricsmod.grade(exercise, submission, runner)
+    if t == 60:
+        return flamemod.grade(exercise, submission, runner)
+    if t == 61:
+        return crashdumpmod.grade(exercise, submission, runner)
+    if t == 62:
+        return depupgrademod.grade(exercise, submission, runner)
+    if t == 63:
+        return licensecheckmod.grade(exercise, submission, runner)
+    if t == 64:
+        return containerizemod.grade(exercise, submission, runner)
     # Execution-graded types need the sandbox runner. Pure-order Parsons
     # (no harness) is graded without it, below.
     if runner is None and not (t == 11 and not p.get("tests")):
@@ -1186,6 +1222,22 @@ def render(exercise: dict) -> str:
         return sqlexmod.render(exercise)
     if t == 56:
         return cssfixmod.render(exercise)
+    if t == 57:
+        return cliuxmod.render(exercise)
+    if t == 58:
+        return logreadmod.render(exercise)
+    if t == 59:
+        return metricsmod.render(exercise)
+    if t == 60:
+        return flamemod.render(exercise)
+    if t == 61:
+        return crashdumpmod.render(exercise)
+    if t == 62:
+        return depupgrademod.render(exercise)
+    if t == 63:
+        return licensecheckmod.render(exercise)
+    if t == 64:
+        return containerizemod.render(exercise)
     p = exercise.get("payload", {})
     front = html.escape(exercise.get("front", ""))
     body = f"<p>{front}</p>"
