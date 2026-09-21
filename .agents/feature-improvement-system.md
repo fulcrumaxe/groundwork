@@ -100,3 +100,37 @@ skip kinds of items; whatever is next in the backlog is what ships.
 - Every shipped item: tour entry + status anchor + docs regen +
   MCP run + local commit.
 - Never `push`, `--amend`, or rewrite history without an explicit ask.
+
+## Integration rule — demos are specs, not features (Batch 14+)
+
+Batches 12–13 shipped db-free "engines" that no learner path calls:
+pure libraries with Status demos and zero behavioral effect. That was
+a halfway step the old definition of done mistook for finished,
+because every criterion was an artifact (module, test, tour entry,
+anchor, MCP run, commit) and none was an effect on the learning loop.
+Standing decision: everything demo-only gets fully integrated (or cut
+if it has no owner) — demo-ware advertising behavior the app lacks
+does real harm to trust.
+
+From Batch 14 on, engine-type items are done only when all hold:
+
+1. A real learner/reader path CALLS the engine (sched, grading, Due
+   ordering, lesson rendering/generation, coach) — not just its
+   `section_html` demo.
+2. A committed test proves the BEHAVIORAL effect (due dates move,
+   queue order changes, rendered lessons differ), with the legacy
+   path pinned as the no-data fallback.
+3. Status demos use live data where cheap; the effect test in (2) is
+   the real proof, not the demo.
+
+Integration batches explicitly allow what feature batches forbid,
+capped per batch:
+
+- one migration per batch (new nullable columns/tables only, with a
+  downgrade note in the ledger; never alter or drop existing columns);
+- touches to pipeline/grading/sched/mcp/web limited to delegation-thin
+  call sites (a call plus a fallback, never reimplementation inside
+  the core);
+- default behavior preserved when the new data is absent (empty
+  mastery, no history → legacy path, byte-identical), so existing
+  tests stand without edits.
