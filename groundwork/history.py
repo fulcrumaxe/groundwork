@@ -15,6 +15,7 @@ from . import db as dbmod
 from . import exercises as exmod
 from . import monthreview as monthmod
 from . import ownership as ownmod
+from . import resume as resumemod
 from . import undo as undomod
 from . import sched as schedmod
 from . import workload as workloadmod
@@ -180,9 +181,12 @@ def history_html(db_path: str) -> str:
     for r in rows:
         cls = "ok" if (r["grade"] or 0) >= 4 else "stale"
         mark = "✓" if (r["grade"] or 0) >= 4 else "✗"
+        cont = resumemod.row_link({"module_id": r["module_id"],
+                                   "reviewed_at": r["reviewed_at"]})
         parts.append(
             f"<p class='{cls}'>{mark} {html.escape(r['concept'] or '')} — "
             f"grade {r['grade']}/5, confidence {r['confidence']}/5 "
-            f"<small>{cardsmod._rel_time(r['reviewed_at'] or '')}</small><br>"
+            f"<small>{cardsmod._rel_time(r['reviewed_at'] or '')}</small>"
+            f"{(' ' + cont) if cont else ''}<br>"
             f"<small>in {cardlinksmod.history_link(r['module_id'], r['card_id'], r['summary'] or r['module_id'])}</small></p>")
     return "".join(parts)

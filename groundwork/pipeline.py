@@ -279,9 +279,10 @@ def _first_var(src: str) -> str:
 BLOOM_DEFAULT_TYPES = {
     "recall": [1, 2, 4, 3],
     "explain": [5, 6, 7, 25, 1],
-    "apply": [8, 10, 11, 12, 9, 31, 32, 33, 44],
-    "analyse": [13, 14, 16, 18, 9, 15, 17, 26, 28, 29, 34, 36, 37, 45],
-    "modify": [12, 14, 19, 20, 27, 35, 38, 39, 46, 47],
+    "apply": [8, 10, 11, 12, 9, 31, 32, 33, 44, 54, 55],
+    "analyse": [13, 14, 16, 18, 9, 15, 17, 26, 28, 29, 34, 36, 37, 45,
+                49, 50, 51, 52, 53],
+    "modify": [12, 14, 19, 20, 27, 35, 38, 39, 46, 47, 56],
     "evaluate": [21, 22, 48],
     "create": [24, 23, 40, 41, 42, 43],
 }
@@ -463,6 +464,9 @@ def create_module(con, repo: str, commit_range: str = "", task_summary: str = ""
             if t in (13, 14, 21, 22, 28, 34, 44) and "buggy" not in ctx:
                 continue  # needs verified-breaking mutation
             e = ex.generate(t, eid, c, snippet, ctx)
+            if e is None:
+                continue  # generators may decline a snippet (pre-existing
+                          # rollback/golf/apidesign None paths); skip, no error
             if e.get("payload", {}).get("grounded", True) is False:
                 continue  # fallback content only; needs richer context
             if drafts:

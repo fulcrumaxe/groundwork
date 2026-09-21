@@ -194,6 +194,24 @@ def cmd_e2e(args) -> int:
             ans = "\n".join(f"{k}={v}" for k, v in p.get("key", {}).items())
         elif t == 14:
             ans = p.get("fixed", "")
+        elif t == 49:
+            ans = "\n".join(p.get("items", []))
+        elif t == 50:
+            ans = p.get("secret", "")
+        elif t == 51:
+            ans = "\n".join(f"{it['id']}={it['name']}"
+                            for it in p.get("checklist", []))
+        elif t == 52:
+            ans = "\n".join(f"{it['id']}={it['rule']}"
+                            for it in p.get("checklist", []))
+        elif t == 53:
+            ans = "\n".join(p.get("strings", []))
+        elif t == 54:
+            ans = p.get("reference", "")
+        elif t == 55:
+            ans = p.get("reference", "")
+        elif t == 56:
+            ans = p.get("fixed", "")
         else:
             ans = ""
         r = server.submit_review(c["id"], ans, 4)
