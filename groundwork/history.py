@@ -13,6 +13,7 @@ from . import bloomchips as bloomchipsmod
 from . import cardlinks as cardlinksmod
 from . import cards as cardsmod
 from . import db as dbmod
+from . import emptyart as emptyartmod
 from . import exercises as exmod
 from . import monthreview as monthmod
 from . import ownership as ownmod
@@ -150,7 +151,8 @@ def history_html(db_path: str) -> str:
                          "<th>Cards</th><th>Attempts</th><th>Owned</th></tr>"
                          + "".join(tl_rows) + "</table>")
     else:
-        parts.append("<p>No attempts yet. Answer a card on the "
+        parts.append(emptyartmod.art_for("history") +
+                     "<p>No attempts yet. Answer a card on the "
                      "<a href='/due'>Due</a> page and it will show up here.</p>")
         parts.append(monthmod.section_html(db_path))
         parts.append(undomod.section_html(db_path))

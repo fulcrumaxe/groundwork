@@ -346,6 +346,52 @@ Detail lines below marked [x] as they land.
 - [x] F-40: License compatibility check, type 63 (licensecheck.py + test_licensecheck.py).
 - [x] F-41: Containerize it, type 64 (containerize.py + test_containerize.py).
 
+
+## Batch 11 rule — eight-and-eight, reading polish + backend exercises (this run)
+
+Same workflow as Batch 10 (tour entry + docs regen + MCP run + commit
+per item, pipeline emission for exercise types). New code lives in
+focused area modules registered in `modularity.AREAS`; web.py gains
+delegation lines plus same-line CSS joins (1156 -> 1182 — nine area
+imports, the hero-stats helper, the done-hero empty branch, the
+modules dry-art wires, and the confidence-anchor retarget). status.py
+stays exactly at AREA_CAP, so the sixteen Batch 11 sections join in a
+new batch11.py home module (status.py changes are same-line only).
+Improvements are wired to real surfaces: cards.hints_html delegates
+to hinttiers, cards._confidence renders the confslider segments, the
+Due empty branch renders the done-hero with live today-stats, and dry
+History/Journal/Modules pages carry emptyart illustrations.
+Corrections the run forced: cipipe keeps the raw concept name (the
+cleaned service name broke the render-escape contract); its
+no-partial-credit probe breaks a step key instead of dropping a step
+(a valid single-step pipeline passes); flagcut _resolve spliced kept
+lines at the filtered index instead of the if position (UnboundLocal
+in the reference); backfill harness reports returned key sets (canon
+lists alone could not catch retired fields); idempot/webhook exec
+phases run under a wall timeout; tour entries point at /status
+anchors (conditional /due anchors fail the rendered-anchor test).
+
+Batch 11 ships 8 improvements + 8 features, each committed locally
+per item on branch `batch11-f8-i8`, merged to main at the end.
+Detail lines below marked [x] as they land.
+
+- [x] I-63: Hint tiers nudge/pointer/worked (hinttiers.py + test_hinttiers.py).
+- [x] I-64: Segmented confidence slider (confslider.py + test_confslider.py).
+- [x] I-65: Focus-visible rings everywhere (focusrings.py + test_focusrings.py).
+- [x] I-66: 44px tap-target floor (taptargets.py + test_taptargets.py).
+- [x] I-67: Unified corner radii (radius.py + test_radius.py).
+- [x] I-68: Section spacing scale (spacing.py + test_spacing.py).
+- [x] I-69: Empty-state illustrations (emptyart.py + test_emptyart.py).
+- [x] I-70: Session-complete hero (donehero.py + test_donehero.py).
+- [x] F-42: CI pipeline authoring, type 65 (cipipe.py + test_cipipe.py).
+- [x] F-43: Feature-flag removal, type 66 (flagcut.py + test_flagcut.py).
+- [x] F-44: Backfill script, type 67 (backfill.py + test_backfill.py).
+- [x] F-45: Pagination retrofit, type 68 (pageapi.py + test_pageapi.py).
+- [x] F-46: Cache-invalidation reasoning, type 69 (cacheinv.py + test_cacheinv.py).
+- [x] F-47: Idempotency design, type 70 (idempot.py + test_idempot.py).
+- [x] F-48: Rate-limit design, type 71 (ratelimit.py + test_ratelimit.py).
+- [x] F-49: Webhook verification, type 72 (webhook.py + test_webhook.py).
+
 ## IMPROVEMENTS (500)
 
 ### A. Navigation, IA & routing (I-1–50)
@@ -415,14 +461,14 @@ Detail lines below marked [x] as they land.
 - [x] I-60: Style `details/summary` markers consistently with custom carets.
 - [x] I-61: Give code blocks line numbers and a copy button.
 - [x] I-62: Syntax-highlight Python/TS snippets without dependencies (tiny tokenizer).
-- I-63: Differentiate hint tiers visually (nudge vs pointer vs worked step).
-- I-64: Style confidence input as a 1–5 segmented slider, not a text box.
-- I-65: Add focus-visible rings everywhere; never remove outlines.
-- I-66: Increase tap targets to 44px minimum on all buttons/inputs.
-- I-67: Unify border-radius scale (cards 12, controls 8, chips full).
-- I-68: Add whitespace rhythm: consistent section spacing scale.
-- I-69: Design empty-state illustrations (inline SVG, one per page).
-- I-70: Add a "session complete" illustration + summary hero for empty Due.
+- [x] I-63: Differentiate hint tiers visually (nudge vs pointer vs worked step).
+- [x] I-64: Style confidence input as a 1–5 segmented slider, not a text box.
+- [x] I-65: Add focus-visible rings everywhere; never remove outlines.
+- [x] I-66: Increase tap targets to 44px minimum on all buttons/inputs.
+- [x] I-67: Unify border-radius scale (cards 12, controls 8, chips full).
+- [x] I-68: Add whitespace rhythm: consistent section spacing scale.
+- [x] I-69: Design empty-state illustrations (inline SVG, one per page).
+- [x] I-70: Add a "session complete" illustration + summary hero for empty Due.
 - I-71: Theme the History page like a logbook (mono dates, ruled rows).
 - I-72: Theme Modules like a library shelf (cover-style cards with spine accent).
 - I-73: Theme Due like a briefing (numbered mission cards).
@@ -923,14 +969,14 @@ Detail lines below marked [x] as they land.
 - [x] F-39: Dependency upgrade (resolve the breaking change; tests green).
 - [x] F-40: License compatibility check (is this dep OK; exact + reason).
 - [x] F-41: Containerize it (write the Dockerfile; build gate).
-- F-42: CI pipeline authoring (YAML that passes a dry-run linter).
-- F-43: Feature-flag removal (clean up the flag; tests + grep gate).
-- F-44: Backfill script (migrate old data shapes; fixture-verified).
-- F-45: Pagination retrofit (page the endpoint; contract tests).
-- F-46: Cache-invalidation reasoning (when does this go stale; checklist).
-- F-47: Idempotency design (make the handler re-runnable; double-run gate).
-- F-48: Rate-limit design (pick limits with reasoning; rubric).
-- F-49: Webhook verification (implement signature check; vector tests).
+- [x] F-42: CI pipeline authoring (YAML that passes a dry-run linter).
+- [x] F-43: Feature-flag removal (clean up the flag; tests + grep gate).
+- [x] F-44: Backfill script (migrate old data shapes; fixture-verified).
+- [x] F-45: Pagination retrofit (page the endpoint; contract tests).
+- [x] F-46: Cache-invalidation reasoning (when does this go stale; checklist).
+- [x] F-47: Idempotency design (make the handler re-runnable; double-run gate).
+- [x] F-48: Rate-limit design (pick limits with reasoning; rubric).
+- [x] F-49: Webhook verification (implement signature check; vector tests).
 - F-50: Every new type ships with generator + grader + widget + e2e answer.
 
 ### L. Mastery & learning science (F-51–100)

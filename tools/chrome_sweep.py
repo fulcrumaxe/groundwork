@@ -1,10 +1,13 @@
-"""Chrome MCP verification sweep for Batch 10 improvements + features.
+"""Chrome MCP verification sweep for Batch 11 improvements + features.
 
 Serves the groundwork web app from a temp DB copy, opens each fixture
 page in a real headless Chrome via the chrome-devtools-mcp stdio server
-(tools/chrome_mcp.py), and asserts the rendered DOM for every Batch 10
-item (I-55..I-62, F-34..F-41 = types 57-64). Batch 9 checks are kept so
-the sweep still guards the previous batch's surfaces.
+(tools/chrome_mcp.py), and asserts the rendered DOM for every Batch 11
+item (I-63..I-70, F-42..F-49 = types 65-72). Batch 9/10 checks are kept
+so the sweep still guards the previous batches' surfaces. Ends with a
+live interaction: one real card review submitted on /due (verdict page
+proves the grade + collapse/undo flow), or the done-hero when the queue
+is empty.
 
 Usage:
   python3 tools/chrome_sweep.py [--shot-dir DIR] [--keep] [--port N]
@@ -113,6 +116,52 @@ CHECKS: list[tuple[str, str, str]] = [
      "() => !!document.querySelector('#status-b10-licensecheck')"),
     ("F-64", "/status",
      "() => !!document.querySelector('#status-b10-containerize')"),
+    # Batch 11 improvements (I-63..I-70): status anchor + head-wire token
+    ("I-63", "/status",
+     "() => !!document.querySelector('#status-b11-hinttiers')"),
+    ("I-63-css", "/",
+     "() => { const css=[...document.querySelectorAll('style')].map(s=>s.textContent).join('\\n'); return css.includes('.hint-nudge'); }"),
+    ("I-64", "/status",
+     "() => !!document.querySelector('#status-b11-confslider')"),
+    ("I-64-css", "/",
+     "() => { const css=[...document.querySelectorAll('style')].map(s=>s.textContent).join('\\n'); return css.includes('.confslider'); }"),
+    ("I-65", "/status",
+     "() => !!document.querySelector('#status-b11-focusrings')"),
+    ("I-65-css", "/",
+     "() => { const css=[...document.querySelectorAll('style')].map(s=>s.textContent).join('\\n'); return css.includes('--focus-ring'); }"),
+    ("I-66", "/status",
+     "() => !!document.querySelector('#status-b11-taptargets')"),
+    ("I-66-css", "/",
+     "() => { const css=[...document.querySelectorAll('style')].map(s=>s.textContent).join('\\n'); return css.includes('--tap-min'); }"),
+    ("I-67", "/status",
+     "() => !!document.querySelector('#status-b11-radius')"),
+    ("I-67-css", "/",
+     "() => { const css=[...document.querySelectorAll('style')].map(s=>s.textContent).join('\\n'); return css.includes('--r-card'); }"),
+    ("I-68", "/status",
+     "() => !!document.querySelector('#status-b11-spacing')"),
+    ("I-68-css", "/",
+     "() => { const css=[...document.querySelectorAll('style')].map(s=>s.textContent).join('\\n'); return css.includes('--sp-section'); }"),
+    ("I-69", "/status",
+     "() => !!document.querySelector('#status-b11-emptyart')"),
+    ("I-70", "/status",
+     "() => !!document.querySelector('#status-b11-donehero')"),
+    # Batch 11 features: one anchored section per new exercise type.
+    ("F-65", "/status",
+     "() => !!document.querySelector('#status-b11-cipipe')"),
+    ("F-66", "/status",
+     "() => !!document.querySelector('#status-b11-flagcut')"),
+    ("F-67", "/status",
+     "() => !!document.querySelector('#status-b11-backfill')"),
+    ("F-68", "/status",
+     "() => !!document.querySelector('#status-b11-pageapi')"),
+    ("F-69", "/status",
+     "() => !!document.querySelector('#status-b11-cacheinv')"),
+    ("F-70", "/status",
+     "() => !!document.querySelector('#status-b11-idempot')"),
+    ("F-71", "/status",
+     "() => !!document.querySelector('#status-b11-ratelimit')"),
+    ("F-72", "/status",
+     "() => !!document.querySelector('#status-b11-webhook')"),
 ]
 
 
@@ -144,6 +193,41 @@ def judge(item: str, val) -> tuple[bool, str]:
     if item == "I-56":
         return s == "7", f"tier-chips=[{s}]"
     return val is True, s[:200]
+
+
+def interact_review(c: MCPClient, base: str) -> tuple[bool, str]:
+    """Submit one real card review on /due; verdict proves the flow.
+
+    Fills the first review form (any exercise type: textarea, select,
+    confidence default) and clicks submit. A verdict page proves
+    grading + result render; an empty queue proves the done-hero (I-70)
+    instead. Returns (pass, detail).
+    """
+    pid = visit(c, base + "/due")
+    probe = unwrap_eval(eval_js(c, pid, "() => { const f = document.querySelector(\"form[action*='/review']\"); if (!f) return document.querySelector('#done-hero') ? 'empty-hero' : 'no-form'; const ta = f.querySelector('textarea'); if (ta) ta.value = 'sweep probe answer'; const sel = f.querySelector('select'); if (sel) sel.selectedIndex = sel.options.length - 1; const conf = f.querySelector(\"input[name='confidence'][value='4']\"); if (conf) conf.checked = true; const btn = f.querySelector('button'); if (!btn) return 'no-button'; btn.click(); return 'clicked'; }"))
+    if probe == "empty-hero":
+        return True, "empty queue renders #done-hero"
+    if probe != "clicked":
+        return False, f"review form not submittable ({probe})"
+    deadline = time.time() + 30
+    while time.time() < deadline:
+        time.sleep(1.0)
+        try:
+            state = str(unwrap_eval(
+                eval_js(c, pid, "() => document.readyState"))).strip()
+            if state != "complete":
+                continue
+            body = str(unwrap_eval(eval_js(
+                c, pid,
+                "() => document.body.textContent.slice(0, 4000)"))).lower()
+            undo = str(unwrap_eval(eval_js(
+                c, pid,
+                "() => !!document.querySelector(\"form[action='/reviews/undo']\")")))
+        except Exception:
+            continue
+        if "verdict" in body or undo == "True":
+            return True, "review submitted, verdict rendered"
+    return False, "no verdict after submit"
 
 
 def seed_attempt(db_path: str) -> None:
@@ -224,7 +308,7 @@ def main() -> int:
     ap.add_argument("--port", type=int, default=8765)
     args = ap.parse_args()
 
-    tmp = Path(tempfile.mkdtemp(prefix="b10chrome"))
+    tmp = Path(tempfile.mkdtemp(prefix="b11chrome"))
     shot_dir = Path(args.shot_dir) if args.shot_dir else tmp / "shots"
     shot_dir.mkdir(parents=True, exist_ok=True)
     db_src = ROOT / "groundwork.db"
@@ -268,7 +352,7 @@ def main() -> int:
                                 "shot": str(shot), "pass": ok})
                 if not ok:
                     failures.append(f"fixture {name}: title={title!r} errors={errors!r}")
-            # Batch 9 item checks (revisit each path once)
+            # Batch 9/10/11 item checks (revisit each path once)
             for item, path, fn in CHECKS:
                 if path not in seen:
                     seen[path] = visit(c, base + path)
@@ -283,6 +367,11 @@ def main() -> int:
                     failures.append(f"{item}: eval error {e}")
                     results.append({"kind": "check", "item": item,
                                     "pass": False, "detail": str(e)})
+            ok, detail = interact_review(c, base)
+            results.append({"kind": "interact", "item": "review-submit",
+                            "pass": ok, "detail": detail})
+            if not ok:
+                failures.append(f"review-submit: {detail}")
         finally:
             c.close()
     finally:

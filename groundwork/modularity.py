@@ -12,6 +12,11 @@ Post-Batch 9 Chrome verification found nested-<style> CSS breakage:
 Batch 10 follows it as well (1147 -> 1156 for eight head-wire CSS
 imports plus the wordmark header line). status.py sits exactly at
 AREA_CAP, so Batch 10 sections join in batch10.py instead.
+Batch 11 follows it as well (1156 -> 1182 for nine area imports, the
+hero-stats helper, the done-hero empty branch, the modules dry-art
+wires, and the confidence-anchor retarget; CSS joins share one line).
+status.py stays exactly at AREA_CAP, so Batch 11 sections join in
+batch11.py instead.
 """
 from __future__ import annotations
 
@@ -19,7 +24,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 
-WEB_CEILING = 1156
+WEB_CEILING = 1182
 AREA_CAP = 350
 
 # Capability area -> module implementing it. Batch 3 appends its areas here.
@@ -158,6 +163,23 @@ AREAS = {
     "licensecheck": "licensecheck.py",
     "containerize": "containerize.py",
     "batch10": "batch10.py",
+    "hinttiers": "hinttiers.py",
+    "confslider": "confslider.py",
+    "focusrings": "focusrings.py",
+    "taptargets": "taptargets.py",
+    "radius": "radius.py",
+    "spacing": "spacing.py",
+    "emptyart": "emptyart.py",
+    "donehero": "donehero.py",
+    "cipipe": "cipipe.py",
+    "flagcut": "flagcut.py",
+    "backfill": "backfill.py",
+    "pageapi": "pageapi.py",
+    "cacheinv": "cacheinv.py",
+    "idempot": "idempot.py",
+    "ratelimit": "ratelimit.py",
+    "webhook": "webhook.py",
+    "batch11": "batch11.py",
 }
 
 

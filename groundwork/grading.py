@@ -85,6 +85,14 @@ def disclosure(etype: str | int) -> str:
         62: "New-API shape present with no old-API shape left — static check, no sandbox.",
         63: "Exact verdict (OK/NOT-OK) plus one reason keyword — both must match.",
         64: "Every build-gate point must hold — pinned base, COPY, matching EXPOSE, exec launch, USER; no partial credit.",
+        65: "Every pipeline point must hold — on-push trigger, jobs with steps, run/uses per step, no syntax errors; no partial credit.",
+        66: "Flag reference fully removed (name must not appear anywhere), both branches resolved, hidden tests green — static grep gate plus sandbox run.",
+        67: "Your backfill function runs in the sandbox over fixture rows — every row migrated with defaults applied and no rows lost passes.",
+        68: "Every page slice must match the fixture with a consistent total and stable order; out-of-range pages return empty items — no partial credit.",
+        69: "Every invalidation point must be named and no hot path busted — exact set match; no partial credit.",
+        70: "Double-run gate: your handler runs twice on the same store with the same key — same end state and no duplicate side effects; a fresh key must still apply; no partial credit.",
+        71: "Name scoped limits, a concrete window, burst handling, and 429 + Retry-After with a reason — partial credit per point, half or more passes.",
+        72: "All four signature vectors must verify correctly — valid passes, tampered body, wrong secret, and replayed timestamp all rejected; no partial credit.",
     }
     return table.get(t, "Graded like its exercise family.")
 

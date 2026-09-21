@@ -31,6 +31,7 @@ from . import chiplinks as chiplinksmod
 from . import clarity as claritymod
 from . import clickcards as clickcardsmod
 from . import collapse as collapsemod
+from . import confslider as confslidermod
 from . import crumbs as crumbsmod
 from . import darkmode as darkmodemod
 from . import db as dbmod
@@ -39,11 +40,15 @@ from . import decisions as decmod
 from . import diagnose as diamod
 from . import digest as digestmod
 from . import disputes as dismod
+from . import donehero as doneheromod
+from . import emptyart as emptyartmod
 from . import errors as errmod
 from . import exports as expmod
 from . import favicon as faviconmod
 from . import fontstack as fontstackmod
+from . import focusrings as focusringsmod
 from . import footnav as footnavmod
+from . import hinttiers as hinttiersmod
 from . import history as histmod
 from . import journal as journalmod
 from . import known as knownmod
@@ -59,6 +64,7 @@ from . import ownership as ownmod
 from . import pager as pagermod
 from . import palette as palettemod
 from . import queries as quemod
+from . import radius as radiusmod
 from . import queue as qmod
 from . import readtime as readtimemod
 from . import recent as recentmod
@@ -71,10 +77,13 @@ from . import sched as schedmod
 from . import scrollpos as scrollposmod
 from . import search as searchmod
 from . import serendipity as sermod
+from . import session as sessionmod
 from . import shortcuts as shortcutsmod
 from . import sitemap as sitemapmod
 from . import sitenav as sitenavmod
 from . import snapshot as snapshotmod
+from . import spacing as spacingmod
+from . import taptargets as taptargetsmod
 from . import status as statusmod
 from . import storage as storagemod
 from . import styleguide as styleguidemod
@@ -198,7 +207,7 @@ CSS = ("body{font-family:system-ui,-apple-system,sans-serif;max-width:48rem;"
 # concatenated into CSS (that nests <style> inside <style>, closes the
 # head stylesheet early, and dumps all later CSS into <body> as text).
 FOCUS_CSS = clickcardsmod.focus_css()
-CSS += palettemod.palette_css() + darkmodemod.dark_css() + typescalemod.scale_css() + fontstackmod.stack_css() + wordmarkmod.wordmark_css() + bloomchipsmod.chip_css() + progbarmod.progbar_css() + ownedbadgemod.badge_css() + staggermod.stagger_css() + caretsmod.carets_css() + codelinesmod.codelines_css() + highlightmod.highlight_css()  # Batch 9 I-51/52/53/54: token variables, dark overrides, type scale, font stacks. Batch 10 I-55..I-62: wordmark, bloom chips, progress motion, owned badge, stagger, carets, code lines, highlight.
+CSS += palettemod.palette_css() + darkmodemod.dark_css() + typescalemod.scale_css() + fontstackmod.stack_css() + wordmarkmod.wordmark_css() + bloomchipsmod.chip_css() + progbarmod.progbar_css() + ownedbadgemod.badge_css() + staggermod.stagger_css() + caretsmod.carets_css() + codelinesmod.codelines_css() + highlightmod.highlight_css() + hinttiersmod.hinttiers_css() + confslidermod.css() + focusringsmod.css() + taptargetsmod.target_css() + radiusmod.radius_css() + spacingmod.spacing_css() + doneheromod.hero_css()  # Batch 9 I-51/52/53/54: token variables, dark overrides, type scale, font stacks. Batch 10 I-55..I-62: wordmark, bloom chips, progress motion, owned badge, stagger, carets, code lines, highlight. Batch 11 I-63..I-70: hint tiers, confidence segments, focus rings, tap floor, radii, spacing, hero.
 
 GLOBAL_JS = """
 <script>
@@ -546,6 +555,21 @@ class Handler(BaseHTTPRequestHandler):
                             errmod.not_found_html(url.path),
                             counts=counts, tour=tour_ctx), 404)
 
+    def _hero_stats(self) -> dict:
+        """Today's answered/accuracy plus the next due date for the hero."""
+        con = self._con()
+        try:
+            today = schedmod.utcnow().strftime("%Y-%m-%d")
+            grades = [r[0] for r in con.execute(
+                "SELECT grade FROM reviews WHERE substr(reviewed_at, 1, 10)=?",
+                (today,)).fetchall()]
+            nxt = con.execute("SELECT MIN(due) FROM cards").fetchone()
+        finally:
+            con.close()
+        summary = sessionmod.summarize([{"grade": g} for g in grades])
+        summary["next_due"] = nxt[0] if nxt and nxt[0] else ""
+        return summary
+
     def due_html(self, level: str = "auto", one: bool = False,
                  resume_key: str = "") -> str:
         server = mcplib.MCPServer(self.db_path)
@@ -564,8 +588,9 @@ class Handler(BaseHTTPRequestHandler):
                          "Just one card</a> for low-energy days.</p>")
         parts.append(sermod.section_html(self.db_path))
         if not due:
-            parts.append("<p>Nothing due. Create a module via the MCP tool, "
-                         "or browse <a href='/modules'>Modules</a>.</p>")
+            stats = self._hero_stats()
+            parts.append(doneheromod.done_hero_html(
+                stats["answered"], stats["accuracy"], stats["next_due"]))
         con2 = self._con()
         try:
             study = quemod.stored_lessons(con2, [c["id"] for c in due])
@@ -607,8 +632,8 @@ class Handler(BaseHTTPRequestHandler):
                     # Stable tour anchors on the lead card only.
                     why_extra = " id='due-why'"
                     widget = widget.replace(
-                        "<span class='conf-group'>",
-                        "<span class='conf-group' id='confidence'>", 1)
+                        "<fieldset class='confslider'>",
+                        "<fieldset class='confslider' id='confidence'>", 1)
                     widget = widget.replace(
                         "<button class='giveup'>",
                         "<button class='giveup' id='giveup'>", 1)
@@ -754,8 +779,10 @@ class Handler(BaseHTTPRequestHandler):
             if repo:
                 return (f"<p class='crumbs'><a href='/'>Projects</a> › "
                         f"{html.escape(repo)}</p>"
+                        + emptyartmod.art_for("modules") +
                         "<p>No modules for this project yet.</p>")
-            return ("<p>No modules yet. Finish an agent session with the "
+            return (emptyartmod.art_for("modules") +
+                    "<p>No modules yet. Finish an agent session with the "
                     "`create_learning_module` MCP tool and it appears here.</p>")
         if sort == "oldest":
             cards = cards[::-1]

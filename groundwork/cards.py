@@ -8,6 +8,9 @@ from __future__ import annotations
 import html
 import json
 
+from . import confslider as confslidermod
+from . import hinttiers as hinttiersmod
+
 
 def _payload(card) -> dict:
     raw = card.get("payload", "{}") if isinstance(card, dict) else card["payload"]
@@ -18,11 +21,8 @@ def _payload(card) -> dict:
 
 
 def _confidence(extra: str = "") -> str:
-    pills = "".join(
-        f"<label class='conf'><input type='radio' name='confidence' "
-        f"value='{i}'{' checked' if i == 3 else ''}>{i}</label>"
-        for i in (1, 2, 3, 4, 5))
-    return f"<span class='conf-group'{extra}>Confidence {pills}</span> "
+    # Segmented control (I-64): same posted field, tappable segments.
+    return confslidermod.slider_html(3, extra=extra) + " "
 
 
 PARSONS_JS = """
@@ -65,14 +65,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
 def hints_html(card, attempts: int = 0) -> str:
     """Progressive hint reveal (adaptive scaffolding): the nudge is always
-    visible; each further attempt unlocks the next tier."""
+    visible; each further attempt unlocks the next tier.
+
+    Tiers render visually distinct (I-63) via hinttiers.hints_html,
+    which keeps the same 1+attempts prefix semantics.
+    """
     hints = _payload(card).get("hints", [])
-    shown = hints[:min(len(hints), 1 + attempts)]
-    if not shown:
-        return ""
-    return "".join(
-        f"<details><summary>Hint {i + 1}</summary>{html.escape(h)}</details>"
-        for i, h in enumerate(shown))
+    return hinttiersmod.hints_html(hints, attempts)
 
 
 def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:
