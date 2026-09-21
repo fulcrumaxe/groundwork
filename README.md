@@ -166,6 +166,14 @@ Either way, expected outputs are always *measured* in the sandbox, never invente
 | Worked-example fading | Worked traces fade per concept: full trace, then the last step hides, then only the first shows — recall grows as support shrinks. | `/status#status-b12-fading` |
 | Self-explanation prompts | Every worked step asks why it exists — explain each line in your own words before moving on. | `/status#status-b12-selfexplain` |
 | Elaboration drills | Connect a new concept to two you already own — shared tokens pick the partners. | `/status#status-b12-elaboration` |
+| Dual-coding packs | Every key idea gets words plus a diagram plus a worked trace — two channels, one concept. | `/status#status-b13-dualcode` |
+| Interleaving engine | Practice picks contrast by concept — weakest cell first, never the same idea twice running. | `/status#status-b13-interleave` |
+| Spacing optimizer | Per-concept gaps from your own recalls — strong ideas stretch out, fragile ones return tomorrow. | `/status#status-b13-spacingopt` |
+| Retrieval-first lessons | Every lesson asks before it tells — attempt first, then read the explanation. | `/status#status-b13-retrieval` |
+| Predict-then-reveal | Every code snippet hides under a one-click cover — predict first, then reveal. | `/status#status-b13-predict` |
+| Confidence-weighted scoring | Brave-correct beats shy-correct — calibration pays, overconfidence costs. | `/status#status-b13-confweight` |
+| Calibration drills | Bet points on answers at explicit odds — fair when honest, profitable only when calibrated. | `/status#status-b13-calibdrill` |
+| Overconfidence cards | Confidence outrunning accuracy by 25 points deals an intervention card with one counter-habit. | `/status#status-b13-overconf` |
 <!-- GW-FEATURES:END -->
 
 ## Improvements
@@ -267,6 +275,14 @@ Either way, expected outputs are always *measured* in the sandbox, never invente
 | Press micro-interactions | Buttons and cards press back a touch while you hold them — silent, instant, and still for reduced-motion users. | `/status#status-b12-pressfx` |
 | Loading skeletons | Module pages show a static placeholder shell — title, progress, lesson rows — while lessons generate. | `/status#status-b12-skeletons` |
 | Optimistic submit | Submit a card and its buttons lock with a spinner and Working status — no double grades while grading runs. | `/status#status-b12-optimistic` |
+| Chrome error pages | Server errors render inside the normal header and footer with a safe label and a way back — never a naked dropped connection. | `/status#status-b13-errpage` |
+| Inline form errors | Out-of-range answers fail loudly beside the field — a role=alert line naming the fix, not silence. | `/status#status-b13-formerr` |
+| Selection accent | Selected text wears the page accent with ink text — forced-colors users keep native selection. | `/status#status-b13-selection` |
+| Palette scrollbars | Thin palette-matched scrollbars — touch devices and forced-colors users keep natives. | `/status#status-b13-scrollbar` |
+| Due-count favicon | The tab icon carries the live due count as a badge — zero means the plain mark. | `/status#status-b13-pageicon` |
+| Share unfurls | Shared links unfurl with the page title and lede — no bare URLs, no localhost canonical lie. | `/status#status-b13-ogtags` |
+| Compact density | One header button shrinks gaps and type for small screens — tap targets stay full-size. | `/status#status-b13-density` |
+| Responsive audit | 360/768/1024/1440 audited live over the shipped CSS — phone tables and padding fixed first. | `/status#status-b13-responsive` |
 <!-- GW-IMPROVEMENTS:END -->
 
 See also [docs/features.md](docs/features.md) and the in-app

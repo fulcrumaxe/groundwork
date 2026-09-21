@@ -1,9 +1,9 @@
-"""Chrome MCP verification sweep for Batch 12 improvements + features.
+"""Chrome MCP verification sweep for Batch 13 improvements + features.
 
 Serves the groundwork web app from a temp DB copy, opens each fixture
 page in a real headless Chrome via the chrome-devtools-mcp stdio server
-(tools/chrome_mcp.py), and asserts the rendered DOM for every Batch 12
-item (I-71..I-82, F-50..F-59). Batch 9/10/11 checks are kept
+(tools/chrome_mcp.py), and asserts the rendered DOM for every Batch 13
+item (I-83..I-90, F-60..F-67). Batch 9/10/11/12 checks are kept
 so the sweep still guards the previous batches' surfaces. Ends with a
 live interaction: one real card review submitted on /due (verdict page
 proves the grade + collapse/undo flow), or the done-hero when the queue
@@ -219,6 +219,60 @@ CHECKS: list[tuple[str, str, str]] = [
      "() => !!document.querySelector('#status-b12-selfexplain')"),
     ("B12-F59", "/status",
      "() => !!document.querySelector('#status-b12-elaboration')"),
+    # Batch 13 improvements (I-83..I-90): status anchor + head-wire token.
+    ("B13-I83", "/status",
+     "() => !!document.querySelector('#status-b13-errpage')"),
+    ("B13-404", "/nope-b13",
+     "() => !!document.querySelector('#sitenav') && !!document.querySelector('#not-found')"),
+    ("B13-I84", "/status",
+     "() => !!document.querySelector('#status-b13-formerr')"),
+    ("B13-I84-css", "/",
+     "() => { const css=[...document.querySelectorAll('style')].map(s=>s.textContent).join('\\n'); return css.includes('.field-error'); }"),
+    ("B13-I85", "/status",
+     "() => !!document.querySelector('#status-b13-selection')"),
+    ("B13-I85-css", "/",
+     "() => { const css=[...document.querySelectorAll('style')].map(s=>s.textContent).join('\\n'); return css.includes('::selection'); }"),
+    ("B13-I86", "/status",
+     "() => !!document.querySelector('#status-b13-scrollbar')"),
+    ("B13-I86-css", "/",
+     "() => { const css=[...document.querySelectorAll('style')].map(s=>s.textContent).join('\\n'); return css.includes('scrollbar-width'); }"),
+    ("B13-I87", "/status",
+     "() => !!document.querySelector('#status-b13-pageicon')"),
+    ("B13-I87-link", "/",
+     "() => { const l=document.querySelector(\"link#gw-icon[rel='icon']\"); return l ? l.href.slice(0,22) : ''; }"),
+    ("B13-I88", "/status",
+     "() => !!document.querySelector('#status-b13-ogtags')"),
+    ("B13-I88-meta", "/",
+     "() => { const m=document.querySelector(\"meta[property='og:title']\"); return m ? m.content : ''; }"),
+    ("B13-I89", "/status",
+     "() => !!document.querySelector('#status-b13-density')"),
+    ("B13-I89-btn", "/",
+     "() => !!document.querySelector('#gw-density-toggle')"),
+    ("B13-I89-js", "/due",
+     "() => !!document.querySelector('script[data-density-toggle]')"),
+    ("B13-I89-click", "/",
+     "() => { const b=document.querySelector('#gw-density-toggle'); if(!b) return 'no-button'; b.click(); return document.documentElement.getAttribute('data-density')||'unset'; }"),
+    ("B13-I90", "/status",
+     "() => !!document.querySelector('#status-b13-responsive')"),
+    ("B13-I90-css", "/",
+     "() => { const css=[...document.querySelectorAll('style')].map(s=>s.textContent).join('\\n'); return css.includes('max-width:640px'); }"),
+    # Batch 13 features (F-60..F-67): one anchored section each.
+    ("B13-F60", "/status",
+     "() => !!document.querySelector('#status-b13-dualcode')"),
+    ("B13-F61", "/status",
+     "() => !!document.querySelector('#status-b13-interleave')"),
+    ("B13-F62", "/status",
+     "() => !!document.querySelector('#status-b13-spacingopt')"),
+    ("B13-F63", "/status",
+     "() => !!document.querySelector('#status-b13-retrieval')"),
+    ("B13-F64", "/status",
+     "() => !!document.querySelector('#status-b13-predict')"),
+    ("B13-F65", "/status",
+     "() => !!document.querySelector('#status-b13-confweight')"),
+    ("B13-F66", "/status",
+     "() => !!document.querySelector('#status-b13-calibdrill')"),
+    ("B13-F67", "/status",
+     "() => !!document.querySelector('#status-b13-overconf')"),
 ]
 
 
@@ -249,6 +303,12 @@ def judge(item: str, val) -> tuple[bool, str]:
         return s == "", f"types-missing=[{s}]" if s else "all-8-present"
     if item == "I-56":
         return s == "7", f"tier-chips=[{s}]"
+    if item == "B13-I87-link":
+        return s.startswith("data:image/svg+xml,"), s[:200]
+    if item == "B13-I88-meta":
+        return bool(s.strip()), s[:200] or "no og:title content"
+    if item == "B13-I89-click":
+        return s == "compact", s[:200]
     return val is True, s[:200]
 
 

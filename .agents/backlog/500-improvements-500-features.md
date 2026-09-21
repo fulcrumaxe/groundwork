@@ -437,6 +437,55 @@ Detail lines below marked [x] as they land.
 - [x] F-58: Self-explanation prompts (selfexplain.py + test_selfexplain.py).
 - [x] F-59: Elaboration drills (elaboration.py + test_elaboration.py).
 
+## Batch 13 rule — eight-and-eight, chrome robustness + study science (this run)
+
+Same workflow as Batch 12 (tour entry + docs regen + MCP run + commit
+per item, no new exercise types so no pipeline emission). New code
+lives in focused area modules registered in `modularity.AREAS`;
+web.py gains seven area imports plus the 500 wrapper and the
+review-note line (1189 -> 1219, WEB_CEILING 1190 -> 1219 for the
+wires); CSS/head/foot/status joins stay same-line, so status.py holds
+exactly at AREA_CAP and the sixteen Batch 13 sections join in a new
+batch13.py home module. No new graded card types: F-60..F-67 ship as
+db-free libraries, so TYPES/GENERATORS/pipeline/grading are untouched.
+Corrections the run forced: safe_kind rejects non-str non-exception
+input (None rendered "NoneType"); ogtags cap test measured prefix
+junk (split maxsplit); interleave None input is vacuously ordered;
+confweight standard-clamps (-99 pins to 1) and a real wrong answer
+with unknown confidence scores default-shy (-3). One red commit
+repaired by follow-up (ogtags cap assertion).
+Chrome verification caught a real cascade bug the source tests
+missed: skeletons.py left its trailing @media unclosed (f-string }}
+emits one brace), swallowing every later stylesheet rule, and
+density.py had an unclosed attribute string plus stray closers —
+fixed with durable balance tests (per-emitter + shipped-CSS depth
+and quote parity). The I-90 viewport audit (/due 79px overflow at
+360px) drove narrow_css fixes (capped fields, stacking labels,
+wrapping slider, breakable prose): /due, /modules, /reviews now
+measure zero overflow at 360/768/1024/1440; Status data tables
+overflow at every width and belong to I-92.
+
+Batch 13 ships 8 improvements + 8 features, each committed locally
+per item on branch `batch13-f8-i8`, merged to main at the end.
+Detail lines below marked [x] as they land.
+
+- [x] I-83: Chrome error pages (errpage.py + test_errpage.py).
+- [x] I-84: Inline form errors (formerr.py + test_formerr.py).
+- [x] I-85: Selection accent (selection.py + test_selection.py).
+- [x] I-86: Palette scrollbars (scrollbar.py + test_scrollbar.py).
+- [x] I-87: Due-count favicon (pageicon.py + test_pageicon.py).
+- [x] I-88: Share unfurls (ogtags.py + test_ogtags.py).
+- [x] I-89: Compact density (density.py + test_density.py).
+- [x] I-90: Responsive audit (responsive.py + test_responsive.py).
+- [x] F-60: Dual-coding packs (dualcode.py + test_dualcode.py).
+- [x] F-61: Interleaving engine (interleave.py + test_interleave.py).
+- [x] F-62: Spacing optimizer (spacingopt.py + test_spacingopt.py).
+- [x] F-63: Retrieval-first lessons (retrieval.py + test_retrieval.py).
+- [x] F-64: Predict-then-reveal (predict.py + test_predict.py).
+- [x] F-65: Confidence-weighted scoring (confweight.py + test_confweight.py).
+- [x] F-66: Calibration drills (calibdrill.py + test_calibdrill.py).
+- [x] F-67: Overconfidence cards (overconf.py + test_overconf.py).
+
 ## IMPROVEMENTS (500)
 
 ### A. Navigation, IA & routing (I-1–50)
@@ -526,14 +575,14 @@ Detail lines below marked [x] as they land.
 - [x] I-80: Add sound-free haptic-style micro-interactions (scale on press).
 - [x] I-81: Loading skeletons for module pages generated mid-request.
 - [x] I-82: Optimistic UI on review submit (disable + spinner) to hide latency.
-- I-83: Error pages with the same header/footer (no naked stack traces).
-- I-84: Style form validation errors inline (confidence out of range, empty answer).
-- I-85: Add `::selection` color matching page accent.
-- I-86: Custom scrollbar styling that respects platform conventions.
-- I-87: Favicon per page state (due count badge via SVG data URI).
-- I-88: Open Graph tags so shared module links unfurl nicely.
-- I-89: Add a "compact density" toggle for small screens vs desktop.
-- I-90: Responsive breakpoints audit at 360/768/1024/1440px with screenshots.
+- [x] I-83: Error pages with the same header/footer (no naked stack traces).
+- [x] I-84: Style form validation errors inline (confidence out of range, empty answer).
+- [x] I-85: Add `::selection` color matching page accent.
+- [x] I-86: Custom scrollbar styling that respects platform conventions.
+- [x] I-87: Favicon per page state (due count badge via SVG data URI).
+- [x] I-88: Open Graph tags so shared module links unfurl nicely.
+- [x] I-89: Add a "compact density" toggle for small screens vs desktop.
+- [x] I-90: Responsive breakpoints audit at 360/768/1024/1440px with screenshots.
 - I-91: Prevent layout shift from Parsons drag list (fixed min-heights).
 - I-92: Make tables horizontally scrollable with sticky first column on mobile.
 - I-93: Unify all timestamps into a `<time>` element with datetime attr.
@@ -1035,14 +1084,14 @@ Detail lines below marked [x] as they land.
 - [x] F-57: Worked-example fading sequences (full → partial → solo per concept).
 - [x] F-58: Self-explanation prompts after every worked step ("why does this line exist?").
 - [x] F-59: Elaboration drills (connect new concept to two you already own).
-- F-60: Dual-coding packs (every key idea gets words + diagram + trace).
-- F-61: Interleaving engine v2 (concept × type matrix scheduler).
-- F-62: Spacing optimizer (per-learner intervals from recall data).
-- F-63: Retrieval-first modules (questions before prose, enforced by template).
-- F-64: Prediction-then-reveal on every code snippet (one-click cover).
-- F-65: Confidence-weighted scoring (brave-correct beats shy-correct).
-- F-66: Calibration training drills (bet points on answers, explicit odds).
-- F-67: Overconfidence intervention cards (extra evidence when gap is large).
+- [x] F-60: Dual-coding packs (every key idea gets words + diagram + trace).
+- [x] F-61: Interleaving engine v2 (concept × type matrix scheduler).
+- [x] F-62: Spacing optimizer (per-learner intervals from recall data).
+- [x] F-63: Retrieval-first modules (questions before prose, enforced by template).
+- [x] F-64: Prediction-then-reveal on every code snippet (one-click cover).
+- [x] F-65: Confidence-weighted scoring (brave-correct beats shy-correct).
+- [x] F-66: Calibration training drills (bet points on answers, explicit odds).
+- [x] F-67: Overconfidence intervention cards (extra evidence when gap is large).
 - F-68: Metacognition journal (weekly "what did I misjudge?" prompt).
 - F-69: Mastery interviews (oral-exam mode: explain aloud, rubric-graded).
 - F-70: Transfer tests (same idea in unfamiliar code, no anchor).

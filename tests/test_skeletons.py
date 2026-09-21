@@ -56,6 +56,14 @@ class SkeletonCssTest(unittest.TestCase):
         css = skmod.skeletons_css().lower()
         self.assertNotIn("<style", css)
 
+    def test_braces_balanced_media_closes(self):
+        # Regression (Batch 13): the trailing no-preference @media
+        # once missed its closing brace (f-string }} emits one), which
+        # swallowed every later stylesheet rule into its query.
+        css = skmod.skeletons_css()
+        self.assertEqual(css.count("{"), css.count("}"))
+        self.assertTrue(css.rstrip().endswith("}"))
+
     def test_duration_budget_every_duration_within_300ms(self):
         css = skmod.skeletons_css()
         durs = durations_ms(css)
