@@ -21,11 +21,14 @@ class OgtagsTest(unittest.TestCase):
         self.assertNotIn("localhost", tags)
 
     def test_escaping_and_caps(self):
+        import html as htmlmod
         tags = ogmod.og_tags("<script>'x'</script>", "a\nb  <c>" * 100)
         self.assertNotIn("<script>", tags)
         self.assertNotIn("<c>", tags)
-        desc = tags.split("og:description", 1)[1]
-        self.assertLess(len(desc), 500)
+        raw = tags.split("content='")[-1].rsplit("'>", 1)[0]
+        # Cap applies to the real text; escaping may inflate the wire.
+        self.assertLessEqual(len(htmlmod.unescape(raw)), 300)
+        self.assertTrue(raw.endswith("..."))
 
     def test_defaults_when_blank(self):
         tags = ogmod.og_tags("", "")
