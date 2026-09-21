@@ -185,7 +185,11 @@ CSS = ("body{font-family:system-ui,-apple-system,sans-serif;max-width:48rem;"
        "kbd{border:1px solid #999;border-radius:4px;padding:0 .3rem;"
        "background:#f4f4f4;font-size:.8rem}")
 
-CSS += clickcardsmod.focus_css()  # Batch 7 I-16: stretched-link + focus ring
+# Batch 7 I-16: focus_css() returns a complete <style> element (see
+# clickcards.focus_css + tests/test_clickcards.py), so it must NOT be
+# concatenated into CSS (that nests <style> inside <style>, closes the
+# head stylesheet early, and dumps all later CSS into <body> as text).
+FOCUS_CSS = clickcardsmod.focus_css()
 CSS += palettemod.palette_css() + darkmodemod.dark_css() + typescalemod.scale_css() + fontstackmod.stack_css()  # Batch 9 I-51/52/53/54: token variables, dark overrides, type scale, font stacks
 
 GLOBAL_JS = """
@@ -289,7 +293,8 @@ def page(title: str, body: str, active: str = "projects",
     foot = footnavmod.footer(sitenavmod.href_of(active))
     body = banner + body
     return (f"<!doctype html><html><head><meta charset='utf-8'>"
-            f"<title>{html.escape(title)}</title><style>{CSS}</style></head>"
+            f"<title>{html.escape(title)}</title><style>{CSS}</style>"
+            f"{FOCUS_CSS}</head>"
             f"<body data-page='{page_id}'>{head}<main id='main'>{body}</main>{foot}"
             f"{shortcutsmod.overlay_html()}{GLOBAL_JS}{shortcutsmod.script_js()}"
             f"{searchmod.script_js()}{scrollposmod.record_js()}"

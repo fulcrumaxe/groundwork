@@ -73,6 +73,20 @@ class PageShellTest(unittest.TestCase):
         raw = webmod.page("T", "<p>x</p>", lede="What next").decode()
         self.assertIn("What next", raw)
 
+    def test_no_nested_style_elements(self):
+        # focus_css() is a complete <style> element: it must be emitted
+        # beside the head stylesheet, never concatenated inside it
+        # (nested <style> closes the sheet early and dumps later CSS
+        # into <body> as visible text).
+        raw = webmod.page("T", "<p>x</p>").decode()
+        self.assertEqual(raw.count("<style>"), raw.count("</style>"))
+        first_open = raw.index("<style>")
+        first_close = raw.index("</style>")
+        self.assertNotIn("<style>", raw[first_open + 1:first_close])
+        head = raw.split("</head>", 1)[0]
+        self.assertIn("prefers-color-scheme", head)
+        self.assertIn("--fs-h1", head)
+
 
 class DistinctPagesTest(unittest.TestCase):
     def setUp(self):
