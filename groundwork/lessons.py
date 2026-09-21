@@ -12,6 +12,7 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
                     level_override: str, base_path: str) -> str:
     """Leveled explainer with tabs; auto-places from mastery by default."""
     from . import codelines as codelinesmod
+    from . import dualcode as dualmod
     from . import explain as explainmod
     levels = explainmod.levels_for(lesson)
     if level_override in ("1", "2", "3", "4"):
@@ -38,6 +39,20 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
         else:
             out.append(f"<h5>{html.escape(blk['h'])}</h5>"
                        f"<p>{body.replace(chr(10), '<br>')}</p>")
+    # F-60: the generated lesson's key ideas as diagram + trace.
+    how = [s for s in (lesson.get("how") or [])
+           if isinstance(s, str) and s.strip()]
+    dc = lesson.get("dualcode")
+    dc = dc if isinstance(dc, dict) else {}
+    steps = [s for s in (dc.get("steps") or how)
+             if isinstance(s, str) and s.strip()]
+    if steps:
+        pack = dualmod.pack_html(
+            lesson.get("name") or "",
+            (lesson.get("summary") or "").splitlines()[0][:200],
+            steps, dc.get("states") or [])
+        if pack:
+            out.append(pack)
     if lv.get("code") and not any(b.get("pre") for b in lv["blocks"]):
         out.append(f"<details><summary>Show me the code</summary>"
                    f"<pre>{codelinesmod.numbered_html(lv['code'])}</pre></details>")
