@@ -73,7 +73,22 @@ skip kinds of items; whatever is next in the backlog is what ships.
    command) must be fully green; `tests/test_modularity.py` guards
    the ceilings.
 
-8. **Merge.** `git checkout main && git merge --no-ff <branch>`
+8. **Chrome-verify (real browser, every batch).**
+   Unit tests assert on HTML source; only the rendered DOM catches
+   breakage like nested `<style>` (Batch 9: dark/type/font CSS dumped
+   into `<body>` as text while all source tests stayed green).
+   Reproducible script (flake pins python/chromium/node):
+   `nix run .#chrome-verify` — serves a temp DB copy, opens each
+   fixture page in headless Chrome via chrome-devtools-mcp, asserts
+   every batch item in the live DOM (collapse submit interaction
+   included), saves screenshots + `report.json`, exits nonzero on
+   any failure. With agent chrome-devtools tools available, the same
+   checks run natively: navigate each fixture, `evaluate_script`
+   the item assertions, submit one real card review to prove the
+   collapse/undo flow, confirm zero console errors.
+   Fix anything found (regression test first), re-run to green.
+
+9. **Merge.** `git checkout main && git merge --no-ff <branch>`
    (local only — never push unless explicitly asked). Resolve
    conflicts in tour.py/status.py by keeping all entries from both
    sides, re-run step 7 after resolving.
