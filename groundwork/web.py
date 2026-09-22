@@ -96,6 +96,7 @@ from . import reset as resetmod
 from . import responsive as responsivemod
 from . import results as resmod
 from . import resume as resumemod
+from . import reteach as reteachmod
 from . import reviewed as reviewedmod
 from . import sched as schedmod
 from . import scrollbar as scrollbarmod
@@ -658,6 +659,16 @@ class Handler(BaseHTTPRequestHandler):
                 " ORDER BY id DESC",
                 [c["id"] for c in due]).fetchall() if due else []
             crows = quemod.cold_rows(con2) if cold else []
+            # F-90: earliest attempt + own-words recording per concept.
+            try:
+                first_rows = con2.execute(
+                    "SELECT concepts.name, reviews.reviewed_at,"
+                    " reviews.submission FROM reviews"
+                    " JOIN cards ON cards.id = reviews.card_id"
+                    " JOIN concepts ON concepts.id = cards.concept_id"
+                    " ORDER BY reviews.reviewed_at").fetchall()
+            except Exception:  # noqa: BLE001 -- pre-migration DBs
+                first_rows = []
         finally:
             con2.close()
         due = minisessionmod.apply_dial(due, dial, tries)
@@ -665,7 +676,9 @@ class Handler(BaseHTTPRequestHandler):
                  recentmod.strip_html(),
                  minisessionmod.session_box_html(due),
                  minisessionmod.dial_box(dial, mode),
-                 resumemod.resume_box_html(resume_key or "", len(due))]
+                 resumemod.resume_box_html(resume_key or "", len(due)),
+                 reteachmod.reteach_box_html(reteachmod.pick_reteach(
+                     reteachmod.first_attempts(first_rows)))]
         if cold:
             return "<div id='queue'>" + "".join(parts[:2] + [minisessionmod.cold_box(crows, {c["concept_id"] for c in due})] + ["<p><a href='/due'>Full queue</a></p>"]) + "</div>"
         if one and due:
