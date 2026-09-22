@@ -25,6 +25,7 @@ from . import cliux as cliuxmod
 from . import commitmsg as commitmsgmod
 from . import configex as configexmod
 from . import containerize as containerizemod
+from . import contracts as contractsmod
 from . import crashdump as crashdumpmod
 from . import cssfix as cssfixmod
 from . import counterex as counterexmod
@@ -171,6 +172,7 @@ TYPES = {
     87: ("counterexample-hunt", "analyse"),
     88: ("boundary-drill", "analyse"),
     89: ("invariant-state", "analyse"),
+    90: ("contract-author", "create"),
 }
 
 BLOOM_TYPES = {
@@ -181,7 +183,7 @@ BLOOM_TYPES = {
                 49, 50, 51, 52, 53, 58, 59, 60, 61, 69, 76, 82, 87, 88, 89],
     "modify": [12, 14, 19, 20, 27, 35, 38, 39, 46, 47, 56, 62, 66, 67, 70],
     "evaluate": [21, 22, 48, 57, 63, 71, 73, 77, 78],
-    "create": [24, 23, 40, 41, 42, 43, 64, 65, 75, 84],
+    "create": [24, 23, 40, 41, 42, 43, 64, 65, 75, 84, 90],
     "understand": [79, 1, 80],
 }
 
@@ -893,6 +895,7 @@ GENERATORS = {
     87: counterexmod.generate,
     88: boundarymod.generate,
     89: invariantmod.generate,
+    90: contractsmod.generate,
 }
 
 
@@ -1190,6 +1193,8 @@ def grade(exercise: dict, submission: str, runner=None) -> dict:
         return boundarymod.grade(exercise, submission, runner)
     if t == 89:
         return invariantmod.grade(exercise, submission, runner)
+    if t == 90:
+        return contractsmod.grade(exercise, submission, runner)
     # Execution-graded types need the sandbox runner. Pure-order Parsons
     # (no harness) is graded without it, below.
     if runner is None and not (t == 11 and not p.get("tests")):
@@ -1410,6 +1415,8 @@ def render(exercise: dict) -> str:
         return boundarymod.render(exercise)
     if t == 89:
         return invariantmod.render(exercise)
+    if t == 90:
+        return contractsmod.render(exercise)
     p = exercise.get("payload", {})
     front = html.escape(exercise.get("front", ""))
     body = f"<p>{front}</p>"
