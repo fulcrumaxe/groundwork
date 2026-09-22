@@ -53,6 +53,7 @@ ROUTES = (
     ("/search", "Ranked header search"),
     ("/modules/{mid}", "Module detail page"),
     ("/modules/{mid}/reset", "Module reset confirm + action"),
+    ("/modules/{mid}/handout/{node}", "Printable lesson handout"),
     ("/export/anki.tsv", "Anki TSV export"),
     ("/export/reviews.csv", "Reviews CSV export"),
     ("/export/me.json", "Personal JSON export"),

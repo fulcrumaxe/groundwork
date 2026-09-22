@@ -36,7 +36,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 
-WEB_CEILING = 1258  # Batch 18: +3 head-wire imports, +order threading (explainflip). Batch 19: symbols/replay/version params, ?replay threading, delegation lines.
+WEB_CEILING = 1328  # Batch 18: +3 head-wire imports, +order threading (explainflip). Batch 19: symbols/replay/version params, ?replay threading, delegation lines. Batch 20: lessonpin import + pin-order delegation. Handout route + per-section link. Explcalib import + calibration query/wires. Diagrams import + badge/mark wires. Debugkata import + kata block wire. Readgroup import + session wire. Reteach import + first-attempt query/box. Forgetcurve import + decay fit/order; minisession decay floor. Peaktime import + banner wire.
 AREA_CAP = 350
 
 # Capability area -> module implementing it. Batch 3 appends its areas here.
@@ -261,6 +261,23 @@ AREAS = {
     "counterex": "counterex.py",
     "boundary": "boundary.py",
     "batch19": "batch19.py",
+    "lessondiff": "lessondiff.py",
+    "lessonpin": "lessonpin.py",
+    "handout": "handout.py",
+    "tabmemory": "tabmemory.py",
+    "explcalib": "explcalib.py",
+    "levelextremes": "levelextremes.py",
+    "peerhelp": "peerhelp.py",
+    "diagrams": "diagrams.py",
+    "invariant": "invariant.py",
+    "contracts": "contracts.py",
+    "katabank": "katabank.py",
+    "debugkata": "debugkata.py",
+    "readgroup": "readgroup.py",
+    "reteach": "reteach.py",
+    "forgetcurve": "forgetcurve.py",
+    "peaktime": "peaktime.py",
+    "batch20": "batch20.py",
 }
 
 

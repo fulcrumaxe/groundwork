@@ -11,6 +11,7 @@ import ast
 import re
 from pathlib import Path
 
+from . import debugkata as debugkatamod
 from . import diff as diffmod
 from . import exercises as ex
 from . import graph as graphmod
@@ -287,10 +288,10 @@ BLOOM_DEFAULT_TYPES = {
     "explain": [5, 6, 7, 25, 1, 83, 85, 86],
     "apply": [8, 10, 11, 12, 9, 31, 32, 33, 44, 54, 55, 68, 72, 74, 81],
     "analyse": [13, 14, 16, 18, 9, 15, 17, 26, 28, 29, 34, 36, 37, 45,
-                49, 50, 51, 52, 53, 58, 59, 60, 61, 69, 76, 82, 87, 88],
+                49, 50, 51, 52, 53, 58, 59, 60, 61, 69, 76, 82, 87, 88, 89],
     "modify": [12, 14, 19, 20, 27, 35, 38, 39, 46, 47, 56, 62, 66, 67, 70],
     "evaluate": [21, 22, 48, 57, 63, 71, 73, 77, 78],
-    "create": [24, 23, 40, 41, 42, 43, 64, 65, 75, 84],
+    "create": [24, 23, 40, 41, 42, 43, 64, 65, 75, 84, 90],
     "understand": [79, 1, 80],
 }
 
@@ -451,6 +452,12 @@ def create_module(con, repo: str, commit_range: str = "", task_summary: str = ""
         note = whyitmod.clean_note(_note_for(c))
         if note:
             lesson_by_concept[c.node_id]["why_note"] = note
+    # F-88: attach debugging katas matching each lesson's own source.
+    # No match leaves the frame untouched (legacy path).
+    for c in concepts:
+        debugkatamod.enrich_lesson(
+            lesson_by_concept[c.node_id],
+            lesson_by_concept[c.node_id].get("source", ""))
     missing_lessons = sorted(
         {L["concept_id"] for L in lessons if not L.get("agent")})
     for c in concepts:

@@ -39,8 +39,10 @@ from . import crumbs as crumbsmod
 from . import darkmode as darkmodemod
 from . import db as dbmod
 from . import debt as debtmod
+from . import debugkata as debugkatamod
 from . import decisions as decmod
 from . import density as densitymod
+from . import diagrams as diagramsmod
 from . import diagnose as diamod
 from . import diff as diffmod
 from . import digest as digestmod
@@ -49,18 +51,22 @@ from . import donehero as doneheromod
 from . import emoji as emojimod, parsons as parsonsmod  # one line keeps web.py at WEB_CEILING
 from . import emptyart as emptyartmod
 from . import errors as errmod
+from . import explcalib as explcalibmod
 from . import explainflip as flipmod
 from . import exports as expmod
 from . import favicon as faviconmod
 from . import fontstack as fontstackmod
 from . import focusrings as focusringsmod
 from . import footnav as footnavmod
+from . import forgetcurve as forgetcurvemod
 from . import formerr as formerrmod
+from . import handout as handoutmod
 from . import hinttiers as hinttiersmod
 from . import history as histmod
 from . import journal as journalmod
 from . import known as knownmod
 from . import lessons as lesmod
+from . import lessonpin as lessonpinmod
 from . import lessonver as lessonvermod
 from . import levelcarry as levelcarrymod
 from . import logbook as logbookmod
@@ -78,11 +84,13 @@ from . import ownership as ownmod
 from . import pageicon as pageiconmod
 from . import pager as pagermod
 from . import palette as palettemod
+from . import peaktime as peaktimemod
 from . import pressfx as pressfxmod
 from . import queries as quemod
 from . import radius as radiusmod
 from . import queue as qmod
 from . import quests as questsmod
+from . import readgroup as readgroupmod
 from . import readtime as readtimemod
 from . import recent as recentmod
 from . import related as relmod
@@ -90,6 +98,7 @@ from . import reset as resetmod
 from . import responsive as responsivemod
 from . import results as resmod
 from . import resume as resumemod
+from . import reteach as reteachmod
 from . import reviewed as reviewedmod
 from . import sched as schedmod
 from . import scrollbar as scrollbarmod
@@ -105,6 +114,7 @@ from . import sitemap as sitemapmod
 from . import sitenav as sitenavmod
 from . import snapshot as snapshotmod
 from . import spacing as spacingmod
+from . import tabmemory as tabmemorymod
 from . import taptargets as taptargetsmod
 from . import status as statusmod
 from . import storage as storagemod
@@ -576,6 +586,16 @@ class Handler(BaseHTTPRequestHandler):
             host = self.headers.get("Host", "127.0.0.1:8765")
             self._send(self.robots_txt(f"http://{host}").encode(), 200,
                        "text/plain; charset=utf-8")
+        elif url.path.startswith("/modules/") and "/handout/" in url.path:
+            segs = url.path.split("/")
+            body = (handoutmod.page_for(self.db_path, segs[2], segs[4])
+                    if len(segs) > 4 else handoutmod.EMPTY_HTML)
+            if body == handoutmod.EMPTY_HTML:
+                self._send(page("Not found", errmod.not_found_html(
+                    url.path, "Unknown lesson."), active="modules",
+                    page_id="modules", counts=counts, tour=tour_ctx), 404)
+            else:
+                self._send(body.encode(), 200, "text/html; charset=utf-8")
         elif url.path.startswith("/modules/") and url.path.endswith("/reset"):
             mid = url.path.split("/")[2]
             con = self._con()
@@ -634,15 +654,50 @@ class Handler(BaseHTTPRequestHandler):
         try:
             study = quemod.stored_lessons(con2, [c["id"] for c in due])
             tries = quemod.attempts(con2, [c["id"] for c in due])
+            # I-122: newest-first (grade, confidence) rows per card.
+            cal_rows = con2.execute(
+                "SELECT card_id, grade, confidence FROM reviews"
+                f" WHERE card_id IN ({','.join('?' * len(due))})"
+                " ORDER BY id DESC",
+                [c["id"] for c in due]).fetchall() if due else []
             crows = quemod.cold_rows(con2) if cold else []
+            # F-91: recall history for the personal decay constant.
+            fc_rows = con2.execute(
+                "SELECT card_id, stability, grade, reviewed_at FROM reviews"
+                " JOIN cards ON cards.id = reviews.card_id"
+                f" WHERE card_id IN ({','.join('?' * len(due))})"
+                " ORDER BY reviewed_at",
+                [c["id"] for c in due]).fetchall() if due else []
+            # F-92: all (grade, reviewed_at) pairs for the peak window.
+            peak_rows = con2.execute(
+                "SELECT grade, reviewed_at FROM reviews").fetchall()
+            # F-90: earliest attempt + own-words recording per concept.
+            try:
+                first_rows = con2.execute(
+                    "SELECT concepts.name, reviews.reviewed_at,"
+                    " reviews.submission FROM reviews"
+                    " JOIN cards ON cards.id = reviews.card_id"
+                    " JOIN concepts ON concepts.id = cards.concept_id"
+                    " ORDER BY reviews.reviewed_at").fetchall()
+            except Exception:  # noqa: BLE001 -- pre-migration DBs
+                first_rows = []
         finally:
             con2.close()
-        due = minisessionmod.apply_dial(due, dial, tries)
+        # F-91: personal decay floors the dial and orders the queue;
+        # k=1.0 (no history) keeps both legacy paths byte-identical.
+        decay = forgetcurvemod.fit_decay(
+            forgetcurvemod.clean_attempts(fc_rows))
+        due = minisessionmod.apply_dial(due, dial, tries, decay=decay)
+        due = forgetcurvemod.order_due(due, decay)
         parts = [digestmod.section_html(self.db_path),
+                 # F-92: peak-recall banner; "" below threshold.
+                 peaktimemod.banner_html(peak_rows),
                  recentmod.strip_html(),
                  minisessionmod.session_box_html(due),
                  minisessionmod.dial_box(dial, mode),
-                 resumemod.resume_box_html(resume_key or "", len(due))]
+                 resumemod.resume_box_html(resume_key or "", len(due)),
+                 reteachmod.reteach_box_html(reteachmod.pick_reteach(
+                     reteachmod.first_attempts(first_rows)))]
         if cold:
             return "<div id='queue'>" + "".join(parts[:2] + [minisessionmod.cold_box(crows, {c["concept_id"] for c in due})] + ["<p><a href='/due'>Full queue</a></p>"]) + "</div>"
         if one and due:
@@ -678,9 +733,11 @@ class Handler(BaseHTTPRequestHandler):
                     explainer = lesmod.render_levels(
                         lesson_dict, mastery, tries.get(c["id"], 0), level, "/", order=order,
                         symbols=sym_index, sym_mid=g["mid"], replay_step=replay_step,
-                        lesson_commit=c.get("commit", ""))
-                    lesson = (f"<details><summary>Study first — explained your way</summary>"
-                              f"{explainer}</details>")
+                        lesson_commit=c.get("commit", ""),
+                        recent=explcalibmod.recent_from_rows(
+                            [r for r in cal_rows if r[0] == c["id"]]))
+                    lesson = tabmemorymod.details_html(
+                        explainer, f"due:{c['id']}")
                 else:
                     lesson = ""
                 first = (i == 0)
@@ -722,7 +779,8 @@ class Handler(BaseHTTPRequestHandler):
         parts.append("<p><a class='btn' href='/modules'>Browse all modules</a> "
                      "<a class='btn' href='/reviews'>Review history</a> "
                      "<a class='btn' href='/diagnose'>Diagnose a traceback</a></p>")
-        return "<div id='queue'>" + "".join(parts) + "</div>"
+        return ("<div id='queue'>" + "".join(parts)
+                + tabmemorymod.memory_js() + "</div>")
 
     def history_html(self) -> str:
         return histmod.history_html(self.db_path)
@@ -933,6 +991,9 @@ class Handler(BaseHTTPRequestHandler):
             ladders = debtmod.bloom_reached(con, mid)
         finally:
             con.close()
+        # I-117: pinned lessons first; no pins keeps the legacy order.
+        pins = []
+        concepts = lessonpinmod.order_with_pins(concepts, pins)
         base = f"/modules/{mid}"
         try:
             lesson_map = {L["concept_id"]: L
@@ -973,10 +1034,13 @@ class Handler(BaseHTTPRequestHandler):
         for row in concepts:
             node = row["cid"].split(":", 1)[1] if ":" in row["cid"] else row["cid"]
             mins = readtimemod.minutes_for(lesson_map.get(node, {}))
-            toc.append(f"<a href='#lesson-{lesmod.slug(node)}'>{html.escape(row['name'])}</a> · {mins} min")
+            mark = diagramsmod.toc_mark(lesson_map.get(node, {}))
+            toc.append(f"<a href='#lesson-{lesmod.slug(node)}'>{html.escape(row['name'])}</a> · {mins} min{mark}")
         if toc:
             parts.append(tochighlightmod.enhance_toc(
                 f"<p class='toc' id='readtime'><small>In this module: {' · '.join(toc)}</small> <small>(minutes per lesson)</small></p>"))
+        # F-89: reading-group section; no presence keeps legacy bytes.
+        parts.append(readgroupmod.session_html(lesson_map, None))
         if concepts:
             owned_n = 0
             for row in concepts:
@@ -1022,8 +1086,11 @@ class Handler(BaseHTTPRequestHandler):
                 f"{html.escape(row['file'])}:{row['line']}</small></p>")
             if node in lesson_map:
                 parts.append(whyitmod.lesson_why_html(lesson_map[node], first=(ci == 0)))
-                parts.append(lesmod.render_levels(lesson_map[node], mastery_of[node], concept_tries, level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node), order=order, symbols=sym_index, sym_mid=mid, replay_step=replay_step, lesson_commit=mod_commit, current_commit=mod_head))
+                parts.append(lesmod.render_levels(lesson_map[node], mastery_of[node], concept_tries, level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node), order=order, symbols=sym_index, sym_mid=mid, replay_step=replay_step, lesson_commit=mod_commit, current_commit=mod_head, recent=explcalibmod.recent_from_rows([r for c in concept_cards for r in history.get(c["id"], [])])))
                 parts.append(beforaftermod.lesson_block(lesson_map[node], ci == 0))
+                parts.append(diagramsmod.badge_html(lesson_map[node]))
+                parts.append(debugkatamod.lesson_block(lesson_map[node]))
+                parts.append(handoutmod.handout_link_html(mid, node))
             parts.append(decmod.lesson_block(
                 node, dec_matches.get(node, []), ci == 0))
             avg, nvotes = cl_sums.get(row["cid"], (0.0, 0))
@@ -1040,9 +1107,10 @@ class Handler(BaseHTTPRequestHandler):
                 else:
                     parts.append("<h3>Practice</h3>")
             for c in concept_cards:
-                lesson = (f"<details><summary>Study first — explained your way</summary>"
-                          f"{lesmod.render_levels(lesson_map[node], mastery_of.get(node, 0.0), tries.get(c['id'], 0), level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node), order=order, symbols=sym_index, sym_mid=mid, replay_step=replay_step, lesson_commit=mod_commit, current_commit=mod_head)}</details>"
-                          if node in lesson_map else "")
+                lesson = (tabmemorymod.details_html(
+                    lesmod.render_levels(lesson_map[node], mastery_of.get(node, 0.0), tries.get(c['id'], 0), level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node), order=order, symbols=sym_index, sym_mid=mid, replay_step=replay_step, lesson_commit=mod_commit, current_commit=mod_head, recent=explcalibmod.recent_from_rows(history.get(c['id'], []))),
+                    f"mod:{node}")
+                    if node in lesson_map else "")
                 parts.append(
                     f"{cardlinksmod.article_open(c['id'])}<h3>{html.escape(c['concept'])} "
                     f"{cardsmod._difficulty_dots(c['difficulty'])}</h3>"
@@ -1056,6 +1124,8 @@ class Handler(BaseHTTPRequestHandler):
             parts.append("</section>")
         parts.append(relmod.related_html(self.db_path, mid))
         parts.append(emojimod.totop_html())
+        # I-121: explainer open/closed memory (no-op without panels).
+        parts.append(tabmemorymod.memory_js())
         return "".join(parts)
 
     def journal_html(self) -> str:

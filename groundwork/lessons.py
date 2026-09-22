@@ -16,8 +16,19 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
                     order: str = "definition", symbols=None,
                     sym_mid: str = "", replay_step=None,
                     lesson_commit: str = "",
-                    current_commit: str = "") -> str:
+                    current_commit: str = "", recent=None,
+                    peer_votes=None) -> str:
     """Leveled explainer with tabs; auto-places from mastery by default.
+
+    ``recent`` is an optional oldest-first list of (grade, confidence)
+    pairs (I-122, ``explcalib.recent_from_rows``); it nudges the auto
+    placement for overconfident/underconfident streaks. ``None``/empty
+    keeps the legacy ``explain.auto_level`` placement.
+
+    ``peer_votes`` is an optional list of opt-in (level, opted) votes
+    (I-124); a strict-plurality winner at quorum appends a hint beside
+    the tabs, otherwise nothing renders.
+
 
     ``owned`` is an optional list of sibling lesson dicts the learner
     already masters; when two or more are given an elaboration drill
@@ -42,14 +53,19 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
     from . import runinputs as runinputsmod
     from . import srccollapse as srcmod
     from . import tryprompts as trymod
+    from . import explcalib as explcalibmod
+    from . import levelextremes as extremesmod
     from . import lessonver as lessonvermod
+    from . import peerhelp as peerhelpmod
+    from . import lessondiff as lessondiffmod
     levels = explainmod.levels_for(lesson)
     order = flipmod.normalize_order(order)
     osuffix = "" if order == "definition" else f"&order={order}"
     if level_override in ("1", "2", "3", "4"):
         active = int(level_override)
     else:
-        active = explainmod.auto_level(mastery or 0.0, attempts)
+        # I-122: recent calibration nudges auto-place; no data = legacy.
+        active = explcalibmod.pick_level(mastery or 0.0, attempts, recent)
     tabs = []
     for n in ("auto", "1", "2", "3", "4"):
         label = "Auto" if n == "auto" else explainmod.LEVEL_TITLES[int(n)]
@@ -58,11 +74,16 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
             (n != "auto" and int(n) == active and
              level_override in ("1", "2", "3", "4"))) else ""
         tabs.append(f"<a href='{base_path}?level={n}{osuffix}'>{label}</a>{mark}")
-    # I-115: version banner first; "" on the legacy path keeps bytes.
-    ver = lessonvermod.banner_html(
+    # I-115/I-116: version banner then version diff; "" keeps bytes.
+    ver = (lessonvermod.banner_html(
         lessonvermod.lesson_commit_of(lesson, lesson_commit), current_commit)
-    out = [ver + f"<p><small>Explain it {'simply' if active <= 2 else 'technically'}: "
-           f"{' · '.join(tabs)}</small></p>" + flipmod.toggle_html(base_path, level_override, order)]
+        + lessondiffmod.lesson_block(lesson))
+    # I-123: ELI5 block above, tradeoffs below; "" keeps bytes.
+    top, bottom = extremesmod.extreme_blocks(lesson)
+    # I-124: peer level hint beside the tabs; "" until quorum.
+    peer = peerhelpmod.line_html(peer_votes)
+    out = [ver + top + f"<p><small>Explain it {'simply' if active <= 2 else 'technically'}: "
+           f"{' · '.join(tabs)}</small></p>" + peer + flipmod.toggle_html(base_path, level_override, order)]
     lv = next(L for L in levels if L["n"] == active)
     out.append(f"<h4>{html.escape(lv['title'])}</h4>")
     sym_index = symbols if isinstance(symbols, dict) else {}
@@ -147,6 +168,8 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
              "summary": lesson.get("summary") or ""}, owned_list)
         if drill.get("partners"):
             out.append(elabmod.drill_html(drill, wrapper="div"))
+    if bottom:
+        out.append(bottom)
     return "".join(out)
 
 

@@ -14,6 +14,7 @@ from . import confweight as confweightmod
 from . import db as dbmod
 from . import exercises as exmod
 from . import interleave as interleavemod
+from . import katabank as katabankmod
 from . import modules as modmod
 from . import ownership as ownmod
 from . import retest as retestmod
@@ -268,12 +269,18 @@ class MCPServer:
                 " GROUP BY cards.concept_id, cards.exercise_type").fetchall()
             mastery = {(r["concept_id"], r["exercise_type"]): r["g"]
                        for r in mrows if r["n"]}
+            # F-87: per-smell kata history; empty keeps the legacy order.
+            krows = con.execute(
+                "SELECT reviews.grade, reviews.reviewed_at, cards.payload"
+                " FROM reviews JOIN cards ON cards.id = reviews.card_id").fetchall()
+            kata_history = katabankmod.kata_history_from_rows(krows)
             probes = self._probe_cards(con, now)
             known = {c["id"] for c in cards}
             cards = cards + [p for p in probes if p["id"] not in known]
         finally:
             con.close()
-        return {"due": interleavemod.order_due(cards, mastery),
+        return {"due": katabankmod.order_due(
+                    interleavemod.order_due(cards, mastery), kata_history),
                 "count": len(cards)}
 
     def snooze_card(self, card_id: str) -> dict:

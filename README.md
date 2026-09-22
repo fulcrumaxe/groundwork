@@ -185,6 +185,14 @@ sandbox, never invented.
 | Analogy builder | Map it onto a familiar domain — then state where the analogy breaks. | `/due#up-next` |
 | Counterexample hunting | State the belief, then break it: name one input where the claim about a real function fails. | `/status#status-b19-counterex` |
 | Boundary-value drills | Name the ONE edge integer to probe first — off-by-one bootcamp. | `/due#up-next` |
+| Invariant stating | Write the loop invariant; the verifier checks your claim. | `/due#up-next` |
+| Contract authoring | Write requires/ensures one-liners; measured tests grade them. | `/due#up-next` |
+| Refactoring kata library | Same smell across many repos on a spaced schedule until the fix sticks. | `/status#status-b20-katabank` |
+| Debugging kata library | Meet the eight classic bug shapes with a failing call each, drawn from synthetic and real code. | `/status#status-b20-debugkata` |
+| Reading-group mode | Study one module together: shared lesson, discussion prompts, local presence sync. | `/status#status-b20-readgroup` |
+| Re-taught after 30 days | A month-old concept returns with your own words beside a fresh prompt. | `/status#status-b20-reteach` |
+| Your forgetting curve | Reviews timed to your decay — fast faders return sooner, slow faders later. | `/status#status-b20-forgetcurve` |
+| Best time to review | Your past grades reveal when your recall peaks — review then for more passes. | `/status#status-b20-peaktime` |
 <!-- GW-FEATURES:END -->
 
 ## Improvements
@@ -310,6 +318,14 @@ sandbox, never invented.
 | Why this lesson matters | Each lesson opens with the agent's own one-line reason — why this concept earns your study time. | `/modules/&lt;id&gt;#{lesson}` |
 | Try-it-yourself prompts | Study paragraphs pause for a try-it-yourself nudge — restate, exemplify, or predict before reading on. | `/modules/&lt;id&gt;#{lesson}` |
 | Lesson version banner | Lessons name the commit they were written for — and say when the code has moved on since. | `/status#status-b19-lessonver` |
+| Lesson version diff | Old versus new code, line by line. | `/status#status-b20-lessondiff` |
+| Pinned lessons | Pin must-read lessons so they stay atop the module no matter how the list is ordered. | `/status#status-b20-lessonpin` |
+| Printable lesson handout | Any single lesson exports as a clean print-ready handout with its read-time estimate. | `/status#status-b20-handout` |
+| Explainers remember their state | Study-first panels reopen as you left them. | `/status#status-b20-tabmemory` |
+| Levels that read your calibration | Auto-level now weighs recent calibration, not just mastery. | `/status#status-b20-explcalib` |
+| ELI5 and tradeoff extremes | Explainers stretch both ways: an ELI5 analogy on top, design tradeoffs below. | `/status#status-b20-levelextremes` |
+| Peer level hint | Tabs note which level opted-in peers found most helpful; silent until quorum. | `/status#status-b20-peerhelp` |
+| Every lesson gets a visual | Lessons missing a visual are flagged until fixed. | `/status#status-b20-diagrams` |
 <!-- GW-IMPROVEMENTS:END -->
 
 See also [docs/features.md](docs/features.md) and the in-app
