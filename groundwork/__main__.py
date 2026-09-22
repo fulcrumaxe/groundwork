@@ -188,6 +188,8 @@ def cmd_e2e(args) -> int:
             ans = p.get("answer", "")
         elif t == 82:
             ans = "\n".join(f"{a} -> {b}" for a, b in p.get("edges", []))
+        elif t == 84:
+            ans = " ".join(p.get("rubric", [])) + f"\n{p.get('key', '')}"
         elif t == 17:
             ans = (f"{p.get('target', 'x')}_renamed "
                    + " ".join(p.get("rubric", [])))

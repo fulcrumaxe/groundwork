@@ -104,6 +104,7 @@ def disclosure(etype: str | int) -> str:
         81: "Predict the call — exact choice wins; the synopsis and docs pointer on the back are the verify step.",
         82: "Draw the data flow from memory — exact edge set passes, partial credit per correct edge.",
         83: "Answer the duck's three questions — cover at least half the key points; the thinnest answer is named in the feedback.",
+        84: "Correct the junior AND answer the follow-up — both halves must pass; score is the mean.",
     }
     return table.get(t, "Graded like its exercise family.")
 

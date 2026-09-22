@@ -43,6 +43,7 @@ from . import metrics as metricsmod
 from . import migration as migrationmod
 from . import modelmap as modelmapmod
 from . import perffix as perffixmod
+from . import protege as protegemod
 from . import proptest as proptestmod
 from . import racehunt as racehuntmod
 from . import rebase as rebasemod
@@ -159,6 +160,7 @@ TYPES = {
     81: ("api-guess", "apply"),
     82: ("model-map", "analyse"),
     83: ("rubber-duck", "explain"),
+    84: ("protege-studio", "create"),
 }
 
 BLOOM_TYPES = {
@@ -169,7 +171,7 @@ BLOOM_TYPES = {
                 49, 50, 51, 52, 53, 58, 59, 60, 61, 69, 76, 82],
     "modify": [12, 14, 19, 20, 27, 35, 38, 39, 46, 47, 56, 62, 66, 67, 70],
     "evaluate": [21, 22, 48, 57, 63, 71, 73, 77, 78],
-    "create": [24, 23, 40, 41, 42, 43, 64, 65, 75],
+    "create": [24, 23, 40, 41, 42, 43, 64, 65, 75, 84],
     "understand": [79, 1, 80],
 }
 
@@ -875,6 +877,7 @@ GENERATORS = {
     81: apiguessmod.generate,
     82: modelmapmod.generate,
     83: rubberduckmod.generate,
+    84: protegemod.gen_protege,
 }
 
 
@@ -1160,6 +1163,8 @@ def grade(exercise: dict, submission: str, runner=None) -> dict:
         return modelmapmod.grade(exercise, submission, runner)
     if t == 83:
         return rubberduckmod.grade(exercise, submission, runner)
+    if t == 84:
+        return protegemod.grade(exercise, submission, runner)
     # Execution-graded types need the sandbox runner. Pure-order Parsons
     # (no harness) is graded without it, below.
     if runner is None and not (t == 11 and not p.get("tests")):
@@ -1368,6 +1373,8 @@ def render(exercise: dict) -> str:
         return modelmapmod.render(exercise)
     if t == 83:
         return rubberduckmod.render(exercise)
+    if t == 84:
+        return protegemod.render(exercise)
     p = exercise.get("payload", {})
     front = html.escape(exercise.get("front", ""))
     body = f"<p>{front}</p>"
