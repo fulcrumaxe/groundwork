@@ -218,7 +218,7 @@ def cmd_e2e(args) -> int:
             ans = p.get("fixed", "")
         elif t == 65:
             ans = p.get("back", "")
-        elif t in (66, 67, 72):
+        elif t in (66, 67, 72, 79):
             ans = p.get("reference", "")
         elif t == 76:
             ans = p.get("cause", "")

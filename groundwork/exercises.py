@@ -68,6 +68,7 @@ from . import fartransfer as fartransfermod
 from . import pressure as pressuremod
 from . import incident as incidentmod
 from . import premortem as premortemmod
+from . import fluency as fluencymod
 
 # type number -> (name, bloom)
 TYPES = {
@@ -149,6 +150,7 @@ TYPES = {
     76: ("pressure-drill", "analyse"),
     77: ("incident-replay", "evaluate"),
     78: ("pre-mortem", "evaluate"),
+    79: ("reading-fluency", "understand"),
 }
 
 BLOOM_TYPES = {
@@ -160,6 +162,7 @@ BLOOM_TYPES = {
     "modify": [12, 14, 19, 20, 27, 35, 38, 39, 46, 47, 56, 62, 66, 67, 70],
     "evaluate": [21, 22, 48, 57, 63, 71, 73, 77, 78],
     "create": [24, 23, 40, 41, 42, 43, 64, 65, 75],
+    "understand": [79, 1],
 }
 
 
@@ -859,6 +862,7 @@ GENERATORS = {
     76: pressuremod.generate,
     77: incidentmod.gen_incident_replay,
     78: premortemmod.generate,
+    79: fluencymod.generate,
 }
 
 
@@ -1134,6 +1138,8 @@ def grade(exercise: dict, submission: str, runner=None) -> dict:
         return incidentmod.grade(exercise, submission, runner)
     if t == 78:
         return premortemmod.grade(exercise, submission, runner)
+    if t == 79:
+        return fluencymod.grade(exercise, submission, runner)
     # Execution-graded types need the sandbox runner. Pure-order Parsons
     # (no harness) is graded without it, below.
     if runner is None and not (t == 11 and not p.get("tests")):
@@ -1332,6 +1338,8 @@ def render(exercise: dict) -> str:
         return incidentmod.render(exercise)
     if t == 78:
         return premortemmod.render(exercise)
+    if t == 79:
+        return fluencymod.render(exercise)
     p = exercise.get("payload", {})
     front = html.escape(exercise.get("front", ""))
     body = f"<p>{front}</p>"

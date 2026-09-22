@@ -83,7 +83,7 @@ def select_concepts(graph, touched: list[str], mastery: dict[str, float] | None 
 def plan_module(concepts: list[ScoredConcept], learner_level: str) -> dict:
     """Pick Bloom targets + exercise types per concept by learner level."""
     level_map = {
-        "beginner": ["recall", "explain", "apply"],
+        "beginner": ["recall", "explain", "apply", "understand"],
         "intermediate": ["recall", "apply", "analyse"],
         "advanced": ["apply", "analyse", "modify", "evaluate", "create"],
     }

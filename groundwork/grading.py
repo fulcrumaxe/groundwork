@@ -99,6 +99,7 @@ def disclosure(etype: str | int) -> str:
         76: "Name the exact root cause within the 90s drill budget — exact phrase (case, quotes, whitespace ignored; listed aliases accepted); herrings, decoy requests, and pasted logs never count.",
         77: "Name the signal, detection, mitigation, and prevention plus the true timeline order — partial credit per point, half or more passes.",
         78: "Name at least half the failure modes — checklist match with partial credit per item.",
+        79: "Skim-then-verify: every probe letter must match — all correct passes, partial credit per probe.",
     }
     return table.get(t, "Graded like its exercise family.")
 

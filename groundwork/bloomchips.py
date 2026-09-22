@@ -23,6 +23,7 @@ BLOOM_TIERS = (
     "modify",
     "evaluate",
     "create",
+    "understand",  # Batch 18 (F-75 reading-fluency tier)
 )
 
 # Keys match pipeline.BLOOM_DEFAULT_TYPES exactly. Each tier carries
@@ -44,6 +45,8 @@ BLOOM_COLORS = {
                  "dark_bg": "#7c2d12", "dark_fg": "#fbe3c8"},
     "create": {"bg": "#faf3c8", "fg": "#713f12",
                "dark_bg": "#713f12", "dark_fg": "#faf0c0"},
+    "understand": {"bg": "#e2f4f1", "fg": "#0b5e54",
+                   "dark_bg": "#0b5e54", "dark_fg": "#d2f0ea"},
 }
 
 _NEUTRAL = {"bg": "#e8e8e8", "fg": "#1a1a1a",
