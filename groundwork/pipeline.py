@@ -330,7 +330,7 @@ def apply_agent_lessons(lessons: list, concepts, agent_lessons: list) -> list:
         L = by_concept[c.node_id]
         L["summary"] = summary[:2000]
         for f in ("how", "key_lines", "docstring", "source",
-                  "callers", "callees"):
+                  "callers", "callees", "before", "after"):
             if item.get(f) is not None:
                 L[f] = item[f]
         L["agent"] = True
