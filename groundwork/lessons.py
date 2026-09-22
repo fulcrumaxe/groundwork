@@ -39,6 +39,7 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
     from . import replay as replaymod
     from . import runinputs as runinputsmod
     from . import srccollapse as srcmod
+    from . import tryprompts as trymod
     levels = explainmod.levels_for(lesson)
     order = flipmod.normalize_order(order)
     osuffix = "" if order == "definition" else f"&order={order}"
@@ -60,7 +61,8 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
     out.append(f"<h4>{html.escape(lv['title'])}</h4>")
     sym_index = symbols if isinstance(symbols, dict) else {}
     sym_scope = sym_mid if isinstance(sym_mid, str) else ""
-    for blk in flipmod.reorder_blocks(lv["blocks"], order):
+    shown = list(flipmod.reorder_blocks(lv["blocks"], order))
+    for i, blk in enumerate(shown):
         body = glossmod.gloss_html(blk["b"])
         if blk.get("pre"):
             body = (srcmod.block_html(blk["b"]) or
@@ -71,6 +73,11 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
             body = symmod.link_symbols(body, sym_index, sym_scope)
             out.append(f"<h5>{html.escape(blk['h'])}</h5>"
                        f"<p>{body.replace(chr(10), '<br>')}</p>")
+        # I-112: micro-prompt between paragraphs, never after the last.
+        if i < len(shown) - 1:
+            micro = trymod.block_prompt_html(i, blk)
+            if micro:
+                out.append(micro)
     # F-60: the generated lesson's key ideas as diagram + trace.
     how = [s for s in (lesson.get("how") or [])
            if isinstance(s, str) and s.strip()]
