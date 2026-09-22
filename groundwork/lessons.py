@@ -48,6 +48,7 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
     from . import srccollapse as srcmod
     from . import tryprompts as trymod
     from . import explcalib as explcalibmod
+    from . import levelextremes as extremesmod
     from . import lessonver as lessonvermod
     from . import lessondiff as lessondiffmod
     levels = explainmod.levels_for(lesson)
@@ -70,7 +71,9 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
     ver = (lessonvermod.banner_html(
         lessonvermod.lesson_commit_of(lesson, lesson_commit), current_commit)
         + lessondiffmod.lesson_block(lesson))
-    out = [ver + f"<p><small>Explain it {'simply' if active <= 2 else 'technically'}: "
+    # I-123: ELI5 block above, tradeoffs below; "" keeps bytes.
+    top, bottom = extremesmod.extreme_blocks(lesson)
+    out = [ver + top + f"<p><small>Explain it {'simply' if active <= 2 else 'technically'}: "
            f"{' · '.join(tabs)}</small></p>" + flipmod.toggle_html(base_path, level_override, order)]
     lv = next(L for L in levels if L["n"] == active)
     out.append(f"<h4>{html.escape(lv['title'])}</h4>")
@@ -156,6 +159,8 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
              "summary": lesson.get("summary") or ""}, owned_list)
         if drill.get("partners"):
             out.append(elabmod.drill_html(drill, wrapper="div"))
+    if bottom:
+        out.append(bottom)
     return "".join(out)
 
 
