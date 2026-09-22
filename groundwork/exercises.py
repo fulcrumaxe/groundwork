@@ -65,6 +65,7 @@ from . import webhook as webhookmod
 from . import interview as interviewmod
 from . import transfer as transfermod
 from . import fartransfer as fartransfermod
+from . import pressure as pressuremod
 
 # type number -> (name, bloom)
 TYPES = {
@@ -143,6 +144,7 @@ TYPES = {
     73: ("mastery-interview", "evaluate"),
     74: ("transfer-test", "apply"),
     75: ("far-transfer", "create"),
+    76: ("pressure-drill", "analyse"),
 }
 
 BLOOM_TYPES = {
@@ -150,7 +152,7 @@ BLOOM_TYPES = {
     "explain": [5, 6, 7, 25, 1],
     "apply": [8, 10, 11, 12, 9, 31, 32, 33, 44, 54, 55, 68, 72, 74],
     "analyse": [13, 14, 15, 16, 17, 18, 9, 26, 28, 29, 34, 36, 37, 45,
-                49, 50, 51, 52, 53, 58, 59, 60, 61, 69],
+                49, 50, 51, 52, 53, 58, 59, 60, 61, 69, 76],
     "modify": [12, 14, 19, 20, 27, 35, 38, 39, 46, 47, 56, 62, 66, 67, 70],
     "evaluate": [21, 22, 48, 57, 63, 71, 73],
     "create": [24, 23, 40, 41, 42, 43, 64, 65, 75],
@@ -850,6 +852,7 @@ GENERATORS = {
     73: interviewmod.gen_mastery_interview,
     74: transfermod.generate,
     75: fartransfermod.gen_fartransfer,
+    76: pressuremod.generate,
 }
 
 
@@ -1119,6 +1122,8 @@ def grade(exercise: dict, submission: str, runner=None) -> dict:
         return transfermod.grade(exercise, submission, runner)
     if t == 75:
         return fartransfermod.grade(exercise, submission, runner)
+    if t == 76:
+        return pressuremod.grade(exercise, submission, runner)
     # Execution-graded types need the sandbox runner. Pure-order Parsons
     # (no harness) is graded without it, below.
     if runner is None and not (t == 11 and not p.get("tests")):
@@ -1311,6 +1316,8 @@ def render(exercise: dict) -> str:
         return transfermod.render(exercise)
     if t == 75:
         return fartransfermod.render(exercise)
+    if t == 76:
+        return pressuremod.render(exercise)
     p = exercise.get("payload", {})
     front = html.escape(exercise.get("front", ""))
     body = f"<p>{front}</p>"

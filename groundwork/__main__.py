@@ -220,6 +220,8 @@ def cmd_e2e(args) -> int:
             ans = p.get("back", "")
         elif t in (66, 67, 72):
             ans = p.get("reference", "")
+        elif t == 76:
+            ans = p.get("cause", "")
         elif t == 68:
             rows = p.get("rows", [])
             n = p.get("per_page_default", 5)

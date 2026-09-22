@@ -96,6 +96,7 @@ def disclosure(etype: str | int) -> str:
         73: "Speak it aloud, then write it down — your words must cover at least half the key points; missing points are listed in the feedback.",
         74: "Your answer on the unfamiliar snippet must equal the sandbox-measured output, run live — no lesson text to lean on.",
         75: "Re-express the pattern in the target language — every listed check must hold; no partial credit.",
+        76: "Name the exact root cause within the 90s drill budget — exact phrase (case, quotes, whitespace ignored; listed aliases accepted); herrings, decoy requests, and pasted logs never count.",
     }
     return table.get(t, "Graded like its exercise family.")
 
