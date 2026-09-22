@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import html
 
+from . import glossary as glossmod
 from . import verdicts as verdictsmod
 
 
@@ -44,7 +45,7 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
     lv = next(L for L in levels if L["n"] == active)
     out.append(f"<h4>{html.escape(lv['title'])}</h4>")
     for blk in lv["blocks"]:
-        body = html.escape(blk["b"])
+        body = glossmod.gloss_html(blk["b"])
         if blk.get("pre"):
             body = codelinesmod.numbered_html(blk["b"])
             out.append(f"<h5>{html.escape(blk['h'])}</h5><pre>{body}</pre>")
