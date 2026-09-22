@@ -93,6 +93,22 @@ def read_diff(repo: str | Path, commit_range: str = "") -> Diff:
     return d
 
 
+def head_commit(repo: str | Path) -> str:
+    """Current HEAD full hash, or "" outside a git repo; never raises."""
+    try:
+        proc = subprocess.run(
+            ["git", "-C", str(repo), "rev-parse", "HEAD"],
+            capture_output=True, text=True, timeout=10)
+        text = (proc.stdout or "").strip().lower()
+        if len(text) == 40 and all(c in "0123456789abcdef" for c in text):
+            return text
+        return ""
+    except (subprocess.SubprocessError, OSError, ValueError):
+        return ""
+    except Exception:  # noqa: BLE001 -- lookup never raises
+        return ""
+
+
 def touched_symbols(diff: Diff, graph) -> list[str]:
     """Map diff hunks to graph node ids overlapping the changed lines."""
     by_file: dict[str, list] = {}

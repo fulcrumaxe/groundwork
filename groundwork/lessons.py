@@ -14,7 +14,9 @@ from . import verdicts as verdictsmod
 def render_levels(lesson: dict, mastery: float, attempts: int,
                     level_override: str, base_path: str, owned=None,
                     order: str = "definition", symbols=None,
-                    sym_mid: str = "", replay_step=None) -> str:
+                    sym_mid: str = "", replay_step=None,
+                    lesson_commit: str = "",
+                    current_commit: str = "") -> str:
     """Leveled explainer with tabs; auto-places from mastery by default.
 
     ``owned`` is an optional list of sibling lesson dicts the learner
@@ -40,6 +42,7 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
     from . import runinputs as runinputsmod
     from . import srccollapse as srcmod
     from . import tryprompts as trymod
+    from . import lessonver as lessonvermod
     levels = explainmod.levels_for(lesson)
     order = flipmod.normalize_order(order)
     osuffix = "" if order == "definition" else f"&order={order}"
@@ -55,7 +58,10 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
             (n != "auto" and int(n) == active and
              level_override in ("1", "2", "3", "4"))) else ""
         tabs.append(f"<a href='{base_path}?level={n}{osuffix}'>{label}</a>{mark}")
-    out = [f"<p><small>Explain it {'simply' if active <= 2 else 'technically'}: "
+    # I-115: version banner first; "" on the legacy path keeps bytes.
+    ver = lessonvermod.banner_html(
+        lessonvermod.lesson_commit_of(lesson, lesson_commit), current_commit)
+    out = [ver + f"<p><small>Explain it {'simply' if active <= 2 else 'technically'}: "
            f"{' · '.join(tabs)}</small></p>" + flipmod.toggle_html(base_path, level_override, order)]
     lv = next(L for L in levels if L["n"] == active)
     out.append(f"<h4>{html.escape(lv['title'])}</h4>")
