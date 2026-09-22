@@ -160,6 +160,8 @@ def cmd_e2e(args) -> int:
             ans = p.get("expected", "")
         elif t == 74:
             ans = p.get("expected", "")
+        elif t == 75:
+            ans = p.get("reference", "")
         elif t == 9:
             ans = "\n".join(str(x) for x in p.get("expected", []))
         elif t in (7, 15, 16, 18):

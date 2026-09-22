@@ -64,6 +64,7 @@ from . import ratelimit as ratelimitmod
 from . import webhook as webhookmod
 from . import interview as interviewmod
 from . import transfer as transfermod
+from . import fartransfer as fartransfermod
 
 # type number -> (name, bloom)
 TYPES = {
@@ -141,6 +142,7 @@ TYPES = {
     72: ("webhook", "apply"),
     73: ("mastery-interview", "evaluate"),
     74: ("transfer-test", "apply"),
+    75: ("far-transfer", "create"),
 }
 
 BLOOM_TYPES = {
@@ -151,7 +153,7 @@ BLOOM_TYPES = {
                 49, 50, 51, 52, 53, 58, 59, 60, 61, 69],
     "modify": [12, 14, 19, 20, 27, 35, 38, 39, 46, 47, 56, 62, 66, 67, 70],
     "evaluate": [21, 22, 48, 57, 63, 71, 73],
-    "create": [24, 23, 40, 41, 42, 43, 64, 65],
+    "create": [24, 23, 40, 41, 42, 43, 64, 65, 75],
 }
 
 
@@ -847,6 +849,7 @@ GENERATORS = {
     71: ratelimitmod.generate, 72: webhookmod.generate,
     73: interviewmod.gen_mastery_interview,
     74: transfermod.generate,
+    75: fartransfermod.gen_fartransfer,
 }
 
 
@@ -1114,6 +1117,8 @@ def grade(exercise: dict, submission: str, runner=None) -> dict:
         return interviewmod.grade(exercise, submission, runner)
     if t == 74:
         return transfermod.grade(exercise, submission, runner)
+    if t == 75:
+        return fartransfermod.grade(exercise, submission, runner)
     # Execution-graded types need the sandbox runner. Pure-order Parsons
     # (no harness) is graded without it, below.
     if runner is None and not (t == 11 and not p.get("tests")):
@@ -1304,6 +1309,8 @@ def render(exercise: dict) -> str:
         return interviewmod.render(exercise)
     if t == 74:
         return transfermod.render(exercise)
+    if t == 75:
+        return fartransfermod.render(exercise)
     p = exercise.get("payload", {})
     front = html.escape(exercise.get("front", ""))
     body = f"<p>{front}</p>"

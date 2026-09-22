@@ -95,6 +95,7 @@ def disclosure(etype: str | int) -> str:
         72: "All four signature vectors must verify correctly — valid passes, tampered body, wrong secret, and replayed timestamp all rejected; no partial credit.",
         73: "Speak it aloud, then write it down — your words must cover at least half the key points; missing points are listed in the feedback.",
         74: "Your answer on the unfamiliar snippet must equal the sandbox-measured output, run live — no lesson text to lean on.",
+        75: "Re-express the pattern in the target language — every listed check must hold; no partial credit.",
     }
     return table.get(t, "Graded like its exercise family.")
 
