@@ -41,6 +41,7 @@ from . import db as dbmod
 from . import debt as debtmod
 from . import decisions as decmod
 from . import density as densitymod
+from . import diagrams as diagramsmod
 from . import diagnose as diamod
 from . import diff as diffmod
 from . import digest as digestmod
@@ -999,7 +1000,8 @@ class Handler(BaseHTTPRequestHandler):
         for row in concepts:
             node = row["cid"].split(":", 1)[1] if ":" in row["cid"] else row["cid"]
             mins = readtimemod.minutes_for(lesson_map.get(node, {}))
-            toc.append(f"<a href='#lesson-{lesmod.slug(node)}'>{html.escape(row['name'])}</a> · {mins} min")
+            mark = diagramsmod.toc_mark(lesson_map.get(node, {}))
+            toc.append(f"<a href='#lesson-{lesmod.slug(node)}'>{html.escape(row['name'])}</a> · {mins} min{mark}")
         if toc:
             parts.append(tochighlightmod.enhance_toc(
                 f"<p class='toc' id='readtime'><small>In this module: {' · '.join(toc)}</small> <small>(minutes per lesson)</small></p>"))
@@ -1050,6 +1052,7 @@ class Handler(BaseHTTPRequestHandler):
                 parts.append(whyitmod.lesson_why_html(lesson_map[node], first=(ci == 0)))
                 parts.append(lesmod.render_levels(lesson_map[node], mastery_of[node], concept_tries, level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node), order=order, symbols=sym_index, sym_mid=mid, replay_step=replay_step, lesson_commit=mod_commit, current_commit=mod_head, recent=explcalibmod.recent_from_rows([r for c in concept_cards for r in history.get(c["id"], [])])))
                 parts.append(beforaftermod.lesson_block(lesson_map[node], ci == 0))
+                parts.append(diagramsmod.badge_html(lesson_map[node]))
                 parts.append(handoutmod.handout_link_html(mid, node))
             parts.append(decmod.lesson_block(
                 node, dec_matches.get(node, []), ci == 0))
