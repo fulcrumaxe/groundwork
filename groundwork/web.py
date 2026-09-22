@@ -107,6 +107,7 @@ from . import sitemap as sitemapmod
 from . import sitenav as sitenavmod
 from . import snapshot as snapshotmod
 from . import spacing as spacingmod
+from . import tabmemory as tabmemorymod
 from . import taptargets as taptargetsmod
 from . import status as statusmod
 from . import storage as storagemod
@@ -691,8 +692,8 @@ class Handler(BaseHTTPRequestHandler):
                         lesson_dict, mastery, tries.get(c["id"], 0), level, "/", order=order,
                         symbols=sym_index, sym_mid=g["mid"], replay_step=replay_step,
                         lesson_commit=c.get("commit", ""))
-                    lesson = (f"<details><summary>Study first — explained your way</summary>"
-                              f"{explainer}</details>")
+                    lesson = tabmemorymod.details_html(
+                        explainer, f"due:{c['id']}")
                 else:
                     lesson = ""
                 first = (i == 0)
@@ -734,7 +735,8 @@ class Handler(BaseHTTPRequestHandler):
         parts.append("<p><a class='btn' href='/modules'>Browse all modules</a> "
                      "<a class='btn' href='/reviews'>Review history</a> "
                      "<a class='btn' href='/diagnose'>Diagnose a traceback</a></p>")
-        return "<div id='queue'>" + "".join(parts) + "</div>"
+        return ("<div id='queue'>" + "".join(parts)
+                + tabmemorymod.memory_js() + "</div>")
 
     def history_html(self) -> str:
         return histmod.history_html(self.db_path)
@@ -1056,9 +1058,10 @@ class Handler(BaseHTTPRequestHandler):
                 else:
                     parts.append("<h3>Practice</h3>")
             for c in concept_cards:
-                lesson = (f"<details><summary>Study first — explained your way</summary>"
-                          f"{lesmod.render_levels(lesson_map[node], mastery_of.get(node, 0.0), tries.get(c['id'], 0), level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node), order=order, symbols=sym_index, sym_mid=mid, replay_step=replay_step, lesson_commit=mod_commit, current_commit=mod_head)}</details>"
-                          if node in lesson_map else "")
+                lesson = (tabmemorymod.details_html(
+                    lesmod.render_levels(lesson_map[node], mastery_of.get(node, 0.0), tries.get(c['id'], 0), level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node), order=order, symbols=sym_index, sym_mid=mid, replay_step=replay_step, lesson_commit=mod_commit, current_commit=mod_head),
+                    f"mod:{node}")
+                    if node in lesson_map else "")
                 parts.append(
                     f"{cardlinksmod.article_open(c['id'])}<h3>{html.escape(c['concept'])} "
                     f"{cardsmod._difficulty_dots(c['difficulty'])}</h3>"
@@ -1072,6 +1075,8 @@ class Handler(BaseHTTPRequestHandler):
             parts.append("</section>")
         parts.append(relmod.related_html(self.db_path, mid))
         parts.append(emojimod.totop_html())
+        # I-121: explainer open/closed memory (no-op without panels).
+        parts.append(tabmemorymod.memory_js())
         return "".join(parts)
 
     def journal_html(self) -> str:
