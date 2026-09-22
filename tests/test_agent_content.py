@@ -1,11 +1,18 @@
 """Caller-authored module content: the agent that made the change writes
-the lessons, the pipeline only fills gaps. Covers pipeline.apply_agent_lessons,
-pipeline.build_agent_exercises, and the MCP pass-through."""
-import json
+every lesson and exercise; the pipeline never fills gaps.
+
+Covers pipeline.create_module's coverage gate: a module lands if and only
+if every selected concept carries an agent-authored lesson (summary in the
+caller's own words) and at least one agent-authored exercise. Generated
+lessons, generated cards, LLM drafts, and template fallbacks do not exist —
+only sandbox measurement (worked examples, card verification) may add to
+what the caller wrote.
+"""
 import unittest
 
 from groundwork import db as dbmod
 
+from test_groundwork import make_repo
 from test_web import make_module
 
 
@@ -13,64 +20,97 @@ def _db(db_path):
     return dbmod.connect(db_path)
 
 
+LESSONS = [
+    {"concept": "add",
+     "summary": "AGENT WORDS: add() defaults keep callers honest.",
+     "how": ["Read the defaults", "Trace the total"]},
+    {"concept": "greet",
+     "summary": "AGENT WORDS: greet() prefixes any name with hi.",
+     "how": ["Read the name", "Prefix hi"]},
+]
+
+EXERCISES = [
+    {"concept": "add", "type": 1,
+     "front": "AGENT Q: why do the defaults matter?",
+     "back": "AGENT A: they keep callers honest."},
+    {"concept": "greet", "type": 1,
+     "front": "AGENT Q: what does greet return for bob?",
+     "back": "AGENT A: hi bob."},
+]
+
+
 class AgentContentTest(unittest.TestCase):
     def setUp(self):
-        self.tmp, self.db, self.server, self.out = make_module("agent content")
-        self.concept = self.out["concepts"][0]
+        self.repo = make_repo()
+        self.db = str(self.repo / "agent.db")
+        dbmod.init_db(self.db)
+        from groundwork import mcp as mcplib
+        self.server = mcplib.MCPServer(self.db)
 
     def _create(self, **kw):
-        params = {"repo_path": str(self.tmp), "task_summary": "agent words"}
+        params = {"repo_path": str(self.repo), "task_summary": "agent words"}
         params.update(kw)
         return self.server.tool_create_learning_module(params)
 
-    def test_agent_lesson_overrides_template(self):
-        out = self._create(lessons=[{
-            "concept": self.concept,
-            "summary": "AGENT WORDS: add() defaults keep callers honest.",
-            "how": ["Read the defaults", "Trace the total"],
-        }])
-        self.assertEqual(out.get("agent_errors"), [])
+    def _module_count(self):
         con = _db(self.db)
         try:
-            row = con.execute(
-                "SELECT lessons FROM modules WHERE id=?",
-                (out["module_id"],)).fetchone()
-            lessons = json.loads(row["lessons"])
+            return con.execute("SELECT COUNT(*) AS n FROM modules").fetchone()["n"]
         finally:
             con.close()
-        mine = [L for L in lessons if L.get("agent")]
-        self.assertEqual(len(mine), 1)
-        self.assertIn("AGENT WORDS", mine[0]["summary"])
-        self.assertEqual(mine[0]["how"], ["Read the defaults", "Trace the total"])
 
-    def test_agent_exercise_persisted_as_card(self):
-        out = self._create(exercises=[{
-            "concept": self.concept, "type": 1,
-            "front": "AGENT Q: why do the defaults matter?",
-            "back": "AGENT A: they keep callers honest.",
-        }])
-        self.assertEqual(out.get("agent_errors"), [])
+    def test_missing_lessons_rejected(self):
+        out = self._create(exercises=EXERCISES)
+        self.assertIn("error", out)
+        self.assertNotIn("module_id", out)
+        self.assertEqual(self._module_count(), 0)
+
+    def test_lesson_gap_rejected(self):
+        out = self._create(lessons=LESSONS[:1], exercises=EXERCISES)
+        self.assertIn("error", out)
+        self.assertNotIn("module_id", out)
+        self.assertIn("greet", out["error"])
+        self.assertEqual(self._module_count(), 0)
+
+    def test_missing_exercises_rejected(self):
+        out = self._create(lessons=LESSONS)
+        self.assertIn("error", out)
+        self.assertNotIn("module_id", out)
+        self.assertEqual(self._module_count(), 0)
+
+    def test_exercise_gap_rejected(self):
+        out = self._create(lessons=LESSONS, exercises=EXERCISES[:1])
+        self.assertIn("error", out)
+        self.assertNotIn("module_id", out)
+        self.assertIn("greet", out["error"])
+        self.assertEqual(self._module_count(), 0)
+
+    def test_full_coverage_lands_agent_only(self):
+        for flag in (False, True):  # legacy flag changes nothing now
+            out = self._create(lessons=LESSONS, exercises=EXERCISES,
+                               agent_exercises_only=flag)
+            self.assertEqual(out.get("agent_errors"), [], out)
         con = _db(self.db)
         try:
-            row = con.execute(
-                "SELECT front, back FROM cards WHERE front LIKE 'AGENT Q%'"
-            ).fetchone()
+            lessons = con.execute("SELECT lessons FROM modules").fetchall()
+            fronts = [r["front"] for r in con.execute("SELECT front FROM cards").fetchall()]
         finally:
             con.close()
-        self.assertIsNotNone(row)
-        self.assertIn("AGENT A", row["back"])
+        self.assertTrue(fronts)
+        self.assertTrue(all(f.startswith("AGENT Q") for f in fronts), fronts)
 
-    def test_bad_items_collected_not_silent(self):
+    def test_bad_items_reported_not_silent(self):
         out = self._create(
             lessons=[{"concept": "nope:missing"},
-                     {"concept": self.concept}],
+                     {"concept": "add"},
+                     {"concept": "greet", "summary": "s"}],
             exercises=[{"concept": "nope:missing", "front": "q", "back": "a"},
-                       {"concept": self.concept, "front": "q"},
-                       {"concept": self.concept, "type": 999,
+                       {"concept": "add", "front": "q"},
+                       {"concept": "add", "type": 999,
                         "front": "q", "back": "a"}])
-        self.assertIn("module_id", out)  # module still lands
+        self.assertIn("error", out)  # add/greet coverage never completed
+        self.assertNotIn("module_id", out)
         errs = out.get("agent_errors", [])
-        self.assertEqual(len(errs), 5)
         self.assertTrue(any("unknown concept" in e for e in errs))
         self.assertTrue(any("missing summary" in e for e in errs))
         self.assertTrue(any("front and back" in e for e in errs))
@@ -80,36 +120,27 @@ class AgentContentTest(unittest.TestCase):
         self.assertIn("error", self._create(lessons="just words"))
         self.assertIn("error", self._create(exercises={"front": "q"}))
 
-    def test_agent_exercises_only_replaces_trivia(self):
+    def test_unverifiable_cards_leave_no_empty_module(self):
         out = self._create(
-            exercises=[{"concept": self.concept, "type": 1,
-                        "front": "AGENT Q: what?", "back": "AGENT A: this."}],
-            agent_exercises_only=True)
-        self.assertEqual(out.get("agent_errors"), [])
-        con = _db(self.db)
-        try:
-            fronts = [r["front"] for r in con.execute(
-                "SELECT front FROM cards JOIN concepts "
-                "ON concepts.id = cards.concept_id "
-                "WHERE concepts.module_id = ?", (out["module_id"],)).fetchall()]
-        finally:
-            con.close()
-        self.assertTrue(fronts)
-        self.assertTrue(all(f.startswith("AGENT Q") for f in fronts),
-                        fronts)
+            lessons=LESSONS,
+            exercises=[
+                {"concept": "add", "type": 8,
+                 "front": "AGENT Q: what prints?",
+                 "back": "AGENT A: 2.",
+                 "payload": {"code": "print(1)", "expected": "2"}},
+                {"concept": "greet", "type": 8,
+                 "front": "AGENT Q: what prints?",
+                 "back": "AGENT A: 2.",
+                 "payload": {"code": "print(1)", "expected": "2"}},
+            ])
+        self.assertIn("error", out)
+        self.assertNotIn("module_id", out)
+        self.assertEqual(self._module_count(), 0)
 
-    def test_agent_exercises_only_falls_back(self):
-        out = self._create(
-            exercises=[{"concept": self.concept, "type": 999,
-                        "front": "q", "back": "a"}],
-            agent_exercises_only=True)
-        self.assertTrue(any("fallback" in e for e in out["agent_errors"]))
-        con = _db(self.db)
-        try:
-            n = con.execute("SELECT COUNT(*) AS n FROM cards").fetchone()["n"]
-        finally:
-            con.close()
-        self.assertGreater(n, 0)
+    def test_single_concept_fixture_covers_itself(self):
+        _tmp, db, server, out = make_module("agent content")
+        self.assertIn("module_id", out)
+        self.assertEqual(out.get("agent_errors"), [])
 
 
 if __name__ == "__main__":

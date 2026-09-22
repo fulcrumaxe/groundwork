@@ -33,6 +33,45 @@ def make_repo():
     return tmp
 
 
+# Caller-authored content covering make_repo's two concepts (add, greet).
+# create_learning_module stores nothing without full coverage.
+AGENT_LESSONS = [
+    {"concept": "add",
+     "summary": "add() totals two numbers via its defaults.",
+     "how": ["Read the defaults", "Trace the total"]},
+    {"concept": "greet",
+     "summary": "greet() prefixes any name with hi.",
+     "how": ["Read the name", "Prefix hi"]},
+]
+AGENT_EXERCISES = [
+    {"concept": "add", "type": 1,
+     "front": "What does add() return with no arguments?",
+     "back": "5: the defaults 2 and 3 totalled."},
+    {"concept": "greet", "type": 1,
+     "front": "What does greet('bob') return?",
+     "back": "hi bob."},
+]
+
+
+def agent_module_params(summary="test", **kw):
+    # Direct pipeline call, so the MCP-facing `lessons`/`exercises` names
+    # map to `agent_lessons`/`agent_exercises`.
+    params = {"task_summary": summary,
+              "agent_lessons": [dict(L) for L in AGENT_LESSONS],
+              "agent_exercises": [dict(E) for E in AGENT_EXERCISES]}
+    params.update(kw)
+    return params
+
+
+def agent_mcp_params(summary="test", **kw):
+    # MCP-facing names for tool_create_learning_module calls.
+    params = {"task_summary": summary,
+              "lessons": [dict(L) for L in AGENT_LESSONS],
+              "exercises": [dict(E) for E in AGENT_EXERCISES]}
+    params.update(kw)
+    return params
+
+
 class GraphTest(unittest.TestCase):
     def test_python_parse(self):
         repo = make_repo()
@@ -395,9 +434,10 @@ class MCPTest(unittest.TestCase):
         repo = make_repo()
         db = str(repo / "t.db")
         server = mcplib.MCPServer(db)
-        out = server.tool_create_learning_module({
-            "repo_path": str(repo), "task_summary": "test",
-            "learner_level": "beginner"})
+        params = {"repo_path": str(repo), "learner_level": "beginner"}
+        params.update(agent_mcp_params("test"))
+        out = server.tool_create_learning_module(params)
+        self.assertIn("module_id", out)
         self.assertGreater(out["exercise_count"], 0)
         self.assertGreaterEqual(out["pass_rate"], 0.9)
         d = server.tool_annotate_decision({"repo": str(repo), "symbol": "add",
@@ -431,7 +471,9 @@ class MCPTest(unittest.TestCase):
         repo = make_repo()
         db = str(repo / "r.db")
         server = mcplib.MCPServer(db)
-        server.tool_create_learning_module({"repo_path": str(repo)})
+        params = {"repo_path": str(repo)}
+        params.update(agent_mcp_params())
+        server.tool_create_learning_module(params)
         ns = argparse.Namespace(db=db, limit=20)
         buf = io.StringIO()
         with mock.patch("builtins.input", return_value="q"):
@@ -444,7 +486,9 @@ class MCPTest(unittest.TestCase):
         repo = make_repo()
         db = str(repo / "r2.db")
         server = mcplib.MCPServer(db)
-        server.tool_create_learning_module({"repo_path": str(repo)})
+        params = {"repo_path": str(repo)}
+        params.update(agent_mcp_params())
+        server.tool_create_learning_module(params)
         ns = argparse.Namespace(db=db, limit=20)
         buf = io.StringIO()
         with mock.patch("builtins.input", side_effect=["5", "4", "q"]):
@@ -468,8 +512,10 @@ class MCPTest(unittest.TestCase):
         repo = make_repo()
         db = str(repo / "two.db")
         server = mcplib.MCPServer(db)
-        first = server.tool_create_learning_module({"repo_path": str(repo)})
-        second = server.tool_create_learning_module({"repo_path": str(repo)})
+        params = {"repo_path": str(repo)}
+        params.update(agent_mcp_params())
+        first = server.tool_create_learning_module(dict(params))
+        second = server.tool_create_learning_module(dict(params))
         self.assertGreater(first["exercise_count"], 0)
         self.assertGreater(second["exercise_count"], 0)
         con = dbmod.connect(db)
@@ -509,8 +555,8 @@ class LessonTest(unittest.TestCase):
         con = dbmod.connect(db)
         try:
             out = pipelinemod.create_module(
-                con, repo=str(repo), task_summary="lesson test",
-                learner_level="beginner")
+                con, repo=str(repo), learner_level="beginner",
+                **agent_module_params("lesson test"))
         finally:
             con.close()
         self.assertIn("lessons", out)
@@ -538,7 +584,10 @@ class LessonTest(unittest.TestCase):
         repo = make_repo()
         db = str(repo / "words.db")
         server = mcplib.MCPServer(db)
-        out = server.tool_create_learning_module({"repo_path": str(repo)})
+        params = {"repo_path": str(repo)}
+        params.update(agent_mcp_params())
+        out = server.tool_create_learning_module(params)
+        self.assertIn("module_id", out)
         con = dbmod.connect(db)
         try:
             card = con.execute(
@@ -556,7 +605,10 @@ class LessonTest(unittest.TestCase):
         server = mcplib.MCPServer(db)
         server.tool_leave_learning_hole({"repo": str(repo), "file": "calc.py",
                                          "line": 1, "spec": "add subtraction"})
-        out = server.tool_create_learning_module({"repo_path": str(repo)})
+        params = {"repo_path": str(repo)}
+        params.update(agent_mcp_params())
+        out = server.tool_create_learning_module(params)
+        self.assertIn("module_id", out)
         con = dbmod.connect(db)
         try:
             n = con.execute(
@@ -623,7 +675,8 @@ class LessonTest(unittest.TestCase):
         con = dbmod.connect(db)
         try:
             out = pipelinemod.create_module(
-                con, repo=str(repo), task_summary="p", learner_level="beginner")
+                con, repo=str(repo), learner_level="beginner",
+                **agent_module_params("p"))
             row = con.execute("SELECT lessons FROM modules WHERE id=?",
                               (out["module_id"],)).fetchone()
         finally:
@@ -646,9 +699,11 @@ class LessonTest(unittest.TestCase):
         con = dbmod.connect(db)
         try:
             out = pipelinemod.create_module(
-                con, repo=str(repo), task_summary="w", learner_level="beginner")
+                con, repo=str(repo), learner_level="beginner",
+                **agent_module_params("w"))
         finally:
             con.close()
+        self.assertIn("module_id", out)
         worked = [L.get("worked") for L in out["lessons"] if L.get("worked")]
         self.assertTrue(worked, "no measured worked example")
         self.assertTrue(worked[0]["output"])
@@ -697,9 +752,10 @@ class LessonTest(unittest.TestCase):
         con = dbmod.connect(db)
         try:
             out = pipelinemod.create_module(
-                con, repo=str(repo), task_summary="w", learner_level="beginner",
+                con, repo=str(repo), learner_level="beginner",
                 purpose="Release blocks on this calc change.",
-                concept_notes={"add": "Checkout totals flow through add."})
+                concept_notes={"add": "Checkout totals flow through add."},
+                **agent_module_params("w"))
         finally:
             con.close()
         by_concept: dict[str, list] = {}
@@ -733,7 +789,8 @@ class LessonTest(unittest.TestCase):
         con = dbmod.connect(db)
         try:
             out = pipelinemod.create_module(
-                con, repo=str(repo), task_summary="w", learner_level="beginner")
+                con, repo=str(repo), learner_level="beginner",
+                **agent_module_params("w"))
         finally:
             con.close()
         self.assertTrue(out["exercises"])

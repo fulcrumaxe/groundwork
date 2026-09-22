@@ -15,8 +15,11 @@ import re
 from pathlib import Path
 
 from . import a11yaudit as a11yauditmod
+from . import analogy as analogymod
 from . import apidesign as apidesignmod
+from . import apiguess as apiguessmod
 from . import bisect as bisectmod
+from . import boundary as boundarymod
 from . import changelog as changelogmod
 from . import cliux as cliuxmod
 from . import commitmsg as commitmsgmod
@@ -24,11 +27,13 @@ from . import configex as configexmod
 from . import containerize as containerizemod
 from . import crashdump as crashdumpmod
 from . import cssfix as cssfixmod
+from . import counterex as counterexmod
 from . import deadcode as deadcodemod
 from . import depupgrade as depupgrademod
 from . import diretro as diretromod
 from . import docdoctest as docdoctestmod
 from . import errbranch as errbranchmod
+from . import feynman as feynmanmod
 from . import fuzztriage as fuzztriagemod
 from . import flame as flamemod
 from . import golf as golfmod
@@ -40,13 +45,16 @@ from . import logretro as logretromod
 from . import memprofile as memprofilemod
 from . import metrics as metricsmod
 from . import migration as migrationmod
+from . import modelmap as modelmapmod
 from . import perffix as perffixmod
+from . import protege as protegemod
 from . import proptest as proptestmod
 from . import racehunt as racehuntmod
 from . import rebase as rebasemod
 from . import regexex as regexexmod
 from . import renameex as renameexmod
 from . import repro as repromod
+from . import rubberduck as rubberduckmod
 from . import rollback as rollbackmod
 from . import secretscan as secretscanmod
 from . import smell as smellmod
@@ -153,17 +161,25 @@ TYPES = {
     78: ("pre-mortem", "evaluate"),
     79: ("reading-fluency", "understand"),
     80: ("naming-fluency", "understand"),
+    81: ("api-guess", "apply"),
+    82: ("model-map", "analyse"),
+    83: ("rubber-duck", "explain"),
+    84: ("protege-studio", "create"),
+    85: ("feynman-check", "explain"),
+    86: ("analogy-builder", "explain"),
+    87: ("counterexample-hunt", "analyse"),
+    88: ("boundary-drill", "analyse"),
 }
 
 BLOOM_TYPES = {
     "recall": [1, 2, 3, 4],
-    "explain": [5, 6, 7, 25, 1],
-    "apply": [8, 10, 11, 12, 9, 31, 32, 33, 44, 54, 55, 68, 72, 74],
+    "explain": [5, 6, 7, 25, 1, 83, 85, 86],
+    "apply": [8, 10, 11, 12, 9, 31, 32, 33, 44, 54, 55, 68, 72, 74, 81],
     "analyse": [13, 14, 15, 16, 17, 18, 9, 26, 28, 29, 34, 36, 37, 45,
-                49, 50, 51, 52, 53, 58, 59, 60, 61, 69, 76],
+                49, 50, 51, 52, 53, 58, 59, 60, 61, 69, 76, 82, 87, 88],
     "modify": [12, 14, 19, 20, 27, 35, 38, 39, 46, 47, 56, 62, 66, 67, 70],
     "evaluate": [21, 22, 48, 57, 63, 71, 73, 77, 78],
-    "create": [24, 23, 40, 41, 42, 43, 64, 65, 75],
+    "create": [24, 23, 40, 41, 42, 43, 64, 65, 75, 84],
     "understand": [79, 1, 80],
 }
 
@@ -866,6 +882,14 @@ GENERATORS = {
     78: premortemmod.generate,
     79: fluencymod.generate,
     80: nameguessmod.generate,
+    81: apiguessmod.generate,
+    82: modelmapmod.generate,
+    83: rubberduckmod.generate,
+    84: protegemod.gen_protege,
+    85: feynmanmod.generate,
+    86: analogymod.gen_analogy,
+    87: counterexmod.generate,
+    88: boundarymod.generate,
 }
 
 
@@ -1145,6 +1169,22 @@ def grade(exercise: dict, submission: str, runner=None) -> dict:
         return fluencymod.grade(exercise, submission, runner)
     if t == 80:
         return nameguessmod.grade(exercise, submission, runner)
+    if t == 81:
+        return apiguessmod.grade(exercise, submission, runner)
+    if t == 82:
+        return modelmapmod.grade(exercise, submission, runner)
+    if t == 83:
+        return rubberduckmod.grade(exercise, submission, runner)
+    if t == 84:
+        return protegemod.grade(exercise, submission, runner)
+    if t == 85:
+        return feynmanmod.grade(exercise, submission, runner)
+    if t == 86:
+        return analogymod.grade(exercise, submission, runner)
+    if t == 87:
+        return counterexmod.grade(exercise, submission, runner)
+    if t == 88:
+        return boundarymod.grade(exercise, submission, runner)
     # Execution-graded types need the sandbox runner. Pure-order Parsons
     # (no harness) is graded without it, below.
     if runner is None and not (t == 11 and not p.get("tests")):
@@ -1347,6 +1387,22 @@ def render(exercise: dict) -> str:
         return fluencymod.render(exercise)
     if t == 80:
         return nameguessmod.render(exercise)
+    if t == 81:
+        return apiguessmod.render(exercise)
+    if t == 82:
+        return modelmapmod.render(exercise)
+    if t == 83:
+        return rubberduckmod.render(exercise)
+    if t == 84:
+        return protegemod.render(exercise)
+    if t == 85:
+        return feynmanmod.render(exercise)
+    if t == 86:
+        return analogymod.render(exercise)
+    if t == 87:
+        return counterexmod.render(exercise)
+    if t == 88:
+        return boundarymod.render(exercise)
     p = exercise.get("payload", {})
     front = html.escape(exercise.get("front", ""))
     body = f"<p>{front}</p>"

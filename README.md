@@ -52,16 +52,11 @@ Tools: `create_learning_module`, `annotate_decision`, `leave_learning_hole`,
 
 Learning content is authored by the agent that made the change: it calls
 `create_learning_module` over MCP with `lessons` and `exercises` in its
-own words, and the pipeline only fills the gaps. An LLM is optional
-gap-fill — any OpenAI-compatible server via `GW_BASE_URL`, `GW_API_KEY`,
-`GW_MODEL` (defaults to Ollama's `qwen2.5-coder:7b`):
-
-```bash
-ollama pull qwen2.5-coder:7b  # or point GW_BASE_URL at any chat-completions server
-```
-
-With no reachable server, generation falls back to deterministic templates.
-Either way, expected outputs are always *measured* in the sandbox, never invented.
+own words — one lesson and at least one exercise per selected concept.
+The pipeline never fills gaps: no generated lessons, no generated cards,
+no LLM drafts, no template fallback. A call with incomplete coverage
+fails and stores nothing. Expected outputs are always *measured* in the
+sandbox, never invented.
 
 ## Features
 
@@ -182,6 +177,14 @@ Either way, expected outputs are always *measured* in the sandbox, never invente
 | Pre-mortem | List how this code could fail before it does -- errors, retries, races, leaks. | `/status#status-b18-premortem` |
 | Reading fluency | Skim a snippet on a 90s budget, gist it in one line, then verify with three probes — keyword, locate, owner. | `/status#status-b18-fluency` |
 | Naming fluency | Guess what a name does before reading its docstring — prediction then verify. | `/status#status-b18-nameguess` |
+| API guessing | Predict which stdlib call fits the task, then check the docs synopsis — commit before you verify. | `/due#up-next` |
+| Mental-model mapping | Draw the data flow from memory — graph-diff graded, partial credit per edge. | `/due#up-next` |
+| Rubber-duck mode | Explain it to a patient bot that only asks questions — three prompts, no answers given. | `/due#up-next` |
+| Protege-effect studio | Teach a simulated junior — correct the claim, answer the follow-up, both must pass. | `/due#up-next` |
+| Feynman check | Explain it simply — rubric coverage gated by a jargon budget. | `/due#up-next` |
+| Analogy builder | Map it onto a familiar domain — then state where the analogy breaks. | `/due#up-next` |
+| Counterexample hunting | State the belief, then break it: name one input where the claim about a real function fails. | `/status#status-b19-counterex` |
+| Boundary-value drills | Name the ONE edge integer to probe first — off-by-one bootcamp. | `/due#up-next` |
 <!-- GW-FEATURES:END -->
 
 ## Improvements
@@ -299,6 +302,14 @@ Either way, expected outputs are always *measured* in the sandbox, never invente
 | High-contrast mode | Chips, badges, and progress bars stay legible under OS high-contrast and forced-colors — system colors, not washed-out tints. | `/status#status-b18-contrast` |
 | Explain it differently | Flip any lesson example-first or definition-first — same content, the order that clicks. | `/status#status-b18-explainflip` |
 | Inline glossary tooltips | Jargon in leveled explainers defines itself on hover — no lookup, no lost place. | `/status#status-b18-glossary` |
+| Symbol mentions link to lessons | Every function and symbol a lesson names links to its own lesson — or its file line when it has none. | `/modules/&lt;id&gt;#{lesson}` |
+| Worked-example replay | Step through the measured trace one step at a time — prev/next with the state at each step. | `/status#status-b19-replay` |
+| Run the worked example yourself | Every worked example grows editable inputs: change the arguments, see your call rebuilt in-page, and try neighbor variants. | `/modules/&lt;id&gt;#runinputs` |
+| Before/after diff per lesson | Each lesson shows what the agent changed: added/removed counts with the capped diff one click away. | `/status#status-b19-beforafter` |
+| Collapsible source blocks | Long lesson source hides behind a Show full file context expander — short snippets read on. | `/modules/&lt;id&gt;#{lesson}` |
+| Why this lesson matters | Each lesson opens with the agent's own one-line reason — why this concept earns your study time. | `/modules/&lt;id&gt;#{lesson}` |
+| Try-it-yourself prompts | Study paragraphs pause for a try-it-yourself nudge — restate, exemplify, or predict before reading on. | `/modules/&lt;id&gt;#{lesson}` |
+| Lesson version banner | Lessons name the commit they were written for — and say when the code has moved on since. | `/status#status-b19-lessonver` |
 <!-- GW-IMPROVEMENTS:END -->
 
 See also [docs/features.md](docs/features.md) and the in-app

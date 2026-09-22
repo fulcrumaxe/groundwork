@@ -13,13 +13,21 @@ from . import verdicts as verdictsmod
 
 def render_levels(lesson: dict, mastery: float, attempts: int,
                     level_override: str, base_path: str, owned=None,
-                    order: str = "definition") -> str:
+                    order: str = "definition", symbols=None,
+                    sym_mid: str = "", replay_step=None,
+                    lesson_commit: str = "",
+                    current_commit: str = "") -> str:
     """Leveled explainer with tabs; auto-places from mastery by default.
 
     ``owned`` is an optional list of sibling lesson dicts the learner
     already masters; when two or more are given an elaboration drill
     connects this concept to them (F-59). ``None``/empty renders the
     legacy page with no drill.
+
+    ``symbols`` is an optional per-page symbol index (I-104,
+    ``symlinks.build_index``) scoped by ``sym_mid``; known symbol
+    mentions link to their lesson sections. Absent/empty renders the
+    legacy page byte-identical.
     """
     from . import codelines as codelinesmod
     from . import dualcode as dualmod
@@ -29,6 +37,12 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
     from . import fading as fadingmod
     from . import predict as predictmod
     from . import selfexplain as semod
+    from . import symlinks as symmod
+    from . import replay as replaymod
+    from . import runinputs as runinputsmod
+    from . import srccollapse as srcmod
+    from . import tryprompts as trymod
+    from . import lessonver as lessonvermod
     levels = explainmod.levels_for(lesson)
     order = flipmod.normalize_order(order)
     osuffix = "" if order == "definition" else f"&order={order}"
@@ -44,18 +58,32 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
             (n != "auto" and int(n) == active and
              level_override in ("1", "2", "3", "4"))) else ""
         tabs.append(f"<a href='{base_path}?level={n}{osuffix}'>{label}</a>{mark}")
-    out = [f"<p><small>Explain it {'simply' if active <= 2 else 'technically'}: "
+    # I-115: version banner first; "" on the legacy path keeps bytes.
+    ver = lessonvermod.banner_html(
+        lessonvermod.lesson_commit_of(lesson, lesson_commit), current_commit)
+    out = [ver + f"<p><small>Explain it {'simply' if active <= 2 else 'technically'}: "
            f"{' · '.join(tabs)}</small></p>" + flipmod.toggle_html(base_path, level_override, order)]
     lv = next(L for L in levels if L["n"] == active)
     out.append(f"<h4>{html.escape(lv['title'])}</h4>")
-    for blk in flipmod.reorder_blocks(lv["blocks"], order):
+    sym_index = symbols if isinstance(symbols, dict) else {}
+    sym_scope = sym_mid if isinstance(sym_mid, str) else ""
+    shown = list(flipmod.reorder_blocks(lv["blocks"], order))
+    for i, blk in enumerate(shown):
         body = glossmod.gloss_html(blk["b"])
         if blk.get("pre"):
-            body = codelinesmod.numbered_html(blk["b"])
-            out.append(f"<h5>{html.escape(blk['h'])}</h5><pre>{body}</pre>")
+            body = (srcmod.block_html(blk["b"]) or
+                    f"<pre>{codelinesmod.numbered_html(blk['b'])}</pre>")
+            body = symmod.annotate_code(body, sym_index, sym_scope)
+            out.append(f"<h5>{html.escape(blk['h'])}</h5>{body}")
         else:
+            body = symmod.link_symbols(body, sym_index, sym_scope)
             out.append(f"<h5>{html.escape(blk['h'])}</h5>"
                        f"<p>{body.replace(chr(10), '<br>')}</p>")
+        # I-112: micro-prompt between paragraphs, never after the last.
+        if i < len(shown) - 1:
+            micro = trymod.block_prompt_html(i, blk)
+            if micro:
+                out.append(micro)
     # F-60: the generated lesson's key ideas as diagram + trace.
     how = [s for s in (lesson.get("how") or [])
            if isinstance(s, str) and s.strip()]
@@ -63,7 +91,12 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
     dc = dc if isinstance(dc, dict) else {}
     steps = [s for s in (dc.get("steps") or how)
              if isinstance(s, str) and s.strip()]
-    if steps:
+    # I-105: stepped replay wins when a measured trace exists; the
+    # full pack stays as the legacy branch for traceless lessons.
+    replay_block = replaymod.replay_html(lesson, replay_step, base_path)
+    if replay_block:
+        out.append(replay_block)
+    elif steps:
         pack = dualmod.pack_html(
             lesson.get("name") or "",
             (lesson.get("summary") or "").splitlines()[0][:200],
@@ -77,9 +110,13 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
         if predictmod.is_covered(cover):
             out.append(cover)
         else:
-            out.append(
-                f"<details><summary>Show me the code</summary>"
-                f"<pre>{codelinesmod.numbered_html(lv['code'])}</pre></details>")
+            snippet = lv["code"]
+            if srcmod.is_long(snippet):
+                out.append(srcmod.block_html(snippet))
+            else:
+                out.append(
+                    f"<details><summary>Show me the code</summary>"
+                    f"<pre>{codelinesmod.numbered_html(snippet)}</pre></details>")
     # F-57: support fades with practice — full steps live above, so the
     # faded section only appears once the learner has attempts.
     try:
@@ -95,6 +132,10 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
     sexplain = semod.prompts_html(semod.selfexplain_prompts(how))
     if sexplain:
         out.append("<h5>Explain it back</h5>" + sexplain)
+    # I-106: run the worked example with the learner's own inputs.
+    ri = runinputsmod.runinputs_html(lesson)
+    if ri:
+        out.append("<h5>Try your own inputs</h5>" + ri)
     # F-59: connect this concept to mastered siblings when given.
     try:
         owned_list = [o for o in (owned or []) if isinstance(o, dict)]

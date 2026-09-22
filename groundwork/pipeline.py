@@ -1,8 +1,9 @@
-"""Module pipeline: ingest -> select -> plan -> generate -> verify -> schedule.
+"""Module pipeline: ingest -> select -> author -> verify -> schedule.
 
-Expected outputs for execution exercises are *measured* by running reference
-code in the sandbox, never invented. Anything that doesn't reproduce is
-discarded by the verification gate.
+The caller (the agent that made the change) authors every lesson and
+exercise in its own words. Expected outputs for execution exercises are
+*measured* by running reference code in the sandbox, never invented.
+Anything that doesn't reproduce is discarded by the verification gate.
 """
 from __future__ import annotations
 
@@ -13,10 +14,10 @@ from pathlib import Path
 from . import diff as diffmod
 from . import exercises as ex
 from . import graph as graphmod
-from . import llm as llmmod
 from . import modules as modmod
 from . import sandbox as sbmod
 from . import select as selectmod
+from . import whyit as whyitmod
 
 MUTATIONS = [("+", "-"), ("-", "+"), ("*", "+"), ("==", "!="),
              ("!=", "=="), ("True", "False"), ("<", "<="), (">", ">=")]
@@ -278,15 +279,18 @@ def _first_var(src: str) -> str:
     return "x"
 
 
+# Exercise-type registry by Bloom tier (grading/chips map through it).
+# It is NOT an emission list: the pipeline deals no types on its own;
+# every card below is caller-authored.
 BLOOM_DEFAULT_TYPES = {
     "recall": [1, 2, 4, 3],
-    "explain": [5, 6, 7, 25, 1],
-    "apply": [8, 10, 11, 12, 9, 31, 32, 33, 44, 54, 55, 68, 72, 74],
+    "explain": [5, 6, 7, 25, 1, 83, 85, 86],
+    "apply": [8, 10, 11, 12, 9, 31, 32, 33, 44, 54, 55, 68, 72, 74, 81],
     "analyse": [13, 14, 16, 18, 9, 15, 17, 26, 28, 29, 34, 36, 37, 45,
-                49, 50, 51, 52, 53, 58, 59, 60, 61, 69, 76],
+                49, 50, 51, 52, 53, 58, 59, 60, 61, 69, 76, 82, 87, 88],
     "modify": [12, 14, 19, 20, 27, 35, 38, 39, 46, 47, 56, 62, 66, 67, 70],
     "evaluate": [21, 22, 48, 57, 63, 71, 73, 77, 78],
-    "create": [24, 23, 40, 41, 42, 43, 64, 65, 75],
+    "create": [24, 23, 40, 41, 42, 43, 64, 65, 75, 84],
     "understand": [79, 1, 80],
 }
 
@@ -327,7 +331,7 @@ def apply_agent_lessons(lessons: list, concepts, agent_lessons: list) -> list:
         L = by_concept[c.node_id]
         L["summary"] = summary[:2000]
         for f in ("how", "key_lines", "docstring", "source",
-                  "callers", "callees"):
+                  "callers", "callees", "before", "after"):
             if item.get(f) is not None:
                 L[f] = item[f]
         L["agent"] = True
@@ -389,9 +393,18 @@ def create_module(con, repo: str, commit_range: str = "", task_summary: str = ""
                   agent_lessons: list | None = None,
                   agent_exercises: list | None = None,
                   agent_exercises_only: bool = False) -> dict:
-    # Caller-authored teaching content (the agent that made the change
-    # explains it in its own words) must be lists; per-item problems are
-    # collected, never silent.
+    # The agent that made the change writes every lesson and exercise in
+    # its own words. The pipeline never invents teaching content: no
+    # generated lessons, no generated cards, no LLM drafts, no template
+    # fallback. Only measurement may add to what the caller wrote
+    # (sandbox-measured worked examples, card verification). A module
+    # lands if and only if every selected concept carries an
+    # agent-authored lesson and at least one agent-authored exercise;
+    # otherwise the call fails with the coverage gap named and nothing
+    # is stored. `provider` is accepted for compatibility and ignored:
+    # no outside model is consulted. `agent_exercises_only` is likewise
+    # legacy: every card is caller-authored, so there is nothing to
+    # replace.
     if agent_lessons is not None and not isinstance(agent_lessons, list):
         return {"error": "lessons must be a list"}
     if agent_exercises is not None and not isinstance(agent_exercises, list):
@@ -414,10 +427,10 @@ def create_module(con, repo: str, commit_range: str = "", task_summary: str = ""
             mastery[row["cid"]] = (row["g"] or 0) / 5.0
             mastery[row["name"]] = (row["g"] or 0) / 5.0
     concepts = selectmod.select_concepts(graph, touched, mastery)
-    plan = selectmod.plan_module(concepts, learner_level)
+    if not concepts:
+        return {"error": "no concepts selected; nothing to teach"}
     decisions = [dict(r) for r in con.execute(
         "SELECT * FROM decisions WHERE repo=? ORDER BY id DESC LIMIT 20", (repo,))]
-    provider = provider or llmmod.get_provider()
     runner = runner or sbmod.SandboxRunner()
     notes = concept_notes or {}
 
@@ -427,90 +440,60 @@ def create_module(con, repo: str, commit_range: str = "", task_summary: str = ""
                 return str(notes[key])
         return ""
 
-    wanted = {p["concept"]: p["bloom"] for p in plan["concepts"]}
     lessons = [lesson_for(repo, c, graph) for c in concepts]
     lesson_by_concept = {L["concept_id"]: L for L in lessons}
+    # The caller's own words land on the extracted lesson frames. Frames
+    # without an agent summary are not lessons yet — they are the gap.
     agent_errors = apply_agent_lessons(lessons, concepts, agent_lessons or [])
-    exercises: list[dict] = []
-    first_ctx = None
-    n = 0
+    # I-109: stamp each lesson with the agent's concept note so the
+    # lesson path can say why it matters. Absent note = absent key.
     for c in concepts:
-        bloom = wanted.get(c.node_id, "recall")
+        note = whyitmod.clean_note(_note_for(c))
+        if note:
+            lesson_by_concept[c.node_id]["why_note"] = note
+    missing_lessons = sorted(
+        {L["concept_id"] for L in lessons if not L.get("agent")})
+    for c in concepts:
         snippet = ex.get_snippet(repo, c.file, c.line)
         hunks = [h for h in d.hunks if h.file == c.file]
         ctx = build_ctx(repo, c, snippet, hunks, decisions, graph)
-        ctx["commit"] = ",".join(d.commits[:2])
-        ctx["lesson"] = lesson_by_concept[c.node_id]
-        if first_ctx is None:
-            first_ctx = (c, snippet, ctx)
-        # Measured worked example: the exact call and output the study shows.
+        lesson = lesson_by_concept[c.node_id]
+        # Measured worked example: the exact call and output the study
+        # shows. Measurement, not authorship: the caller cannot invent
+        # outputs, so the sandbox supplies them.
         if "runnable" in ctx:
             worked = {"call": ctx.get("call", ""), "output": ctx["expected_output"]}
             if "trace_expected" in ctx:
                 worked["trace"] = {"var": ctx["trace_var"],
                                    "steps": ctx["trace_expected"]}
                 # Dual-code states: measured values behind the diagram steps.
-                dc = ctx["lesson"].get("dualcode")
+                dc = lesson.get("dualcode")
                 if isinstance(dc, dict):
                     dc["states"] = [str(v) for v in ctx["trace_expected"]][:8]
-            ctx["lesson"]["worked"] = worked
-        drafts = llmmod.draft_exercises(
-            provider, {"name": c.name, "kind": c.kind, "file": c.file, "line": c.line},
-            "\n".join(snippet), BLOOM_DEFAULT_TYPES[bloom])
-        for t in BLOOM_DEFAULT_TYPES[bloom]:
-            n += 1
-            eid = f"ex{n:03d}"
-            if t == 8 and "runnable" not in ctx:
-                continue  # needs measurable execution
-            if t == 33 and "runnable" not in ctx:
-                continue  # invariants need measurable execution
-            if t == 9 and "trace_expected" not in ctx:
-                continue  # needs measured reference trace
-            if t in (12, 14, 19, 20, 23, 26, 27, 35, 38, 39) and "tests" not in ctx:
-                continue  # needs assert-only harness
-            if t in (13, 14, 21, 22, 28, 34, 44) and "buggy" not in ctx:
-                continue  # needs verified-breaking mutation
-            e = ex.generate(t, eid, c, snippet, ctx)
-            if e is None:
-                continue  # generators may decline a snippet (pre-existing
-                          # rollback/golf/apidesign None paths); skip, no error
-            if e.get("payload", {}).get("grounded", True) is False:
-                continue  # fallback content only; needs richer context
-            if drafts:
-                for dr in drafts:
-                    if dr.get("type") == t and str(dr.get("front", "")):
-                        if concept_anchored(dr, c):
-                            e["front"] = str(dr["front"])[:2000]
-                            e["back"] = str(dr.get("back", e["back"]))[:2000]
-                        break
-            if t in (1, 5, 6, 24):
-                # Teaching backs: the explanation, not just rubric keywords.
-                e["back"] = _teaching_back(ctx["lesson"], e["back"])
-            e["why"] = why_for(_note_for(c), purpose)
-            exercises.append(e)
-    # Module match-up: pair every concept with the file it lives in.
-    # Recognition before recall — one card reviews the whole set.
-    if len(concepts) >= 2:
-        n += 1
-        c0, sn0, _ = first_ctx
-        mctx = {"match_pairs": [[c.name, c.file] for c in concepts],
-                "commit": ",".join(d.commits[:2])}
-        me = ex.generate(30, f"ex{n:03d}", c0, sn0, mctx)
-        me["why"] = why_for(_note_for(c0), purpose)
-        exercises.append(me)
-    # Caller-authored cards join the same queue and face the same sandbox
-    # verifier as generated ones — equal treatment, no free pass.
+            lesson["worked"] = worked
+    # The caller's cards are the ONLY cards. They face the same sandbox
+    # verifier as before — equal treatment, no free pass — but nothing
+    # generated joins them.
+    n = 0
     ax, ax_errors, n = build_agent_exercises(
         agent_exercises or [], concepts, n, ",".join(d.commits[:2]),
         purpose, _note_for)
     agent_errors += ax_errors
-    if agent_exercises_only and (agent_exercises or []) and ax:
-        exercises = ax  # caller's cards replace template trivia
-    elif agent_exercises_only and (agent_exercises or []):
-        agent_errors.append(
-            "exercises: no usable agent cards; generated fallback kept")
-    else:
-        exercises.extend(ax)
+    covered = {e["concept_id"] for e in ax}
+    missing_exercises = [c.node_id for c in concepts if c.node_id not in covered]
+    if missing_lessons or missing_exercises:
+        return {
+            "error": ("every selected concept needs an agent-authored "
+                      "lesson and at least one agent-authored exercise; "
+                      f"missing lessons: {missing_lessons or 'none'}; "
+                      f"missing exercises: {missing_exercises or 'none'}"),
+            "agent_errors": agent_errors}
+    exercises = ax
+    for e in exercises:
+        if e["type"] in (1, 5, 6, 24):
+            # Teaching backs: the caller's explanation, not rubric keywords.
+            e["back"] = _teaching_back(
+                lesson_by_concept[e["concept_id"]], e["back"])
     # Open learning holes become complete-the-function exercises (PRD
     # "learning mode"): the agent left a TODO, the learner writes it.
     holes = [dict(r) for r in con.execute(
@@ -546,6 +529,12 @@ def create_module(con, repo: str, commit_range: str = "", task_summary: str = ""
         con.execute("UPDATE holes SET status='used' WHERE id=?", (h["id"],))
     report = sbmod.verify_module(exercises, runner)
     kept = report["kept"]
+    if not kept:
+        return {"error": ("no exercises survived sandbox verification; "
+                          "fix the card payloads and resubmit"),
+                "agent_errors": agent_errors,
+                "dropped": len(report["dropped"]),
+                "pass_rate": report["pass_rate"]}
     mid = modmod.new_id()
     modmod.save_module(con, mid, repo, commit_range, task_summary,
                        learner_level, kept, concepts, lessons, purpose)
@@ -586,17 +575,3 @@ def _teaching_back(lesson: dict, fallback: str) -> str:
     text = "\n\n".join(parts).strip()
     return text or fallback
 
-
-def concept_anchored(draft: dict, concept) -> bool:
-    text = (str(draft.get("front", "")) + str(draft.get("back", ""))).lower()
-    blob = json_blob(draft.get("payload", {}))
-    hay = text + blob
-    return concept.name.lower() in hay or concept.file.lower() in hay
-
-
-def json_blob(payload) -> str:
-    import json as _json
-    try:
-        return _json.dumps(payload).lower()
-    except (TypeError, ValueError):
-        return ""

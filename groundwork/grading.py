@@ -101,6 +101,14 @@ def disclosure(etype: str | int) -> str:
         78: "Name at least half the failure modes — checklist match with partial credit per item.",
         79: "Skim-then-verify: every probe letter must match — all correct passes, partial credit per probe.",
         80: "Predict the purpose from the name — exact choice wins; the docstring on the back is the verify step.",
+        81: "Predict the call — exact choice wins; the synopsis and docs pointer on the back are the verify step.",
+        82: "Draw the data flow from memory — exact edge set passes, partial credit per correct edge.",
+        83: "Answer the duck's three questions — cover at least half the key points; the thinnest answer is named in the feedback.",
+        84: "Correct the junior AND answer the follow-up — both halves must pass; score is the mean.",
+        85: "Explain it simply — cover half the key points in plain words; jargon over budget halves the score and fails the card.",
+        86: "Map it to the given familiar domain — your words must cover at least half the key points; missing points are listed in the feedback.",
+        87: "One input that breaks the claim passes — replayed live against the code.",
+        88: "Name the boundary value — the exact edge integer wins; neighbours are off by one.",
     }
     return table.get(t, "Graded like its exercise family.")
 
