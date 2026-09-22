@@ -37,6 +37,7 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
     from . import selfexplain as semod
     from . import symlinks as symmod
     from . import replay as replaymod
+    from . import runinputs as runinputsmod
     levels = explainmod.levels_for(lesson)
     order = flipmod.normalize_order(order)
     osuffix = "" if order == "definition" else f"&order={order}"
@@ -112,6 +113,10 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
     sexplain = semod.prompts_html(semod.selfexplain_prompts(how))
     if sexplain:
         out.append("<h5>Explain it back</h5>" + sexplain)
+    # I-106: run the worked example with the learner's own inputs.
+    ri = runinputsmod.runinputs_html(lesson)
+    if ri:
+        out.append("<h5>Try your own inputs</h5>" + ri)
     # F-59: connect this concept to mastered siblings when given.
     try:
         owned_list = [o for o in (owned or []) if isinstance(o, dict)]
