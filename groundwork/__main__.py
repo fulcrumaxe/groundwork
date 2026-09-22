@@ -192,6 +192,8 @@ def cmd_e2e(args) -> int:
             ans = p.get("reference", "")
         elif t == 88:
             ans = p.get("reference", "")
+        elif t == 89:
+            ans = p.get("reference", "")
         elif t == 84:
             ans = " ".join(p.get("rubric", [])) + f"\n{p.get('key', '')}"
         elif t == 17:

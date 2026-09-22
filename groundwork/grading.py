@@ -109,6 +109,7 @@ def disclosure(etype: str | int) -> str:
         86: "Map it to the given familiar domain — your words must cover at least half the key points; missing points are listed in the feedback.",
         87: "One input that breaks the claim passes — replayed live against the code.",
         88: "Name the boundary value — the exact edge integer wins; neighbours are off by one.",
+        89: "State the loop invariant — the exact bound wins; anything else fails.",
     }
     return table.get(t, "Graded like its exercise family.")
 
