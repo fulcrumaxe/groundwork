@@ -79,7 +79,7 @@ CHECKS: list[tuple[str, str, str]] = [
     # I-55: inline SVG wordmark in every page header
     ("I-55", "/",
      "() => !!document.querySelector('h1 svg.wordmark')"),
-    # I-56: seven tier chips in the Batch 10 status section
+    # I-56: tier chips in the Batch 10 status section (8 since Batch 18 adds understand)
     ("I-56", "/status",
      "() => document.querySelectorAll('.chip[class*=\"bloom-\"]').length"),
     # I-57: progress width transition in the head wire
@@ -302,7 +302,7 @@ def judge(item: str, val) -> tuple[bool, str]:
     if item == "F-types":
         return s == "", f"types-missing=[{s}]" if s else "all-8-present"
     if item == "I-56":
-        return s == "7", f"tier-chips=[{s}]"
+        return s == "8", f"tier-chips=[{s}]"
     if item == "B13-I87-link":
         return s.startswith("data:image/svg+xml,"), s[:200]
     if item == "B13-I88-meta":

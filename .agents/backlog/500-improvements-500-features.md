@@ -573,6 +573,89 @@ Batch 17 migration: none (no schema changes).
 Batch 17 wires: WEB_CEILING 1219 → 1227 (dial/cold route parsing,
 quests delegation line + import, dial apply + cold return in due_html).
 
+Batch 18 — eight improvements (I-91, I-94, I-95, I-97, I-98, I-99,
+I-102, I-103) + eight features (F-69–F-76, card types 73–80).
+Shipped on branch `batch18-f8-i8`. Selection: next-unshipped in backlog
+order, skipping 7 already-satisfied items (I-9 /reviews→History done;
+I-11 nav counts wired; I-21 module resume links live; I-43 Card N of M
+on Due; I-75 difficulty dots rendered; F-1 docstring type 25;
+F-53 bloom ladder shipped batch 1) and 1 unbuildable without human
+subjects (I-100 hallway test — recorded, not shipped).
+- [x] I-91 parsons → N×44px min-height reserve on ol.parsons (Due cards).
+  Shipped on branch `batch18-f8-i8`; cards.answer_widget etype 10/11
+  delegates to parsons.block_html; empty lists render byte-identical
+  legacy markup with no reserve.
+- [x] I-94 tokens → single token table for README + styleguide.
+  Shipped on branch `batch18-f8-i8`; values read from the real
+  palette/radius emitters (never copied); docs regen + styleguide
+  render from it; parity test breaks on rename.
+- [x] I-95 pagesnap → rendered-page snapshot goldens gate.
+  Shipped on branch `batch18-f8-i8`; due/status/modules/reviews render
+  to normalized HTML under tests/golden; drift fails CI; refresh with
+  UPDATE_GOLDENS=1 and review the diff.
+- [x] I-97 emoji → tree scan gate + 8-site glyph cleanup.
+  Shipped on branch `batch18-f8-i8`; CI fails on new raw emoji in
+  groundwork/*.py; checks/crosses are PASS/FAIL stamps, move buttons
+  SVG+labels, to-top/ext markers pure CSS; prose → stays allowed.
+- [x] I-98 motion → 300ms motion budget + audit.
+  Shipped on branch `batch18-f8-i8`; shared keyframes all ≤300ms,
+  reduced-motion gated; audit_css pins the whole head wire.
+- [x] I-99 contrast → prefers-contrast + forced-colors overrides.
+  Shipped on branch `batch18-f8-i8`; chips/badges/bars map to system
+  colors in the head wire on every page.
+- [x] I-102 explainflip → ?order=examples|definition toggle.
+  Shipped on branch `batch18-f8-i8`; render-time reorder with Recall-first
+  pinned; level tabs preserve non-default order; default output keeps
+  legacy tab URLs byte-identical.
+- [x] I-103 glossary → <dfn class='gloss'> tooltips in leveled explainers.
+  Shipped on branch `batch18-f8-i8`; lessons.render_levels annotates
+  known jargon, unknown words pass through; batch16 pins survive.
+- [x] F-69 interview → mastery interviews, type 73 (evaluate).
+  Shipped on branch `batch18-f8-i8`; read-aloud rubric, half-or-more
+  passes; pipeline create_module evaluate loop into Due.
+- [x] F-70 transfer → transfer tests, type 74 (apply).
+  Shipped on branch `batch18-f8-i8`; AST-renamed novel snippet, no
+  lesson links on front, sandbox-measured output grading.
+- [x] F-71 fartransfer → far-transfer challenges, type 75 (create).
+  Shipped on branch `batch18-f8-i8`; fixed 3-pattern Python↔TS catalog,
+  static all-check gate, no partial credit.
+- [x] F-72 pressure → pressure drills, type 76 (analyse).
+  Shipped on branch `batch18-f8-i8`; 18-line production log, 90s
+  advisory budget, victim-request id, exact-phrase grading.
+- [x] F-73 incident → incident replays, type 77 (evaluate).
+  Shipped on branch `batch18-f8-i8`; shuffled 4-event timeline,
+  signal/detect/mitigate/prevent/order rubric with partial credit.
+- [x] F-74 premortem → pre-mortems, type 78 (evaluate).
+  Shipped on branch `batch18-f8-i8`; 10 static detectors, MAX_ITEMS 6,
+  tolerant checklist grading, half-to-pass.
+- [x] F-75 fluency → reading fluency, type 79 (understand, NEW TIER).
+  Shipped on branch `batch18-f8-i8`; 90s skim→gist→verify, 3 probes
+  (keyword/locate/owner), keyed-or-compact letters; understand tier
+  added to BLOOM maps, beginner plan (appended last, legacy-safe),
+  bloomchips tier + color.
+- [x] F-76 nameguess → naming fluency, type 80 (understand).
+  Shipped on branch `batch18-f8-i8`; purpose-from-name 4-choice,
+  sibling-then-pool distractors, docstring-first-line truth,
+  exact-choice grading, no sandbox.
+
+Batch 18 deviations (all green-trunk, ledger-noted): feature items ship
+with their pipeline emission in the same commit (a bare type registration
+cannot land separately without red intermediates); I-97 carries its
+8-site glyph cleanup + I-91's cards.py caller swap in one commit for the
+same reason; I-95 commits its goldens; I-99 wires motion+contrast head
+CSS together. Two red intermediates repaired by follow-ups (I-102
+retrieval-probe pin; transfer seed-divergence test). test_bloomchips
+TIERS + test_batch17 WIDGET_GAP extended for the new tier/types
+(generic-else by architecture, verified per-item).
+
+Batch 18 migration: none (no schema changes).
+
+Batch 18 wires: WEB_CEILING 1227 → 1232 (+3 head-wire imports
+emoji/parsons, contrast, motion; +order threading for explainflip);
+status.py unchanged at 349 (same-line batch18 join); lessons.py +5
+(gloss import/wire, flip import/param/toggle); tour 102/110 + 106/114;
+docs regen (README + features.md from tour registry).
+
 ## IMPROVEMENTS (500)
 
 ### A. Navigation, IA & routing (I-1–50)
@@ -670,22 +753,22 @@ quests delegation line + import, dial apply + cold return in due_html).
 - [x] I-88: Open Graph tags so shared module links unfurl nicely.
 - [x] I-89: Add a "compact density" toggle for small screens vs desktop.
 - [x] I-90: Responsive breakpoints audit at 360/768/1024/1440px with screenshots.
-- I-91: Prevent layout shift from Parsons drag list (fixed min-heights).
+- [x] I-91: Prevent layout shift from Parsons drag list (fixed min-heights).
 - I-92: Make tables horizontally scrollable with sticky first column on mobile.
 - I-93: Unify all timestamps into a `<time>` element with datetime attr.
-- I-94: Add a design-tokens section to README for contributors.
-- I-95: Snapshot-test rendered page HTML to catch visual regressions.
+- [x] I-94: Add a design-tokens section to README for contributors.
+- [x] I-95: Snapshot-test rendered page HTML to catch visual regressions.
 - I-96: Add a `/styleguide` dev page showcasing every component.
-- I-97: Remove all remaining raw emoji-as-icon usage; replace with CSS/SVG.
-- I-98: Add motion budget: total animation <300ms, all `prefers-reduced-motion` gated.
-- I-99: High-contrast mode support beyond dark mode.
+- [x] I-97: Remove all remaining raw emoji-as-icon usage; replace with CSS/SVG.
+- [x] I-98: Add motion budget: total animation <300ms, all `prefers-reduced-motion` gated.
+- [x] I-99: High-contrast mode support beyond dark mode.
 - I-100: Run a 5-user hallway usability test and fix top 10 findings.
 
 ### C. Lesson & study experience (I-101–150)
 
 - I-101: Show estimated read time per lesson section.
-- I-102: Add "explain differently" button cycling example-first vs definition-first order.
-- I-103: Inline glossary tooltips for jargon in leveled explainers.
+- [x] I-102: Add "explain differently" button cycling example-first vs definition-first order.
+- [x] I-103: Inline glossary tooltips for jargon in leveled explainers.
 - I-104: Link every symbol mention to its lesson anchor or file line.
 - I-105: Add worked-example replay: step through the measured trace one step at a time.
 - I-106: Let learners run the worked example with their own inputs in-page.
@@ -1180,14 +1263,14 @@ quests delegation line + import, dial apply + cold return in due_html).
 - [x] F-66: Calibration training drills (bet points on answers, explicit odds).
 - [x] F-67: Overconfidence intervention cards (extra evidence when gap is large).
 - F-68: Metacognition journal (weekly "what did I misjudge?" prompt).
-- F-69: Mastery interviews (oral-exam mode: explain aloud, rubric-graded).
-- F-70: Transfer tests (same idea in unfamiliar code, no anchor).
-- F-71: Far-transfer challenges (apply the pattern in another language).
-- F-72: Debugging under pressure drills (timed, production-like logs).
-- F-73: Incident-replay library (real past outages as practice scenarios).
-- F-74: Pre-mortem exercises (list how this code could fail before it does).
-- F-75: Code-reading fluency trainer (skim → gist → verify, timed).
-- F-76: Naming fluency drills (guess purpose from name, then verify).
+- [x] F-69: Mastery interviews (oral-exam mode: explain aloud, rubric-graded).
+- [x] F-70: Transfer tests (same idea in unfamiliar code, no anchor).
+- [x] F-71: Far-transfer challenges (apply the pattern in another language).
+- [x] F-72: Debugging under pressure drills (timed, production-like logs).
+- [x] F-73: Incident-replay library (real past outages as practice scenarios).
+- [x] F-74: Pre-mortem exercises (list how this code could fail before it does).
+- [x] F-75: Code-reading fluency trainer (skim → gist → verify, timed).
+- [x] F-76: Naming fluency drills (guess purpose from name, then verify).
 - F-77: API guessing (predict the stdlib/third-party call, then check docs).
 - F-78: Mental-model mapping (draw the data flow; graph-diff graded).
 - F-79: Rubber-duck mode (explain to a patient bot that only asks questions).
