@@ -190,8 +190,15 @@ class LessonPageTest(unittest.TestCase):
     def test_module_page_renders_packs_without_drill_for_newcomer(self):
         _tmp, db, _server, out = make_module("batch16 module page")
         body = handler_for(db).module_html(out["module_id"])
-        self.assertIn("dual-diagram", body)
+        # Traced lessons replay step-by-step (I-105); traceless ones
+        # keep the full dual-coding pack (pinned below).
+        self.assertIn("class='replay'", body)
         self.assertNotIn("elaboration drill", body)
+
+    def test_traceless_lesson_keeps_full_pack(self):
+        html_out = lesmod.render_levels(_lesson(), 0.0, 0, "auto", "/")
+        self.assertIn("dual-diagram", html_out)
+        self.assertNotIn("class='replay'", html_out)
 
 
 if __name__ == "__main__":

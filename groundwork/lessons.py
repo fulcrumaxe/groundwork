@@ -14,7 +14,7 @@ from . import verdicts as verdictsmod
 def render_levels(lesson: dict, mastery: float, attempts: int,
                     level_override: str, base_path: str, owned=None,
                     order: str = "definition", symbols=None,
-                    sym_mid: str = "") -> str:
+                    sym_mid: str = "", replay_step=None) -> str:
     """Leveled explainer with tabs; auto-places from mastery by default.
 
     ``owned`` is an optional list of sibling lesson dicts the learner
@@ -36,6 +36,7 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
     from . import predict as predictmod
     from . import selfexplain as semod
     from . import symlinks as symmod
+    from . import replay as replaymod
     levels = explainmod.levels_for(lesson)
     order = flipmod.normalize_order(order)
     osuffix = "" if order == "definition" else f"&order={order}"
@@ -74,7 +75,12 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
     dc = dc if isinstance(dc, dict) else {}
     steps = [s for s in (dc.get("steps") or how)
              if isinstance(s, str) and s.strip()]
-    if steps:
+    # I-105: stepped replay wins when a measured trace exists; the
+    # full pack stays as the legacy branch for traceless lessons.
+    replay_block = replaymod.replay_html(lesson, replay_step, base_path)
+    if replay_block:
+        out.append(replay_block)
+    elif steps:
         pack = dualmod.pack_html(
             lesson.get("name") or "",
             (lesson.get("summary") or "").splitlines()[0][:200],
