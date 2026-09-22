@@ -39,6 +39,8 @@ def is_example(block) -> bool:
 def reorder_blocks(blocks, order=ORDER_DEFINITION) -> list:
     """Stable reorder: definition-first keeps legacy order; examples-first
     moves example-kind blocks front, relative order kept in both groups.
+    A leading non-example block (the "Recall first" retrieval probe)
+    stays pinned first so retrieval-first template enforcement holds.
     Unknown/hostile input returns the blocks unchanged (legacy fallback)."""
     try:
         if not isinstance(blocks, list) or not blocks:
@@ -49,6 +51,8 @@ def reorder_blocks(blocks, order=ORDER_DEFINITION) -> list:
         if not examples or len(examples) == len(blocks):
             return list(blocks)
         rest = [b for b in blocks if not is_example(b)]
+        if not is_example(blocks[0]):
+            return [blocks[0]] + examples + rest[1:]
         return examples + rest
     except Exception:
         try:

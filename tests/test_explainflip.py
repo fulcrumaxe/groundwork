@@ -43,8 +43,14 @@ class ReorderTest(unittest.TestCase):
                   {"h": "How it works", "b": "h"},
                   {"h": "Worked example", "b": "e"}]
         out = flipmod.reorder_blocks(blocks, "examples")
+        # Leading non-example block stays pinned (retrieval-probe rule).
         self.assertEqual([b["h"] for b in out],
-                         ["Worked example", "What it does", "How it works"])
+                         ["What it does", "Worked example", "How it works"])
+        lead_example = [{"h": "Worked example", "b": "e"},
+                        {"h": "What it does", "b": "d"}]
+        self.assertEqual(
+            [b["h"] for b in flipmod.reorder_blocks(lead_example, "examples")],
+            ["Worked example", "What it does"])
 
     def test_content_set_identical_in_both_orders(self):
         blocks = [{"h": "What it does", "b": "d"},
