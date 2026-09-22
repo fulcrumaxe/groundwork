@@ -16,8 +16,13 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
                     order: str = "definition", symbols=None,
                     sym_mid: str = "", replay_step=None,
                     lesson_commit: str = "",
-                    current_commit: str = "") -> str:
+                    current_commit: str = "", recent=None) -> str:
     """Leveled explainer with tabs; auto-places from mastery by default.
+
+    ``recent`` is an optional oldest-first list of (grade, confidence)
+    pairs (I-122, ``explcalib.recent_from_rows``); it nudges the auto
+    placement for overconfident/underconfident streaks. ``None``/empty
+    keeps the legacy ``explain.auto_level`` placement.
 
     ``owned`` is an optional list of sibling lesson dicts the learner
     already masters; when two or more are given an elaboration drill
@@ -42,6 +47,7 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
     from . import runinputs as runinputsmod
     from . import srccollapse as srcmod
     from . import tryprompts as trymod
+    from . import explcalib as explcalibmod
     from . import lessonver as lessonvermod
     from . import lessondiff as lessondiffmod
     levels = explainmod.levels_for(lesson)
@@ -50,7 +56,8 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
     if level_override in ("1", "2", "3", "4"):
         active = int(level_override)
     else:
-        active = explainmod.auto_level(mastery or 0.0, attempts)
+        # I-122: recent calibration nudges auto-place; no data = legacy.
+        active = explcalibmod.pick_level(mastery or 0.0, attempts, recent)
     tabs = []
     for n in ("auto", "1", "2", "3", "4"):
         label = "Auto" if n == "auto" else explainmod.LEVEL_TITLES[int(n)]

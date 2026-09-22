@@ -49,6 +49,7 @@ from . import donehero as doneheromod
 from . import emoji as emojimod, parsons as parsonsmod  # one line keeps web.py at WEB_CEILING
 from . import emptyart as emptyartmod
 from . import errors as errmod
+from . import explcalib as explcalibmod
 from . import explainflip as flipmod
 from . import exports as expmod
 from . import favicon as faviconmod
@@ -647,6 +648,12 @@ class Handler(BaseHTTPRequestHandler):
         try:
             study = quemod.stored_lessons(con2, [c["id"] for c in due])
             tries = quemod.attempts(con2, [c["id"] for c in due])
+            # I-122: newest-first (grade, confidence) rows per card.
+            cal_rows = con2.execute(
+                "SELECT card_id, grade, confidence FROM reviews"
+                f" WHERE card_id IN ({','.join('?' * len(due))})"
+                " ORDER BY id DESC",
+                [c["id"] for c in due]).fetchall() if due else []
             crows = quemod.cold_rows(con2) if cold else []
         finally:
             con2.close()
@@ -691,7 +698,9 @@ class Handler(BaseHTTPRequestHandler):
                     explainer = lesmod.render_levels(
                         lesson_dict, mastery, tries.get(c["id"], 0), level, "/", order=order,
                         symbols=sym_index, sym_mid=g["mid"], replay_step=replay_step,
-                        lesson_commit=c.get("commit", ""))
+                        lesson_commit=c.get("commit", ""),
+                        recent=explcalibmod.recent_from_rows(
+                            [r for r in cal_rows if r[0] == c["id"]]))
                     lesson = tabmemorymod.details_html(
                         explainer, f"due:{c['id']}")
                 else:
@@ -1039,7 +1048,7 @@ class Handler(BaseHTTPRequestHandler):
                 f"{html.escape(row['file'])}:{row['line']}</small></p>")
             if node in lesson_map:
                 parts.append(whyitmod.lesson_why_html(lesson_map[node], first=(ci == 0)))
-                parts.append(lesmod.render_levels(lesson_map[node], mastery_of[node], concept_tries, level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node), order=order, symbols=sym_index, sym_mid=mid, replay_step=replay_step, lesson_commit=mod_commit, current_commit=mod_head))
+                parts.append(lesmod.render_levels(lesson_map[node], mastery_of[node], concept_tries, level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node), order=order, symbols=sym_index, sym_mid=mid, replay_step=replay_step, lesson_commit=mod_commit, current_commit=mod_head, recent=explcalibmod.recent_from_rows([r for c in concept_cards for r in history.get(c["id"], [])])))
                 parts.append(beforaftermod.lesson_block(lesson_map[node], ci == 0))
                 parts.append(handoutmod.handout_link_html(mid, node))
             parts.append(decmod.lesson_block(
@@ -1059,7 +1068,7 @@ class Handler(BaseHTTPRequestHandler):
                     parts.append("<h3>Practice</h3>")
             for c in concept_cards:
                 lesson = (tabmemorymod.details_html(
-                    lesmod.render_levels(lesson_map[node], mastery_of.get(node, 0.0), tries.get(c['id'], 0), level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node), order=order, symbols=sym_index, sym_mid=mid, replay_step=replay_step, lesson_commit=mod_commit, current_commit=mod_head),
+                    lesmod.render_levels(lesson_map[node], mastery_of.get(node, 0.0), tries.get(c['id'], 0), level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node), order=order, symbols=sym_index, sym_mid=mid, replay_step=replay_step, lesson_commit=mod_commit, current_commit=mod_head, recent=explcalibmod.recent_from_rows(history.get(c['id'], []))),
                     f"mod:{node}")
                     if node in lesson_map else "")
                 parts.append(
