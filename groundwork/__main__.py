@@ -184,7 +184,7 @@ def cmd_e2e(args) -> int:
             ans = p.get("reference", "")
         elif t == 9:
             ans = "\n".join(str(x) for x in p.get("expected", []))
-        elif t in (7, 15, 16, 18, 80):
+        elif t in (7, 15, 16, 18, 80, 81):
             ans = p.get("answer", "")
         elif t == 17:
             ans = (f"{p.get('target', 'x')}_renamed "

@@ -16,6 +16,7 @@ from pathlib import Path
 
 from . import a11yaudit as a11yauditmod
 from . import apidesign as apidesignmod
+from . import apiguess as apiguessmod
 from . import bisect as bisectmod
 from . import changelog as changelogmod
 from . import cliux as cliuxmod
@@ -153,12 +154,13 @@ TYPES = {
     78: ("pre-mortem", "evaluate"),
     79: ("reading-fluency", "understand"),
     80: ("naming-fluency", "understand"),
+    81: ("api-guess", "apply"),
 }
 
 BLOOM_TYPES = {
     "recall": [1, 2, 3, 4],
     "explain": [5, 6, 7, 25, 1],
-    "apply": [8, 10, 11, 12, 9, 31, 32, 33, 44, 54, 55, 68, 72, 74],
+    "apply": [8, 10, 11, 12, 9, 31, 32, 33, 44, 54, 55, 68, 72, 74, 81],
     "analyse": [13, 14, 15, 16, 17, 18, 9, 26, 28, 29, 34, 36, 37, 45,
                 49, 50, 51, 52, 53, 58, 59, 60, 61, 69, 76],
     "modify": [12, 14, 19, 20, 27, 35, 38, 39, 46, 47, 56, 62, 66, 67, 70],
@@ -866,6 +868,7 @@ GENERATORS = {
     78: premortemmod.generate,
     79: fluencymod.generate,
     80: nameguessmod.generate,
+    81: apiguessmod.generate,
 }
 
 
@@ -1145,6 +1148,8 @@ def grade(exercise: dict, submission: str, runner=None) -> dict:
         return fluencymod.grade(exercise, submission, runner)
     if t == 80:
         return nameguessmod.grade(exercise, submission, runner)
+    if t == 81:
+        return apiguessmod.grade(exercise, submission, runner)
     # Execution-graded types need the sandbox runner. Pure-order Parsons
     # (no harness) is graded without it, below.
     if runner is None and not (t == 11 and not p.get("tests")):
@@ -1347,6 +1352,8 @@ def render(exercise: dict) -> str:
         return fluencymod.render(exercise)
     if t == 80:
         return nameguessmod.render(exercise)
+    if t == 81:
+        return apiguessmod.render(exercise)
     p = exercise.get("payload", {})
     front = html.escape(exercise.get("front", ""))
     body = f"<p>{front}</p>"
