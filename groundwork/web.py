@@ -56,6 +56,7 @@ from . import fontstack as fontstackmod
 from . import focusrings as focusringsmod
 from . import footnav as footnavmod
 from . import formerr as formerrmod
+from . import handout as handoutmod
 from . import hinttiers as hinttiersmod
 from . import history as histmod
 from . import journal as journalmod
@@ -577,6 +578,16 @@ class Handler(BaseHTTPRequestHandler):
             host = self.headers.get("Host", "127.0.0.1:8765")
             self._send(self.robots_txt(f"http://{host}").encode(), 200,
                        "text/plain; charset=utf-8")
+        elif url.path.startswith("/modules/") and "/handout/" in url.path:
+            segs = url.path.split("/")
+            body = (handoutmod.page_for(self.db_path, segs[2], segs[4])
+                    if len(segs) > 4 else handoutmod.EMPTY_HTML)
+            if body == handoutmod.EMPTY_HTML:
+                self._send(page("Not found", errmod.not_found_html(
+                    url.path, "Unknown lesson."), active="modules",
+                    page_id="modules", counts=counts, tour=tour_ctx), 404)
+            else:
+                self._send(body.encode(), 200, "text/html; charset=utf-8")
         elif url.path.startswith("/modules/") and url.path.endswith("/reset"):
             mid = url.path.split("/")[2]
             con = self._con()
@@ -1028,6 +1039,7 @@ class Handler(BaseHTTPRequestHandler):
                 parts.append(whyitmod.lesson_why_html(lesson_map[node], first=(ci == 0)))
                 parts.append(lesmod.render_levels(lesson_map[node], mastery_of[node], concept_tries, level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node), order=order, symbols=sym_index, sym_mid=mid, replay_step=replay_step, lesson_commit=mod_commit, current_commit=mod_head))
                 parts.append(beforaftermod.lesson_block(lesson_map[node], ci == 0))
+                parts.append(handoutmod.handout_link_html(mid, node))
             parts.append(decmod.lesson_block(
                 node, dec_matches.get(node, []), ci == 0))
             avg, nvotes = cl_sums.get(row["cid"], (0.0, 0))
