@@ -88,7 +88,11 @@ class EffectTest(unittest.TestCase):
 
     def test_render_levels_default_unchanged_legacy_fallback(self):
         before = lesmod.render_levels(_lesson(), 0.0, 0, "auto", "/")
-        self.assertNotIn("order=", before)
+        # Default keeps definition-first block order (legacy content path)
+        # while gaining the always-on order toggle links.
+        self.assertLess(before.index("What it does"),
+                        before.index("Vocabulary"))
+        self.assertIn("order=examples", before)
         self.assertIn("What it does", before)
 
     def test_toggle_marks_current_and_preserves_level(self):

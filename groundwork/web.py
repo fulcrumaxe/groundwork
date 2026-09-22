@@ -47,6 +47,7 @@ from . import donehero as doneheromod
 from . import emoji as emojimod, parsons as parsonsmod  # one line keeps web.py at WEB_CEILING
 from . import emptyart as emptyartmod
 from . import errors as errmod
+from . import explainflip as flipmod
 from . import exports as expmod
 from . import favicon as faviconmod
 from . import fontstack as fontstackmod
@@ -448,6 +449,7 @@ class Handler(BaseHTTPRequestHandler):
         query = parse_qs(url.query)
         level = levelcarrymod.normalize(query.get("level", ["auto"])[0])
         self._level = level
+        order = flipmod.normalize_order(query.get("order", ["definition"])[0])
         counts = self._nav_counts()
         tour_ctx = None
         tour_id = query.get("tour", [""])[0]
@@ -464,7 +466,7 @@ class Handler(BaseHTTPRequestHandler):
             one, cold = mode == "one", mode == "cold"
             dial = query.get("dial", [""])[0] or None
             resume_key = query.get("resume", [""])[0]
-            self._send(page("Due", self.due_html(level, one, resume_key, dial, cold, mode),
+            self._send(page("Due", self.due_html(level, one, resume_key, dial, cold, mode, order),
                             active="due", page_id="due",
                             lede="What to practice next — your spaced queue, one card at a time.",
                             counts=counts, tour=tour_ctx))
@@ -583,7 +585,7 @@ class Handler(BaseHTTPRequestHandler):
                     page_id="modules", counts=counts, tour=tour_ctx))
         elif url.path.startswith("/modules/"):
             mid = url.path.split("/")[-1]
-            body = self.module_html(mid, level)
+            body = self.module_html(mid, level, order)
             if body == "<p>Unknown module.</p>":
                 self._send(page("Not found", errmod.not_found_html(
                     url.path, "Unknown module."), active="modules",
@@ -614,7 +616,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def due_html(self, level: str = "auto", one: bool = False,
                  resume_key: str = "", dial=None, cold: bool = False,
-                 mode: str = "") -> str:
+                 mode: str = "", order: str = "definition") -> str:
         server = mcplib.MCPServer(self.db_path)
         due = server.tool_list_due_reviews({"limit": 20})["due"]
         due = resumemod.session_cards(due, resume_key or "")
@@ -663,7 +665,7 @@ class Handler(BaseHTTPRequestHandler):
                 if c["id"] in study:
                     lesson_dict, mastery = study[c["id"]]
                     explainer = lesmod.render_levels(
-                        lesson_dict, mastery, tries.get(c["id"], 0), level, "/")
+                        lesson_dict, mastery, tries.get(c["id"], 0), level, "/", order=order)
                     lesson = (f"<details><summary>Study first — explained your way</summary>"
                               f"{explainer}</details>")
                 else:
@@ -898,7 +900,7 @@ class Handler(BaseHTTPRequestHandler):
         parts.append("</div>")
         return "".join(parts)
 
-    def module_html(self, mid: str, level: str = "auto") -> str:
+    def module_html(self, mid: str, level: str = "auto", order: str = "definition") -> str:
         con = self._con()
         try:
             m = con.execute("SELECT * FROM modules WHERE id=?", (mid,)).fetchone()
@@ -995,7 +997,7 @@ class Handler(BaseHTTPRequestHandler):
                 f"<p><small>{html.escape(row['kind'])} · "
                 f"{html.escape(row['file'])}:{row['line']}</small></p>")
             if node in lesson_map:
-                parts.append(lesmod.render_levels(lesson_map[node], mastery_of[node], concept_tries, level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node)))
+                parts.append(lesmod.render_levels(lesson_map[node], mastery_of[node], concept_tries, level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node), order=order))
             parts.append(decmod.lesson_block(
                 node, dec_matches.get(node, []), ci == 0))
             avg, nvotes = cl_sums.get(row["cid"], (0.0, 0))
@@ -1013,7 +1015,7 @@ class Handler(BaseHTTPRequestHandler):
                     parts.append("<h3>Practice</h3>")
             for c in concept_cards:
                 lesson = (f"<details><summary>Study first — explained your way</summary>"
-                          f"{lesmod.render_levels(lesson_map[node], mastery_of.get(node, 0.0), tries.get(c['id'], 0), level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node))}</details>"
+                          f"{lesmod.render_levels(lesson_map[node], mastery_of.get(node, 0.0), tries.get(c['id'], 0), level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node), order=order)}</details>"
                           if node in lesson_map else "")
                 parts.append(
                     f"{cardlinksmod.article_open(c['id'])}<h3>{html.escape(c['concept'])} "

@@ -36,7 +36,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 
-WEB_CEILING = 1230  # Batch 18: +3 head-wire imports (emoji/parsons, contrast, motion)
+WEB_CEILING = 1232  # Batch 18: +3 head-wire imports, +order threading (explainflip)
 AREA_CAP = 350
 
 # Capability area -> module implementing it. Batch 3 appends its areas here.
@@ -227,6 +227,23 @@ AREAS = {
     "overconf": "overconf.py",
     "batch13": "batch13.py",
     "contractaudit": "contractaudit.py",
+    "parsons": "parsons.py",
+    "tokens": "tokens.py",
+    "pagesnap": "pagesnap.py",
+    "emoji": "emoji.py",
+    "motion": "motion.py",
+    "contrast": "contrast.py",
+    "explainflip": "explainflip.py",
+    "glossary": "glossary.py",
+    "interview": "interview.py",
+    "transfer": "transfer.py",
+    "fartransfer": "fartransfer.py",
+    "pressure": "pressure.py",
+    "incident": "incident.py",
+    "premortem": "premortem.py",
+    "fluency": "fluency.py",
+    "nameguess": "nameguess.py",
+    "batch18": "batch18.py",
 }
 
 

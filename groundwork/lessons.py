@@ -12,7 +12,8 @@ from . import verdicts as verdictsmod
 
 
 def render_levels(lesson: dict, mastery: float, attempts: int,
-                    level_override: str, base_path: str, owned=None) -> str:
+                    level_override: str, base_path: str, owned=None,
+                    order: str = "definition") -> str:
     """Leveled explainer with tabs; auto-places from mastery by default.
 
     ``owned`` is an optional list of sibling lesson dicts the learner
@@ -24,10 +25,13 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
     from . import dualcode as dualmod
     from . import elaboration as elabmod
     from . import explain as explainmod
+    from . import explainflip as flipmod
     from . import fading as fadingmod
     from . import predict as predictmod
     from . import selfexplain as semod
     levels = explainmod.levels_for(lesson)
+    order = flipmod.normalize_order(order)
+    osuffix = "" if order == "definition" else f"&order={order}"
     if level_override in ("1", "2", "3", "4"):
         active = int(level_override)
     else:
@@ -39,12 +43,12 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
             (n == "auto" and level_override not in ("1", "2", "3", "4")) or
             (n != "auto" and int(n) == active and
              level_override in ("1", "2", "3", "4"))) else ""
-        tabs.append(f"<a href='{base_path}?level={n}'>{label}</a>{mark}")
+        tabs.append(f"<a href='{base_path}?level={n}{osuffix}'>{label}</a>{mark}")
     out = [f"<p><small>Explain it {'simply' if active <= 2 else 'technically'}: "
-           f"{' · '.join(tabs)}</small></p>"]
+           f"{' · '.join(tabs)}</small></p>" + flipmod.toggle_html(base_path, level_override, order)]
     lv = next(L for L in levels if L["n"] == active)
     out.append(f"<h4>{html.escape(lv['title'])}</h4>")
-    for blk in lv["blocks"]:
+    for blk in flipmod.reorder_blocks(lv["blocks"], order):
         body = glossmod.gloss_html(blk["b"])
         if blk.get("pre"):
             body = codelinesmod.numbered_html(blk["b"])
