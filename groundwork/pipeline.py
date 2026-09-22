@@ -11,6 +11,7 @@ import ast
 import re
 from pathlib import Path
 
+from . import debugkata as debugkatamod
 from . import diff as diffmod
 from . import exercises as ex
 from . import graph as graphmod
@@ -451,6 +452,12 @@ def create_module(con, repo: str, commit_range: str = "", task_summary: str = ""
         note = whyitmod.clean_note(_note_for(c))
         if note:
             lesson_by_concept[c.node_id]["why_note"] = note
+    # F-88: attach debugging katas matching each lesson's own source.
+    # No match leaves the frame untouched (legacy path).
+    for c in concepts:
+        debugkatamod.enrich_lesson(
+            lesson_by_concept[c.node_id],
+            lesson_by_concept[c.node_id].get("source", ""))
     missing_lessons = sorted(
         {L["concept_id"] for L in lessons if not L.get("agent")})
     for c in concepts:
