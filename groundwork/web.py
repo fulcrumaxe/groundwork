@@ -61,6 +61,7 @@ from . import history as histmod
 from . import journal as journalmod
 from . import known as knownmod
 from . import lessons as lesmod
+from . import lessonpin as lessonpinmod
 from . import lessonver as lessonvermod
 from . import levelcarry as levelcarrymod
 from . import logbook as logbookmod
@@ -933,6 +934,9 @@ class Handler(BaseHTTPRequestHandler):
             ladders = debtmod.bloom_reached(con, mid)
         finally:
             con.close()
+        # I-117: pinned lessons first; no pins keeps the legacy order.
+        pins = []
+        concepts = lessonpinmod.order_with_pins(concepts, pins)
         base = f"/modules/{mid}"
         try:
             lesson_map = {L["concept_id"]: L
