@@ -38,6 +38,7 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
     from . import symlinks as symmod
     from . import replay as replaymod
     from . import runinputs as runinputsmod
+    from . import srccollapse as srcmod
     levels = explainmod.levels_for(lesson)
     order = flipmod.normalize_order(order)
     osuffix = "" if order == "definition" else f"&order={order}"
@@ -62,9 +63,10 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
     for blk in flipmod.reorder_blocks(lv["blocks"], order):
         body = glossmod.gloss_html(blk["b"])
         if blk.get("pre"):
-            body = codelinesmod.numbered_html(blk["b"])
+            body = (srcmod.block_html(blk["b"]) or
+                    f"<pre>{codelinesmod.numbered_html(blk['b'])}</pre>")
             body = symmod.annotate_code(body, sym_index, sym_scope)
-            out.append(f"<h5>{html.escape(blk['h'])}</h5><pre>{body}</pre>")
+            out.append(f"<h5>{html.escape(blk['h'])}</h5>{body}")
         else:
             body = symmod.link_symbols(body, sym_index, sym_scope)
             out.append(f"<h5>{html.escape(blk['h'])}</h5>"
@@ -95,9 +97,13 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
         if predictmod.is_covered(cover):
             out.append(cover)
         else:
-            out.append(
-                f"<details><summary>Show me the code</summary>"
-                f"<pre>{codelinesmod.numbered_html(lv['code'])}</pre></details>")
+            snippet = lv["code"]
+            if srcmod.is_long(snippet):
+                out.append(srcmod.block_html(snippet))
+            else:
+                out.append(
+                    f"<details><summary>Show me the code</summary>"
+                    f"<pre>{codelinesmod.numbered_html(snippet)}</pre></details>")
     # F-57: support fades with practice — full steps live above, so the
     # faded section only appears once the learner has attempts.
     try:
