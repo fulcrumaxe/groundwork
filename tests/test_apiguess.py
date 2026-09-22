@@ -32,6 +32,9 @@ class GenerateTest(unittest.TestCase):
         self.assertEqual(len(p["choices"]), 4)
         self.assertIn("json.loads", p["choices"])
         self.assertTrue(card["front"])
+        # Due shows the front text: the four choices must be on it.
+        for c in p["choices"]:
+            self.assertIn(c, card["front"])
 
     def test_never_none_never_raises(self):
         for args in [(None, None, None, None),

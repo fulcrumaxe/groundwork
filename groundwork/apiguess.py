@@ -155,6 +155,8 @@ def generate(ex_id, concept, snippet, ctx):
         mod, synopsis, docs = CALLS[target]
         others = [t for t in targets if t != target]
         choices, answer = _choices(target, others, ex_id)
+        listing = " / ".join(f"{chr(65 + i)}) {c}"
+                                 for i, c in enumerate(choices))
         return {
             "id": ex_id, "type": TYPE_NUM, "type_name": TYPE_NAME,
             "bloom": BLOOM,
@@ -162,8 +164,9 @@ def generate(ex_id, concept, snippet, ctx):
             "concept": name or target, "file": file, "line": line,
             "commit": commit,
             "hints": _hints(),
-            "front": (f"Task: {_task_for(target)} Commit to one call, "
-                      "then verify against the synopsis and docs pointer."),
+            "front": (f"Task: {_task_for(target)} Commit to one call "
+                      f"({listing}), then verify against the synopsis "
+                      "and docs pointer."),
             "back": f"{target}: {synopsis} ({docs})",
             "payload": {"target": target, "module": mod,
                         "choices": choices, "answer": answer,

@@ -49,6 +49,7 @@ from . import rebase as rebasemod
 from . import regexex as regexexmod
 from . import renameex as renameexmod
 from . import repro as repromod
+from . import rubberduck as rubberduckmod
 from . import rollback as rollbackmod
 from . import secretscan as secretscanmod
 from . import smell as smellmod
@@ -157,11 +158,12 @@ TYPES = {
     80: ("naming-fluency", "understand"),
     81: ("api-guess", "apply"),
     82: ("model-map", "analyse"),
+    83: ("rubber-duck", "explain"),
 }
 
 BLOOM_TYPES = {
     "recall": [1, 2, 3, 4],
-    "explain": [5, 6, 7, 25, 1],
+    "explain": [5, 6, 7, 25, 1, 83],
     "apply": [8, 10, 11, 12, 9, 31, 32, 33, 44, 54, 55, 68, 72, 74, 81],
     "analyse": [13, 14, 15, 16, 17, 18, 9, 26, 28, 29, 34, 36, 37, 45,
                 49, 50, 51, 52, 53, 58, 59, 60, 61, 69, 76, 82],
@@ -872,6 +874,7 @@ GENERATORS = {
     80: nameguessmod.generate,
     81: apiguessmod.generate,
     82: modelmapmod.generate,
+    83: rubberduckmod.generate,
 }
 
 
@@ -1155,6 +1158,8 @@ def grade(exercise: dict, submission: str, runner=None) -> dict:
         return apiguessmod.grade(exercise, submission, runner)
     if t == 82:
         return modelmapmod.grade(exercise, submission, runner)
+    if t == 83:
+        return rubberduckmod.grade(exercise, submission, runner)
     # Execution-graded types need the sandbox runner. Pure-order Parsons
     # (no harness) is graded without it, below.
     if runner is None and not (t == 11 and not p.get("tests")):
@@ -1361,6 +1366,8 @@ def render(exercise: dict) -> str:
         return apiguessmod.render(exercise)
     if t == 82:
         return modelmapmod.render(exercise)
+    if t == 83:
+        return rubberduckmod.render(exercise)
     p = exercise.get("payload", {})
     front = html.escape(exercise.get("front", ""))
     body = f"<p>{front}</p>"

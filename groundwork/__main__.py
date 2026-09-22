@@ -170,7 +170,7 @@ def cmd_e2e(args) -> int:
             ans = p.get("signature", "")
         elif t == 4:
             ans = p.get("answer", "")
-        elif t in (5, 6, 24, 25, 73):
+        elif t in (5, 6, 24, 25, 73, 83):
             ans = " ".join(p.get("rubric", []))
         elif t == 21:
             ans = f"{p.get('bug_line', '')} " + " ".join(p.get("rubric", []))

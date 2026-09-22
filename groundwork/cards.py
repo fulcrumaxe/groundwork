@@ -116,6 +116,12 @@ def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:
         body = (f"<textarea name='answer' rows='5' cols='70' "
                 f"placeholder='{hint}'></textarea><br>"
                 f"{_confidence()}<button>Submit explanation</button>")
+    elif etype in ("82", "83"):
+        hint = ("One edge per line: caller -> concept."
+                if etype == "82" else "Q1… Q2… Q3…")
+        body = (f"<textarea name='answer' rows='5' cols='70' "
+                f"placeholder='{hint}'></textarea><br>"
+                f"{_confidence()}<button>Submit answer</button>")
     elif etype == "8":
         if p.get("choices"):
             btns = " ".join(
