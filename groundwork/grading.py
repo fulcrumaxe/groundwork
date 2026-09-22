@@ -98,6 +98,7 @@ def disclosure(etype: str | int) -> str:
         75: "Re-express the pattern in the target language — every listed check must hold; no partial credit.",
         76: "Name the exact root cause within the 90s drill budget — exact phrase (case, quotes, whitespace ignored; listed aliases accepted); herrings, decoy requests, and pasted logs never count.",
         77: "Name the signal, detection, mitigation, and prevention plus the true timeline order — partial credit per point, half or more passes.",
+        78: "Name at least half the failure modes — checklist match with partial credit per item.",
     }
     return table.get(t, "Graded like its exercise family.")
 

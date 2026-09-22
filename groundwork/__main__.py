@@ -198,7 +198,7 @@ def cmd_e2e(args) -> int:
             ans = "\n".join(f"{k}={v}" for k, v in p.get("key", {}).items())
         elif t == 14:
             ans = p.get("fixed", "")
-        elif t == 49:
+        elif t in (49, 78):
             ans = "\n".join(p.get("items", []))
         elif t == 50:
             ans = p.get("secret", "")
