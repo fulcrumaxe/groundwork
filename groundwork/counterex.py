@@ -182,8 +182,8 @@ def _find_breaker(code: str, func: str, arity: int, check: str,
         if fn is None:
             return (None, "")
         order = list(range(len(PROBES)))
-        rng_seed = seed & 0xFFFFFFFF
-        order = order[rng_seed % len(order):] + order[:rng_seed % len(order)]
+        k = (seed & 0xFFFFFFFF) % len(order)
+        order = order[k:] + order[:k]
         tried = 0
         for i in order:
             if tried >= MAX_PROBES:
@@ -228,7 +228,6 @@ def generate(ex_id, concept, snippet, ctx):
         func, arity = found
         claims = _claims(func, arity)
         seed = _seed(ex_id)
-        pick = claims[seed % len(claims)]
         for offset in range(len(claims)):
             label, claim, check = claims[(seed + offset) % len(claims)]
             breaker, what = _find_breaker(code, func, arity, check, seed)

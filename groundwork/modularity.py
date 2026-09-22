@@ -36,7 +36,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 
-WEB_CEILING = 1232  # Batch 18: +3 head-wire imports, +order threading (explainflip)
+WEB_CEILING = 1258  # Batch 18: +3 head-wire imports, +order threading (explainflip). Batch 19: symbols/replay/version params, ?replay threading, delegation lines.
 AREA_CAP = 350
 
 # Capability area -> module implementing it. Batch 3 appends its areas here.
@@ -244,6 +244,23 @@ AREAS = {
     "fluency": "fluency.py",
     "nameguess": "nameguess.py",
     "batch18": "batch18.py",
+    "symlinks": "symlinks.py",
+    "replay": "replay.py",
+    "runinputs": "runinputs.py",
+    "beforafter": "beforafter.py",
+    "srccollapse": "srccollapse.py",
+    "whyit": "whyit.py",
+    "tryprompts": "tryprompts.py",
+    "lessonver": "lessonver.py",
+    "apiguess": "apiguess.py",
+    "modelmap": "modelmap.py",
+    "rubberduck": "rubberduck.py",
+    "protege": "protege.py",
+    "feynman": "feynman.py",
+    "analogy": "analogy.py",
+    "counterex": "counterex.py",
+    "boundary": "boundary.py",
+    "batch19": "batch19.py",
 }
 
 

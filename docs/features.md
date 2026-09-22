@@ -120,6 +120,14 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | Pre-mortem | List how this code could fail before it does -- errors, retries, races, leaks. | `/status#status-b18-premortem` |
 | Reading fluency | Skim a snippet on a 90s budget, gist it in one line, then verify with three probes — keyword, locate, owner. | `/status#status-b18-fluency` |
 | Naming fluency | Guess what a name does before reading its docstring — prediction then verify. | `/status#status-b18-nameguess` |
+| API guessing | Predict which stdlib call fits the task, then check the docs synopsis — commit before you verify. | `/due#up-next` |
+| Mental-model mapping | Draw the data flow from memory — graph-diff graded, partial credit per edge. | `/due#up-next` |
+| Rubber-duck mode | Explain it to a patient bot that only asks questions — three prompts, no answers given. | `/due#up-next` |
+| Protege-effect studio | Teach a simulated junior — correct the claim, answer the follow-up, both must pass. | `/due#up-next` |
+| Feynman check | Explain it simply — rubric coverage gated by a jargon budget. | `/due#up-next` |
+| Analogy builder | Map it onto a familiar domain — then state where the analogy breaks. | `/due#up-next` |
+| Counterexample hunting | State the belief, then break it: name one input where the claim about a real function fails. | `/status#status-b19-counterex` |
+| Boundary-value drills | Name the ONE edge integer to probe first — off-by-one bootcamp. | `/due#up-next` |
 
 ## Improvements
 
@@ -235,6 +243,14 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | High-contrast mode | Chips, badges, and progress bars stay legible under OS high-contrast and forced-colors — system colors, not washed-out tints. | `/status#status-b18-contrast` |
 | Explain it differently | Flip any lesson example-first or definition-first — same content, the order that clicks. | `/status#status-b18-explainflip` |
 | Inline glossary tooltips | Jargon in leveled explainers defines itself on hover — no lookup, no lost place. | `/status#status-b18-glossary` |
+| Symbol mentions link to lessons | Every function and symbol a lesson names links to its own lesson — or its file line when it has none. | `/modules/&lt;id&gt;#{lesson}` |
+| Worked-example replay | Step through the measured trace one step at a time — prev/next with the state at each step. | `/status#status-b19-replay` |
+| Run the worked example yourself | Every worked example grows editable inputs: change the arguments, see your call rebuilt in-page, and try neighbor variants. | `/modules/&lt;id&gt;#runinputs` |
+| Before/after diff per lesson | Each lesson shows what the agent changed: added/removed counts with the capped diff one click away. | `/status#status-b19-beforafter` |
+| Collapsible source blocks | Long lesson source hides behind a Show full file context expander — short snippets read on. | `/modules/&lt;id&gt;#{lesson}` |
+| Why this lesson matters | Each lesson opens with the agent's own one-line reason — why this concept earns your study time. | `/modules/&lt;id&gt;#{lesson}` |
+| Try-it-yourself prompts | Study paragraphs pause for a try-it-yourself nudge — restate, exemplify, or predict before reading on. | `/modules/&lt;id&gt;#{lesson}` |
+| Lesson version banner | Lessons name the commit they were written for — and say when the code has moved on since. | `/status#status-b19-lessonver` |
 
 ## The original loop
 
