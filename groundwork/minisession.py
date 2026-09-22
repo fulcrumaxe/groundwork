@@ -121,16 +121,19 @@ def _new_in(card: dict, tried: dict) -> bool:
         return True
 
 
-def apply_dial(due, dial, tries=None) -> list:
+def apply_dial(due, dial, tries=None, decay=None) -> list:
     """F-55: shape the Due queue by the difficulty dial.
 
     ``dial`` None/"" returns the legacy queue untouched; otherwise the
     level's retrievability floor drops too-forgotten reviews and the
     new-card cap keeps the first N never-attempted cards (attempts
     from ``tries``). Queue order is preserved (filter only, so the
-    interleave bridge ordering survives). Never raises.
+    interleave bridge ordering survives). ``decay`` (F-91) floors on
+    the personal curve instead; None/1.0 keeps the legacy floor.
+    Never raises.
     """
     from . import diffdial as dialmod
+    from . import forgetcurve as fmod
     from . import sched as schedmod
     try:
         if dial is None or (isinstance(dial, str) and not dial.strip()):
@@ -138,6 +141,12 @@ def apply_dial(due, dial, tries=None) -> list:
         params = dialmod.dial_params(dial)
         floor = float(params.get("retrievability_floor", 0.0) or 0.0)
         cap = int(params.get("new_cards", 0) or 0)
+        try:
+            personal = float(decay) if decay is not None else None
+            if personal == 1.0:
+                personal = None
+        except (TypeError, ValueError):
+            personal = None
         rows = [c for c in (due or []) if isinstance(c, dict)]
         try:
             tried = dict(tries or {})
@@ -147,9 +156,13 @@ def apply_dial(due, dial, tries=None) -> list:
         for c in rows:
             try:
                 iso = c.get("due", "")
-                r = schedmod.elapsed_retrievability(
-                    float(c.get("stability", 1.0) or 0.0),
-                    iso if isinstance(iso, str) else "")
+                stab = float(c.get("stability", 1.0) or 0.0)
+                if personal is None:
+                    r = schedmod.elapsed_retrievability(
+                        stab, iso if isinstance(iso, str) else "")
+                else:
+                    r = fmod.personal_retrievability(
+                        stab, fmod.overdue_days(c), personal)
             except (TypeError, ValueError):
                 r = 1.0
             if r >= floor:

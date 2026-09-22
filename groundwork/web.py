@@ -58,6 +58,7 @@ from . import favicon as faviconmod
 from . import fontstack as fontstackmod
 from . import focusrings as focusringsmod
 from . import footnav as footnavmod
+from . import forgetcurve as forgetcurvemod
 from . import formerr as formerrmod
 from . import handout as handoutmod
 from . import hinttiers as hinttiersmod
@@ -659,6 +660,13 @@ class Handler(BaseHTTPRequestHandler):
                 " ORDER BY id DESC",
                 [c["id"] for c in due]).fetchall() if due else []
             crows = quemod.cold_rows(con2) if cold else []
+            # F-91: recall history for the personal decay constant.
+            fc_rows = con2.execute(
+                "SELECT card_id, stability, grade, reviewed_at FROM reviews"
+                " JOIN cards ON cards.id = reviews.card_id"
+                f" WHERE card_id IN ({','.join('?' * len(due))})"
+                " ORDER BY reviewed_at",
+                [c["id"] for c in due]).fetchall() if due else []
             # F-90: earliest attempt + own-words recording per concept.
             try:
                 first_rows = con2.execute(
@@ -671,7 +679,12 @@ class Handler(BaseHTTPRequestHandler):
                 first_rows = []
         finally:
             con2.close()
-        due = minisessionmod.apply_dial(due, dial, tries)
+        # F-91: personal decay floors the dial and orders the queue;
+        # k=1.0 (no history) keeps both legacy paths byte-identical.
+        decay = forgetcurvemod.fit_decay(
+            forgetcurvemod.clean_attempts(fc_rows))
+        due = minisessionmod.apply_dial(due, dial, tries, decay=decay)
+        due = forgetcurvemod.order_due(due, decay)
         parts = [digestmod.section_html(self.db_path),
                  recentmod.strip_html(),
                  minisessionmod.session_box_html(due),
