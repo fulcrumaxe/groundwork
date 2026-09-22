@@ -17,6 +17,7 @@ from . import graph as graphmod
 from . import modules as modmod
 from . import sandbox as sbmod
 from . import select as selectmod
+from . import whyit as whyitmod
 
 MUTATIONS = [("+", "-"), ("-", "+"), ("*", "+"), ("==", "!="),
              ("!=", "=="), ("True", "False"), ("<", "<="), (">", ">=")]
@@ -444,6 +445,12 @@ def create_module(con, repo: str, commit_range: str = "", task_summary: str = ""
     # The caller's own words land on the extracted lesson frames. Frames
     # without an agent summary are not lessons yet — they are the gap.
     agent_errors = apply_agent_lessons(lessons, concepts, agent_lessons or [])
+    # I-109: stamp each lesson with the agent's concept note so the
+    # lesson path can say why it matters. Absent note = absent key.
+    for c in concepts:
+        note = whyitmod.clean_note(_note_for(c))
+        if note:
+            lesson_by_concept[c.node_id]["why_note"] = note
     missing_lessons = sorted(
         {L["concept_id"] for L in lessons if not L.get("agent")})
     for c in concepts:

@@ -26,6 +26,7 @@ from . import progbar as progbarmod
 from . import stagger as staggermod
 from . import wordmark as wordmarkmod
 from . import badge as badgemod
+from . import beforafter as beforaftermod
 from . import cardlinks as cardlinksmod
 from . import cards as cardsmod
 from . import chiplinks as chiplinksmod
@@ -105,7 +106,6 @@ from . import spacing as spacingmod
 from . import taptargets as taptargetsmod
 from . import status as statusmod
 from . import storage as storagemod
-from . import beforafter as beforaftermod
 from . import styleguide as styleguidemod
 from . import symlinks as symlinksmod
 from . import tochighlight as tochighlightmod
@@ -114,6 +114,7 @@ from . import typescale as typescalemod
 from . import undo as undomod
 from . import unsaved as unsavedmod
 from . import verdicts as verdictsmod
+from . import whyit as whyitmod
 
 _SNAPSHOT_SECRET = secrets.token_hex(16)  # Batch 9 I-49: process-lifetime
 # share-link secret (links verify while this server process runs).
@@ -1011,6 +1012,7 @@ class Handler(BaseHTTPRequestHandler):
                 f"<p><small>{html.escape(row['kind'])} · "
                 f"{html.escape(row['file'])}:{row['line']}</small></p>")
             if node in lesson_map:
+                parts.append(whyitmod.lesson_why_html(lesson_map[node], first=(ci == 0)))
                 parts.append(lesmod.render_levels(lesson_map[node], mastery_of[node], concept_tries, level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node), order=order, symbols=sym_index, sym_mid=mid, replay_step=replay_step))
                 parts.append(beforaftermod.lesson_block(lesson_map[node], ci == 0))
             parts.append(decmod.lesson_block(
