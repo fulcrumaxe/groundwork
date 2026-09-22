@@ -107,6 +107,7 @@ def disclosure(etype: str | int) -> str:
         84: "Correct the junior AND answer the follow-up — both halves must pass; score is the mean.",
         85: "Explain it simply — cover half the key points in plain words; jargon over budget halves the score and fails the card.",
         86: "Map it to the given familiar domain — your words must cover at least half the key points; missing points are listed in the feedback.",
+        87: "One input that breaks the claim passes — replayed live against the code.",
     }
     return table.get(t, "Graded like its exercise family.")
 

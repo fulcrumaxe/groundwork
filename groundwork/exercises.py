@@ -26,6 +26,7 @@ from . import configex as configexmod
 from . import containerize as containerizemod
 from . import crashdump as crashdumpmod
 from . import cssfix as cssfixmod
+from . import counterex as counterexmod
 from . import deadcode as deadcodemod
 from . import depupgrade as depupgrademod
 from . import diretro as diretromod
@@ -165,6 +166,7 @@ TYPES = {
     84: ("protege-studio", "create"),
     85: ("feynman-check", "explain"),
     86: ("analogy-builder", "explain"),
+    87: ("counterexample-hunt", "analyse"),
 }
 
 BLOOM_TYPES = {
@@ -172,7 +174,7 @@ BLOOM_TYPES = {
     "explain": [5, 6, 7, 25, 1, 83, 85, 86],
     "apply": [8, 10, 11, 12, 9, 31, 32, 33, 44, 54, 55, 68, 72, 74, 81],
     "analyse": [13, 14, 15, 16, 17, 18, 9, 26, 28, 29, 34, 36, 37, 45,
-                49, 50, 51, 52, 53, 58, 59, 60, 61, 69, 76, 82],
+                49, 50, 51, 52, 53, 58, 59, 60, 61, 69, 76, 82, 87],
     "modify": [12, 14, 19, 20, 27, 35, 38, 39, 46, 47, 56, 62, 66, 67, 70],
     "evaluate": [21, 22, 48, 57, 63, 71, 73, 77, 78],
     "create": [24, 23, 40, 41, 42, 43, 64, 65, 75, 84],
@@ -884,6 +886,7 @@ GENERATORS = {
     84: protegemod.gen_protege,
     85: feynmanmod.generate,
     86: analogymod.gen_analogy,
+    87: counterexmod.generate,
 }
 
 
@@ -1175,6 +1178,8 @@ def grade(exercise: dict, submission: str, runner=None) -> dict:
         return feynmanmod.grade(exercise, submission, runner)
     if t == 86:
         return analogymod.grade(exercise, submission, runner)
+    if t == 87:
+        return counterexmod.grade(exercise, submission, runner)
     # Execution-graded types need the sandbox runner. Pure-order Parsons
     # (no harness) is graded without it, below.
     if runner is None and not (t == 11 and not p.get("tests")):
@@ -1389,6 +1394,8 @@ def render(exercise: dict) -> str:
         return feynmanmod.render(exercise)
     if t == 86:
         return analogymod.render(exercise)
+    if t == 87:
+        return counterexmod.render(exercise)
     p = exercise.get("payload", {})
     front = html.escape(exercise.get("front", ""))
     body = f"<p>{front}</p>"
