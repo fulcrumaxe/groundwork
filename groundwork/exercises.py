@@ -41,6 +41,7 @@ from . import logretro as logretromod
 from . import memprofile as memprofilemod
 from . import metrics as metricsmod
 from . import migration as migrationmod
+from . import modelmap as modelmapmod
 from . import perffix as perffixmod
 from . import proptest as proptestmod
 from . import racehunt as racehuntmod
@@ -155,6 +156,7 @@ TYPES = {
     79: ("reading-fluency", "understand"),
     80: ("naming-fluency", "understand"),
     81: ("api-guess", "apply"),
+    82: ("model-map", "analyse"),
 }
 
 BLOOM_TYPES = {
@@ -162,7 +164,7 @@ BLOOM_TYPES = {
     "explain": [5, 6, 7, 25, 1],
     "apply": [8, 10, 11, 12, 9, 31, 32, 33, 44, 54, 55, 68, 72, 74, 81],
     "analyse": [13, 14, 15, 16, 17, 18, 9, 26, 28, 29, 34, 36, 37, 45,
-                49, 50, 51, 52, 53, 58, 59, 60, 61, 69, 76],
+                49, 50, 51, 52, 53, 58, 59, 60, 61, 69, 76, 82],
     "modify": [12, 14, 19, 20, 27, 35, 38, 39, 46, 47, 56, 62, 66, 67, 70],
     "evaluate": [21, 22, 48, 57, 63, 71, 73, 77, 78],
     "create": [24, 23, 40, 41, 42, 43, 64, 65, 75],
@@ -869,6 +871,7 @@ GENERATORS = {
     79: fluencymod.generate,
     80: nameguessmod.generate,
     81: apiguessmod.generate,
+    82: modelmapmod.generate,
 }
 
 
@@ -1150,6 +1153,8 @@ def grade(exercise: dict, submission: str, runner=None) -> dict:
         return nameguessmod.grade(exercise, submission, runner)
     if t == 81:
         return apiguessmod.grade(exercise, submission, runner)
+    if t == 82:
+        return modelmapmod.grade(exercise, submission, runner)
     # Execution-graded types need the sandbox runner. Pure-order Parsons
     # (no harness) is graded without it, below.
     if runner is None and not (t == 11 and not p.get("tests")):
@@ -1354,6 +1359,8 @@ def render(exercise: dict) -> str:
         return nameguessmod.render(exercise)
     if t == 81:
         return apiguessmod.render(exercise)
+    if t == 82:
+        return modelmapmod.render(exercise)
     p = exercise.get("payload", {})
     front = html.escape(exercise.get("front", ""))
     body = f"<p>{front}</p>"

@@ -102,6 +102,7 @@ def disclosure(etype: str | int) -> str:
         79: "Skim-then-verify: every probe letter must match — all correct passes, partial credit per probe.",
         80: "Predict the purpose from the name — exact choice wins; the docstring on the back is the verify step.",
         81: "Predict the call — exact choice wins; the synopsis and docs pointer on the back are the verify step.",
+        82: "Draw the data flow from memory — exact edge set passes, partial credit per correct edge.",
     }
     return table.get(t, "Graded like its exercise family.")
 
