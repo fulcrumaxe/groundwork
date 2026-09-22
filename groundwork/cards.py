@@ -116,11 +116,13 @@ def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:
         body = (f"<textarea name='answer' rows='5' cols='70' "
                 f"placeholder='{hint}'></textarea><br>"
                 f"{_confidence()}<button>Submit explanation</button>")
-    elif etype in ("82", "83", "84", "85"):
-        hint = ("One edge per line: caller -> concept."
-                if etype == "82"
-                else ("Q1… Q2… Q3…" if etype == "83"
-                      else "Correction…, then the letter on its own line"))
+    elif etype in ("82", "83", "84", "85", "86"):
+        hint = {"82": "One edge per line: caller -> concept.",
+                "83": "Q1… Q2… Q3…",
+                "84": "Correction…, then the letter on its own line",
+                "85": "Explain it simply…",
+                "86": "The mapping…, and where it breaks…"}.get(
+                    etype, "Answer…")
         body = (f"<textarea name='answer' rows='5' cols='70' "
                 f"placeholder='{hint}'></textarea><br>"
                 f"{_confidence()}<button>Submit answer</button>")

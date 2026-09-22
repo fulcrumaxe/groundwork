@@ -284,7 +284,7 @@ def _first_var(src: str) -> str:
 # every card below is caller-authored.
 BLOOM_DEFAULT_TYPES = {
     "recall": [1, 2, 4, 3],
-    "explain": [5, 6, 7, 25, 1, 83, 85],
+    "explain": [5, 6, 7, 25, 1, 83, 85, 86],
     "apply": [8, 10, 11, 12, 9, 31, 32, 33, 44, 54, 55, 68, 72, 74, 81],
     "analyse": [13, 14, 16, 18, 9, 15, 17, 26, 28, 29, 34, 36, 37, 45,
                 49, 50, 51, 52, 53, 58, 59, 60, 61, 69, 76, 82],

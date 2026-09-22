@@ -15,6 +15,7 @@ import re
 from pathlib import Path
 
 from . import a11yaudit as a11yauditmod
+from . import analogy as analogymod
 from . import apidesign as apidesignmod
 from . import apiguess as apiguessmod
 from . import bisect as bisectmod
@@ -163,11 +164,12 @@ TYPES = {
     83: ("rubber-duck", "explain"),
     84: ("protege-studio", "create"),
     85: ("feynman-check", "explain"),
+    86: ("analogy-builder", "explain"),
 }
 
 BLOOM_TYPES = {
     "recall": [1, 2, 3, 4],
-    "explain": [5, 6, 7, 25, 1, 83, 85],
+    "explain": [5, 6, 7, 25, 1, 83, 85, 86],
     "apply": [8, 10, 11, 12, 9, 31, 32, 33, 44, 54, 55, 68, 72, 74, 81],
     "analyse": [13, 14, 15, 16, 17, 18, 9, 26, 28, 29, 34, 36, 37, 45,
                 49, 50, 51, 52, 53, 58, 59, 60, 61, 69, 76, 82],
@@ -881,6 +883,7 @@ GENERATORS = {
     83: rubberduckmod.generate,
     84: protegemod.gen_protege,
     85: feynmanmod.generate,
+    86: analogymod.gen_analogy,
 }
 
 
@@ -1170,6 +1173,8 @@ def grade(exercise: dict, submission: str, runner=None) -> dict:
         return protegemod.grade(exercise, submission, runner)
     if t == 85:
         return feynmanmod.grade(exercise, submission, runner)
+    if t == 86:
+        return analogymod.grade(exercise, submission, runner)
     # Execution-graded types need the sandbox runner. Pure-order Parsons
     # (no harness) is graded without it, below.
     if runner is None and not (t == 11 and not p.get("tests")):
@@ -1382,6 +1387,8 @@ def render(exercise: dict) -> str:
         return protegemod.render(exercise)
     if t == 85:
         return feynmanmod.render(exercise)
+    if t == 86:
+        return analogymod.render(exercise)
     p = exercise.get("payload", {})
     front = html.escape(exercise.get("front", ""))
     body = f"<p>{front}</p>"
