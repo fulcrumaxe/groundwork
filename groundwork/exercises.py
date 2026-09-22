@@ -30,6 +30,7 @@ from . import depupgrade as depupgrademod
 from . import diretro as diretromod
 from . import docdoctest as docdoctestmod
 from . import errbranch as errbranchmod
+from . import feynman as feynmanmod
 from . import fuzztriage as fuzztriagemod
 from . import flame as flamemod
 from . import golf as golfmod
@@ -161,11 +162,12 @@ TYPES = {
     82: ("model-map", "analyse"),
     83: ("rubber-duck", "explain"),
     84: ("protege-studio", "create"),
+    85: ("feynman-check", "explain"),
 }
 
 BLOOM_TYPES = {
     "recall": [1, 2, 3, 4],
-    "explain": [5, 6, 7, 25, 1, 83],
+    "explain": [5, 6, 7, 25, 1, 83, 85],
     "apply": [8, 10, 11, 12, 9, 31, 32, 33, 44, 54, 55, 68, 72, 74, 81],
     "analyse": [13, 14, 15, 16, 17, 18, 9, 26, 28, 29, 34, 36, 37, 45,
                 49, 50, 51, 52, 53, 58, 59, 60, 61, 69, 76, 82],
@@ -878,6 +880,7 @@ GENERATORS = {
     82: modelmapmod.generate,
     83: rubberduckmod.generate,
     84: protegemod.gen_protege,
+    85: feynmanmod.generate,
 }
 
 
@@ -1165,6 +1168,8 @@ def grade(exercise: dict, submission: str, runner=None) -> dict:
         return rubberduckmod.grade(exercise, submission, runner)
     if t == 84:
         return protegemod.grade(exercise, submission, runner)
+    if t == 85:
+        return feynmanmod.grade(exercise, submission, runner)
     # Execution-graded types need the sandbox runner. Pure-order Parsons
     # (no harness) is graded without it, below.
     if runner is None and not (t == 11 and not p.get("tests")):
@@ -1375,6 +1380,8 @@ def render(exercise: dict) -> str:
         return rubberduckmod.render(exercise)
     if t == 84:
         return protegemod.render(exercise)
+    if t == 85:
+        return feynmanmod.render(exercise)
     p = exercise.get("payload", {})
     front = html.escape(exercise.get("front", ""))
     body = f"<p>{front}</p>"
