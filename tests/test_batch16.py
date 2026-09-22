@@ -20,7 +20,7 @@ from groundwork import predict as predictmod
 from groundwork import retrieval as retmod
 from groundwork import select as selectmod
 
-from test_groundwork import make_repo
+from test_groundwork import agent_module_params, make_repo
 from test_web import handler_for, make_module
 
 
@@ -64,7 +64,8 @@ class DualcodeGenerationTest(unittest.TestCase):
         con = dbmod.connect(db)
         try:
             out = pipelinemod.create_module(
-                con, repo=str(repo), task_summary="d", learner_level="beginner")
+                con, repo=str(repo), learner_level="beginner",
+                **agent_module_params("d"))
         finally:
             con.close()
         traced = [L for L in out["lessons"]

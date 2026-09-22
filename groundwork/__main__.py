@@ -126,10 +126,30 @@ def cmd_e2e(args) -> int:
     subprocess.run(["git", "-C", str(tmp), "add", "."], check=False)
     db_path = tmp / "e2e.db"
     server = mcplib.MCPServer(db_path)
+    # The caller authors everything: the pipeline stores nothing without
+    # full per-concept coverage. Type-1 self-rating cards keep the review
+    # cycle below answerable with a single number.
     out = server.tool_create_learning_module({
         "repo_path": str(tmp), "task_summary": "E2E: calc helpers",
-        "learner_level": "beginner"})
+        "learner_level": "beginner",
+        "lessons": [
+            {"concept": "add",
+             "summary": "add() totals two numbers via its defaults.",
+             "how": ["Read the defaults", "Trace the total"]},
+            {"concept": "greet",
+             "summary": "greet() prefixes any name with hi.",
+             "how": ["Read the name", "Prefix hi"]}],
+        "exercises": [
+            {"concept": "add", "type": 1,
+             "front": "What does add() return with no arguments?",
+             "back": "5: the defaults 2 and 3 totalled."},
+            {"concept": "greet", "type": 1,
+             "front": "What does greet('bob') return?",
+             "back": "hi bob."}]})
     print(json.dumps({k: v for k, v in out.items() if k != "exercises"}, indent=2))
+    if "error" in out:
+        print("E2E: module creation failed")
+        return 1
     ok = out["pass_rate"] >= 0.9 and out["exercise_count"] > 0
     # Review cycle: answer every due card correctly from its back/payload.
     con = dbmod.connect(db_path)

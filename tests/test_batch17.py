@@ -97,7 +97,7 @@ class DialQueueTest(unittest.TestCase):
         h = handler_for(db)
         legacy = h.due_html()
         self.assertIn("Difficulty dial", legacy)
-        self.assertIn("Card 1 of 4", legacy)
+        self.assertIn("Card 1 of 2", legacy)
         gentle = h.due_html("auto", False, "", "1")
         self.assertIn("Card 1 of 1", gentle)
         self.assertIn("(dialed)", gentle)

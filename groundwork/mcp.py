@@ -27,7 +27,11 @@ METHODS = ["create_learning_module", "annotate_decision",
 
 TOOL_DOCS = {
     "create_learning_module": {
-        "purpose": "Build a practice module from a finished agent change.",
+        "purpose": "Build a practice module from a finished agent change. "
+                   "You (the agent that made the change) write everything: "
+                   "every selected concept needs your lesson and at least "
+                   "one of your exercises, or the call fails and nothing "
+                   "is stored. Nothing is generated or gap-filled.",
         "params": {
             "repo_path": "repo root (required)",
             "commit_range": "e.g. HEAD~1..HEAD; empty = working tree",
@@ -41,15 +45,15 @@ TOOL_DOCS = {
                        "was given.",
             "concept_notes": {"symbol or node id (e.g. grade, mcp.py:MCPServer.submit_review)":
                               "why THIS symbol matters, one line"},
-            "lessons": [{"concept": "node id or name (must match a touched symbol)",
+            "lessons": [{"concept": "REQUIRED, one per selected concept: node id or name",
                          "summary": "REQUIRED: what the learner should understand, in your own words",
                          "how": ["optional: how it works, step by step"],
                          "key_lines": "optional: the lines that matter"}],
-            "exercises": [{"concept": "node id or name",
+            "exercises": [{"concept": "REQUIRED, at least one per selected concept",
                            "type": "exercise id 1-48 (default 1)",
-                           "front": "REQUIRED: the question",
-                           "back": "REQUIRED: the answer"}],
-            "agent_exercises_only": "true: your cards replace generated ones",
+                           "front": "REQUIRED: the question, in your own words",
+                           "back": "REQUIRED: the answer, in your own words"}],
+            "agent_exercises_only": "legacy, accepted and ignored: every card is caller-authored",
         },
     },
     "annotate_decision": {"purpose": "Record chose-X-over-Y for rationale exercises.",

@@ -52,16 +52,11 @@ Tools: `create_learning_module`, `annotate_decision`, `leave_learning_hole`,
 
 Learning content is authored by the agent that made the change: it calls
 `create_learning_module` over MCP with `lessons` and `exercises` in its
-own words, and the pipeline only fills the gaps. An LLM is optional
-gap-fill — any OpenAI-compatible server via `GW_BASE_URL`, `GW_API_KEY`,
-`GW_MODEL` (defaults to Ollama's `qwen2.5-coder:7b`):
-
-```bash
-ollama pull qwen2.5-coder:7b  # or point GW_BASE_URL at any chat-completions server
-```
-
-With no reachable server, generation falls back to deterministic templates.
-Either way, expected outputs are always *measured* in the sandbox, never invented.
+own words — one lesson and at least one exercise per selected concept.
+The pipeline never fills gaps: no generated lessons, no generated cards,
+no LLM drafts, no template fallback. A call with incomplete coverage
+fails and stores nothing. Expected outputs are always *measured* in the
+sandbox, never invented.
 
 ## Features
 

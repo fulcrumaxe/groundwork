@@ -17,6 +17,25 @@ from groundwork import sched as schedmod
 from groundwork import web as webmod
 
 
+# Caller-authored content for the single-concept web fixture (calc.py:add).
+# create_learning_module stores nothing without full coverage, so every
+# test that mints a module passes these.
+AGENT_LESSONS = [{"concept": "add",
+                  "summary": "add() totals two numbers via its defaults.",
+                  "how": ["Read the defaults", "Trace the total"]}]
+AGENT_EXERCISES = [{"concept": "add", "type": 1,
+                    "front": "What does add() return with no arguments?",
+                    "back": "5: the defaults 2 and 3 totalled."},
+                   {"concept": "add", "type": 5,
+                    "front": "In your own words, what does add() do?",
+                    "back": "It totals two numbers, defaulting to 2 and 3."}]
+
+
+def agent_params(summary):
+    return {"task_summary": summary, "lessons": [dict(L) for L in AGENT_LESSONS],
+            "exercises": [dict(E) for E in AGENT_EXERCISES]}
+
+
 def make_module(summary="web ia module"):
     tmp = Path(tempfile.mkdtemp(prefix="gw-web-"))
     (tmp / "calc.py").write_text(
@@ -24,8 +43,14 @@ def make_module(summary="web ia module"):
         encoding="utf-8")
     db = str(tmp / "web.db")
     server = mcplib.MCPServer(db)
-    out = server.tool_create_learning_module(
-        {"repo_path": str(tmp), "task_summary": summary})
+    # The caller authors everything: one lesson and two cards for the
+    # fixture's single concept (a recall card plus an explain-words card,
+    # so card-type-sensitive pages keep their shape). Every make_module
+    # consumer inherits a fully caller-authored module.
+    params = {"repo_path": str(tmp)}
+    params.update(agent_params(summary))
+    out = server.tool_create_learning_module(params)
+    assert "module_id" in out, out.get("error")
     return tmp, db, server, out
 
 
@@ -558,8 +583,10 @@ class RelativeTimesTest(unittest.TestCase):
 class ModuleSortTest(unittest.TestCase):
     def setUp(self):
         self.tmp, self.db, self.server, self.out = make_module("first mod")
-        self.server.tool_create_learning_module(
-            {"repo_path": str(self.tmp), "task_summary": "second mod"})
+        params = {"repo_path": str(self.tmp)}
+        params.update(agent_params("second mod"))
+        out = self.server.tool_create_learning_module(params)
+        assert "module_id" in out, out.get("error")
         self.h = handler_for(self.db)
 
     def test_toggle_present_with_newest_default(self):

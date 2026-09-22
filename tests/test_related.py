@@ -4,7 +4,7 @@ import unittest
 from groundwork import related as relmod
 from groundwork import tour as tourmod
 
-from test_web import handler_for, make_module
+from test_web import agent_params, handler_for, make_module
 
 
 class RelatedTest(unittest.TestCase):
@@ -18,8 +18,10 @@ class RelatedTest(unittest.TestCase):
         self.assertIn("No related modules yet", out)
 
     def test_same_repo_module_links(self):
-        self.server.tool_create_learning_module(
-            {"repo_path": str(self.tmp), "task_summary": "rel mod two"})
+        params = {"repo_path": str(self.tmp)}
+        params.update(agent_params("rel mod two"))
+        out = self.server.tool_create_learning_module(params)
+        assert "module_id" in out, out.get("error")
         out = relmod.related_html(self.db, self.mid)
         self.assertIn("rel mod two", out)
 
