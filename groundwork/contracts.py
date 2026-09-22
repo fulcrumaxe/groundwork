@@ -1,30 +1,14 @@
 """Contract authoring (type 90, F-86, bloom: create).
 
-The card shows a function plus measured input/output pairs and asks
-for two one-liners: ``requires(x)`` (when it may be called) and
-``ensures(x, out)`` (what holds after). Both predicates run against
-the measured pairs plus one planted mutant in a restricted namespace
-(the counterex ``__builtins__``-subset precedent); requires must
-accept every valid input and reject a failing one, ensures must
-accept every measured pair and reject the mutant. Both halves must
-pass (the type-84 shape); score is the mean.
-
-Only single-positional-parameter public functions qualify, measured
-with JSON-scalar probes. Anything else — no def, unmeasurable body,
-unsynthesizable reference — yields an ungrounded card the pipeline
-skips. ``generate`` never returns None and never raises.
-
-Plugin API: ``generate(ex_id, concept, snippet, ctx)``,
-``grade(exercise, submission, runner)`` (runner accepted, ignored),
-``render(exercise) -> html``.
-Import-safe standalone: stdlib only, no groundwork imports.
-Registration lives in ``groundwork/exercises.py``
-(TYPES, GENERATORS, BLOOM_TYPES, grade/render branches),
-``groundwork/grading.py`` (disclosure 90),
-``groundwork/pipeline.py`` (BLOOM_DEFAULT_TYPES),
-``groundwork/cards.py`` (two-line textarea widget) and
-``groundwork/__main__.py`` (cmd_e2e fixture); status section and
-tour entry live below.
+Two one-liners — ``requires(x)``, ``ensures(x, out)`` — run against
+measured pairs plus one planted mutant in a restricted namespace
+(the counterex builtins-subset precedent). Requires accepts every
+valid input and rejects a failing one; ensures accepts every measured
+pair and rejects the mutant; both halves must pass (type-84 shape).
+Only single-arg public functions qualify; anything else yields an
+ungrounded card the pipeline skips. ``generate`` never returns None
+and never raises. Stdlib only, no groundwork imports; registration in
+exercises.py, grading.py, pipeline.py, cards.py, __main__.py.
 """
 from __future__ import annotations
 
@@ -145,28 +129,30 @@ def _pred_ok(expr: str, bindings: dict) -> bool:
         return False
 
 
+def _half_ok(expr, cases) -> bool:
+    """Every (bindings, expected) case holds; False on any failure."""
+    try:
+        return all(_pred_ok(expr, got) == want for got, want in cases)
+    except Exception:  # noqa: BLE001
+        return False
+
+
 def _requires_ok(expr, valid, invalid) -> bool:
+    """Accepts every valid input and rejects at least one invalid."""
     try:
-        for x, _ in valid:
-            if not _pred_ok(expr, {"x": x}):
-                return False
-        if invalid and all(_pred_ok(expr, {"x": v}) for v in invalid):
+        if not _half_ok(expr, [({"x": x}, True) for x, _ in valid]):
             return False
-        return True
+        return not invalid or not all(
+            _pred_ok(expr, {"x": v}) for v in invalid)
     except Exception:  # noqa: BLE001
         return False
 
 
-def _ensures_ok(expr, valid, mutant) -> bool:
-    try:
-        for x, out in valid:
-            if not _pred_ok(expr, {"x": x, "out": out}):
-                return False
-        if mutant is not None and _pred_ok(expr, {"x": mutant[0], "out": mutant[1]}):
-            return False
-        return True
-    except Exception:  # noqa: BLE001
-        return False
+def _ensures_cases(valid, mutant) -> list:
+    cases = [({"x": x, "out": out}, True) for x, out in valid]
+    if mutant is not None:
+        cases.append(({"x": mutant[0], "out": mutant[1]}, False))
+    return cases
 
 
 def _reference(valid, invalid, mutant):
@@ -180,7 +166,7 @@ def _reference(valid, invalid, mutant):
         req, ens = f"({conds})", f"({outs})"
         if not _requires_ok(req, valid, invalid):
             return None
-        if not _ensures_ok(ens, valid, mutant):
+        if not _half_ok(ens, _ensures_cases(valid, mutant)):
             return None
         return (req, ens)
     except Exception:  # noqa: BLE001
@@ -189,9 +175,9 @@ def _reference(valid, invalid, mutant):
 
 def _hints() -> list:
     return [
-        "Line 1 needs requires(x); line 2 needs ensures(x, out).",
-        "requires accepts every measured input and rejects a failing one.",
-        "ensures accepts every measured pair and rejects the mutant.",
+        "Line 1: requires(x); line 2: ensures(x, out).",
+        "requires keeps every measured input, drops a failing one.",
+        "ensures keeps every measured pair, drops the mutant.",
     ]
 
 
@@ -296,7 +282,7 @@ def _grade(exercise: dict, submission: str) -> dict:
         return _fail("Author both lines — requires, then ensures.")
     req, ens = _split(submission)
     req_ok = _requires_ok(req, valid, invalid)
-    ens_ok = _ensures_ok(ens, valid, mutant)
+    ens_ok = _half_ok(ens, _ensures_cases(valid, mutant))
     score = round(((1.0 if req_ok else 0.0) + (1.0 if ens_ok else 0.0)) / 2, 2)
     if req_ok and ens_ok:
         return {"pass": True, "score": score,
