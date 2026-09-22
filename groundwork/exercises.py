@@ -62,6 +62,7 @@ from . import cacheinv as cacheinvmod
 from . import idempot as idempotmod
 from . import ratelimit as ratelimitmod
 from . import webhook as webhookmod
+from . import interview as interviewmod
 
 # type number -> (name, bloom)
 TYPES = {
@@ -137,6 +138,7 @@ TYPES = {
     70: ("idempotency-fix", "modify"),
     71: ("ratelimit", "evaluate"),
     72: ("webhook", "apply"),
+    73: ("mastery-interview", "evaluate"),
 }
 
 BLOOM_TYPES = {
@@ -146,7 +148,7 @@ BLOOM_TYPES = {
     "analyse": [13, 14, 15, 16, 17, 18, 9, 26, 28, 29, 34, 36, 37, 45,
                 49, 50, 51, 52, 53, 58, 59, 60, 61, 69],
     "modify": [12, 14, 19, 20, 27, 35, 38, 39, 46, 47, 56, 62, 66, 67, 70],
-    "evaluate": [21, 22, 48, 57, 63, 71],
+    "evaluate": [21, 22, 48, 57, 63, 71, 73],
     "create": [24, 23, 40, 41, 42, 43, 64, 65],
 }
 
@@ -841,6 +843,7 @@ GENERATORS = {
     67: backfillmod.generate, 68: pageapimod.generate,
     69: cacheinvmod.generate, 70: idempotmod.generate,
     71: ratelimitmod.generate, 72: webhookmod.generate,
+    73: interviewmod.gen_mastery_interview,
 }
 
 
@@ -1104,6 +1107,8 @@ def grade(exercise: dict, submission: str, runner=None) -> dict:
         return ratelimitmod.grade(exercise, submission, runner)
     if t == 72:
         return webhookmod.grade(exercise, submission, runner)
+    if t == 73:
+        return interviewmod.grade(exercise, submission, runner)
     # Execution-graded types need the sandbox runner. Pure-order Parsons
     # (no harness) is graded without it, below.
     if runner is None and not (t == 11 and not p.get("tests")):
@@ -1290,6 +1295,8 @@ def render(exercise: dict) -> str:
         return ratelimitmod.render(exercise)
     if t == 72:
         return webhookmod.render(exercise)
+    if t == 73:
+        return interviewmod.render(exercise)
     p = exercise.get("payload", {})
     front = html.escape(exercise.get("front", ""))
     body = f"<p>{front}</p>"

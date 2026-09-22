@@ -93,6 +93,7 @@ def disclosure(etype: str | int) -> str:
         70: "Double-run gate: your handler runs twice on the same store with the same key — same end state and no duplicate side effects; a fresh key must still apply; no partial credit.",
         71: "Name scoped limits, a concrete window, burst handling, and 429 + Retry-After with a reason — partial credit per point, half or more passes.",
         72: "All four signature vectors must verify correctly — valid passes, tampered body, wrong secret, and replayed timestamp all rejected; no partial credit.",
+        73: "Speak it aloud, then write it down — your words must cover at least half the key points; missing points are listed in the feedback.",
     }
     return table.get(t, "Graded like its exercise family.")
 
