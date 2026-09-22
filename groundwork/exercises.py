@@ -66,6 +66,7 @@ from . import interview as interviewmod
 from . import transfer as transfermod
 from . import fartransfer as fartransfermod
 from . import pressure as pressuremod
+from . import incident as incidentmod
 
 # type number -> (name, bloom)
 TYPES = {
@@ -145,6 +146,7 @@ TYPES = {
     74: ("transfer-test", "apply"),
     75: ("far-transfer", "create"),
     76: ("pressure-drill", "analyse"),
+    77: ("incident-replay", "evaluate"),
 }
 
 BLOOM_TYPES = {
@@ -154,7 +156,7 @@ BLOOM_TYPES = {
     "analyse": [13, 14, 15, 16, 17, 18, 9, 26, 28, 29, 34, 36, 37, 45,
                 49, 50, 51, 52, 53, 58, 59, 60, 61, 69, 76],
     "modify": [12, 14, 19, 20, 27, 35, 38, 39, 46, 47, 56, 62, 66, 67, 70],
-    "evaluate": [21, 22, 48, 57, 63, 71, 73],
+    "evaluate": [21, 22, 48, 57, 63, 71, 73, 77],
     "create": [24, 23, 40, 41, 42, 43, 64, 65, 75],
 }
 
@@ -853,6 +855,7 @@ GENERATORS = {
     74: transfermod.generate,
     75: fartransfermod.gen_fartransfer,
     76: pressuremod.generate,
+    77: incidentmod.gen_incident_replay,
 }
 
 
@@ -1124,6 +1127,8 @@ def grade(exercise: dict, submission: str, runner=None) -> dict:
         return fartransfermod.grade(exercise, submission, runner)
     if t == 76:
         return pressuremod.grade(exercise, submission, runner)
+    if t == 77:
+        return incidentmod.grade(exercise, submission, runner)
     # Execution-graded types need the sandbox runner. Pure-order Parsons
     # (no harness) is graded without it, below.
     if runner is None and not (t == 11 and not p.get("tests")):
@@ -1318,6 +1323,8 @@ def render(exercise: dict) -> str:
         return fartransfermod.render(exercise)
     if t == 76:
         return pressuremod.render(exercise)
+    if t == 77:
+        return incidentmod.render(exercise)
     p = exercise.get("payload", {})
     front = html.escape(exercise.get("front", ""))
     body = f"<p>{front}</p>"
