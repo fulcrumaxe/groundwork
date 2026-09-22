@@ -1,16 +1,19 @@
 """Parsons layout-shift reserve (I-91): effect + legacy fallback."""
 import html
+import json
 import unittest
 
+from groundwork import cards as cardsmod
+from groundwork import emoji as emojimod
 from groundwork import parsons as parsonsmod
 
 
 def _legacy_body(cid, lines):
     items = "".join(
         f"<li draggable='true' data-i='{i}'>"
-        f"<span class='grip'>⠿</span> {html.escape(str(l))} "
-        f"<button type='button' data-move='-1'>↑</button>"
-        f"<button type='button' data-move='1'>↓</button></li>"
+        f"{emojimod.grip_html()} {html.escape(str(l))} "
+        f"{emojimod.move_button('up', cid)}"
+        f"{emojimod.move_button('down', cid)}</li>"
         for i, l in enumerate(lines))
     return ("<p>Drag the lines into order (or type the numbers):</p>"
             f"<ol class='parsons' id='pl-{cid}'>{items}</ol>"
@@ -18,6 +21,11 @@ def _legacy_body(cid, lines):
             "<label>Order (numbers): "
             "<input name='answer_text' size='30' "
             "placeholder='0 1 2 …'></label> ")
+
+
+def _parsons_card(cid="t1", lines=("a = 1", "b = 2")):
+    return {"id": cid, "exercise_type": 10,
+            "payload": json.dumps({"lines": list(lines)})}
 
 
 class ParsonsTest(unittest.TestCase):
@@ -40,12 +48,19 @@ class ParsonsTest(unittest.TestCase):
         self.assertIn("answer_text", body)
         self.assertIn("min-height:88px", body)
 
-    def test_effect_matches_live_renderer_shape(self):
-        # The reserve must wrap the exact rows cards.py emits today.
+    def test_effect_rows_have_no_glyph_icons(self):
         body = parsonsmod.block_html(9, ["a = 1"])
-        self.assertIn(_legacy_body(9, ["a = 1"]).replace(
-            "<ol class='parsons' id='pl-9'>",
-            "<ol class='parsons' id='pl-9' style='min-height:44px'>"), body)
+        self.assertIn("Move up", body)
+        self.assertIn("Move down", body)
+        self.assertEqual(emojimod.scan_text(body), [])
+
+    def test_caller_answer_widget_carries_reserve(self):
+        # I-91 caller: cards.answer_widget etype 10/11 on Due cards.
+        widget = cardsmod.answer_widget(_parsons_card(), 0, "/due")
+        self.assertIn("style='min-height:88px'", widget)
+        self.assertIn("Move up", widget)
+        self.assertIn("Check order", widget)
+        self.assertEqual(emojimod.scan_text(widget), [])
 
     def test_legacy_fallback_empty_is_byte_identical(self):
         self.assertEqual(parsonsmod.block_html(9, []),

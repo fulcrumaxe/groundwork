@@ -19,6 +19,8 @@ from __future__ import annotations
 
 import html
 
+from . import emoji as emojimod
+
 ROW_MIN_PX = 44  # aligns with taptargets MIN_PX: each row holds 2 buttons
 STATUS_ANCHOR = "status-b18-parsons"
 
@@ -60,12 +62,13 @@ def parsons_css() -> str:
 def list_html(cid, lines) -> str:
     """Stable `ol.parsons` for N lines; legacy bare `ol` when empty."""
     try:
+        rows = _as_list(lines)
         items = "".join(
             f"<li draggable='true' data-i='{i}'>"
-            f"<span class='grip'>⠿</span> {html.escape(str(l))} "
-            f"<button type='button' data-move='-1'>↑</button>"
-            f"<button type='button' data-move='1'>↓</button></li>"
-            for i, l in enumerate(_as_list(lines)))
+            f"{emojimod.grip_html()} {html.escape(str(l))} "
+            f"{emojimod.move_button('up', cid)}"
+            f"{emojimod.move_button('down', cid)}</li>"
+            for i, l in enumerate(rows))
         if not items:
             return f"<ol class='parsons' id='pl-{cid}'></ol>"
         px = reserve_px(lines)

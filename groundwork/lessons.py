@@ -7,6 +7,8 @@ from __future__ import annotations
 
 import html
 
+from . import verdicts as verdictsmod
+
 
 def render_levels(lesson: dict, mastery: float, attempts: int,
                     level_override: str, base_path: str, owned=None) -> str:
@@ -156,7 +158,7 @@ def submissions_html(entries: list[dict]) -> str:
     for e in entries[:10]:
         good = (e.get("grade") or 0) >= 4
         cls = "ok" if good else "stale"
-        mark = "✓" if good else "✗"
+        mark = verdictsmod.stamp_html(good)
         sub = (e.get("submission") or "").strip()
         excerpt = html.escape(sub[:200] + ("…" if len(sub) > 200 else ""))
         if not sub:

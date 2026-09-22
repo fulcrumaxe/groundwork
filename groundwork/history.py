@@ -15,6 +15,7 @@ from . import cards as cardsmod
 from . import db as dbmod
 from . import emptyart as emptyartmod
 from . import exercises as exmod
+from . import verdicts as verdictsmod
 from . import monthreview as monthmod
 from . import overconf as overconfmod
 from . import ownership as ownmod
@@ -198,7 +199,7 @@ def history_html(db_path: str) -> str:
                      "the exact timestamp.</small></p>")
     for r in rows:
         cls = "ok" if (r["grade"] or 0) >= 4 else "stale"
-        mark = "✓" if (r["grade"] or 0) >= 4 else "✗"
+        mark = verdictsmod.stamp_html((r["grade"] or 0) >= 4)
         cont = resumemod.row_link({"module_id": r["module_id"],
                                    "reviewed_at": r["reviewed_at"]})
         parts.append(

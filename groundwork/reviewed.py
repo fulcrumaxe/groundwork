@@ -24,7 +24,7 @@ KEY_PREFIX = "gw-reviewed:"
 _ANCHOR_OK = re.compile(r"[A-Za-z0-9_-]+")
 
 MARK_LABEL = "Mark as reviewed"
-MARKED_LABEL = "Reviewed ✓"
+MARKED_LABEL = "Reviewed"
 
 
 def _slug(value) -> str:
@@ -81,6 +81,7 @@ def script_js() -> str:
         "function del(k){try{localStorage.removeItem(k);}catch(e){}}"
         "function paint(btn,state,on){"
         f"btn.textContent=on?{MARKED_LABEL!r}:{MARK_LABEL!r};"
+        "btn.classList.toggle('reviewed-tick',on);"
         "state.textContent=on?"
         "'Reviewed — stored only in this browser. Click again to clear.'"
         ":'Re-reading? Tick this — no answer, no grade, stays in your browser.';}"

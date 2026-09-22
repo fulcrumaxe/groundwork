@@ -3,7 +3,7 @@
 Classifies hrefs (internal route vs external URL vs repo path) and
 decorates only external links: merges ``class="ext-link"`` and
 ``rel="noopener"`` (preserving existing tokens) and appends a
-``↗`` CSS marker plus a visually-hidden "(external link)" note.
+CSS corner-arrow marker plus a visually-hidden "(external link)" note.
 
 Pure functions, stdlib only (``html``/``re``), import-safe standalone:
 no groundwork imports, no I/O, no DB/schema changes, no web.py edits.
@@ -16,7 +16,7 @@ import html
 import re
 
 MARKER = (
-    ' <span class="ext-marker" aria-hidden="true">↗</span>'
+    ' <span class="ext-marker" aria-hidden="true"></span>'
     '<span class="visually-hidden">(external link)</span>'
 )
 
@@ -146,7 +146,7 @@ def section_html() -> str:
         "<h3 id='status-b8-extlinks'>External-link distinction "
         "<small>(improvement)</small></h3>"
         "<p>External links carry <code>class='ext-link'</code>, "
-        "<code>rel='noopener'</code>, and a <code>↗</code> marker with a "
+        "<code>rel='noopener'</code>, and a CSS corner-arrow marker with a "
         "visually-hidden “(external link)” note; internal routes and repo "
         f"paths are untouched (e.g. <code>{demo()}</code>). "
         "<code>groundwork/extlinks.py</code>.</p>"
