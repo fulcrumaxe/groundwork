@@ -63,6 +63,7 @@ from . import idempot as idempotmod
 from . import ratelimit as ratelimitmod
 from . import webhook as webhookmod
 from . import interview as interviewmod
+from . import transfer as transfermod
 
 # type number -> (name, bloom)
 TYPES = {
@@ -139,12 +140,13 @@ TYPES = {
     71: ("ratelimit", "evaluate"),
     72: ("webhook", "apply"),
     73: ("mastery-interview", "evaluate"),
+    74: ("transfer-test", "apply"),
 }
 
 BLOOM_TYPES = {
     "recall": [1, 2, 3, 4],
     "explain": [5, 6, 7, 25, 1],
-    "apply": [8, 10, 11, 12, 9, 31, 32, 33, 44, 54, 55, 68, 72],
+    "apply": [8, 10, 11, 12, 9, 31, 32, 33, 44, 54, 55, 68, 72, 74],
     "analyse": [13, 14, 15, 16, 17, 18, 9, 26, 28, 29, 34, 36, 37, 45,
                 49, 50, 51, 52, 53, 58, 59, 60, 61, 69],
     "modify": [12, 14, 19, 20, 27, 35, 38, 39, 46, 47, 56, 62, 66, 67, 70],
@@ -844,6 +846,7 @@ GENERATORS = {
     69: cacheinvmod.generate, 70: idempotmod.generate,
     71: ratelimitmod.generate, 72: webhookmod.generate,
     73: interviewmod.gen_mastery_interview,
+    74: transfermod.generate,
 }
 
 
@@ -1109,6 +1112,8 @@ def grade(exercise: dict, submission: str, runner=None) -> dict:
         return webhookmod.grade(exercise, submission, runner)
     if t == 73:
         return interviewmod.grade(exercise, submission, runner)
+    if t == 74:
+        return transfermod.grade(exercise, submission, runner)
     # Execution-graded types need the sandbox runner. Pure-order Parsons
     # (no harness) is graded without it, below.
     if runner is None and not (t == 11 and not p.get("tests")):
@@ -1297,6 +1302,8 @@ def render(exercise: dict) -> str:
         return webhookmod.render(exercise)
     if t == 73:
         return interviewmod.render(exercise)
+    if t == 74:
+        return transfermod.render(exercise)
     p = exercise.get("payload", {})
     front = html.escape(exercise.get("front", ""))
     body = f"<p>{front}</p>"

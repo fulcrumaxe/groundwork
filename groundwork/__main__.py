@@ -158,6 +158,8 @@ def cmd_e2e(args) -> int:
             ans = p.get("answer", "") + "\njustified by the reference behavior"
         elif t == 8:
             ans = p.get("expected", "")
+        elif t == 74:
+            ans = p.get("expected", "")
         elif t == 9:
             ans = "\n".join(str(x) for x in p.get("expected", []))
         elif t in (7, 15, 16, 18):
