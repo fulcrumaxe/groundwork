@@ -36,7 +36,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 
-WEB_CEILING = 1293  # Batch 18: +3 head-wire imports, +order threading (explainflip). Batch 19: symbols/replay/version params, ?replay threading, delegation lines. Batch 20: lessonpin import + pin-order delegation. Handout route + per-section link. Explcalib import + calibration query/wires. Diagrams import + badge/mark wires. Debugkata import + kata block wire.
+WEB_CEILING = 1296  # Batch 18: +3 head-wire imports, +order threading (explainflip). Batch 19: symbols/replay/version params, ?replay threading, delegation lines. Batch 20: lessonpin import + pin-order delegation. Handout route + per-section link. Explcalib import + calibration query/wires. Diagrams import + badge/mark wires. Debugkata import + kata block wire. Readgroup import + session wire.
 AREA_CAP = 350
 
 # Capability area -> module implementing it. Batch 3 appends its areas here.

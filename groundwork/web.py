@@ -88,6 +88,7 @@ from . import queries as quemod
 from . import radius as radiusmod
 from . import queue as qmod
 from . import quests as questsmod
+from . import readgroup as readgroupmod
 from . import readtime as readtimemod
 from . import recent as recentmod
 from . import related as relmod
@@ -1006,6 +1007,8 @@ class Handler(BaseHTTPRequestHandler):
         if toc:
             parts.append(tochighlightmod.enhance_toc(
                 f"<p class='toc' id='readtime'><small>In this module: {' · '.join(toc)}</small> <small>(minutes per lesson)</small></p>"))
+        # F-89: reading-group section; no presence keeps legacy bytes.
+        parts.append(readgroupmod.session_html(lesson_map, None))
         if concepts:
             owned_n = 0
             for row in concepts:
