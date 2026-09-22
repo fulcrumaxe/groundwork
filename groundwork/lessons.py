@@ -43,6 +43,7 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
     from . import srccollapse as srcmod
     from . import tryprompts as trymod
     from . import lessonver as lessonvermod
+    from . import lessondiff as lessondiffmod
     levels = explainmod.levels_for(lesson)
     order = flipmod.normalize_order(order)
     osuffix = "" if order == "definition" else f"&order={order}"
@@ -58,9 +59,10 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
             (n != "auto" and int(n) == active and
              level_override in ("1", "2", "3", "4"))) else ""
         tabs.append(f"<a href='{base_path}?level={n}{osuffix}'>{label}</a>{mark}")
-    # I-115: version banner first; "" on the legacy path keeps bytes.
-    ver = lessonvermod.banner_html(
+    # I-115/I-116: version banner then version diff; "" keeps bytes.
+    ver = (lessonvermod.banner_html(
         lessonvermod.lesson_commit_of(lesson, lesson_commit), current_commit)
+        + lessondiffmod.lesson_block(lesson))
     out = [ver + f"<p><small>Explain it {'simply' if active <= 2 else 'technically'}: "
            f"{' · '.join(tabs)}</small></p>" + flipmod.toggle_html(base_path, level_override, order)]
     lv = next(L for L in levels if L["n"] == active)
