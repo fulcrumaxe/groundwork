@@ -580,7 +580,7 @@ order, skipping 7 already-satisfied items (I-9 /reviews→History done;
 I-11 nav counts wired; I-21 module resume links live; I-43 Card N of M
 on Due; I-75 difficulty dots rendered; F-1 docstring type 25;
 F-53 bloom ladder shipped batch 1) and 1 unbuildable without human
-subjects (I-100 hallway test — recorded, not shipped).
+subjects (I-100 hallway test — recorded, not shipped; see its entry for the telemetry/survey pairing direction).
 - [x] I-91 parsons → N×44px min-height reserve on ol.parsons (Due cards).
   Shipped on branch `batch18-f8-i8`; cards.answer_widget etype 10/11
   delegates to parsons.block_html; empty lists render byte-identical
@@ -655,6 +655,105 @@ emoji/parsons, contrast, motion; +order threading for explainflip);
 status.py unchanged at 349 (same-line batch18 join); lessons.py +5
 (gloss import/wire, flip import/param/toggle); tour 102/110 + 106/114;
 docs regen (README + features.md from tour registry).
+
+Batch 19 — eight improvements (I-104, I-105, I-106, I-107, I-108,
+I-109, I-112, I-115) + eight features (F-77–F-84, card types 81–88).
+Shipped on branch `batch19-f8-i8`. Selection: next-unshipped in backlog
+order with zero skips (all eight wave-1 and all eight wave-2 designs
+returned buildable verdicts with real caller paths).
+- [x] I-104 symlinks → symbol-mention lesson links (symlinks.py).
+  Shipped on branch `batch19-f8-i8`; lessons.render_levels gains
+  optional symbols/sym_mid params; module page + Due Study-first
+  explainers pass a per-page index; unknown names stay plain text.
+- [x] I-105 replay → worked-example replay (replay.py).
+  Shipped on branch `batch19-f8-i8`; stepped trace (Step k of n,
+  ?replay=k threaded like level/order) wins when a measured trace
+  exists; traceless lessons keep the full pack (batch-16 contract
+  pinned both ways).
+- [x] I-106 runinputs → own-inputs widget (runinputs.py).
+  Shipped on branch `batch19-f8-i8`; client-side arg fields rebuild
+  the call in-page with localStorage per lesson plus neighbor
+  variants; unusable calls render legacy-identical.
+- [x] I-107 beforafter → before/after diff per lesson (beforafter.py).
+  Shipped on branch `batch19-f8-i8`; optional before/after lesson keys
+  (pipeline allowlist +2) render as counts plus capped unified diff
+  between render_levels and decisions in Handler.module_html.
+- [x] I-108 srccollapse → collapsible source blocks (srccollapse.py).
+  Shipped on branch `batch19-f8-i8`; length-gated pre blocks wired at
+  both source-emission sites in lessons.render_levels; predict
+  covers untouched; short snippets byte-identical.
+- [x] I-109 whyit → per-lesson why (whyit.py).
+  Shipped on branch `batch19-f8-i8`; pipeline stamps why_note from
+  concept_notes; module page opens each section with the verbatim
+  escaped note (first anchored); absent note renders nothing.
+- [x] I-112 tryprompts → try-it-yourself nudges (tryprompts.py).
+  Shipped on branch `batch19-f8-i8`; rotating restate/exemplify/predict
+  after eligible prose blocks in the render loop; never after recall
+  questions, code blocks, or the last block; ungraded.
+- [x] I-115 lessonver → lesson version banner (lessonver.py).
+  Shipped on branch `batch19-f8-i8`; optional lesson_commit/
+  current_commit kwargs prepend Updated-for-commit provenance plus
+  moved-on comparison; module page threads commit_range + HEAD
+  (diff.head_commit), Due threads card commit.
+- [x] F-77 apiguess → API guessing, type 81 (apply).
+  Shipped on branch `batch19-f8-i8`; AST-derived stdlib oracle,
+  exact-choice grading, fronts list all four choices (Due shows
+  front text); generic single-line widget.
+- [x] F-78 modelmap → mental-model mapping, type 82 (analyse).
+  Shipped on branch `batch19-f8-i8`; graph-diff grading with partial
+  credit; explicit textarea widget branch.
+- [x] F-79 rubberduck → rubber-duck mode, type 83 (explain).
+  Shipped on branch `batch19-f8-i8`; three fixed Socratic questions,
+  keyword half-bar; explicit textarea widget branch.
+- [x] F-80 protege → protege-effect studio, type 84 (create).
+  Shipped on branch `batch19-f8-i8`; correction prose + follow-up
+  letter, both must pass with mean scoring; explicit textarea branch.
+- [x] F-81 feynman → Feynman check, type 85 (explain).
+  Shipped on branch `batch19-f8-i8`; rubric coverage gated by an
+  academese-only jargon budget (domain words never penalized);
+  explicit textarea widget branch.
+- [x] F-82 analogy → analogy builder, type 86 (explain).
+  Shipped on branch `batch19-f8-i8`; assigned familiar domain plus
+  break statement, half-bar grading; explicit textarea branch.
+- [x] F-83 counterex → counterexample hunting, type 87 (analyse).
+  Shipped on branch `batch19-f8-i8`; measured breakers replayed live
+  in a restricted namespace (proptest precedent); generic widget.
+- [x] F-84 boundary → boundary-value drills, type 88 (analyse).
+  Shipped on branch `batch19-f8-i8`; compare/range sites, first site
+  wins, seeded triple distractors, first-integer grading; generic
+  widget.
+
+Batch 19 deviations (all green-trunk, ledger-noted): per-item commits
+carry caller wiring + six-part type registration in the same commit
+(batch-18 precedent — bare registrations cannot land without red
+intermediates); all eight feature designers claimed type 81 in
+parallel, so the parent assigned 81–88 in backlog order; multi-line
+answer types (82–86) get an explicit textarea branch in
+cards.answer_widget while single-answer types (81, 87, 88) stay on the
+generic widget (+WIDGET_GAP); I-105 replay supersedes the dual-pack
+when a trace exists (batch-16 page test now pins replay-with-trace
+and pack-without-trace); replay/beforafter/lesson-version/
+counterexample tour entries point at /status anchors (fixture module
+pages carry no trace/diff/commit data); apiguess fronts list their
+choices because Due renders front text; feynman jargon is
+academese-only (penalizing domain words would fight the rubric);
+counterex executes snippets in-process under a restricted builtins
+subset, mirroring proptest.grade. Separately on this branch (not
+backlog items): the author-only pipeline change (create_module stores
+nothing without full per-concept coverage — user-requested) and an
+ASCII prev/next fix for the emoji tree gate.
+
+Batch 19 migration: none (no schema changes; before/after/why_note
+ride the lessons JSON blob).
+
+Batch 19 wires: WEB_CEILING 1232 → 1258 (symbols/replay/version
+params, ?replay threading, delegation lines); status.py unchanged at
+349 (same-line batch19 join); lessons.py +6 params/wires
+(symbols/sym_mid/replay_step/lesson_commit/current_commit, six
+feature wires); cards.py +1 textarea branch (82–86);
+diff.head_commit; tour 110/114 → 118/122; docs regen (README +
+features.md from tour registry); goldens refreshed (lesson widgets
+on fixture pages).
 
 ## IMPROVEMENTS (500)
 
@@ -762,25 +861,25 @@ docs regen (README + features.md from tour registry).
 - [x] I-97: Remove all remaining raw emoji-as-icon usage; replace with CSS/SVG.
 - [x] I-98: Add motion budget: total animation <300ms, all `prefers-reduced-motion` gated.
 - [x] I-99: High-contrast mode support beyond dark mode.
-- I-100: Run a 5-user hallway usability test and fix top 10 findings.
+- I-100: Run a 5-user hallway usability test and fix top 10 findings. (Direction, 2026-09-22: may ship together with a telemetry/survey feature — e.g. an MCP survey tool that asks users questions in-app and writes answers to a remote API — so usability feedback can be collected remotely alongside, or instead of, in-person sessions.)
 
 ### C. Lesson & study experience (I-101–150)
 
 - I-101: Show estimated read time per lesson section.
 - [x] I-102: Add "explain differently" button cycling example-first vs definition-first order.
 - [x] I-103: Inline glossary tooltips for jargon in leveled explainers.
-- I-104: Link every symbol mention to its lesson anchor or file line.
-- I-105: Add worked-example replay: step through the measured trace one step at a time.
-- I-106: Let learners run the worked example with their own inputs in-page.
-- I-107: Show before/after diff view for what the agent changed (per lesson).
-- I-108: Collapse long source blocks with "show full file context" expander.
-- I-109: Add per-lesson "why this matters" written from concept_notes when present.
+- [x] I-104: Link every symbol mention to its lesson anchor or file line.
+- [x] I-105: Add worked-example replay: step through the measured trace one step at a time.
+- [x] I-106: Let learners run the worked example with their own inputs in-page.
+- [x] I-107: Show before/after diff view for what the agent changed (per lesson).
+- [x] I-108: Collapse long source blocks with "show full file context" expander.
+- [x] I-109: Add per-lesson "why this matters" written from concept_notes when present.
 - I-110: Surface agent decision quotes inline in the lesson they motivated.
 - [x] I-111: Add "common misconceptions" callout per lesson (LLM-seeded, flagged).
-- I-112: Add "try it yourself" micro-prompts between study paragraphs.
+- [x] I-112: Add "try it yourself" micro-prompts between study paragraphs.
 - [x] I-113: End each lesson with a 1-question exit ticket (ungraded, retrieval).
 - I-114: Let learners rate lesson clarity (feeds generation quality metrics).
-- I-115: Version lessons: "updated for commit X" banner when code moved on.
+- [x] I-115: Version lessons: "updated for commit X" banner when code moved on.
 - I-116: Diff view between lesson versions (what changed in the code).
 - I-117: Pin lessons to keep them atop the module regardless of order.
 - [x] I-118: Add lesson-level notes (private markdown scratchpad per concept).
@@ -1271,14 +1370,14 @@ docs regen (README + features.md from tour registry).
 - [x] F-74: Pre-mortem exercises (list how this code could fail before it does).
 - [x] F-75: Code-reading fluency trainer (skim → gist → verify, timed).
 - [x] F-76: Naming fluency drills (guess purpose from name, then verify).
-- F-77: API guessing (predict the stdlib/third-party call, then check docs).
-- F-78: Mental-model mapping (draw the data flow; graph-diff graded).
-- F-79: Rubber-duck mode (explain to a patient bot that only asks questions).
-- F-80: Protégé-effect studio (teach a simulated junior with follow-ups).
-- F-81: Feynman check (explain simply; jargon detector scores clarity).
-- F-82: Analogy builder (map the concept to a familiar domain; rubric).
-- F-83: Counterexample hunting (find inputs breaking your mental model).
-- F-84: Boundary-value drills (off-by-one bootcamp per function).
+- [x] F-77: API guessing (predict the stdlib/third-party call, then check docs).
+- [x] F-78: Mental-model mapping (draw the data flow; graph-diff graded).
+- [x] F-79: Rubber-duck mode (explain to a patient bot that only asks questions).
+- [x] F-80: Protégé-effect studio (teach a simulated junior with follow-ups).
+- [x] F-81: Feynman check (explain simply; jargon detector scores clarity).
+- [x] F-82: Analogy builder (map the concept to a familiar domain; rubric).
+- [x] F-83: Counterexample hunting (find inputs breaking your mental model).
+- [x] F-84: Boundary-value drills (off-by-one bootcamp per function).
 - F-85: Invariant stating (write the loop invariant; verifier-checked).
 - F-86: Pre/postcondition authoring (contracts graded against tests).
 - F-87: Refactoring kata library (same smell, many repos, spaced).
