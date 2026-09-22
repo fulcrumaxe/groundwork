@@ -36,7 +36,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 
-WEB_CEILING = 1227
+WEB_CEILING = 1230  # Batch 18: +3 head-wire imports (emoji/parsons, contrast, motion)
 AREA_CAP = 350
 
 # Capability area -> module implementing it. Batch 3 appends its areas here.
