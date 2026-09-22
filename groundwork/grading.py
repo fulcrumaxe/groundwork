@@ -93,6 +93,14 @@ def disclosure(etype: str | int) -> str:
         70: "Double-run gate: your handler runs twice on the same store with the same key — same end state and no duplicate side effects; a fresh key must still apply; no partial credit.",
         71: "Name scoped limits, a concrete window, burst handling, and 429 + Retry-After with a reason — partial credit per point, half or more passes.",
         72: "All four signature vectors must verify correctly — valid passes, tampered body, wrong secret, and replayed timestamp all rejected; no partial credit.",
+        73: "Speak it aloud, then write it down — your words must cover at least half the key points; missing points are listed in the feedback.",
+        74: "Your answer on the unfamiliar snippet must equal the sandbox-measured output, run live — no lesson text to lean on.",
+        75: "Re-express the pattern in the target language — every listed check must hold; no partial credit.",
+        76: "Name the exact root cause within the 90s drill budget — exact phrase (case, quotes, whitespace ignored; listed aliases accepted); herrings, decoy requests, and pasted logs never count.",
+        77: "Name the signal, detection, mitigation, and prevention plus the true timeline order — partial credit per point, half or more passes.",
+        78: "Name at least half the failure modes — checklist match with partial credit per item.",
+        79: "Skim-then-verify: every probe letter must match — all correct passes, partial credit per probe.",
+        80: "Predict the purpose from the name — exact choice wins; the docstring on the back is the verify step.",
     }
     return table.get(t, "Graded like its exercise family.")
 

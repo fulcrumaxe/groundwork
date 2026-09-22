@@ -132,10 +132,13 @@ class ColdRoundTest(unittest.TestCase):
 # Pinned F-50 baselines: exact gap sets per part. A missing set that
 # SHRINKS (new branch/table row/fixture) passes; one that grows, or a
 # new type missing any part, fails the gate.
+# Batch 18: types 73-80 render via the generic-else widget branch by
+# architecture (verified per-item effect tests); the audit cannot see
+# the else, so they join the enumerated gap like earlier generic types.
 WIDGET_GAP = {15, 17, 26, 27, 28, 29, 31, 32, 33, 34, 35, 36, 37, 38,
               39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52,
               53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66,
-              67, 68, 69, 70, 71, 72}
+              67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80}
 EMISSION_GAP = {30}
 E2E_GAP = {26, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45,
            46, 47, 48, 57, 58, 59, 60, 61, 62, 63, 64}

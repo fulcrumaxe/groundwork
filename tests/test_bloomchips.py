@@ -7,7 +7,7 @@ from groundwork import pipeline as pipelinemod
 
 class BloomChipsTest(unittest.TestCase):
     TIERS = ("recall", "explain", "apply", "analyse", "modify",
-             "evaluate", "create")
+             "evaluate", "create", "understand")  # Batch 18 adds understand
 
     def test_covers_every_pipeline_tier(self):
         self.assertEqual(set(bloommod.BLOOM_COLORS), set(self.TIERS))

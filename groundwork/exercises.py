@@ -62,6 +62,14 @@ from . import cacheinv as cacheinvmod
 from . import idempot as idempotmod
 from . import ratelimit as ratelimitmod
 from . import webhook as webhookmod
+from . import interview as interviewmod
+from . import transfer as transfermod
+from . import fartransfer as fartransfermod
+from . import pressure as pressuremod
+from . import incident as incidentmod
+from . import premortem as premortemmod
+from . import fluency as fluencymod
+from . import nameguess as nameguessmod
 
 # type number -> (name, bloom)
 TYPES = {
@@ -137,17 +145,26 @@ TYPES = {
     70: ("idempotency-fix", "modify"),
     71: ("ratelimit", "evaluate"),
     72: ("webhook", "apply"),
+    73: ("mastery-interview", "evaluate"),
+    74: ("transfer-test", "apply"),
+    75: ("far-transfer", "create"),
+    76: ("pressure-drill", "analyse"),
+    77: ("incident-replay", "evaluate"),
+    78: ("pre-mortem", "evaluate"),
+    79: ("reading-fluency", "understand"),
+    80: ("naming-fluency", "understand"),
 }
 
 BLOOM_TYPES = {
     "recall": [1, 2, 3, 4],
     "explain": [5, 6, 7, 25, 1],
-    "apply": [8, 10, 11, 12, 9, 31, 32, 33, 44, 54, 55, 68, 72],
+    "apply": [8, 10, 11, 12, 9, 31, 32, 33, 44, 54, 55, 68, 72, 74],
     "analyse": [13, 14, 15, 16, 17, 18, 9, 26, 28, 29, 34, 36, 37, 45,
-                49, 50, 51, 52, 53, 58, 59, 60, 61, 69],
+                49, 50, 51, 52, 53, 58, 59, 60, 61, 69, 76],
     "modify": [12, 14, 19, 20, 27, 35, 38, 39, 46, 47, 56, 62, 66, 67, 70],
-    "evaluate": [21, 22, 48, 57, 63, 71],
-    "create": [24, 23, 40, 41, 42, 43, 64, 65],
+    "evaluate": [21, 22, 48, 57, 63, 71, 73, 77, 78],
+    "create": [24, 23, 40, 41, 42, 43, 64, 65, 75],
+    "understand": [79, 1, 80],
 }
 
 
@@ -841,6 +858,14 @@ GENERATORS = {
     67: backfillmod.generate, 68: pageapimod.generate,
     69: cacheinvmod.generate, 70: idempotmod.generate,
     71: ratelimitmod.generate, 72: webhookmod.generate,
+    73: interviewmod.gen_mastery_interview,
+    74: transfermod.generate,
+    75: fartransfermod.gen_fartransfer,
+    76: pressuremod.generate,
+    77: incidentmod.gen_incident_replay,
+    78: premortemmod.generate,
+    79: fluencymod.generate,
+    80: nameguessmod.generate,
 }
 
 
@@ -1104,6 +1129,22 @@ def grade(exercise: dict, submission: str, runner=None) -> dict:
         return ratelimitmod.grade(exercise, submission, runner)
     if t == 72:
         return webhookmod.grade(exercise, submission, runner)
+    if t == 73:
+        return interviewmod.grade(exercise, submission, runner)
+    if t == 74:
+        return transfermod.grade(exercise, submission, runner)
+    if t == 75:
+        return fartransfermod.grade(exercise, submission, runner)
+    if t == 76:
+        return pressuremod.grade(exercise, submission, runner)
+    if t == 77:
+        return incidentmod.grade(exercise, submission, runner)
+    if t == 78:
+        return premortemmod.grade(exercise, submission, runner)
+    if t == 79:
+        return fluencymod.grade(exercise, submission, runner)
+    if t == 80:
+        return nameguessmod.grade(exercise, submission, runner)
     # Execution-graded types need the sandbox runner. Pure-order Parsons
     # (no harness) is graded without it, below.
     if runner is None and not (t == 11 and not p.get("tests")):
@@ -1290,6 +1331,22 @@ def render(exercise: dict) -> str:
         return ratelimitmod.render(exercise)
     if t == 72:
         return webhookmod.render(exercise)
+    if t == 73:
+        return interviewmod.render(exercise)
+    if t == 74:
+        return transfermod.render(exercise)
+    if t == 75:
+        return fartransfermod.render(exercise)
+    if t == 76:
+        return pressuremod.render(exercise)
+    if t == 77:
+        return incidentmod.render(exercise)
+    if t == 78:
+        return premortemmod.render(exercise)
+    if t == 79:
+        return fluencymod.render(exercise)
+    if t == 80:
+        return nameguessmod.render(exercise)
     p = exercise.get("payload", {})
     front = html.escape(exercise.get("front", ""))
     body = f"<p>{front}</p>"

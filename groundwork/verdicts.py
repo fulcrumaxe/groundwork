@@ -1,7 +1,7 @@
 """Pass/fail verdict stamps: CSS-shape stamps, still text-readable (I-77).
 
 Replaces the result-screen check/cross glyphs (``results.py`` renders
-``"✓ Correct"`` / ``"✗ Not yet"`` inside ``<p class='verdict ok|stale'>``)
+``"PASS"`` / ``"FAIL"`` text stamps inside ``<p class='verdict ok|stale'>``)
 with rotated bordered stamps whose labels stay plain readable words
 (``PASS`` / ``FAIL`` — never emoji, never glyphs). The words live in
 the markup itself, so the verdict reads with CSS disabled; the stamp

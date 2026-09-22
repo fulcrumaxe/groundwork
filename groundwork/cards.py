@@ -10,6 +10,7 @@ import json
 
 from . import confslider as confslidermod
 from . import hinttiers as hinttiersmod
+from . import parsons as parsonsmod
 
 
 def _payload(card) -> dict:
@@ -156,18 +157,8 @@ def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:
         body = (f"<table>{rows}</table>{_confidence()}"
                 f"<button>Check trace</button>")
     elif etype in ("10", "11"):
-        items = "".join(
-            f"<li draggable='true' data-i='{i}'>"
-            f"<span class='grip'>⠿</span> {html.escape(l)} "
-            f"<button type='button' data-move='-1'>↑</button>"
-            f"<button type='button' data-move='1'>↓</button></li>"
-            for i, l in enumerate(p.get("lines", [])))
-        body = (f"<p>Drag the lines into order (or type the numbers):</p>"
-                f"<ol class='parsons' id='pl-{cid}'>{items}</ol>"
-                f"<input type='hidden' name='answer' id='po-{cid}' value=''>"
-                f"<label>Order (numbers): "
-                f"<input name='answer_text' size='30' placeholder='0 1 2 …'></label> "
-                f"{_confidence()}<button>Check order</button>{PARSONS_JS}")
+        body = (parsonsmod.block_html(cid, p.get("lines", []))
+                + f"{_confidence()}<button>Check order</button>{PARSONS_JS}")
     elif etype in ("12", "14", "19", "20", "23"):
         body = (f"<textarea name='answer' rows='12' cols='70' "
                 f"placeholder='Write your code here'></textarea><br>"

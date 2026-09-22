@@ -150,7 +150,7 @@ def cmd_e2e(args) -> int:
             ans = p.get("signature", "")
         elif t == 4:
             ans = p.get("answer", "")
-        elif t in (5, 6, 24, 25):
+        elif t in (5, 6, 24, 25, 73):
             ans = " ".join(p.get("rubric", []))
         elif t == 21:
             ans = f"{p.get('bug_line', '')} " + " ".join(p.get("rubric", []))
@@ -158,9 +158,13 @@ def cmd_e2e(args) -> int:
             ans = p.get("answer", "") + "\njustified by the reference behavior"
         elif t == 8:
             ans = p.get("expected", "")
+        elif t == 74:
+            ans = p.get("expected", "")
+        elif t == 75:
+            ans = p.get("reference", "")
         elif t == 9:
             ans = "\n".join(str(x) for x in p.get("expected", []))
-        elif t in (7, 15, 16, 18):
+        elif t in (7, 15, 16, 18, 80):
             ans = p.get("answer", "")
         elif t == 17:
             ans = (f"{p.get('target', 'x')}_renamed "
@@ -194,7 +198,7 @@ def cmd_e2e(args) -> int:
             ans = "\n".join(f"{k}={v}" for k, v in p.get("key", {}).items())
         elif t == 14:
             ans = p.get("fixed", "")
-        elif t == 49:
+        elif t in (49, 78):
             ans = "\n".join(p.get("items", []))
         elif t == 50:
             ans = p.get("secret", "")
@@ -214,8 +218,12 @@ def cmd_e2e(args) -> int:
             ans = p.get("fixed", "")
         elif t == 65:
             ans = p.get("back", "")
-        elif t in (66, 67, 72):
+        elif t in (66, 67, 72, 79):
             ans = p.get("reference", "")
+        elif t == 76:
+            ans = p.get("cause", "")
+        elif t == 77:
+            ans = p.get("check", "")
         elif t == 68:
             rows = p.get("rows", [])
             n = p.get("per_page_default", 5)

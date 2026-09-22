@@ -112,6 +112,14 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | Confidence-weighted scoring | Brave-correct beats shy-correct — calibration pays, overconfidence costs. | `/status#status-b13-confweight` |
 | Calibration drills | Bet points on answers at explicit odds — fair when honest, profitable only when calibrated. | `/status#status-b13-calibdrill` |
 | Overconfidence cards | Confidence outrunning accuracy by 25 points deals an intervention card with one counter-habit. | `/status#status-b13-overconf` |
+| Mastery interview | Defend a concept aloud like an oral exam — speak it, write it, and clear half the rubric points. | `/status#status-b18-interview` |
+| Transfer test | Same idea in code you have never seen — no lesson links on the front; the sandbox checks the behavior. | `/status#status-b18-transfer` |
+| Far-transfer challenge | Port a pattern to the other language — Python to JS/TS or back — with every behavior intact. | `/status#status-b18-fartransfer` |
+| Pressure drill | Diagnose a production-style log against a 90s clock — follow the victim request, not the noise. | `/status#status-b18-pressure` |
+| Incident replay | Replay a past outage — signal, detection, mitigation, prevention, and timeline order, rubric-graded. | `/status#status-b18-incident` |
+| Pre-mortem | List how this code could fail before it does -- errors, retries, races, leaks. | `/status#status-b18-premortem` |
+| Reading fluency | Skim a snippet on a 90s budget, gist it in one line, then verify with three probes — keyword, locate, owner. | `/status#status-b18-fluency` |
+| Naming fluency | Guess what a name does before reading its docstring — prediction then verify. | `/status#status-b18-nameguess` |
 
 ## Improvements
 
@@ -219,6 +227,14 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | Share unfurls | Shared links unfurl with the page title and lede — no bare URLs, no localhost canonical lie. | `/status#status-b13-ogtags` |
 | Compact density | One header button shrinks gaps and type for small screens — tap targets stay full-size. | `/status#status-b13-density` |
 | Responsive audit | 360/768/1024/1440 audited live over the shipped CSS — phone tables and padding fixed first. | `/status#status-b13-responsive` |
+| Stable Parsons drag lists | Parsons code-order lists now reserve space for every line before first paint — drag to reorder and the submit row stays put. See the reserve below. | `/status#status-b18-parsons` |
+| Design tokens | One token table documents every palette and radius token in the README and the styleguide. | `/status#status-b18-tokens` |
+| Page snapshot goldens | Core pages diff against committed goldens; drift fails CI. See below. | `/status#status-b18-pagesnap` |
+| Emoji-free icons | No raw emoji icons -- text words, SVG chevrons and CSS shapes, all readable with styles off. | `/status#status-b18-emoji` |
+| Motion budget | Every animation finishes in 300ms or less, and reduced-motion users always see the still end state. | `/status#status-b18-motion` |
+| High-contrast mode | Chips, badges, and progress bars stay legible under OS high-contrast and forced-colors — system colors, not washed-out tints. | `/status#status-b18-contrast` |
+| Explain it differently | Flip any lesson example-first or definition-first — same content, the order that clicks. | `/status#status-b18-explainflip` |
+| Inline glossary tooltips | Jargon in leveled explainers defines itself on hover — no lookup, no lost place. | `/status#status-b18-glossary` |
 
 ## The original loop
 

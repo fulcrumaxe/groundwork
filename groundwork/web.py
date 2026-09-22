@@ -33,6 +33,7 @@ from . import clarity as claritymod
 from . import clickcards as clickcardsmod
 from . import collapse as collapsemod
 from . import confslider as confslidermod
+from . import contrast as contrastmod
 from . import crumbs as crumbsmod
 from . import darkmode as darkmodemod
 from . import db as dbmod
@@ -43,8 +44,10 @@ from . import diagnose as diamod
 from . import digest as digestmod
 from . import disputes as dismod
 from . import donehero as doneheromod
+from . import emoji as emojimod, parsons as parsonsmod  # one line keeps web.py at WEB_CEILING
 from . import emptyart as emptyartmod
 from . import errors as errmod
+from . import explainflip as flipmod
 from . import exports as expmod
 from . import favicon as faviconmod
 from . import fontstack as fontstackmod
@@ -64,6 +67,7 @@ from . import modfilter as modfiltermod
 from . import modpages as modpagesmod
 from . import modularity as modularitymod
 from . import modules as modmod
+from . import motion as motionmod
 from . import ogtags as ogtagsmod
 from . import optimistic as optimisticmod
 from . import ownbanner as ownbannermod
@@ -223,7 +227,7 @@ CSS = ("body{font-family:system-ui,-apple-system,sans-serif;max-width:48rem;"
 # concatenated into CSS (that nests <style> inside <style>, closes the
 # head stylesheet early, and dumps all later CSS into <body> as text).
 FOCUS_CSS = clickcardsmod.focus_css()
-CSS += palettemod.palette_css() + darkmodemod.dark_css() + typescalemod.scale_css() + fontstackmod.stack_css() + wordmarkmod.wordmark_css() + bloomchipsmod.chip_css() + progbarmod.progbar_css() + ownedbadgemod.badge_css() + staggermod.stagger_css() + caretsmod.carets_css() + codelinesmod.codelines_css() + highlightmod.highlight_css() + hinttiersmod.hinttiers_css() + confslidermod.css() + focusringsmod.css() + taptargetsmod.target_css() + radiusmod.radius_css() + spacingmod.spacing_css() + doneheromod.hero_css() + logbookmod.logbook_css() + shelfmod.shelf_css() + briefingmod.briefing_css() + verdictsmod.verdicts_css() + ownbannermod.ownbanner_css() + pressfxmod.pressfx_css() + skeletonsmod.skeletons_css() + optimisticmod.optimistic_css() + formerrmod.formerr_css() + selectionmod.selection_css() + scrollbarmod.scrollbar_css() + densitymod.density_css() + responsivemod.narrow_css()  # Batch 9 I-51/52/53/54: token variables, dark overrides, type scale, font stacks. Batch 10 I-55..I-62: wordmark, bloom chips, progress motion, owned badge, stagger, carets, code lines, highlight. Batch 11 I-63..I-70: hint tiers, confidence segments, focus rings, tap floor, radii, spacing, hero. Batch 12 I-71..I-73/I-77/I-79..I-82: logbook, shelf, briefing, verdicts, banner, press, skeletons, optimistic submit. Batch 13 I-84/I-85/I-86/I-89/I-90: field errors, selection, scrollbars, density, narrow phones.
+CSS += palettemod.palette_css() + darkmodemod.dark_css() + typescalemod.scale_css() + fontstackmod.stack_css() + wordmarkmod.wordmark_css() + bloomchipsmod.chip_css() + progbarmod.progbar_css() + ownedbadgemod.badge_css() + staggermod.stagger_css() + caretsmod.carets_css() + codelinesmod.codelines_css() + highlightmod.highlight_css() + hinttiersmod.hinttiers_css() + confslidermod.css() + focusringsmod.css() + taptargetsmod.target_css() + radiusmod.radius_css() + spacingmod.spacing_css() + doneheromod.hero_css() + logbookmod.logbook_css() + shelfmod.shelf_css() + briefingmod.briefing_css() + verdictsmod.verdicts_css() + ownbannermod.ownbanner_css() + pressfxmod.pressfx_css() + skeletonsmod.skeletons_css() + optimisticmod.optimistic_css() + formerrmod.formerr_css() + selectionmod.selection_css() + scrollbarmod.scrollbar_css() + densitymod.density_css() + responsivemod.narrow_css() + emojimod.icon_css() + parsonsmod.parsons_css() + contrastmod.contrast_css() + motionmod.motion_css()  # Batch 9 I-51/52/53/54: token variables, dark overrides, type scale, font stacks. Batch 10 I-55..I-62: wordmark, bloom chips, progress motion, owned badge, stagger, carets, code lines, highlight. Batch 11 I-63..I-70: hint tiers, confidence segments, focus rings, tap floor, radii, spacing, hero. Batch 12 I-71..I-73/I-77/I-79..I-82: logbook, shelf, briefing, verdicts, banner, press, skeletons, optimistic submit. Batch 13 I-84/I-85/I-86/I-89/I-90: field errors, selection, scrollbars, density, narrow phones.
 
 GLOBAL_JS = """
 <script>
@@ -445,6 +449,7 @@ class Handler(BaseHTTPRequestHandler):
         query = parse_qs(url.query)
         level = levelcarrymod.normalize(query.get("level", ["auto"])[0])
         self._level = level
+        order = flipmod.normalize_order(query.get("order", ["definition"])[0])
         counts = self._nav_counts()
         tour_ctx = None
         tour_id = query.get("tour", [""])[0]
@@ -461,7 +466,7 @@ class Handler(BaseHTTPRequestHandler):
             one, cold = mode == "one", mode == "cold"
             dial = query.get("dial", [""])[0] or None
             resume_key = query.get("resume", [""])[0]
-            self._send(page("Due", self.due_html(level, one, resume_key, dial, cold, mode),
+            self._send(page("Due", self.due_html(level, one, resume_key, dial, cold, mode, order),
                             active="due", page_id="due",
                             lede="What to practice next — your spaced queue, one card at a time.",
                             counts=counts, tour=tour_ctx))
@@ -580,7 +585,7 @@ class Handler(BaseHTTPRequestHandler):
                     page_id="modules", counts=counts, tour=tour_ctx))
         elif url.path.startswith("/modules/"):
             mid = url.path.split("/")[-1]
-            body = self.module_html(mid, level)
+            body = self.module_html(mid, level, order)
             if body == "<p>Unknown module.</p>":
                 self._send(page("Not found", errmod.not_found_html(
                     url.path, "Unknown module."), active="modules",
@@ -611,7 +616,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def due_html(self, level: str = "auto", one: bool = False,
                  resume_key: str = "", dial=None, cold: bool = False,
-                 mode: str = "") -> str:
+                 mode: str = "", order: str = "definition") -> str:
         server = mcplib.MCPServer(self.db_path)
         due = server.tool_list_due_reviews({"limit": 20})["due"]
         due = resumemod.session_cards(due, resume_key or "")
@@ -660,7 +665,7 @@ class Handler(BaseHTTPRequestHandler):
                 if c["id"] in study:
                     lesson_dict, mastery = study[c["id"]]
                     explainer = lesmod.render_levels(
-                        lesson_dict, mastery, tries.get(c["id"], 0), level, "/")
+                        lesson_dict, mastery, tries.get(c["id"], 0), level, "/", order=order)
                     lesson = (f"<details><summary>Study first — explained your way</summary>"
                               f"{explainer}</details>")
                 else:
@@ -895,7 +900,7 @@ class Handler(BaseHTTPRequestHandler):
         parts.append("</div>")
         return "".join(parts)
 
-    def module_html(self, mid: str, level: str = "auto") -> str:
+    def module_html(self, mid: str, level: str = "auto", order: str = "definition") -> str:
         con = self._con()
         try:
             m = con.execute("SELECT * FROM modules WHERE id=?", (mid,)).fetchone()
@@ -992,7 +997,7 @@ class Handler(BaseHTTPRequestHandler):
                 f"<p><small>{html.escape(row['kind'])} · "
                 f"{html.escape(row['file'])}:{row['line']}</small></p>")
             if node in lesson_map:
-                parts.append(lesmod.render_levels(lesson_map[node], mastery_of[node], concept_tries, level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node)))
+                parts.append(lesmod.render_levels(lesson_map[node], mastery_of[node], concept_tries, level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node), order=order))
             parts.append(decmod.lesson_block(
                 node, dec_matches.get(node, []), ci == 0))
             avg, nvotes = cl_sums.get(row["cid"], (0.0, 0))
@@ -1010,7 +1015,7 @@ class Handler(BaseHTTPRequestHandler):
                     parts.append("<h3>Practice</h3>")
             for c in concept_cards:
                 lesson = (f"<details><summary>Study first — explained your way</summary>"
-                          f"{lesmod.render_levels(lesson_map[node], mastery_of.get(node, 0.0), tries.get(c['id'], 0), level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node))}</details>"
+                          f"{lesmod.render_levels(lesson_map[node], mastery_of.get(node, 0.0), tries.get(c['id'], 0), level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node), order=order)}</details>"
                           if node in lesson_map else "")
                 parts.append(
                     f"{cardlinksmod.article_open(c['id'])}<h3>{html.escape(c['concept'])} "
@@ -1024,7 +1029,7 @@ class Handler(BaseHTTPRequestHandler):
                 pagermod.section_slugs(concepts), ci, first=ci == 0))
             parts.append("</section>")
         parts.append(relmod.related_html(self.db_path, mid))
-        parts.append("<a class='totop' href='#top'>Back to top ↑</a>")
+        parts.append(emojimod.totop_html())
         return "".join(parts)
 
     def journal_html(self) -> str:
