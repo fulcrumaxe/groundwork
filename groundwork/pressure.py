@@ -166,7 +166,7 @@ def _answers_for(cause: dict) -> set[str]:
     return {normalize(p) for p in (cause["key"],) + tuple(cause["aliases"])}
 
 
-def gen_pressure_drill(ex_id, concept, snippet, ctx) -> dict:
+def generate(ex_id, concept, snippet, ctx) -> dict:
     """Build a pressure-drill card; never None, never raises."""
     try:
         ctx = ctx if isinstance(ctx, dict) else {}
@@ -229,7 +229,7 @@ def gen_pressure_drill(ex_id, concept, snippet, ctx) -> dict:
         }
 
 
-generate = gen_pressure_drill
+gen_pressure_drill = generate  # card-type alias: gen_<name>(ex_id, concept, snippet, ctx)
 
 
 def _fail(msg: str) -> dict:

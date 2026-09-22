@@ -125,7 +125,7 @@ def _hints() -> list[str]:
     ]
 
 
-def gen_transfer(ex_id, concept, snippet, ctx) -> dict:
+def generate(ex_id, concept, snippet, ctx) -> dict:
     """Build a transfer card with front/back/check; never None, never raises."""
     try:
         return _gen(ex_id, concept, snippet, ctx)
@@ -164,7 +164,7 @@ def _gen(ex_id, concept, snippet, ctx) -> dict:
     }
 
 
-generate = gen_transfer
+gen_transfer = generate  # card-type alias: gen_<name>(ex_id, concept, snippet, ctx)
 
 
 def _fail(msg: str) -> dict:
