@@ -106,6 +106,7 @@ from . import taptargets as taptargetsmod
 from . import status as statusmod
 from . import storage as storagemod
 from . import styleguide as styleguidemod
+from . import symlinks as symlinksmod
 from . import tochighlight as tochighlightmod
 from . import tour as tourmod
 from . import typescale as typescalemod
@@ -656,6 +657,7 @@ class Handler(BaseHTTPRequestHandler):
                 f"<details open><summary{mark}>"
                 f"{html.escape(g['title'])} — {nc} card{'s' if nc != 1 else ''}"
                 f" (<a href='/modules/{g['mid']}'>study</a>)</summary>")
+            sym_index = symlinksmod.index_for_lessons(study, g["cards"], g["mid"])
             for c in g["cards"]:
                 i = n
                 n += 1
@@ -665,7 +667,8 @@ class Handler(BaseHTTPRequestHandler):
                 if c["id"] in study:
                     lesson_dict, mastery = study[c["id"]]
                     explainer = lesmod.render_levels(
-                        lesson_dict, mastery, tries.get(c["id"], 0), level, "/", order=order)
+                        lesson_dict, mastery, tries.get(c["id"], 0), level, "/", order=order,
+                        symbols=sym_index, sym_mid=g["mid"])
                     lesson = (f"<details><summary>Study first — explained your way</summary>"
                               f"{explainer}</details>")
                 else:
@@ -979,6 +982,10 @@ class Handler(BaseHTTPRequestHandler):
             self.db_path, [r["cid"] for r in concepts])
         known_pending = knownmod.pending(
             self.db_path, [r["cid"] for r in concepts])
+        sym_index = symlinksmod.build_index(
+            [{"name": r["name"], "module_id": mid,
+              "file": r["file"], "line": r["line"]}
+             for r in concepts], mid)
         for ci, row in enumerate(concepts):
             node = row["cid"].split(":", 1)[1] if ":" in row["cid"] else row["cid"]
             slug = lesmod.slug(node)
@@ -997,7 +1004,7 @@ class Handler(BaseHTTPRequestHandler):
                 f"<p><small>{html.escape(row['kind'])} · "
                 f"{html.escape(row['file'])}:{row['line']}</small></p>")
             if node in lesson_map:
-                parts.append(lesmod.render_levels(lesson_map[node], mastery_of[node], concept_tries, level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node), order=order))
+                parts.append(lesmod.render_levels(lesson_map[node], mastery_of[node], concept_tries, level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node), order=order, symbols=sym_index, sym_mid=mid))
             parts.append(decmod.lesson_block(
                 node, dec_matches.get(node, []), ci == 0))
             avg, nvotes = cl_sums.get(row["cid"], (0.0, 0))
@@ -1015,7 +1022,7 @@ class Handler(BaseHTTPRequestHandler):
                     parts.append("<h3>Practice</h3>")
             for c in concept_cards:
                 lesson = (f"<details><summary>Study first — explained your way</summary>"
-                          f"{lesmod.render_levels(lesson_map[node], mastery_of.get(node, 0.0), tries.get(c['id'], 0), level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node), order=order)}</details>"
+                          f"{lesmod.render_levels(lesson_map[node], mastery_of.get(node, 0.0), tries.get(c['id'], 0), level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node), order=order, symbols=sym_index, sym_mid=mid)}</details>"
                           if node in lesson_map else "")
                 parts.append(
                     f"{cardlinksmod.article_open(c['id'])}<h3>{html.escape(c['concept'])} "

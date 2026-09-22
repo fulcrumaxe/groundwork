@@ -13,13 +13,19 @@ from . import verdicts as verdictsmod
 
 def render_levels(lesson: dict, mastery: float, attempts: int,
                     level_override: str, base_path: str, owned=None,
-                    order: str = "definition") -> str:
+                    order: str = "definition", symbols=None,
+                    sym_mid: str = "") -> str:
     """Leveled explainer with tabs; auto-places from mastery by default.
 
     ``owned`` is an optional list of sibling lesson dicts the learner
     already masters; when two or more are given an elaboration drill
     connects this concept to them (F-59). ``None``/empty renders the
     legacy page with no drill.
+
+    ``symbols`` is an optional per-page symbol index (I-104,
+    ``symlinks.build_index``) scoped by ``sym_mid``; known symbol
+    mentions link to their lesson sections. Absent/empty renders the
+    legacy page byte-identical.
     """
     from . import codelines as codelinesmod
     from . import dualcode as dualmod
@@ -29,6 +35,7 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
     from . import fading as fadingmod
     from . import predict as predictmod
     from . import selfexplain as semod
+    from . import symlinks as symmod
     levels = explainmod.levels_for(lesson)
     order = flipmod.normalize_order(order)
     osuffix = "" if order == "definition" else f"&order={order}"
@@ -48,12 +55,16 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
            f"{' · '.join(tabs)}</small></p>" + flipmod.toggle_html(base_path, level_override, order)]
     lv = next(L for L in levels if L["n"] == active)
     out.append(f"<h4>{html.escape(lv['title'])}</h4>")
+    sym_index = symbols if isinstance(symbols, dict) else {}
+    sym_scope = sym_mid if isinstance(sym_mid, str) else ""
     for blk in flipmod.reorder_blocks(lv["blocks"], order):
         body = glossmod.gloss_html(blk["b"])
         if blk.get("pre"):
             body = codelinesmod.numbered_html(blk["b"])
+            body = symmod.annotate_code(body, sym_index, sym_scope)
             out.append(f"<h5>{html.escape(blk['h'])}</h5><pre>{body}</pre>")
         else:
+            body = symmod.link_symbols(body, sym_index, sym_scope)
             out.append(f"<h5>{html.escape(blk['h'])}</h5>"
                        f"<p>{body.replace(chr(10), '<br>')}</p>")
     # F-60: the generated lesson's key ideas as diagram + trace.
