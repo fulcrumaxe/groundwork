@@ -100,6 +100,7 @@ def disclosure(etype: str | int) -> str:
         77: "Name the signal, detection, mitigation, and prevention plus the true timeline order — partial credit per point, half or more passes.",
         78: "Name at least half the failure modes — checklist match with partial credit per item.",
         79: "Skim-then-verify: every probe letter must match — all correct passes, partial credit per probe.",
+        80: "Predict the purpose from the name — exact choice wins; the docstring on the back is the verify step.",
     }
     return table.get(t, "Graded like its exercise family.")
 
