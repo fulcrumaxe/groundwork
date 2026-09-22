@@ -84,6 +84,7 @@ from . import ownership as ownmod
 from . import pageicon as pageiconmod
 from . import pager as pagermod
 from . import palette as palettemod
+from . import peaktime as peaktimemod
 from . import pressfx as pressfxmod
 from . import queries as quemod
 from . import radius as radiusmod
@@ -667,6 +668,9 @@ class Handler(BaseHTTPRequestHandler):
                 f" WHERE card_id IN ({','.join('?' * len(due))})"
                 " ORDER BY reviewed_at",
                 [c["id"] for c in due]).fetchall() if due else []
+            # F-92: all (grade, reviewed_at) pairs for the peak window.
+            peak_rows = con2.execute(
+                "SELECT grade, reviewed_at FROM reviews").fetchall()
             # F-90: earliest attempt + own-words recording per concept.
             try:
                 first_rows = con2.execute(
@@ -686,6 +690,8 @@ class Handler(BaseHTTPRequestHandler):
         due = minisessionmod.apply_dial(due, dial, tries, decay=decay)
         due = forgetcurvemod.order_due(due, decay)
         parts = [digestmod.section_html(self.db_path),
+                 # F-92: peak-recall banner; "" below threshold.
+                 peaktimemod.banner_html(peak_rows),
                  recentmod.strip_html(),
                  minisessionmod.session_box_html(due),
                  minisessionmod.dial_box(dial, mode),
