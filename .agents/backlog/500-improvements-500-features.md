@@ -755,6 +755,74 @@ diff.head_commit; tour 110/114 → 118/122; docs regen (README +
 features.md from tour registry); goldens refreshed (lesson widgets
 on fixture pages).
 
+Batch 20 — eight improvements (I-116, I-117, I-119, I-121, I-122,
+I-123, I-124, I-125) + eight features (F-85–F-92, card types 89–90).
+Shipped on branch `batch20-f8-i8`. Selection: next-unshipped in backlog
+order with zero skips (I-110/I-111/I-113/I-114/I-118/I-120 already
+shipped in Batches 4–5, so Batch 19 jumped them; all sixteen wave
+designs returned buildable verdicts with real caller paths). Wave
+synthesis was dropped after Wave 1 (oversized payloads) — parent
+extracted designer payloads from subagent logs instead.
+- [x] I-116 lessondiff → lesson version diff (lessondiff.py).
+  Caller lessons.render_levels (banner-adjacent line diff of the
+  before/after pair; "" keeps bytes).
+- [x] I-117 lessonpin → pinned lessons (lessonpin.py).
+  Caller Handler.module_html (pinned-first reorder; [] keeps order).
+- [x] I-119 handout → printable lesson handout (handout.py).
+  Caller Handler.module_html + /modules/<mid>/handout/<node> route.
+- [x] I-121 tabmemory → explainer open/closed memory (tabmemory.py).
+  Caller Due queue + module Study-first wrappers; localStorage only.
+- [x] I-122 explcalib → calibration-aware levels (explcalib.py).
+  Caller lessons.render_levels via Due + module pages (recent param).
+- [x] I-123 levelextremes → ELI5/tradeoff extremes (levelextremes.py).
+  Caller lessons.render_levels (sidecar; hard-coded 1–4 untouched).
+- [x] I-124 peerhelp → peer level hint (peerhelp.py).
+  Caller lessons.render_levels (peer_votes param; silent until quorum).
+- [x] I-125 diagrams → diagrams-per-lesson gate (diagrams.py).
+  Caller Handler.module_html (badge + TOC mark; "" on pass).
+- [x] F-85 invariant → invariant stating, type 89 (invariant.py).
+  Caller Due queue via submit_review grade; six-part emission.
+- [x] F-86 contracts → contract authoring, type 90 (contracts.py).
+  Caller Due queue via submit_review grade; two-line textarea widget.
+- [x] F-87 katabank → refactoring kata library (katabank.py).
+  Caller MCPServer.tool_list_due_reviews (weakest-track-first).
+- [x] F-88 debugkata → debugging kata library (debugkata.py).
+  Caller pipeline.create_module + module lesson blocks.
+- [x] F-89 readgroup → reading-group mode (readgroup.py).
+  Caller Handler.module_html (presence None keeps bytes).
+- [x] F-90 reteach → spaced teaching (reteach.py).
+  Caller Handler.due_html (30-day first-attempt box).
+- [x] F-91 forgetcurve → forgetting-curve personalization
+  (forgetcurve.py). Caller Due queue dial floor + order.
+- [x] F-92 peaktime → optimal review time (peaktime.py).
+  Caller Handler.due_html (peak banner; omitted below threshold).
+
+Batch 20 deviations (all green-trunk, ledger-noted): F-85/F-86 both
+claimed type 89 in design; parent assigned F-85 → 89, F-86 → 90 in
+backlog order. Wave-1 synthesis returned empty (payloads too large);
+parent recovered all eight designer payloads from subagent logs and
+skipped synthesis for Wave 2. MCP gaps closed by parent after
+implementation: I-121 create (design-time diff empty), F-90/F-91
+(children lacked MCP access) — decisions 137–139 with modules
+6d215c9836d4, 3ec3db3316c9, a4dcf04b2d78. One red intermediate
+repaired by follow-up (I-117 lessonpin committed before its ceiling
+check; WEB_CEILING follow-up same item). test_batch17 WIDGET_GAP
+extended for type 89 (generic widget by architecture); type 90 takes
+the explicit textarea branch. Goldens refreshed twice (tabmemory
+attrs/script on due; modularity table on status).
+
+Batch 20 migration: none (no schema changes; lesson kata/why_note and
+before/after ride the lesson JSON blob).
+
+Batch 20 wires: WEB_CEILING 1258 → 1328 (lessonpin/handout/tabmemory/
+explcalib/diagrams/debugkata/readgroup/reteach/forgetcurve/peaktime
+imports + queries/routes/wires; minisession decay floor);
+status.py unchanged at 349 (same-line batch20 join); lessons.py +3
+params/wires (recent, peer_votes, extremes); cards.py +90 textarea;
+mcp.py kata-history query; pipeline.py debugkata enrichment;
+tour 118/122 → 126/130; docs regen (README + features.md from tour
+registry); goldens refreshed (due tabmemory, status modularity).
+
 ## IMPROVEMENTS (500)
 
 ### A. Navigation, IA & routing (I-1–50)
@@ -880,16 +948,16 @@ on fixture pages).
 - [x] I-113: End each lesson with a 1-question exit ticket (ungraded, retrieval).
 - I-114: Let learners rate lesson clarity (feeds generation quality metrics).
 - [x] I-115: Version lessons: "updated for commit X" banner when code moved on.
-- I-116: Diff view between lesson versions (what changed in the code).
-- I-117: Pin lessons to keep them atop the module regardless of order.
+- [x] I-116: Diff view between lesson versions (what changed in the code).
+- [x] I-117: Pin lessons to keep them atop the module regardless of order.
 - [x] I-118: Add lesson-level notes (private markdown scratchpad per concept).
-- I-119: Export single lesson as printable handout (HTML → print CSS).
+- [x] I-119: Export single lesson as printable handout (HTML → print CSS).
 - [x] I-120: Add reading-progress bar per module page.
-- I-121: Remember collapsed/expanded explainer tabs per learner.
-- I-122: Auto-pick explainer level from recent calibration, not just mastery.
-- I-123: Add L1 "ELI5" and L5 "design tradeoffs" extremes beyond current 4 levels.
-- I-124: Show which level peers found most helpful (opt-in aggregate).
-- I-125: Add diagrams-per-lesson quality gate (every lesson gets ≥1 visual).
+- [x] I-121: Remember collapsed/expanded explainer tabs per learner.
+- [x] I-122: Auto-pick explainer level from recent calibration, not just mastery.
+- [x] I-123: Add L1 "ELI5" and L5 "design tradeoffs" extremes beyond current 4 levels.
+- [x] I-124: Show which level peers found most helpful (opt-in aggregate).
+- [x] I-125: Add diagrams-per-lesson quality gate (every lesson gets ≥1 visual).
 - I-126: Render call graphs as inline SVG instead of text lists.
 - I-127: Sequence diagrams for the 3-step call chains (type-10 content reused).
 - [x] I-128: File-map mini-view: where this concept sits in the repo tree.
@@ -1378,14 +1446,14 @@ on fixture pages).
 - [x] F-82: Analogy builder (map the concept to a familiar domain; rubric).
 - [x] F-83: Counterexample hunting (find inputs breaking your mental model).
 - [x] F-84: Boundary-value drills (off-by-one bootcamp per function).
-- F-85: Invariant stating (write the loop invariant; verifier-checked).
-- F-86: Pre/postcondition authoring (contracts graded against tests).
-- F-87: Refactoring kata library (same smell, many repos, spaced).
-- F-88: Debugging kata library (classic bug shapes, synthetic + real).
-- F-89: Reading-group mode (same module, discussion prompts, local sync).
-- F-90: Spaced teaching (re-teach a concept after 30 days, compare recordings).
-- F-91: Forgetting-curve personalization (your decay constant, estimated).
-- F-92: Optimal-review-time suggestions (when your recall peaks).
+- [x] F-85: Invariant stating (write the loop invariant; verifier-checked).
+- [x] F-86: Pre/postcondition authoring (contracts graded against tests).
+- [x] F-87: Refactoring kata library (same smell, many repos, spaced).
+- [x] F-88: Debugging kata library (classic bug shapes, synthetic + real).
+- [x] F-89: Reading-group mode (same module, discussion prompts, local sync).
+- [x] F-90: Spaced teaching (re-teach a concept after 30 days, compare recordings).
+- [x] F-91: Forgetting-curve personalization (your decay constant, estimated).
+- [x] F-92: Optimal-review-time suggestions (when your recall peaks).
 - F-93: Sleep-aware scheduling (never schedule new cards late at night).
 - F-94: Cognitive-load guard (cap new concepts per session by measured strain).
 - F-95: Flow detection (extend sessions when accuracy + pace are high).

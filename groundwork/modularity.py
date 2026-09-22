@@ -261,6 +261,23 @@ AREAS = {
     "counterex": "counterex.py",
     "boundary": "boundary.py",
     "batch19": "batch19.py",
+    "lessondiff": "lessondiff.py",
+    "lessonpin": "lessonpin.py",
+    "handout": "handout.py",
+    "tabmemory": "tabmemory.py",
+    "explcalib": "explcalib.py",
+    "levelextremes": "levelextremes.py",
+    "peerhelp": "peerhelp.py",
+    "diagrams": "diagrams.py",
+    "invariant": "invariant.py",
+    "contracts": "contracts.py",
+    "katabank": "katabank.py",
+    "debugkata": "debugkata.py",
+    "readgroup": "readgroup.py",
+    "reteach": "reteach.py",
+    "forgetcurve": "forgetcurve.py",
+    "peaktime": "peaktime.py",
+    "batch20": "batch20.py",
 }
 
 
