@@ -71,10 +71,10 @@ def replay_html(lesson, step=1, base_path: str = "") -> str:
         dots = " ".join(
             f"<b>{r['step']}</b>" if r["step"] == k else str(r["step"])
             for r in rows)
-        prev_link = (f"<a href='{base}?replay={k - 1}#replay'>← prev</a>"
-                     if k > 1 else "<span>← prev</span>")
-        next_link = (f"<a href='{base}?replay={k + 1}#replay'>next →</a>"
-                     if k < len(rows) else "<span>next →</span>")
+        prev_link = (f"<a href='{base}?replay={k - 1}#replay'>&lt; prev</a>"
+                     if k > 1 else "<span>&lt; prev</span>")
+        next_link = (f"<a href='{base}?replay={k + 1}#replay'>next &gt;</a>"
+                     if k < len(rows) else "<span>next &gt;</span>")
         return (
             f"<div class='replay' id='replay'>"
             f"<h5>Worked replay — Step {k} of {len(rows)}</h5>"
