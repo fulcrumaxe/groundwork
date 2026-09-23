@@ -698,7 +698,7 @@ class Handler(BaseHTTPRequestHandler):
                  # F-92: peak-recall banner; "" below threshold.
                  peaktimemod.banner_html(peak_rows),
                  recentmod.strip_html(),
-                 minisessionmod.session_box_html(due),
+                 minisessionmod.session_box_html(due, recent=[r["grade"] for r in cal_rows], tried=tries),
                  minisessionmod.dial_box(dial, mode),
                  resumemod.resume_box_html(resume_key or "", len(due)),
                  reteachmod.reteach_box_html(reteachmod.pick_reteach(
