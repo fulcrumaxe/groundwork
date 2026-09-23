@@ -22,6 +22,7 @@ from . import callgraph as callgraphmod
 from . import carets as caretsmod
 from . import codelines as codelinesmod
 from . import highlight as highlightmod
+from . import imgattach as imgattachmod
 from . import ownedbadge as ownedbadgemod
 from . import progbar as progbarmod
 from . import stagger as staggermod
@@ -1092,6 +1093,7 @@ class Handler(BaseHTTPRequestHandler):
                 parts.append(beforaftermod.lesson_block(lesson_map[node], ci == 0))
                 parts.append(diagramsmod.badge_html(lesson_map[node]))
                 parts.append(callgraphmod.block_html(lesson_map[node]))
+                parts.append(imgattachmod.figures_html(lesson_map[node]))
                 parts.append(debugkatamod.lesson_block(lesson_map[node]))
                 parts.append(handoutmod.handout_link_html(mid, node))
             parts.append(decmod.lesson_block(
