@@ -21,6 +21,7 @@ from . import lessons as lesmod
 from . import modules as modmod
 from . import ownership as ownmod
 from . import retest as retestmod
+from . import skillatoms as skillatomsmod
 from . import pipeline as pipelinemod
 from . import sched as schedmod
 from . import sleepsched as sleepschedmod
@@ -433,6 +434,23 @@ class MCPServer:
             except Exception:  # noqa: BLE001 -- relief never blocks
                 plan = {"frustrated": False, "streak": 0,
                         "easier": None, "message": ""}
+            # F-99: two trailing fails split the concept into skill atoms
+            # so reteach can target the failing part, not the whole card.
+            try:
+                rows = con.execute(
+                    "SELECT grade, submission FROM reviews WHERE card_id=?"
+                    " ORDER BY rowid DESC LIMIT 4",
+                    (card_id,)).fetchall()
+                attempts = [{"ok": r[0] >= 3, "note": r[1] or ""}
+                            for r in reversed(rows)]
+                concept = card["concept_id"]
+                if skillatomsmod.needs_split(attempts):
+                    atoms = skillatomsmod.decompose(concept, attempts)
+                else:
+                    atoms = []
+                atoms_html = skillatomsmod.section_html(concept, atoms)
+            except Exception:  # noqa: BLE001 -- atoms never block
+                atoms_html = ""
             con.commit()
         finally:
             con.close()
@@ -462,7 +480,8 @@ class MCPServer:
         except Exception:  # noqa: BLE001 -- display must never raise
             relief_html = ""
         return {"result": result, "grade": grade_val, "next_due": upd["due"],
-                "points": points, "drill": drill, "relief": relief_html}
+                "points": points, "drill": drill, "relief": relief_html,
+                "atoms": atoms_html}
 
 
 def serve_stdio(db_path=None) -> None:
