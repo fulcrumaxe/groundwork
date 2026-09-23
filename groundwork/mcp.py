@@ -12,6 +12,7 @@ from pathlib import Path
 from . import calibdrill as drillmod
 from . import confweight as confweightmod
 from . import db as dbmod
+from . import boredom as boredommod
 from . import exercises as exmod
 from . import frustcatch as frustcatchmod
 from . import interleave as interleavemod
@@ -282,6 +283,13 @@ class MCPServer:
             cards = cards + [p for p in probes if p["id"] not in known]
             seen = {r[0] for r in con.execute(
                 "SELECT DISTINCT card_id FROM reviews").fetchall()}
+            try:
+                grows = con.execute(
+                    "SELECT cards.concept_id, reviews.grade FROM reviews"
+                    " JOIN cards ON cards.id = reviews.card_id"
+                    " ORDER BY reviews.id").fetchall()
+            except Exception:  # noqa: BLE001 -- no history, no promotion
+                grows = []
         finally:
             con.close()
         ordered = katabankmod.order_due(
@@ -289,6 +297,14 @@ class MCPServer:
         # F-93: new cards never display a night due; reviewed cards keep
         # their stored due, queue order untouched (applied post-ordering).
         ordered = sleepschedmod.defer_night_new(ordered, reviewed_ids=seen)
+        # F-97: bored concepts surface their next-rung card first;
+        # calm queues keep today's order.
+        hist: dict = {}
+        for cid, grade in grows:
+            hist.setdefault(cid, []).append(grade)
+        ordered = boredommod.promote(
+            ordered, {cid: grades[-boredommod.HISTORY_TAIL:]
+                      for cid, grades in hist.items()})
         return {"due": ordered, "count": len(cards)}
 
     def snooze_card(self, card_id: str) -> dict:
