@@ -18,9 +18,11 @@ from . import autofocus as autofocusmod
 from . import autoscroll as autoscrollmod
 from . import bloomchips as bloomchipsmod
 from . import briefing as briefingmod
+from . import callgraph as callgraphmod
 from . import carets as caretsmod
 from . import codelines as codelinesmod
 from . import highlight as highlightmod
+from . import imgattach as imgattachmod
 from . import ownedbadge as ownedbadgemod
 from . import progbar as progbarmod
 from . import stagger as staggermod
@@ -34,6 +36,7 @@ from . import clarity as claritymod
 from . import clickcards as clickcardsmod
 from . import collapse as collapsemod
 from . import confslider as confslidermod
+from . import confusing as confusingmod
 from . import contrast as contrastmod
 from . import crumbs as crumbsmod
 from . import darkmode as darkmodemod
@@ -57,6 +60,7 @@ from . import exports as expmod
 from . import favicon as faviconmod
 from . import fontstack as fontstackmod
 from . import focusrings as focusringsmod
+from . import flowdetect as flowdetectmod
 from . import footnav as footnavmod
 from . import forgetcurve as forgetcurvemod
 from . import formerr as formerrmod
@@ -67,6 +71,7 @@ from . import journal as journalmod
 from . import known as knownmod
 from . import lessons as lesmod
 from . import lessonpin as lessonpinmod
+from . import lessondeps as lessondepsmod
 from . import lessonver as lessonvermod
 from . import levelcarry as levelcarrymod
 from . import logbook as logbookmod
@@ -115,10 +120,12 @@ from . import sitenav as sitenavmod
 from . import snapshot as snapshotmod
 from . import spacing as spacingmod
 from . import tabmemory as tabmemorymod
+from . import tablescroll as tablescrollmod
 from . import taptargets as taptargetsmod
 from . import status as statusmod
 from . import storage as storagemod
 from . import styleguide as styleguidemod
+from . import stylemix as stylemixmod
 from . import symlinks as symlinksmod
 from . import tochighlight as tochighlightmod
 from . import tour as tourmod
@@ -242,7 +249,7 @@ CSS = ("body{font-family:system-ui,-apple-system,sans-serif;max-width:48rem;"
 # concatenated into CSS (that nests <style> inside <style>, closes the
 # head stylesheet early, and dumps all later CSS into <body> as text).
 FOCUS_CSS = clickcardsmod.focus_css()
-CSS += palettemod.palette_css() + darkmodemod.dark_css() + typescalemod.scale_css() + fontstackmod.stack_css() + wordmarkmod.wordmark_css() + bloomchipsmod.chip_css() + progbarmod.progbar_css() + ownedbadgemod.badge_css() + staggermod.stagger_css() + caretsmod.carets_css() + codelinesmod.codelines_css() + highlightmod.highlight_css() + hinttiersmod.hinttiers_css() + confslidermod.css() + focusringsmod.css() + taptargetsmod.target_css() + radiusmod.radius_css() + spacingmod.spacing_css() + doneheromod.hero_css() + logbookmod.logbook_css() + shelfmod.shelf_css() + briefingmod.briefing_css() + verdictsmod.verdicts_css() + ownbannermod.ownbanner_css() + pressfxmod.pressfx_css() + skeletonsmod.skeletons_css() + optimisticmod.optimistic_css() + formerrmod.formerr_css() + selectionmod.selection_css() + scrollbarmod.scrollbar_css() + densitymod.density_css() + responsivemod.narrow_css() + emojimod.icon_css() + parsonsmod.parsons_css() + contrastmod.contrast_css() + motionmod.motion_css() + lessonvermod.banner_css()  # Batch 9 I-51/52/53/54: token variables, dark overrides, type scale, font stacks. Batch 10 I-55..I-62: wordmark, bloom chips, progress motion, owned badge, stagger, carets, code lines, highlight. Batch 11 I-63..I-70: hint tiers, confidence segments, focus rings, tap floor, radii, spacing, hero. Batch 12 I-71..I-73/I-77/I-79..I-82: logbook, shelf, briefing, verdicts, banner, press, skeletons, optimistic submit. Batch 13 I-84/I-85/I-86/I-89/I-90: field errors, selection, scrollbars, density, narrow phones. Batch 19 I-115: lesson version banner.
+CSS += palettemod.palette_css() + darkmodemod.dark_css() + typescalemod.scale_css() + fontstackmod.stack_css() + wordmarkmod.wordmark_css() + bloomchipsmod.chip_css() + progbarmod.progbar_css() + ownedbadgemod.badge_css() + staggermod.stagger_css() + caretsmod.carets_css() + codelinesmod.codelines_css() + highlightmod.highlight_css() + hinttiersmod.hinttiers_css() + confslidermod.css() + focusringsmod.css() + taptargetsmod.target_css() + radiusmod.radius_css() + spacingmod.spacing_css() + doneheromod.hero_css() + logbookmod.logbook_css() + shelfmod.shelf_css() + briefingmod.briefing_css() + verdictsmod.verdicts_css() + ownbannermod.ownbanner_css() + pressfxmod.pressfx_css() + skeletonsmod.skeletons_css() + optimisticmod.optimistic_css() + formerrmod.formerr_css() + selectionmod.selection_css() + scrollbarmod.scrollbar_css() + densitymod.density_css() + responsivemod.narrow_css() + emojimod.icon_css() + parsonsmod.parsons_css() + contrastmod.contrast_css() + motionmod.motion_css() + lessonvermod.banner_css() + tablescrollmod.scroll_css()  # Batch 9 I-51/52/53/54: token variables, dark overrides, type scale, font stacks. Batch 10 I-55..I-62: wordmark, bloom chips, progress motion, owned badge, stagger, carets, code lines, highlight. Batch 11 I-63..I-70: hint tiers, confidence segments, focus rings, tap floor, radii, spacing, hero. Batch 12 I-71..I-73/I-77/I-79..I-82: logbook, shelf, briefing, verdicts, banner, press, skeletons, optimistic submit. Batch 13 I-84/I-85/I-86/I-89/I-90: field errors, selection, scrollbars, density, narrow phones. Batch 19 I-115: lesson version banner. Batch 21 I-92: scrollable tables.
 
 GLOBAL_JS = """
 <script>
@@ -671,6 +678,10 @@ class Handler(BaseHTTPRequestHandler):
             # F-92: all (grade, reviewed_at) pairs for the peak window.
             peak_rows = con2.execute(
                 "SELECT grade, reviewed_at FROM reviews").fetchall()
+            # F-95: newest reviews for the flow gate (pace from deltas).
+            flow_rows = con2.execute(
+                "SELECT grade, reviewed_at FROM reviews"
+                " ORDER BY id DESC LIMIT 6").fetchall()
             # F-90: earliest attempt + own-words recording per concept.
             try:
                 first_rows = con2.execute(
@@ -693,7 +704,7 @@ class Handler(BaseHTTPRequestHandler):
                  # F-92: peak-recall banner; "" below threshold.
                  peaktimemod.banner_html(peak_rows),
                  recentmod.strip_html(),
-                 minisessionmod.session_box_html(due),
+                 minisessionmod.session_box_html(due, recent=[r["grade"] for r in cal_rows], tried=tries, flow_attempts=flowdetectmod.attempts_with_pace(flow_rows)),
                  minisessionmod.dial_box(dial, mode),
                  resumemod.resume_box_html(resume_key or "", len(due)),
                  reteachmod.reteach_box_html(reteachmod.pick_reteach(
@@ -1067,6 +1078,12 @@ class Handler(BaseHTTPRequestHandler):
             [{"name": r["name"], "module_id": mid,
               "file": r["file"], "line": r["line"]}
              for r in concepts], mid)
+        confflags = confusingmod.flags_for_module(self.db_path, mid)
+        parts.append(confusingmod.queue_banner_html(confflags, base))
+        # F-98: one page-level visual-vs-textual affinity from performance.
+        affinity = stylemixmod.affinity(stylemixmod.records_for(
+            history, cards_by_concept, lesson_map))
+        seen = []
         for ci, row in enumerate(concepts):
             node = row["cid"].split(":", 1)[1] if ":" in row["cid"] else row["cid"]
             slug = lesmod.slug(node)
@@ -1085,10 +1102,23 @@ class Handler(BaseHTTPRequestHandler):
                 f"<p><small>{html.escape(row['kind'])} · "
                 f"{html.escape(row['file'])}:{row['line']}</small></p>")
             if node in lesson_map:
-                parts.append(whyitmod.lesson_why_html(lesson_map[node], first=(ci == 0)))
-                parts.append(lesmod.render_levels(lesson_map[node], mastery_of[node], concept_tries, level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node), order=order, symbols=sym_index, sym_mid=mid, replay_step=replay_step, lesson_commit=mod_commit, current_commit=mod_head, recent=explcalibmod.recent_from_rows([r for c in concept_cards for r in history.get(c["id"], [])])))
-                parts.append(beforaftermod.lesson_block(lesson_map[node], ci == 0))
-                parts.append(diagramsmod.badge_html(lesson_map[node]))
+                # F-98: visual blocks lead only under visual affinity;
+                # otherwise the historical text-first order stands.
+                visual_bits = [diagramsmod.badge_html(lesson_map[node]),
+                               callgraphmod.block_html(lesson_map[node]),
+                               imgattachmod.figures_html(lesson_map[node])]
+                text_bits = [whyitmod.lesson_why_html(lesson_map[node], first=(ci == 0)),
+                             lesmod.render_levels(lesson_map[node], mastery_of[node], concept_tries, level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node), order=order, symbols=sym_index, sym_mid=mid, replay_step=replay_step, lesson_commit=mod_commit, current_commit=mod_head, recent=explcalibmod.recent_from_rows([r for c in concept_cards for r in history.get(c["id"], [])]), confusing=confflags, confusing_cid=row["cid"]),
+                             beforaftermod.lesson_block(lesson_map[node], ci == 0)]
+                if stylemixmod.order_sections(lesson_map[node], affinity)[0] == "visual":
+                    parts.extend(visual_bits)
+                    parts.extend(text_bits)
+                else:
+                    parts.extend(text_bits)
+                    parts.extend(visual_bits)
+                earlier = [lesson_map[n] for n in seen if n in lesson_map]
+                parts.append(lessondepsmod.deps_html(lesson_map[node], earlier))
+                seen.append(node)
                 parts.append(debugkatamod.lesson_block(lesson_map[node]))
                 parts.append(handoutmod.handout_link_html(mid, node))
             parts.append(decmod.lesson_block(
@@ -1204,6 +1234,22 @@ class Handler(BaseHTTPRequestHandler):
                         f"Back to module</a></p>")
             self._send(page("Clarity", body, counts=self._nav_counts()))
             return
+        if url.path.startswith("/concepts/") and url.path.endswith("/confusing"):
+            form = parse_qs(raw, keep_blank_values=True)
+            origin = _safe_origin(form.get("origin", ["/modules"])[0])
+            out = confusingmod.record(
+                self.db_path, form.get("confusing_section", [""])[0],
+                form.get("confusing", [""])[0])
+            if "error" in out:
+                body = (f"<p>Could not flag: {html.escape(out['error'])}</p>"
+                        f"<p><a class='btn' href='{html.escape(origin)}'>Back</a></p>")
+            else:
+                back = f"/modules/{out['module_id']}"
+                body = (f"<p>Flag saved — authors rewrite flagged sections first.</p>"
+                        f"<p><a class='btn' href='{html.escape(back)}'>"
+                        f"Back to module</a></p>")
+            self._send(page("Confusing", body, counts=self._nav_counts()))
+            return
         if url.path.startswith("/concepts/") and url.path.endswith("/known"):
             cid = url.path.split("/")[2]
             form = parse_qs(raw, keep_blank_values=True)
@@ -1274,6 +1320,7 @@ class Handler(BaseHTTPRequestHandler):
             body = (cerr + scrollposmod.restore_js(origin)
                     + autoscrollmod.enhance_result(
                         resmod.render_result(res["pass"], res["feedback"], back, out["next_due"], origin, mod_id, due_left, points=res.get("points"), drill=res.get("drill", "")))
+                    + out.get("relief", "") + out.get("atoms", "")
                     + autoscrollmod.verdict_js())
             self._send(page("Result", body, counts=self._nav_counts()))
             return

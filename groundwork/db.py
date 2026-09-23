@@ -56,6 +56,14 @@ def init_db(db_path: str | Path = DEFAULT_DB) -> Path:
             " status TEXT NOT NULL DEFAULT 'open',"
             " created_at TEXT NOT NULL DEFAULT"
             " (strftime('%Y-%m-%dT%H:%M:%SZ','now')))")
+        # Batch 21 migration (new nullable table only): per-section
+        # confusing flags. Downgrade: DROP TABLE confusing_flags
+        # or restore the pre-batch21 backup.
+        con.execute(
+            "CREATE TABLE IF NOT EXISTS confusing_flags ("
+            " section_id TEXT PRIMARY KEY,"
+            " flagged_at TEXT NOT NULL DEFAULT"
+            " (strftime('%Y-%m-%dT%H:%M:%SZ','now')))")
         con.commit()
     finally:
         con.close()

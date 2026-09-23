@@ -12,14 +12,21 @@ from pathlib import Path
 from . import calibdrill as drillmod
 from . import confweight as confweightmod
 from . import db as dbmod
+from . import boredom as boredommod
 from . import exercises as exmod
+from . import frustcatch as frustcatchmod
 from . import interleave as interleavemod
 from . import katabank as katabankmod
+from . import lessondeps as lessondepsmod
+from . import lessons as lesmod
 from . import modules as modmod
 from . import ownership as ownmod
 from . import retest as retestmod
+from . import remedpath as remedpathmod
+from . import skillatoms as skillatomsmod
 from . import pipeline as pipelinemod
 from . import sched as schedmod
+from . import sleepsched as sleepschedmod
 
 METHODS = ["create_learning_module", "annotate_decision",
            "leave_learning_hole", "get_learner_profile", "list_due_reviews",
@@ -277,11 +284,98 @@ class MCPServer:
             probes = self._probe_cards(con, now)
             known = {c["id"] for c in cards}
             cards = cards + [p for p in probes if p["id"] not in known]
+            seen = {r[0] for r in con.execute(
+                "SELECT DISTINCT card_id FROM reviews").fetchall()}
+            try:
+                grows = con.execute(
+                    "SELECT cards.concept_id, reviews.grade FROM reviews"
+                    " JOIN cards ON cards.id = reviews.card_id"
+                    " ORDER BY reviews.id").fetchall()
+            except Exception:  # noqa: BLE001 -- no history, no promotion
+                grows = []
+            # F-100: prerequisite map (lesson needs per concept) plus
+            # concept mastery on the scheduler's grade scale.
+            try:
+                remap: dict = {}
+                for (lj,) in con.execute(
+                        "SELECT lessons FROM modules").fetchall():
+                    try:
+                        lessons = json.loads(lj or "[]")
+                    except ValueError:
+                        continue
+                    for lesson in lessons:
+                        if isinstance(lesson, dict) and lesson.get("concept_id"):
+                            needs = lessondepsmod.needs_of(lesson)
+                            if needs:
+                                remap.setdefault(lesson["concept_id"], needs)
+                remaster: dict = {}
+                for r in con.execute(
+                        "SELECT id, name, mastery FROM concepts").fetchall():
+                    grade = (r["mastery"] or 0.0) * 5.0
+                    remaster[r["id"]] = grade
+                    if r["name"]:
+                        remaster[r["name"]] = grade
+                        remaster[lesmod.slug(r["name"])] = grade
+            except Exception:  # noqa: BLE001 -- no map, no remediation
+                remap, remaster = {}, {}
         finally:
             con.close()
-        return {"due": katabankmod.order_due(
-                    interleavemod.order_due(cards, mastery), kata_history),
-                "count": len(cards)}
+        ordered = katabankmod.order_due(
+            interleavemod.order_due(cards, mastery), kata_history)
+        # F-93: new cards never display a night due; reviewed cards keep
+        # their stored due, queue order untouched (applied post-ordering).
+        ordered = sleepschedmod.defer_night_new(ordered, reviewed_ids=seen)
+        # F-97: bored concepts surface their next-rung card first;
+        # calm queues keep today's order.
+        hist: dict = {}
+        for cid, grade in grows:
+            hist.setdefault(cid, []).append(grade)
+        ordered = boredommod.promote(
+            ordered, {cid: grades[-boredommod.HISTORY_TAIL:]
+                      for cid, grades in hist.items()})
+        # F-100: a failed concept pulls its unmastered prerequisites
+        # ahead of the retry; calm queues keep today's order.
+        try:
+            latest: dict = {}
+            for cid, grade in grows:
+                latest[cid] = grade
+            failures = [cid for cid, g in latest.items()
+                        if g is not None and g < 3]
+            bykey: dict = {}
+            for c in ordered:
+                bykey.setdefault(c.get("concept_id") or "", c)
+                name = c.get("concept") or ""
+                bykey.setdefault(name, c)
+                bykey.setdefault(lesmod.slug(name), c)
+            pmap = {}
+            for failed in failures:
+                have = [n for n in remap.get(failed, [])
+                        if n in bykey or lesmod.slug(n) in bykey]
+                if have:
+                    pmap[failed] = have
+            if pmap:
+                lift = set()
+                for needs in pmap.values():
+                    for need in needs:
+                        hit = bykey.get(need) \
+                            or bykey.get(lesmod.slug(need))
+                        if isinstance(hit, dict) and hit.get("id"):
+                            lift.add(hit["id"])
+
+                def _maker(concept, failed, _by=bykey):
+                    found = _by.get(concept) \
+                        or _by.get(lesmod.slug(concept)) or {}
+                    card = dict(found)
+                    card["remedial"] = True
+                    card["remediation_for"] = failed
+                    return card
+
+                rest = [c for c in ordered if c.get("id") not in lift]
+                ordered = remedpathmod.queue_remediation(
+                    rest, failures, pmap, remaster, make_card=_maker)
+        except Exception:  # noqa: BLE001 -- remediation never blocks
+            pass
+        return {"due": ordered, "count": len(cards)}
 
     def snooze_card(self, card_id: str) -> dict:
         """Push one card to tomorrow without recording a grade (I-45)."""
@@ -331,6 +425,10 @@ class MCPServer:
                 (card_id,)).fetchall()]
             upd = schedmod.review_card(card["stability"], card["difficulty"],
                                        grade_val, grades=hist + [grade_val])
+            # F-93: a first review landing in quiet hours defers to
+            # morning so new cards are never scheduled late at night.
+            if not hist:
+                upd["due"] = sleepschedmod.adjust_due(upd["due"])
             prev_mastery = con.execute(
                 "SELECT mastery FROM concepts WHERE id=?",
                 (card["concept_id"],)).fetchone()
@@ -391,6 +489,37 @@ class MCPServer:
             con.execute(
                 "UPDATE concepts SET mastery = mastery * 0.7 + ? * 0.3 WHERE id=?",
                 (grade_val / 5.0, card["concept_id"]))
+            # F-96: frustration relief — three fast fails on this card
+            # route to an easier same-concept card plus a breather note.
+            try:
+                sibs = con.execute(
+                    "SELECT id, difficulty FROM cards"
+                    " WHERE concept_id=? AND id!=?",
+                    (card["concept_id"], card_id)).fetchall()
+                pool = [{"id": r["id"], "difficulty": r["difficulty"]}
+                        for r in sibs]
+                plan = frustcatchmod.relief_plan(hist + [grade_val],
+                                                 pool, card_id)
+            except Exception:  # noqa: BLE001 -- relief never blocks
+                plan = {"frustrated": False, "streak": 0,
+                        "easier": None, "message": ""}
+            # F-99: two trailing fails split the concept into skill atoms
+            # so reteach can target the failing part, not the whole card.
+            try:
+                rows = con.execute(
+                    "SELECT grade, submission FROM reviews WHERE card_id=?"
+                    " ORDER BY rowid DESC LIMIT 4",
+                    (card_id,)).fetchall()
+                attempts = [{"ok": r[0] >= 3, "note": r[1] or ""}
+                            for r in reversed(rows)]
+                concept = card["concept_id"]
+                if skillatomsmod.needs_split(attempts):
+                    atoms = skillatomsmod.decompose(concept, attempts)
+                else:
+                    atoms = []
+                atoms_html = skillatomsmod.section_html(concept, atoms)
+            except Exception:  # noqa: BLE001 -- atoms never block
+                atoms_html = ""
             con.commit()
         finally:
             con.close()
@@ -404,8 +533,24 @@ class MCPServer:
                      f" +{deal['win']}/{deal['lose']}, settled {won:+d}.")
         except Exception:  # noqa: BLE001 -- display must never raise
             drill = ""
+        try:
+            relief_html = ""
+            if plan.get("frustrated"):
+                lesson_url = ""
+                if plan.get("easier") is not None and mod_row is not None:
+                    # Anchor matches the lesson section id rendered by
+                    # Handler.module_html (slug of the node, not the name).
+                    node = card["concept_id"].split(":", 1)[1] \
+                        if ":" in card["concept_id"] else card["concept_id"]
+                    lesson_url = (
+                        f"/modules/{mod_row['module_id']}"
+                        f"#lesson-{lesmod.slug(node)}")
+                relief_html = frustcatchmod.banner_html(plan, lesson_url)
+        except Exception:  # noqa: BLE001 -- display must never raise
+            relief_html = ""
         return {"result": result, "grade": grade_val, "next_due": upd["due"],
-                "points": points, "drill": drill}
+                "points": points, "drill": drill, "relief": relief_html,
+                "atoms": atoms_html}
 
 
 def serve_stdio(db_path=None) -> None:

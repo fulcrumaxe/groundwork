@@ -168,7 +168,15 @@ def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:
         body = (f"<table>{rows}</table>{_confidence()}"
                 f"<button>Check trace</button>")
     elif etype in ("10", "11"):
-        body = (parsonsmod.block_html(cid, p.get("lines", []))
+        from . import seqdiag as seqdiagmod
+        fig = ""
+        if etype == "10":
+            try:
+                concept = card["concept"]
+            except (KeyError, IndexError, TypeError):
+                concept = ""
+            fig = seqdiagmod.figure_html({"payload": p}, concept)
+        body = (fig + parsonsmod.block_html(cid, p.get("lines", []))
                 + f"{_confidence()}<button>Check order</button>{PARSONS_JS}")
     elif etype in ("12", "14", "19", "20", "23"):
         body = (f"<textarea name='answer' rows='12' cols='70' "

@@ -823,6 +823,64 @@ mcp.py kata-history query; pipeline.py debugkata enrichment;
 tour 118/122 → 126/130; docs regen (README + features.md from tour
 registry); goldens refreshed (due tabmemory, status modularity).
 
+Batch 21 — seven improvements (I-92, I-126, I-127, I-130, I-131,
+I-132, I-134) + eight features (F-93–F-100). Shipped on branch
+`batch21-f8-i8`. Selection: wave order with one cut (I-129 has no
+real caller — no /files viewer route exists — so it stays unshipped;
+all other wave designs returned buildable verdicts with real caller
+paths). Wave synthesis was dropped after Wave 1 (oversized payloads)
+— parent extracted designer payloads from subagent logs instead.
+- [x] I-92 tablescroll → scrollable tables (tablescroll.py).
+  Caller history.history_html via History page.
+- [x] I-126 callgraph → inline SVG call graphs (callgraph.py).
+  Caller Handler.module_html lesson loop.
+- [x] I-127 seqdiag → call-chain sequence diagrams (seqdiag.py).
+  Caller cards.answer_widget on type-10 widgets.
+- [x] I-130 imgattach → concept-note images (imgattach.py).
+  Caller Handler.module_html lesson loop.
+- [x] I-131 lessondeps → understand-first jump links (lessondeps.py).
+  Caller Handler.module_html lesson loop.
+- [x] I-132 depcycle → deterministic cycle-breaking (depcycle.py).
+  Caller select._prereqs_first.
+- [x] I-134 confusing → per-section confusing flags (confusing.py).
+  Caller lessons.render_levels toggles + module banner + confusing POST.
+- [x] F-93 sleepsched → sleep-aware dues (sleepsched.py).
+  Caller MCPServer.submit_review first-due + tool_list_due_reviews display.
+- [x] F-94 cogniload → cognitive-load guard (cogniload.py).
+  Caller minisession.pick_cards via Due session box.
+- [x] F-95 flowdetect → flow detection (flowdetect.py).
+  Caller minisession.session_box_html via Due page.
+- [x] F-96 frustcatch → frustration relief (frustcatch.py).
+  Caller MCPServer.submit_review relief banner + result page.
+- [x] F-97 boredom → boredom rung-ups (boredom.py).
+  Caller MCPServer.tool_list_due_reviews promote.
+- [x] F-98 stylemix → learning-style tuning (stylemix.py).
+  Caller Handler.module_html visual-first blocks.
+- [x] F-99 skillatoms → skill-atom split (skillatoms.py).
+  Caller MCPServer.submit_review atoms block + result page.
+- [x] F-100 remedpath → remediation paths (remedpath.py).
+  Caller MCPServer.tool_list_due_reviews remediation lift.
+
+Batch 21 deviations (all green-trunk, ledger-noted): I-129 cut (no
+/files route; stays unshipped). F-97 rework after ship: RUNGS now
+imports canonical debt.BLOOM_RUNGS (recall < explain < apply <
+analyse < modify < create); off-ladder understand/evaluate resolve to
+recall/modify. F-99 regex fix by parent: designer stems had a
+trailing \b matching only the literal stem (never "confused" /
+"steps"); boundary dropped, leading kept. skillatoms/remedpath join
+the status page via status_section (their section_html renders page
+content, not status blocks).
+
+Batch 21 migration: confusing_flags table (per-section flags;
+nullable new table only; downgrade DROP TABLE confusing_flags).
+
+Batch 21 wires: WEB_CEILING holds (web.py same-line edits only:
+relief + atoms on the result line); status.py same-line batch21 join;
+mcp.py atoms block + remediation lift + prereq/mastery queries;
+tour 126/130 → 133/138; docs regen (README + features.md from tour
+registry); goldens refreshed (result-page atoms/relief, due order,
+status batch21 sections).
+
 ## IMPROVEMENTS (500)
 
 ### A. Navigation, IA & routing (I-1–50)
@@ -921,7 +979,7 @@ registry); goldens refreshed (due tabmemory, status modularity).
 - [x] I-89: Add a "compact density" toggle for small screens vs desktop.
 - [x] I-90: Responsive breakpoints audit at 360/768/1024/1440px with screenshots.
 - [x] I-91: Prevent layout shift from Parsons drag list (fixed min-heights).
-- I-92: Make tables horizontally scrollable with sticky first column on mobile.
+- [x] I-92: Make tables horizontally scrollable with sticky first column on mobile.
 - I-93: Unify all timestamps into a `<time>` element with datetime attr.
 - [x] I-94: Add a design-tokens section to README for contributors.
 - [x] I-95: Snapshot-test rendered page HTML to catch visual regressions.
@@ -958,15 +1016,15 @@ registry); goldens refreshed (due tabmemory, status modularity).
 - [x] I-123: Add L1 "ELI5" and L5 "design tradeoffs" extremes beyond current 4 levels.
 - [x] I-124: Show which level peers found most helpful (opt-in aggregate).
 - [x] I-125: Add diagrams-per-lesson quality gate (every lesson gets ≥1 visual).
-- I-126: Render call graphs as inline SVG instead of text lists.
-- I-127: Sequence diagrams for the 3-step call chains (type-10 content reused).
+- [x] I-126: Render call graphs as inline SVG instead of text lists.
+- [x] I-127: Sequence diagrams for the 3-step call chains (type-10 content reused).
 - [x] I-128: File-map mini-view: where this concept sits in the repo tree.
 - I-129: Add "see it in the real file" link with line anchor to repo viewer.
-- I-130: Support image attachments in concept_notes (screenshots, whiteboard).
-- I-131: Add lesson dependencies ("understand X first") with jump links.
-- I-132: Detect circular lesson dependencies and break ties deterministically.
+- [x] I-130: Support image attachments in concept_notes (screenshots, whiteboard).
+- [x] I-131: Add lesson dependencies ("understand X first") with jump links.
+- [x] I-132: Detect circular lesson dependencies and break ties deterministically.
 - I-133: Add "I already know this" skip that schedules a delayed verification.
-- I-134: Add "confusing" flag per lesson section routing to regeneration queue.
+- [x] I-134: Add "confusing" flag per lesson section routing to regeneration queue.
 - I-135: Show regeneration status ("improved draft pending") transparently.
 - I-136: A/B test explainer phrasings and keep winners by delayed recall.
 - I-137: Localize lesson templates (structure, not just words) per language.
@@ -1454,14 +1512,14 @@ registry); goldens refreshed (due tabmemory, status modularity).
 - [x] F-90: Spaced teaching (re-teach a concept after 30 days, compare recordings).
 - [x] F-91: Forgetting-curve personalization (your decay constant, estimated).
 - [x] F-92: Optimal-review-time suggestions (when your recall peaks).
-- F-93: Sleep-aware scheduling (never schedule new cards late at night).
-- F-94: Cognitive-load guard (cap new concepts per session by measured strain).
-- F-95: Flow detection (extend sessions when accuracy + pace are high).
-- F-96: Frustration detection (3 fast fails → easier card + encouragement).
-- F-97: Boredom detection (too easy → jump a Bloom rung).
-- F-98: Learning-style tuning (visual vs textual mix from performance, not quiz).
-- F-99: Skill-atom decomposition (split failing concepts into sub-skills).
-- F-100: Automatic remediation paths (fail X → get the 3 prerequisites first).
+- [x] F-93: Sleep-aware scheduling (never schedule new cards late at night).
+- [x] F-94: Cognitive-load guard (cap new concepts per session by measured strain).
+- [x] F-95: Flow detection (extend sessions when accuracy + pace are high).
+- [x] F-96: Frustration detection (3 fast fails → easier card + encouragement).
+- [x] F-97: Boredom detection (too easy → jump a Bloom rung).
+- [x] F-98: Learning-style tuning (visual vs textual mix from performance, not quiz).
+- [x] F-99: Skill-atom decomposition (split failing concepts into sub-skills).
+- [x] F-100: Automatic remediation paths (fail X → get the 3 prerequisites first).
 
 ### M. Motivation without dark patterns (F-101–150)
 

@@ -75,11 +75,19 @@ def _due_key(card: dict):
 
 
 def pick_cards(due, minutes=DEFAULT_MINUTES, estimate_fn=None,
-               new_secs=NEW_SECS, review_secs=REVIEW_SECS) -> list:
+               new_secs=NEW_SECS, review_secs=REVIEW_SECS,
+               recent=None, tried=None) -> list:
     """Most-overdue prefix of ``due`` fitting in ``minutes`` of estimates.
 
     Non-dict entries are skipped; bad ``minutes`` falls back to
     DEFAULT_MINUTES; a non-empty queue always yields >= 1 card.
+
+    Load guard (F-94): when the caller supplies a strain signal
+    (``recent`` grades) or newness evidence (``tried`` attempt counts
+    per card id), the budgeted picks pass through
+    ``cogniload.cap_new_concepts`` so strained sessions introduce
+    fewer new concepts. No signals means the legacy picks return
+    untouched. Never raises; the guard never empties a non-empty plan.
     """
     rows = [c for c in (due or []) if isinstance(c, dict)]
     try:
@@ -98,7 +106,21 @@ def pick_cards(due, minutes=DEFAULT_MINUTES, estimate_fn=None,
         total += est
     if not picks and ordered:
         picks.append(ordered[0])
-    return picks
+    if recent is None and tried is None:
+        return picks  # legacy: no strain signal, no guard
+    from . import cogniload as cogmod
+    try:
+        marked = []
+        for c in picks:
+            if isinstance(c, dict) and isinstance(tried, dict):
+                try:
+                    c = dict(c, attempts=tried.get(c.get("id"), 0))
+                except (TypeError, ValueError):
+                    pass
+            marked.append(c)
+        return cogmod.cap_new_concepts(marked, recent=recent)
+    except Exception:  # noqa: BLE001 -- guard never breaks picking
+        return picks
 
 
 def planned_seconds(picks, estimate_fn=None, new_secs=NEW_SECS,
@@ -240,7 +262,8 @@ def dial_box(dial=None, mode="") -> str:
 
 
 def session_box_html(due, minutes=DEFAULT_MINUTES, estimate_fn=None,
-                     new_secs=NEW_SECS, review_secs=REVIEW_SECS) -> str:
+                     new_secs=NEW_SECS, review_secs=REVIEW_SECS,
+                     recent=None, tried=None, flow_attempts=None) -> str:
     """Due-page banner: start button plus 'about N cards, ~M min' copy.
 
     Always renders (calm all-clear, no button, when nothing is due)
@@ -248,7 +271,16 @@ def session_box_html(due, minutes=DEFAULT_MINUTES, estimate_fn=None,
     the lead-card ``#up-next`` tag, which is the picked set's first
     card since picks are most-overdue-first.
     """
-    picks = pick_cards(due, minutes, estimate_fn, new_secs, review_secs)
+    picks = pick_cards(due, minutes, estimate_fn, new_secs, review_secs,
+                       recent=recent, tried=tried)
+    if flow_attempts is not None:
+        # Flow gate (F-95): in-flow sessions grow by a few bonus cards.
+        # No attempts means no extension — the planned session stands.
+        from . import flowdetect as flowdetectmod
+        try:
+            picks = flowdetectmod.extend_session(picks, due, flow_attempts)
+        except Exception:  # noqa: BLE001 -- extension never breaks Due
+            pass
     if not picks:
         return ("<section id='minisession'><p>All clear — nothing due. "
                 "Browse a module to learn ahead.</p></section>")

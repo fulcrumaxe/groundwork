@@ -17,7 +17,8 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
                     sym_mid: str = "", replay_step=None,
                     lesson_commit: str = "",
                     current_commit: str = "", recent=None,
-                    peer_votes=None) -> str:
+                    peer_votes=None, confusing=None,
+                    confusing_cid: str = "") -> str:
     """Leveled explainer with tabs; auto-places from mastery by default.
 
     ``recent`` is an optional oldest-first list of (grade, confidence)
@@ -39,6 +40,12 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
     ``symlinks.build_index``) scoped by ``sym_mid``; known symbol
     mentions link to their lesson sections. Absent/empty renders the
     legacy page byte-identical.
+
+    ``confusing`` is an optional {section-id: True} flag map (I-134)
+    with ``confusing_cid`` scoping keys to one lesson; each titled
+    block gains a confusing toggle posting to
+    ``/concepts/<cid>/confusing``. Absent/empty ``confusing_cid``
+    renders the legacy page with no toggles.
     """
     from . import codelines as codelinesmod
     from . import dualcode as dualmod
@@ -58,6 +65,7 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
     from . import lessonver as lessonvermod
     from . import peerhelp as peerhelpmod
     from . import lessondiff as lessondiffmod
+    from . import confusing as confusingmod
     levels = explainmod.levels_for(lesson)
     order = flipmod.normalize_order(order)
     osuffix = "" if order == "definition" else f"&order={order}"
@@ -100,6 +108,13 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
             body = symmod.link_symbols(body, sym_index, sym_scope)
             out.append(f"<h5>{html.escape(blk['h'])}</h5>"
                        f"<p>{body.replace(chr(10), '<br>')}</p>")
+        # I-134: confusing toggle per titled block; no cid = legacy.
+        if confusing_cid and isinstance(confusing_cid, str):
+            key = f"{confusing_cid}#{slug(blk.get('h', ''))}"
+            flagged = bool(isinstance(confusing, dict)
+                           and confusing.get(key))
+            out.append(confusingmod.flag_button_html(
+                key, flagged, confusing_cid, base_path))
         # I-112: micro-prompt between paragraphs, never after the last.
         if i < len(shown) - 1:
             micro = trymod.block_prompt_html(i, blk)

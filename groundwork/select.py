@@ -21,12 +21,35 @@ class ScoredConcept:
 
 
 def _prereqs_first(order: list[ScoredConcept], edges) -> list[ScoredConcept]:
-    """Topo-ish order: a concept's callees/imports come before it."""
+    """Topo-ish order: a concept's callees/imports come before it.
+
+    Cycle-breaking is deterministic (I-132): depcycle names the
+    lexicographically-greatest in-cycle edge and it is dropped before
+    the depth-first emit, so the same graph orders the same way every
+    run. Acyclic graphs emit exactly the legacy order.
+    """
+    from . import depcycle as depcyclemod
     by_id = {c.node_id: c for c in order}
     deps: dict[str, set[str]] = {c.node_id: set() for c in order}
-    for s, d, _ in edges:
+    try:
+        edge_iter = list(edges or [])
+    except TypeError:
+        edge_iter = []
+    for edge in edge_iter:
+        try:
+            s, d, _ = edge
+        except (TypeError, ValueError):
+            continue
         if s in by_id and d in by_id and s != d:
             deps[s].add(d)
+    try:
+        plan = depcyclemod.break_cycles(
+            {nid: sorted(ds) for nid, ds in deps.items()})
+        for src, dst in plan.get("dropped", []):
+            if src in deps:
+                deps[src].discard(dst)
+    except Exception:  # noqa: BLE001 -- fallback is the legacy emit
+        pass
     ranked: list[ScoredConcept] = []
     temp: set[str] = set()
     perm: set[str] = set()
@@ -34,7 +57,7 @@ def _prereqs_first(order: list[ScoredConcept], edges) -> list[ScoredConcept]:
     def visit(nid: str) -> None:
         if nid in perm:
             return
-        if nid in temp:  # cycle: emit as-is
+        if nid in temp:  # residual cycle: emit as-is
             return
         temp.add(nid)
         for dep in sorted(deps[nid]):

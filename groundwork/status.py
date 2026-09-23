@@ -14,7 +14,7 @@ from . import a11yaudit as a11yauditmod
 from . import apidesign as apidesignmod
 from . import archived as archivedmod
 from . import autofocus as autofocusmod
-from . import batch10 as batch10mod, batch11 as batch11mod, batch12 as batch12mod, batch13 as batch13mod, batch18 as batch18mod, batch19 as batch19mod, batch20 as batch20mod
+from . import batch10 as batch10mod, batch11 as batch11mod, batch12 as batch12mod, batch13 as batch13mod, batch18 as batch18mod, batch19 as batch19mod, batch20 as batch20mod, batch21 as batch21mod
 from . import autoscroll as autoscrollmod
 from . import bisect as bisectmod
 from . import blindspots as blindmod
@@ -329,7 +329,7 @@ def page_html(db_path: str) -> str:
         batch6_html(db_path) +
         batch7_html(db_path) +
         batch8_html() +
-        batch9_html() + batch10mod.batch10_html() + batch11mod.batch11_html() + batch12mod.batch12_html() + batch13mod.batch13_html() + batch18mod.batch18_html() + batch19mod.batch19_html() + batch20mod.batch20_html() +
+        batch9_html() + batch10mod.batch10_html() + batch11mod.batch11_html() + batch12mod.batch12_html() + batch13mod.batch13_html() + batch18mod.batch18_html() + batch19mod.batch19_html() + batch20mod.batch20_html() + batch21mod.batch21_html() +
         "<h2 id='status-api'>Read-only API</h2>"
         "<p><a href='/api/modules.json'>/api/modules.json</a> lists "
         "every module with concept and card counts — the first slice "
