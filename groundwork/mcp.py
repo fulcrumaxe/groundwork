@@ -17,10 +17,12 @@ from . import exercises as exmod
 from . import frustcatch as frustcatchmod
 from . import interleave as interleavemod
 from . import katabank as katabankmod
+from . import lessondeps as lessondepsmod
 from . import lessons as lesmod
 from . import modules as modmod
 from . import ownership as ownmod
 from . import retest as retestmod
+from . import remedpath as remedpathmod
 from . import skillatoms as skillatomsmod
 from . import pipeline as pipelinemod
 from . import sched as schedmod
@@ -291,6 +293,31 @@ class MCPServer:
                     " ORDER BY reviews.id").fetchall()
             except Exception:  # noqa: BLE001 -- no history, no promotion
                 grows = []
+            # F-100: prerequisite map (lesson needs per concept) plus
+            # concept mastery on the scheduler's grade scale.
+            try:
+                remap: dict = {}
+                for (lj,) in con.execute(
+                        "SELECT lessons FROM modules").fetchall():
+                    try:
+                        lessons = json.loads(lj or "[]")
+                    except ValueError:
+                        continue
+                    for lesson in lessons:
+                        if isinstance(lesson, dict) and lesson.get("concept_id"):
+                            needs = lessondepsmod.needs_of(lesson)
+                            if needs:
+                                remap.setdefault(lesson["concept_id"], needs)
+                remaster: dict = {}
+                for r in con.execute(
+                        "SELECT id, name, mastery FROM concepts").fetchall():
+                    grade = (r["mastery"] or 0.0) * 5.0
+                    remaster[r["id"]] = grade
+                    if r["name"]:
+                        remaster[r["name"]] = grade
+                        remaster[lesmod.slug(r["name"])] = grade
+            except Exception:  # noqa: BLE001 -- no map, no remediation
+                remap, remaster = {}, {}
         finally:
             con.close()
         ordered = katabankmod.order_due(
@@ -306,6 +333,48 @@ class MCPServer:
         ordered = boredommod.promote(
             ordered, {cid: grades[-boredommod.HISTORY_TAIL:]
                       for cid, grades in hist.items()})
+        # F-100: a failed concept pulls its unmastered prerequisites
+        # ahead of the retry; calm queues keep today's order.
+        try:
+            latest: dict = {}
+            for cid, grade in grows:
+                latest[cid] = grade
+            failures = [cid for cid, g in latest.items()
+                        if g is not None and g < 3]
+            bykey: dict = {}
+            for c in ordered:
+                bykey.setdefault(c.get("concept_id") or "", c)
+                name = c.get("concept") or ""
+                bykey.setdefault(name, c)
+                bykey.setdefault(lesmod.slug(name), c)
+            pmap = {}
+            for failed in failures:
+                have = [n for n in remap.get(failed, [])
+                        if n in bykey or lesmod.slug(n) in bykey]
+                if have:
+                    pmap[failed] = have
+            if pmap:
+                lift = set()
+                for needs in pmap.values():
+                    for need in needs:
+                        hit = bykey.get(need) \
+                            or bykey.get(lesmod.slug(need))
+                        if isinstance(hit, dict) and hit.get("id"):
+                            lift.add(hit["id"])
+
+                def _maker(concept, failed, _by=bykey):
+                    found = _by.get(concept) \
+                        or _by.get(lesmod.slug(concept)) or {}
+                    card = dict(found)
+                    card["remedial"] = True
+                    card["remediation_for"] = failed
+                    return card
+
+                rest = [c for c in ordered if c.get("id") not in lift]
+                ordered = remedpathmod.queue_remediation(
+                    rest, failures, pmap, remaster, make_card=_maker)
+        except Exception:  # noqa: BLE001 -- remediation never blocks
+            pass
         return {"due": ordered, "count": len(cards)}
 
     def snooze_card(self, card_id: str) -> dict:
