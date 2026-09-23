@@ -18,6 +18,7 @@ from . import autofocus as autofocusmod
 from . import autoscroll as autoscrollmod
 from . import bloomchips as bloomchipsmod
 from . import briefing as briefingmod
+from . import callgraph as callgraphmod
 from . import carets as caretsmod
 from . import codelines as codelinesmod
 from . import highlight as highlightmod
@@ -1090,6 +1091,7 @@ class Handler(BaseHTTPRequestHandler):
                 parts.append(lesmod.render_levels(lesson_map[node], mastery_of[node], concept_tries, level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node), order=order, symbols=sym_index, sym_mid=mid, replay_step=replay_step, lesson_commit=mod_commit, current_commit=mod_head, recent=explcalibmod.recent_from_rows([r for c in concept_cards for r in history.get(c["id"], [])])))
                 parts.append(beforaftermod.lesson_block(lesson_map[node], ci == 0))
                 parts.append(diagramsmod.badge_html(lesson_map[node]))
+                parts.append(callgraphmod.block_html(lesson_map[node]))
                 parts.append(debugkatamod.lesson_block(lesson_map[node]))
                 parts.append(handoutmod.handout_link_html(mid, node))
             parts.append(decmod.lesson_block(
