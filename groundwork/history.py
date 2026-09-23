@@ -22,6 +22,7 @@ from . import ownership as ownmod
 from . import resume as resumemod
 from . import undo as undomod
 from . import sched as schedmod
+from . import tablescroll as tablescrollmod
 from . import workload as workloadmod
 
 COACH_TIPS = {
@@ -64,8 +65,9 @@ def calibration_coach(rows: list) -> str:
         if len(rs) >= 3 and gap >= 0.15 and (worst is None or gap > worst[1]):
             worst = (bloom, gap, acc, avg_conf)
     parts = ["<h2>Calibration coach</h2>",
-             "<table class='log'><tr><th>Skill</th><th>Accuracy</th>"
-             "<th>Confidence</th><th>Gap</th></tr>" + "".join(cells) + "</table>"]
+             tablescrollmod.wrap_table(
+                 "<table class='log'><tr><th>Skill</th><th>Accuracy</th>"
+                 "<th>Confidence</th><th>Gap</th></tr>" + "".join(cells) + "</table>")]
     if worst is not None:
         bloom, _, acc, avg_conf = worst
         parts.append(f"<p>Coach: on {html.escape(bloom)} exercises you feel "
@@ -163,9 +165,10 @@ def history_html(db_path: str) -> str:
             parts.append("<h2 id='coverage'>Coverage timeline</h2>"
                          "<p><small>Every session, what it made, "
                          "and what stuck.</small></p>"
-                         "<table class='log'><tr><th>Date</th><th>Session</th>"
-                         "<th>Cards</th><th>Attempts</th><th>Owned</th></tr>"
-                         + "".join(tl_rows) + "</table>")
+                         + tablescrollmod.wrap_table(
+                             "<table class='log'><tr><th>Date</th><th>Session</th>"
+                             "<th>Cards</th><th>Attempts</th><th>Owned</th></tr>"
+                             + "".join(tl_rows) + "</table>"))
     else:
         parts.append(emptyartmod.art_for("history") +
                      "<p>No attempts yet. Answer a card on the "
@@ -179,8 +182,9 @@ def history_html(db_path: str) -> str:
             f"<tr><td>{html.escape(d['d'])}</td><td>{d['n']}</td>"
             f"<td>{d['ok']}</td></tr>" for d in days)
         parts.append("<h2>Last 14 practice days</h2>"
-                     f"<table class='log'><tr><th>Day</th><th>Attempts</th>"
-                     f"<th>Passed</th></tr>{cells}</table>")
+                     + tablescrollmod.wrap_table(
+                         f"<table class='log'><tr><th>Day</th><th>Attempts</th>"
+                         f"<th>Passed</th></tr>{cells}</table>"))
         parts.append(workloadmod.section_html(db_path))
         wn, wok, wdays = week["n"] or 0, week["ok"] or 0, week["days"] or 0
         acc = f"{round(100 * wok / wn)}%" if wn else "—"
