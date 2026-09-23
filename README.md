@@ -193,6 +193,14 @@ sandbox, never invented.
 | Re-taught after 30 days | A month-old concept returns with your own words beside a fresh prompt. | `/status#status-b20-reteach` |
 | Your forgetting curve | Reviews timed to your decay — fast faders return sooner, slow faders later. | `/status#status-b20-forgetcurve` |
 | Best time to review | Your past grades reveal when your recall peaks — review then for more passes. | `/status#status-b20-peaktime` |
+| Sleep-aware scheduling | New cards reviewed late at night wake up with a morning due instead of a 3am one. | `/status#status-b21-sleepsched` |
+| Cognitive-load guard | Strained sessions introduce fewer new concepts; reviews always survive the cut. | `/status#status-b21-cogniload` |
+| Flow detection | Nailing cards quickly? The session stretches a little — accuracy plus pace earns bonus cards. | `/status#status-b21-flowdetect` |
+| Stuck? Take the easier card | Three fast fails in a row earn a breather note and an easier card on the same idea. | `/status#status-b21-frustcatch` |
+| Boredom detection | Acing reviews in a row jumps one Bloom rung up instead of more same-level drills. | `/status#status-b21-boredom` |
+| Learning-style tuning | Visual-vs-textual mix follows performance, not a quiz. | `/status#status-b21-stylemix` |
+| Split the miss into sub-skills | Two fails in a row split the concept into small ordered sub-skills so reteach hits the failing part. | `/status#status-b21-skillatoms` |
+| Fail forward: prerequisites first | Failing a card pulls its shaky prerequisites ahead of the retry instead of repeating the card cold. | `/status#status-b21-remedpath` |
 <!-- GW-FEATURES:END -->
 
 ## Improvements
@@ -326,6 +334,13 @@ sandbox, never invented.
 | ELI5 and tradeoff extremes | Explainers stretch both ways: an ELI5 analogy on top, design tradeoffs below. | `/status#status-b20-levelextremes` |
 | Peer level hint | Tabs note which level opted-in peers found most helpful; silent until quorum. | `/status#status-b20-peerhelp` |
 | Every lesson gets a visual | Lessons missing a visual are flagged until fixed. | `/status#status-b20-diagrams` |
+| Scrollable tables | Wide tables pan sideways on phones with the first column stuck — row labels stay visible while scrolling. | `/status#status-b21-tablescroll` |
+| Call graphs as inline SVG | Caller/callee lists render as a small inline SVG graph per lesson. | `/status#status-b21-callgraph` |
+| Call chains drawn as sequence diagrams | Order-the-calls chains draw as lifelines and arrows on the lesson page. | `/status#status-b21-seqdiag` |
+| Screenshots and whiteboard photos in lessons | Images attached to a concept note render inline in its lesson -- screenshots and whiteboard shots included. | `/status#status-b21-imgattach` |
+| Lesson dependencies | Each lesson lists what to understand first, with jump links back to the earlier lesson sections. | `/status#status-b21-lessondeps` |
+| Deterministic cycle-breaking | Circular lesson prerequisites are detected and broken the same way every run, so study order never flips. | `/status#status-b21-depcycle` |
+| Flag the confusing section | Mark the one block that lost you and it alone joins the rewrite queue. | `/status#status-b21-confusing` |
 <!-- GW-IMPROVEMENTS:END -->
 
 See also [docs/features.md](docs/features.md) and the in-app

@@ -278,6 +278,22 @@ AREAS = {
     "forgetcurve": "forgetcurve.py",
     "peaktime": "peaktime.py",
     "batch20": "batch20.py",
+    "tablescroll": "tablescroll.py",
+    "callgraph": "callgraph.py",
+    "seqdiag": "seqdiag.py",
+    "imgattach": "imgattach.py",
+    "lessondeps": "lessondeps.py",
+    "depcycle": "depcycle.py",
+    "confusing": "confusing.py",
+    "sleepsched": "sleepsched.py",
+    "cogniload": "cogniload.py",
+    "flowdetect": "flowdetect.py",
+    "frustcatch": "frustcatch.py",
+    "boredom": "boredom.py",
+    "stylemix": "stylemix.py",
+    "skillatoms": "skillatoms.py",
+    "remedpath": "remedpath.py",
+    "batch21": "batch21.py",
 }
 
 

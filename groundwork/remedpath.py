@@ -218,6 +218,27 @@ def section_html(path, failed=None) -> str:
         return ""
 
 
+def status_section() -> str:
+    """Anchored status subsection with a live path sample; db-free.
+
+    Named status_section (not section_html) because section_html here
+    renders one remediation note for a failed concept, not a status block.
+    """
+    try:
+        sample = section_html(["Recall the definition", "retrieval practice"],
+                              "retrieval practice")
+        return (
+            f"<h3 id='{STATUS_ANCHOR}'>Remediation path "
+            "<small>(feature)</small></h3>"
+            "<p>Failing a card pulls its shaky prerequisites ahead of "
+            "the retry instead of repeating the card cold. A live sample "
+            "renders below.</p>"
+            f"{sample}"
+        )
+    except Exception:  # noqa: BLE001 -- status must always render
+        return f"<h3 id='{STATUS_ANCHOR}'>Remediation path</h3>"
+
+
 def tour_entry() -> dict:
     """Status-tour entry for the remediation path feature."""
     return {
@@ -225,4 +246,4 @@ def tour_entry() -> dict:
         "title": "Fail forward: prerequisites first",
         "blurb": ("Failing a card pulls its shaky prerequisites ahead of "
                  "the retry instead of repeating the card cold."),
-        "path": "/due", "anchor": STATUS_ANCHOR}
+        "path": "/status", "anchor": STATUS_ANCHOR}

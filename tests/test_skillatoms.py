@@ -75,6 +75,18 @@ class HtmlTest(unittest.TestCase):
         self.assertIn("sched", body)
 
 
+class StatusTest(unittest.TestCase):
+    def test_status_anchor_and_tour(self):
+        self.assertIn(f"id='{mod.STATUS_ANCHOR}'", mod.status_section())
+        self.assertIn("skill-atoms", mod.status_section())
+        self.assertEqual(mod.tour_entry(), {
+            "id": "skill-atoms", "kind": "feature",
+            "title": "Split the miss into sub-skills",
+            "blurb": ("Two fails in a row split the concept into small "
+                     "ordered sub-skills so reteach hits the failing part."),
+            "path": "/status", "anchor": mod.STATUS_ANCHOR})
+
+
 class CallerEffectTest(unittest.TestCase):
     """Grading splits the concept: two trailing fails earn atoms."""
 

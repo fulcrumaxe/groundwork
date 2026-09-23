@@ -16,6 +16,8 @@ from __future__ import annotations
 import html
 import re
 
+STATUS_ANCHOR = "status-b21-skillatoms"
+
 MAX_ATOMS = 4
 
 _ATOM_ORDER = ("recall", "discriminate", "procedure", "transfer")
@@ -139,3 +141,37 @@ def section_html(concept: str, atoms: list[dict] | None) -> str:
     return (f"<section class='skill-atoms' id='skill-atoms'>"
             f"<p><strong>Sub-skills for {name}</strong></p>"
             f"<ol>{''.join(items)}</ol></section>")
+
+
+def status_section() -> str:
+    """Anchored status subsection with a live atoms sample; db-free.
+
+    Named status_section (not section_html) because section_html here
+    renders a concept's atoms for the result page, not a status block.
+    """
+    try:
+        sample = section_html(
+            "retrieval practice",
+            decompose("retrieval practice",
+                      [{"ok": False, "error": "forgot the definition"},
+                       {"ok": False, "error": "wrong order of steps"}]))
+        return (
+            f"<h3 id='{STATUS_ANCHOR}'>Skill atoms "
+            "<small>(feature)</small></h3>"
+            "<p>When a card fails twice in a row, the concept splits "
+            "into ordered sub-skills so reteach targets the failing "
+            "part instead of replaying the whole card. A live sample "
+            "renders below.</p>"
+            f"{sample}"
+        )
+    except Exception:  # noqa: BLE001 -- status must always render
+        return f"<h3 id='{STATUS_ANCHOR}'>Skill atoms</h3>"
+
+
+def tour_entry() -> dict:
+    """Tour catalog entry for this item; the parent appends it to ENTRIES."""
+    return {"id": "skill-atoms", "kind": "feature",
+            "title": "Split the miss into sub-skills",
+            "blurb": ("Two fails in a row split the concept into small "
+                     "ordered sub-skills so reteach hits the failing part."),
+            "path": "/status", "anchor": STATUS_ANCHOR}

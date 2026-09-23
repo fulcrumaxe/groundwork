@@ -116,7 +116,15 @@ class DescribePathTest(unittest.TestCase):
             "title": "Fail forward: prerequisites first",
             "blurb": ("Failing a card pulls its shaky prerequisites ahead of "
                      "the retry instead of repeating the card cold."),
-            "path": "/due", "anchor": mod.STATUS_ANCHOR})
+            "path": "/status", "anchor": mod.STATUS_ANCHOR})
+
+
+class StatusTest(unittest.TestCase):
+    def test_status_anchor_and_tour(self):
+        self.assertIn(f"id='{mod.STATUS_ANCHOR}'", mod.status_section())
+        self.assertIn("remediation", mod.status_section())
+        self.assertEqual(mod.tour_entry()["anchor"], mod.STATUS_ANCHOR)
+        self.assertEqual(mod.tour_entry()["path"], "/status")
 
 
 class CallerEffectTest(unittest.TestCase):
