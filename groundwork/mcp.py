@@ -13,8 +13,10 @@ from . import calibdrill as drillmod
 from . import confweight as confweightmod
 from . import db as dbmod
 from . import exercises as exmod
+from . import frustcatch as frustcatchmod
 from . import interleave as interleavemod
 from . import katabank as katabankmod
+from . import lessons as lesmod
 from . import modules as modmod
 from . import ownership as ownmod
 from . import retest as retestmod
@@ -401,6 +403,20 @@ class MCPServer:
             con.execute(
                 "UPDATE concepts SET mastery = mastery * 0.7 + ? * 0.3 WHERE id=?",
                 (grade_val / 5.0, card["concept_id"]))
+            # F-96: frustration relief — three fast fails on this card
+            # route to an easier same-concept card plus a breather note.
+            try:
+                sibs = con.execute(
+                    "SELECT id, difficulty FROM cards"
+                    " WHERE concept_id=? AND id!=?",
+                    (card["concept_id"], card_id)).fetchall()
+                pool = [{"id": r["id"], "difficulty": r["difficulty"]}
+                        for r in sibs]
+                plan = frustcatchmod.relief_plan(hist + [grade_val],
+                                                 pool, card_id)
+            except Exception:  # noqa: BLE001 -- relief never blocks
+                plan = {"frustrated": False, "streak": 0,
+                        "easier": None, "message": ""}
             con.commit()
         finally:
             con.close()
@@ -414,8 +430,23 @@ class MCPServer:
                      f" +{deal['win']}/{deal['lose']}, settled {won:+d}.")
         except Exception:  # noqa: BLE001 -- display must never raise
             drill = ""
+        try:
+            relief_html = ""
+            if plan.get("frustrated"):
+                lesson_url = ""
+                if plan.get("easier") is not None and mod_row is not None:
+                    # Anchor matches the lesson section id rendered by
+                    # Handler.module_html (slug of the node, not the name).
+                    node = card["concept_id"].split(":", 1)[1] \
+                        if ":" in card["concept_id"] else card["concept_id"]
+                    lesson_url = (
+                        f"/modules/{mod_row['module_id']}"
+                        f"#lesson-{lesmod.slug(node)}")
+                relief_html = frustcatchmod.banner_html(plan, lesson_url)
+        except Exception:  # noqa: BLE001 -- display must never raise
+            relief_html = ""
         return {"result": result, "grade": grade_val, "next_due": upd["due"],
-                "points": points, "drill": drill}
+                "points": points, "drill": drill, "relief": relief_html}
 
 
 def serve_stdio(db_path=None) -> None:
