@@ -3,6 +3,7 @@ import unittest
 
 from groundwork import boredom as mod
 from groundwork import db as dbmod
+from groundwork import debt as debtmod
 
 from test_web import make_module
 
@@ -13,8 +14,22 @@ class RungTest(unittest.TestCase):
         self.assertLess(mod.rung_index("apply"), mod.rung_index("create"))
 
     def test_next_rung(self):
-        self.assertEqual(mod.next_rung("recall"), "understand")
+        self.assertEqual(mod.next_rung("recall"), "explain")
         self.assertEqual(mod.next_rung("apply"), "analyse")
+        self.assertEqual(mod.next_rung("modify"), "create")
+
+    def test_matches_canonical_debt_ladder(self):
+        self.assertEqual(list(mod.RUNGS), debtmod.BLOOM_RUNGS)
+
+    def test_off_ladder_tiers_resolve_to_nearest_rung(self):
+        self.assertEqual(mod.rung_index("understand"),
+                         mod.rung_index("recall"))
+        self.assertEqual(mod.rung_index("evaluate"),
+                         mod.rung_index("modify"))
+        self.assertEqual(mod.suggest_rung("understand", [4, 5, 5]),
+                         "explain")
+        self.assertEqual(mod.suggest_rung("evaluate", [4, 5, 5]),
+                         "create")
 
     def test_top_and_unknown(self):
         self.assertEqual(mod.next_rung("create"), "")

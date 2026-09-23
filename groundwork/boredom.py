@@ -14,30 +14,38 @@ only, dues and grades untouched). With no grade data every helper
 returns its legacy value (not bored, same tier, "" badge, same order),
 so calm queues render byte-identical.
 
-Rung order is the pedagogical Bloom progression
-recall < understand < explain < apply < analyse < modify < evaluate <
-create. ``bloomchips.BLOOM_TIERS`` carries the same tiers for display
-(its trailing ``understand`` slot is the Batch-18 reading-fluency tier,
-not a progression step); card tiers resolve from ``exercise_type`` via
-``exercises.TYPES``. ``History`` may show ``badge_html`` beside the
-streak; the status section already samples it below.
+Rung order is the canonical Bloom progression from
+``debt.BLOOM_RUNGS`` (recall < explain < apply < analyse < modify <
+create), shared with the debt ladder so both agree what "one rung up"
+means. Two real card tiers sit off that ladder: ``understand`` (the
+Batch-18 reading-fluency tier) resolves to recall, ``evaluate``
+(code-review cards) to modify. Card tiers resolve from
+``exercise_type`` via ``exercises.TYPES``. ``History`` may show
+``badge_html`` beside the streak; the status section already samples
+it below.
 """
 from __future__ import annotations
 
 import html as htmlmod
 
+from .debt import BLOOM_RUNGS
+
 STATUS_ANCHOR = "status-b21-boredom"
 
-RUNGS = (
-    "recall",
-    "understand",
-    "explain",
-    "apply",
-    "analyse",
-    "modify",
-    "evaluate",
-    "create",
-)
+RUNGS = tuple(BLOOM_RUNGS)
+
+# Off-ladder display tiers -> nearest canonical rung. Fluency sits at
+# the base; review-style cards sit beside modify, one rung below create.
+_OFF_LADDER = {"understand": "recall", "evaluate": "modify"}
+
+
+def _canon(tier) -> str:
+    """Tier key on the canonical ladder; "" when unknown. Never raises."""
+    try:
+        key = str(tier).strip().lower()
+    except Exception:  # noqa: BLE001 -- coercion never raises
+        return ""
+    return _OFF_LADDER.get(key, key)
 
 PASS_GRADE = 4
 STREAK_N = 3
@@ -45,9 +53,13 @@ HISTORY_TAIL = 8
 
 
 def rung_index(tier) -> int:
-    """0-based rung position, or -1 when unknown; never raises."""
+    """0-based canonical rung position, or -1 when unknown; never raises.
+
+    Off-ladder tiers resolve to their nearest canonical rung
+    (understand -> recall, evaluate -> modify).
+    """
     try:
-        key = str(tier).strip().lower()
+        key = _canon(tier)
         return RUNGS.index(key) if key in RUNGS else -1
     except Exception:  # noqa: BLE001 -- lookup never raises
         return -1
@@ -74,7 +86,9 @@ def tier_of(card) -> str:
         if not isinstance(card, dict):
             return ""
         raw = card.get("tier")
-        if isinstance(raw, str) and raw.strip().lower() in RUNGS:
+        if isinstance(raw, str) and (
+                raw.strip().lower() in RUNGS
+                or raw.strip().lower() in _OFF_LADDER):
             return raw.strip().lower()
         try:
             etype = int(card.get("exercise_type"))
@@ -150,14 +164,14 @@ def is_bored(grades, needed: int = STREAK_N,
 
 
 def suggest_rung(tier, grades, needed: int = STREAK_N) -> str:
-    """Next rung up when bored, else the current tier key (or "" unknown).
+    """Next rung up when bored, else the canonical tier key (or "" unknown).
 
     Legacy fallback: with no grade data, or when the tier is unknown or
-    already the top rung, returns the tier key unchanged ("" when unknown)
-    so callers keep today's queue order.
+    already the top rung, returns the canonical key unchanged
+    ("" when unknown) so callers keep today's queue order.
     """
     try:
-        key = str(tier).strip().lower() if isinstance(tier, str) else ""
+        key = _canon(tier)
         if key not in RUNGS:
             return ""
         if is_bored(grades, needed):
