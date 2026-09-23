@@ -20,6 +20,7 @@ from . import ownership as ownmod
 from . import retest as retestmod
 from . import pipeline as pipelinemod
 from . import sched as schedmod
+from . import sleepsched as sleepschedmod
 
 METHODS = ["create_learning_module", "annotate_decision",
            "leave_learning_hole", "get_learner_profile", "list_due_reviews",
@@ -277,11 +278,16 @@ class MCPServer:
             probes = self._probe_cards(con, now)
             known = {c["id"] for c in cards}
             cards = cards + [p for p in probes if p["id"] not in known]
+            seen = {r[0] for r in con.execute(
+                "SELECT DISTINCT card_id FROM reviews").fetchall()}
         finally:
             con.close()
-        return {"due": katabankmod.order_due(
-                    interleavemod.order_due(cards, mastery), kata_history),
-                "count": len(cards)}
+        ordered = katabankmod.order_due(
+            interleavemod.order_due(cards, mastery), kata_history)
+        # F-93: new cards never display a night due; reviewed cards keep
+        # their stored due, queue order untouched (applied post-ordering).
+        ordered = sleepschedmod.defer_night_new(ordered, reviewed_ids=seen)
+        return {"due": ordered, "count": len(cards)}
 
     def snooze_card(self, card_id: str) -> dict:
         """Push one card to tomorrow without recording a grade (I-45)."""
@@ -331,6 +337,10 @@ class MCPServer:
                 (card_id,)).fetchall()]
             upd = schedmod.review_card(card["stability"], card["difficulty"],
                                        grade_val, grades=hist + [grade_val])
+            # F-93: a first review landing in quiet hours defers to
+            # morning so new cards are never scheduled late at night.
+            if not hist:
+                upd["due"] = sleepschedmod.adjust_due(upd["due"])
             prev_mastery = con.execute(
                 "SELECT mastery FROM concepts WHERE id=?",
                 (card["concept_id"],)).fetchone()
