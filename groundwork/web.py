@@ -36,6 +36,7 @@ from . import clarity as claritymod
 from . import clickcards as clickcardsmod
 from . import collapse as collapsemod
 from . import confslider as confslidermod
+from . import confusing as confusingmod
 from . import contrast as contrastmod
 from . import crumbs as crumbsmod
 from . import darkmode as darkmodemod
@@ -1071,6 +1072,8 @@ class Handler(BaseHTTPRequestHandler):
             [{"name": r["name"], "module_id": mid,
               "file": r["file"], "line": r["line"]}
              for r in concepts], mid)
+        confflags = confusingmod.flags_for_module(self.db_path, mid)
+        parts.append(confusingmod.queue_banner_html(confflags, base))
         seen = []
         for ci, row in enumerate(concepts):
             node = row["cid"].split(":", 1)[1] if ":" in row["cid"] else row["cid"]
@@ -1091,7 +1094,7 @@ class Handler(BaseHTTPRequestHandler):
                 f"{html.escape(row['file'])}:{row['line']}</small></p>")
             if node in lesson_map:
                 parts.append(whyitmod.lesson_why_html(lesson_map[node], first=(ci == 0)))
-                parts.append(lesmod.render_levels(lesson_map[node], mastery_of[node], concept_tries, level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node), order=order, symbols=sym_index, sym_mid=mid, replay_step=replay_step, lesson_commit=mod_commit, current_commit=mod_head, recent=explcalibmod.recent_from_rows([r for c in concept_cards for r in history.get(c["id"], [])])))
+                parts.append(lesmod.render_levels(lesson_map[node], mastery_of[node], concept_tries, level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node), order=order, symbols=sym_index, sym_mid=mid, replay_step=replay_step, lesson_commit=mod_commit, current_commit=mod_head, recent=explcalibmod.recent_from_rows([r for c in concept_cards for r in history.get(c["id"], [])]), confusing=confflags, confusing_cid=row["cid"]))
                 parts.append(beforaftermod.lesson_block(lesson_map[node], ci == 0))
                 parts.append(diagramsmod.badge_html(lesson_map[node]))
                 parts.append(callgraphmod.block_html(lesson_map[node]))
@@ -1213,6 +1216,22 @@ class Handler(BaseHTTPRequestHandler):
                         f"<p><a class='btn' href='{html.escape(back)}'>"
                         f"Back to module</a></p>")
             self._send(page("Clarity", body, counts=self._nav_counts()))
+            return
+        if url.path.startswith("/concepts/") and url.path.endswith("/confusing"):
+            form = parse_qs(raw, keep_blank_values=True)
+            origin = _safe_origin(form.get("origin", ["/modules"])[0])
+            out = confusingmod.record(
+                self.db_path, form.get("confusing_section", [""])[0],
+                form.get("confusing", [""])[0])
+            if "error" in out:
+                body = (f"<p>Could not flag: {html.escape(out['error'])}</p>"
+                        f"<p><a class='btn' href='{html.escape(origin)}'>Back</a></p>")
+            else:
+                back = f"/modules/{out['module_id']}"
+                body = (f"<p>Flag saved — authors rewrite flagged sections first.</p>"
+                        f"<p><a class='btn' href='{html.escape(back)}'>"
+                        f"Back to module</a></p>")
+            self._send(page("Confusing", body, counts=self._nav_counts()))
             return
         if url.path.startswith("/concepts/") and url.path.endswith("/known"):
             cid = url.path.split("/")[2]
