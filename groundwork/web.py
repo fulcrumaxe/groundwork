@@ -69,6 +69,7 @@ from . import journal as journalmod
 from . import known as knownmod
 from . import lessons as lesmod
 from . import lessonpin as lessonpinmod
+from . import lessondeps as lessondepsmod
 from . import lessonver as lessonvermod
 from . import levelcarry as levelcarrymod
 from . import logbook as logbookmod
@@ -1070,6 +1071,7 @@ class Handler(BaseHTTPRequestHandler):
             [{"name": r["name"], "module_id": mid,
               "file": r["file"], "line": r["line"]}
              for r in concepts], mid)
+        seen = []
         for ci, row in enumerate(concepts):
             node = row["cid"].split(":", 1)[1] if ":" in row["cid"] else row["cid"]
             slug = lesmod.slug(node)
@@ -1094,6 +1096,9 @@ class Handler(BaseHTTPRequestHandler):
                 parts.append(diagramsmod.badge_html(lesson_map[node]))
                 parts.append(callgraphmod.block_html(lesson_map[node]))
                 parts.append(imgattachmod.figures_html(lesson_map[node]))
+                earlier = [lesson_map[n] for n in seen if n in lesson_map]
+                parts.append(lessondepsmod.deps_html(lesson_map[node], earlier))
+                seen.append(node)
                 parts.append(debugkatamod.lesson_block(lesson_map[node]))
                 parts.append(handoutmod.handout_link_html(mid, node))
             parts.append(decmod.lesson_block(
