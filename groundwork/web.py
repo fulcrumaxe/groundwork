@@ -60,6 +60,7 @@ from . import exports as expmod
 from . import favicon as faviconmod
 from . import fontstack as fontstackmod
 from . import focusrings as focusringsmod
+from . import flowdetect as flowdetectmod
 from . import footnav as footnavmod
 from . import forgetcurve as forgetcurvemod
 from . import formerr as formerrmod
@@ -676,6 +677,10 @@ class Handler(BaseHTTPRequestHandler):
             # F-92: all (grade, reviewed_at) pairs for the peak window.
             peak_rows = con2.execute(
                 "SELECT grade, reviewed_at FROM reviews").fetchall()
+            # F-95: newest reviews for the flow gate (pace from deltas).
+            flow_rows = con2.execute(
+                "SELECT grade, reviewed_at FROM reviews"
+                " ORDER BY id DESC LIMIT 6").fetchall()
             # F-90: earliest attempt + own-words recording per concept.
             try:
                 first_rows = con2.execute(
@@ -698,7 +703,7 @@ class Handler(BaseHTTPRequestHandler):
                  # F-92: peak-recall banner; "" below threshold.
                  peaktimemod.banner_html(peak_rows),
                  recentmod.strip_html(),
-                 minisessionmod.session_box_html(due, recent=[r["grade"] for r in cal_rows], tried=tries),
+                 minisessionmod.session_box_html(due, recent=[r["grade"] for r in cal_rows], tried=tries, flow_attempts=flowdetectmod.attempts_with_pace(flow_rows)),
                  minisessionmod.dial_box(dial, mode),
                  resumemod.resume_box_html(resume_key or "", len(due)),
                  reteachmod.reteach_box_html(reteachmod.pick_reteach(

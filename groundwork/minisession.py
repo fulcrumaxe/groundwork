@@ -263,7 +263,7 @@ def dial_box(dial=None, mode="") -> str:
 
 def session_box_html(due, minutes=DEFAULT_MINUTES, estimate_fn=None,
                      new_secs=NEW_SECS, review_secs=REVIEW_SECS,
-                     recent=None, tried=None) -> str:
+                     recent=None, tried=None, flow_attempts=None) -> str:
     """Due-page banner: start button plus 'about N cards, ~M min' copy.
 
     Always renders (calm all-clear, no button, when nothing is due)
@@ -273,6 +273,14 @@ def session_box_html(due, minutes=DEFAULT_MINUTES, estimate_fn=None,
     """
     picks = pick_cards(due, minutes, estimate_fn, new_secs, review_secs,
                        recent=recent, tried=tried)
+    if flow_attempts is not None:
+        # Flow gate (F-95): in-flow sessions grow by a few bonus cards.
+        # No attempts means no extension — the planned session stands.
+        from . import flowdetect as flowdetectmod
+        try:
+            picks = flowdetectmod.extend_session(picks, due, flow_attempts)
+        except Exception:  # noqa: BLE001 -- extension never breaks Due
+            pass
     if not picks:
         return ("<section id='minisession'><p>All clear — nothing due. "
                 "Browse a module to learn ahead.</p></section>")
