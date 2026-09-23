@@ -125,6 +125,7 @@ from . import taptargets as taptargetsmod
 from . import status as statusmod
 from . import storage as storagemod
 from . import styleguide as styleguidemod
+from . import stylemix as stylemixmod
 from . import symlinks as symlinksmod
 from . import tochighlight as tochighlightmod
 from . import tour as tourmod
@@ -1079,6 +1080,9 @@ class Handler(BaseHTTPRequestHandler):
              for r in concepts], mid)
         confflags = confusingmod.flags_for_module(self.db_path, mid)
         parts.append(confusingmod.queue_banner_html(confflags, base))
+        # F-98: one page-level visual-vs-textual affinity from performance.
+        affinity = stylemixmod.affinity(stylemixmod.records_for(
+            history, cards_by_concept, lesson_map))
         seen = []
         for ci, row in enumerate(concepts):
             node = row["cid"].split(":", 1)[1] if ":" in row["cid"] else row["cid"]
@@ -1098,12 +1102,20 @@ class Handler(BaseHTTPRequestHandler):
                 f"<p><small>{html.escape(row['kind'])} · "
                 f"{html.escape(row['file'])}:{row['line']}</small></p>")
             if node in lesson_map:
-                parts.append(whyitmod.lesson_why_html(lesson_map[node], first=(ci == 0)))
-                parts.append(lesmod.render_levels(lesson_map[node], mastery_of[node], concept_tries, level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node), order=order, symbols=sym_index, sym_mid=mid, replay_step=replay_step, lesson_commit=mod_commit, current_commit=mod_head, recent=explcalibmod.recent_from_rows([r for c in concept_cards for r in history.get(c["id"], [])]), confusing=confflags, confusing_cid=row["cid"]))
-                parts.append(beforaftermod.lesson_block(lesson_map[node], ci == 0))
-                parts.append(diagramsmod.badge_html(lesson_map[node]))
-                parts.append(callgraphmod.block_html(lesson_map[node]))
-                parts.append(imgattachmod.figures_html(lesson_map[node]))
+                # F-98: visual blocks lead only under visual affinity;
+                # otherwise the historical text-first order stands.
+                visual_bits = [diagramsmod.badge_html(lesson_map[node]),
+                               callgraphmod.block_html(lesson_map[node]),
+                               imgattachmod.figures_html(lesson_map[node])]
+                text_bits = [whyitmod.lesson_why_html(lesson_map[node], first=(ci == 0)),
+                             lesmod.render_levels(lesson_map[node], mastery_of[node], concept_tries, level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node), order=order, symbols=sym_index, sym_mid=mid, replay_step=replay_step, lesson_commit=mod_commit, current_commit=mod_head, recent=explcalibmod.recent_from_rows([r for c in concept_cards for r in history.get(c["id"], [])]), confusing=confflags, confusing_cid=row["cid"]),
+                             beforaftermod.lesson_block(lesson_map[node], ci == 0)]
+                if stylemixmod.order_sections(lesson_map[node], affinity)[0] == "visual":
+                    parts.extend(visual_bits)
+                    parts.extend(text_bits)
+                else:
+                    parts.extend(text_bits)
+                    parts.extend(visual_bits)
                 earlier = [lesson_map[n] for n in seen if n in lesson_map]
                 parts.append(lessondepsmod.deps_html(lesson_map[node], earlier))
                 seen.append(node)
