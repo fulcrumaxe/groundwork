@@ -99,6 +99,7 @@ from . import quests as questsmod
 from . import readgroup as readgroupmod
 from . import realfile as realfilemod
 from . import regenstat as regenstatmod
+from . import readout as readoutmod
 from . import readtime as readtimemod
 from . import recent as recentmod
 from . import related as relmod
@@ -362,7 +363,7 @@ def page(title: str, body: str, active: str = "projects",
             f"{shortcutsmod.overlay_html()}{GLOBAL_JS}{shortcutsmod.script_js()}"
             f"{searchmod.script_js()}{scrollposmod.record_js()}"
             f"{reviewedmod.script_js()}{unsavedmod.guard_js()}{autofocusmod.focus_js()}"
-            f"{collapsemod.collapse_js()}{optimisticmod.optimistic_js()}{densitymod.toggle_js()}</body></html>").encode()
+            f"{collapsemod.collapse_js()}{optimisticmod.optimistic_js()}{densitymod.toggle_js()}{readoutmod.script_js()}</body></html>").encode()
 
 
 def _first_unowned(owned: dict, cids_in_order: list[str]) -> str | None:
