@@ -14,7 +14,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, quote, urlparse
 
 from . import abphrase as abmod
-from . import api as apimod
+from . import api as apimod, audiosum as audiosummod  # one line keeps web.py at WEB_CEILING
 from . import autofocus as autofocusmod
 from . import autoscroll as autoscrollmod
 from . import bloomchips as bloomchipsmod
@@ -365,7 +365,7 @@ def page(title: str, body: str, active: str = "projects",
             f"{shortcutsmod.overlay_html()}{GLOBAL_JS}{shortcutsmod.script_js()}"
             f"{searchmod.script_js()}{scrollposmod.record_js()}"
             f"{reviewedmod.script_js()}{unsavedmod.guard_js()}{autofocusmod.focus_js()}"
-            f"{collapsemod.collapse_js()}{optimisticmod.optimistic_js()}{densitymod.toggle_js()}{dyslexiamod.toggle_js()}{readoutmod.script_js()}{calmmod.script_js()}</body></html>").encode()
+            f"{collapsemod.collapse_js()}{optimisticmod.optimistic_js()}{densitymod.toggle_js()}{dyslexiamod.toggle_js()}{readoutmod.script_js()}{audiosummod.script_js()}{calmmod.script_js()}</body></html>").encode()
 
 
 def _first_unowned(owned: dict, cids_in_order: list[str]) -> str | None:
@@ -1141,7 +1141,7 @@ class Handler(BaseHTTPRequestHandler):
                 parts.append(lessondepsmod.deps_html(lesson_map[node], earlier))
                 seen.append(node)
                 parts.append(debugkatamod.lesson_block(lesson_map[node]))
-                parts.append(handoutmod.handout_link_html(mid, node))
+                parts.append(audiosummod.block_html(lesson_map[node]) + handoutmod.handout_link_html(mid, node))
             parts.append(decmod.lesson_block(
                 node, dec_matches.get(node, []), ci == 0))
             avg, nvotes = cl_sums.get(row["cid"], (0.0, 0))
