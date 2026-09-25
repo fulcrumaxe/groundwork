@@ -97,6 +97,7 @@ from . import queue as qmod
 from . import quests as questsmod
 from . import readgroup as readgroupmod
 from . import realfile as realfilemod
+from . import regenstat as regenstatmod
 from . import readtime as readtimemod
 from . import recent as recentmod
 from . import related as relmod
@@ -1094,6 +1095,7 @@ class Handler(BaseHTTPRequestHandler):
              for r in concepts], mid)
         confflags = confusingmod.flags_for_module(self.db_path, mid)
         parts.append(confusingmod.queue_banner_html(confflags, base))
+        parts.append(regenstatmod.status_html(self.db_path, mid))
         # F-98: one page-level visual-vs-textual affinity from performance.
         affinity = stylemixmod.affinity(stylemixmod.records_for(
             history, cards_by_concept, lesson_map))
