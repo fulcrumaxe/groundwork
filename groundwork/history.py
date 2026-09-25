@@ -33,7 +33,7 @@ from . import sched as schedmod
 from . import tablescroll as tablescrollmod
 from . import timetag as timetagmod
 from . import tztime as tztimemod
-from . import workload as workloadmod
+from . import workload as workloadmod, weekdigest as weekdigestmod  # one line keeps history.py lean
 
 COACH_TIPS = {
     "recall": "Say the answer aloud before rating yourself.",
@@ -145,7 +145,8 @@ def history_html(db_path: str) -> str:
              milestonesmod.section_html(db_path),
              sharecardsmod.section_html(db_path),
              learnresumemod.section_html(db_path),
-             endorsemod.section_html(db_path)]
+             endorsemod.section_html(db_path),
+             weekdigestmod.block_html(db_path)]
     if cal and cal["n"]:
         acc = (cal["g"] or 0) / 5.0
         conf = ((cal["c"] or 3) - 1) / 4.0
