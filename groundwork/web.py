@@ -116,7 +116,7 @@ from . import scrollbar as scrollbarmod
 from . import scrollpos as scrollposmod
 from . import search as searchmod
 from . import selection as selectionmod
-from . import serendipity as sermod
+from . import serendipity as sermod, partytrick as partytrickmod  # one line keeps web.py at WEB_CEILING
 from . import session as sessionmod
 from . import shelf as shelfmod
 from . import shortcuts as shortcutsmod
@@ -737,7 +737,7 @@ class Handler(BaseHTTPRequestHandler):
         else:
             parts.append("<p><a id='one-card' href='/due?mode=one'>"
                          "Just one card</a> for low-energy days.</p>")
-        parts.append(sermod.section_html(self.db_path))
+        parts.append(sermod.section_html(self.db_path) + partytrickmod.section_html(self.db_path))
         if not due:
             stats = self._hero_stats()
             parts.append(doneheromod.done_hero_html(
