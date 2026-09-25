@@ -66,7 +66,7 @@ class StatusTest(unittest.TestCase):
             "title": "Regeneration status",
             "blurb": ("Every flagged section shows its queue position "
                       "and age — nothing waits silently."),
-            "path": "/modules/{mid}", "anchor": "regen-status"})
+            "path": "/status", "anchor": mod.STATUS_ANCHOR})
 
 
 class CallerEffectTest(unittest.TestCase):

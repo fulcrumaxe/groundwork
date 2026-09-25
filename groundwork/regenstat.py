@@ -97,6 +97,6 @@ def tour_entry() -> dict:
         "title": "Regeneration status",
         "blurb": ("Every flagged section shows its queue position and "
                   "age — nothing waits silently."),
-        "path": "/modules/{mid}",
-        "anchor": "regen-status",
+        "path": "/status",
+        "anchor": STATUS_ANCHOR,
     }

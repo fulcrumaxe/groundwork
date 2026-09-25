@@ -201,6 +201,14 @@ sandbox, never invented.
 | Learning-style tuning | Visual-vs-textual mix follows performance, not a quiz. | `/status#status-b21-stylemix` |
 | Split the miss into sub-skills | Two fails in a row split the concept into small ordered sub-skills so reteach hits the failing part. | `/status#status-b21-skillatoms` |
 | Fail forward: prerequisites first | Failing a card pulls its shaky prerequisites ahead of the retry instead of repeating the card cold. | `/status#status-b21-remedpath` |
+| Concepts owned, up top | History opens with the concepts you can prove — streaks are never counted. | `/reviews#owned-headline` |
+| Growth rings | One ring per owned concept — your proof, counted in wood. | `/reviews#growth-rings-head` |
+| Knowledge garden | Your repo map in bloom — every module a plot, every owned concept a petal. | `/reviews#knowledge-garden` |
+| Time ledger | Your invested hours against concepts owned — the honest ROI of practice. | `/reviews#time-ledger` |
+| Milestone moments | First Owned, tenth module, full coverage — the dates that mattered. | `/reviews#milestones` |
+| Milestone share-cards | Your proof as a PNG — private until you download, yours to post. | `/reviews#share-cards` |
+| Learning resume | Your verified skills per repo — references written by your own proof. | `/reviews#learning-resume` |
+| Skill endorsements | Endorsed by your own delayed tests — references from your future self. | `/reviews#endorsements` |
 <!-- GW-FEATURES:END -->
 
 ## Improvements
@@ -341,6 +349,14 @@ sandbox, never invented.
 | Lesson dependencies | Each lesson lists what to understand first, with jump links back to the earlier lesson sections. | `/status#status-b21-lessondeps` |
 | Deterministic cycle-breaking | Circular lesson prerequisites are detected and broken the same way every run, so study order never flips. | `/status#status-b21-depcycle` |
 | Flag the confusing section | Mark the one block that lost you and it alone joins the rewrite queue. | `/status#status-b21-confusing` |
+| Timezone-explicit stamps | Hover any attempt time for the exact UTC instant — no more guessing zones. | `/reviews#timestamps` |
+| One stamp everywhere | Every date on every page is a real <time> element — hover for the exact instant. | `/reviews#attempts` |
+| See it in the real file | Every concept header links to its exact source line in a read-only viewer. | `/modules/&lt;id&gt;#realfile` |
+| Regeneration status | Every flagged section shows its queue position and age — nothing waits silently. | `/status#status-b22-regenstat` |
+| A/B explainer phrasings | Half the lessons lead simple-first, half tradeoffs-first — recall keeps the winner. | `/status#status-b22-abphrase` |
+| Reading aloud | Walkthrough steps grow a Listen button — the trace, spoken. | `/status#status-b22-readout` |
+| Dyslexia-friendly reading | One header button widens spacing and line-height — reading stays comfortable. | `/status#status-b22-dyslexia` |
+| Calm walkthrough reveals | Reduced-motion learners get the whole trace at once — no stepping required. | `/status#status-b22-calmreplay` |
 <!-- GW-IMPROVEMENTS:END -->
 
 See also [docs/features.md](docs/features.md) and the in-app
