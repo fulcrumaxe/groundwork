@@ -152,6 +152,14 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | Milestone share-cards | Your proof as a PNG — private until you download, yours to post. | `/reviews#share-cards` |
 | Learning resume | Your verified skills per repo — references written by your own proof. | `/reviews#learning-resume` |
 | Skill endorsements | Endorsed by your own delayed tests — references from your future self. | `/reviews#endorsements` |
+| Explain-it party trick | Quiz yourself from your owned list — explain one mastered concept aloud. | `/due#partytrick` |
+| Teaching certificates | Own a whole pack — proof you could teach it. | `/reviews#teaching-certificates` |
+| Collectible concept badges | Each owned concept earns its own deterministic art badge — equal badges, no rarity. | `/status#status-b23-conceptbadges` |
+| Badge showcase | Your earned badges in one private gallery — proof, not pressure. | `/reviews#showcase` |
+| Theme unlocks | Milestones earn palettes — cosmetic only, kept in your browser. | `/reviews#theme-unlocks` |
+| Library identity | One stable duo-tone mark per library — local, playful, no account. | `/reviews#library-identity` |
+| Mascot companion | A small companion that notices attempts — never wins, never streaks. | `/due#mascot` |
+| Focus timer | A 25-minute block auto-filled from your queue — start, practice, break. | `/due#focus-timer` |
 
 ## Improvements
 
@@ -298,6 +306,14 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | Reading aloud | Walkthrough steps grow a Listen button — the trace, spoken. | `/status#status-b22-readout` |
 | Dyslexia-friendly reading | One header button widens spacing and line-height — reading stays comfortable. | `/status#status-b22-dyslexia` |
 | Calm walkthrough reveals | Reduced-motion learners get the whole trace at once — no stepping required. | `/status#status-b22-calmreplay` |
+| Audio summaries | Lessons grow a Listen button — the summary, spoken offline. | `/status#status-b23-audiosum` |
+| Study with a friend | Same lesson side by side — two panes, local only. | `/status#status-b23-buddyview` |
+| Still-with-us nudge | Ten idle minutes raise a gentle keep-reading nudge. | `/status#status-b23-readnudge` |
+| Vote lesson difficulty | Too easy, just right, or too hard — one tap teaches the author. | `/status#status-b23-diffvote` |
+| Difficulty-vote exercise weights | Too-easy votes surface harder types first; too-hard votes consolidate foundations. | `/status#status-b23-diffweights` |
+| Unlock animation | Newly unlocked lessons pop with a calm badge — still when reduced-motion is set. | `/status#status-b23-unlockfx` |
+| Weekly lesson digest | What changed in code you studied this week. | `/status#status-b23-weekdigest` |
+| Retired lessons | Lessons that retire say why — deleted file or regenerated cards. | `/status#status-b23-archiveless` |
 
 ## The original loop
 

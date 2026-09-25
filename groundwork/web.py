@@ -14,11 +14,11 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, quote, urlparse
 
 from . import abphrase as abmod
-from . import api as apimod
-from . import autofocus as autofocusmod
+from . import api as apimod, audiosum as audiosummod, archiveless as archivelessmod  # one line keeps web.py at WEB_CEILING
+from . import autofocus as autofocusmod, avatar as avatarmod  # one line keeps web.py at WEB_CEILING
 from . import autoscroll as autoscrollmod
 from . import bloomchips as bloomchipsmod
-from . import briefing as briefingmod
+from . import briefing as briefingmod, buddyview as buddymod  # one line keeps web.py at WEB_CEILING
 from . import callgraph as callgraphmod
 from . import calmreplay as calmmod
 from . import carets as caretsmod
@@ -33,7 +33,7 @@ from . import badge as badgemod
 from . import beforafter as beforaftermod
 from . import cardlinks as cardlinksmod
 from . import cards as cardsmod
-from . import chiplinks as chiplinksmod
+from . import chiplinks as chiplinksmod, conceptbadges as conceptbadgesmod  # one line keeps web.py at WEB_CEILING
 from . import clarity as claritymod
 from . import clickcards as clickcardsmod
 from . import collapse as collapsemod
@@ -51,7 +51,7 @@ from . import dyslexia as dyslexiamod
 from . import diagrams as diagramsmod
 from . import diagnose as diamod
 from . import diff as diffmod
-from . import digest as digestmod
+from . import digest as digestmod, diffvote as diffvotemod  # one line keeps web.py at WEB_CEILING
 from . import disputes as dismod
 from . import donehero as doneheromod
 from . import emoji as emojimod, parsons as parsonsmod  # one line keeps web.py at WEB_CEILING
@@ -63,7 +63,7 @@ from . import exports as expmod
 from . import favicon as faviconmod
 from . import fontstack as fontstackmod
 from . import focusrings as focusringsmod
-from . import flowdetect as flowdetectmod
+from . import flowdetect as flowdetectmod, focustimer as focustimermod  # one line keeps web.py at WEB_CEILING
 from . import footnav as footnavmod
 from . import forgetcurve as forgetcurvemod
 from . import formerr as formerrmod
@@ -78,7 +78,7 @@ from . import lessondeps as lessondepsmod
 from . import lessonver as lessonvermod
 from . import levelcarry as levelcarrymod
 from . import logbook as logbookmod
-from . import mcp as mcplib
+from . import mascot as mascotmod, mcp as mcplib  # one line keeps web.py at WEB_CEILING
 from . import minisession as minisessionmod
 from . import modfilter as modfiltermod
 from . import modpages as modpagesmod
@@ -101,7 +101,7 @@ from . import quests as questsmod
 from . import readgroup as readgroupmod
 from . import realfile as realfilemod
 from . import regenstat as regenstatmod
-from . import readout as readoutmod
+from . import readout as readoutmod, readnudge as readnudgemod  # one line keeps web.py at WEB_CEILING
 from . import readtime as readtimemod
 from . import recent as recentmod
 from . import related as relmod
@@ -116,9 +116,9 @@ from . import scrollbar as scrollbarmod
 from . import scrollpos as scrollposmod
 from . import search as searchmod
 from . import selection as selectionmod
-from . import serendipity as sermod
+from . import serendipity as sermod, partytrick as partytrickmod  # one line keeps web.py at WEB_CEILING
 from . import session as sessionmod
-from . import shelf as shelfmod
+from . import shelf as shelfmod, showcase as showcasemod  # one line keeps web.py at WEB_CEILING
 from . import shortcuts as shortcutsmod
 from . import skeletons as skeletonsmod
 from . import sitemap as sitemapmod
@@ -128,7 +128,7 @@ from . import spacing as spacingmod
 from . import tabmemory as tabmemorymod
 from . import tablescroll as tablescrollmod
 from . import taptargets as taptargetsmod
-from . import timetag as timetagmod
+from . import themeunlock as themeunlockmod, timetag as timetagmod  # one line keeps web.py at WEB_CEILING
 from . import status as statusmod
 from . import storage as storagemod
 from . import styleguide as styleguidemod
@@ -137,7 +137,7 @@ from . import symlinks as symlinksmod
 from . import tochighlight as tochighlightmod
 from . import tour as tourmod
 from . import typescale as typescalemod
-from . import undo as undomod
+from . import undo as undomod, unlockfx as unlockfxmod  # one line keeps web.py at WEB_CEILING
 from . import unsaved as unsavedmod
 from . import verdicts as verdictsmod
 from . import whyit as whyitmod
@@ -256,7 +256,7 @@ CSS = ("body{font-family:system-ui,-apple-system,sans-serif;max-width:48rem;"
 # concatenated into CSS (that nests <style> inside <style>, closes the
 # head stylesheet early, and dumps all later CSS into <body> as text).
 FOCUS_CSS = clickcardsmod.focus_css()
-CSS += palettemod.palette_css() + darkmodemod.dark_css() + typescalemod.scale_css() + fontstackmod.stack_css() + wordmarkmod.wordmark_css() + bloomchipsmod.chip_css() + progbarmod.progbar_css() + ownedbadgemod.badge_css() + staggermod.stagger_css() + caretsmod.carets_css() + codelinesmod.codelines_css() + highlightmod.highlight_css() + hinttiersmod.hinttiers_css() + confslidermod.css() + focusringsmod.css() + taptargetsmod.target_css() + radiusmod.radius_css() + spacingmod.spacing_css() + doneheromod.hero_css() + logbookmod.logbook_css() + shelfmod.shelf_css() + briefingmod.briefing_css() + verdictsmod.verdicts_css() + ownbannermod.ownbanner_css() + pressfxmod.pressfx_css() + skeletonsmod.skeletons_css() + optimisticmod.optimistic_css() + formerrmod.formerr_css() + selectionmod.selection_css() + scrollbarmod.scrollbar_css() + densitymod.density_css() + responsivemod.narrow_css() + emojimod.icon_css() + parsonsmod.parsons_css() + contrastmod.contrast_css() + motionmod.motion_css() + lessonvermod.banner_css() + tablescrollmod.scroll_css() + dyslexiamod.dyslexia_css()  # Batch 9 I-51/52/53/54: token variables, dark overrides, type scale, font stacks. Batch 10 I-55..I-62: wordmark, bloom chips, progress motion, owned badge, stagger, carets, code lines, highlight. Batch 11 I-63..I-70: hint tiers, confidence segments, focus rings, tap floor, radii, spacing, hero. Batch 12 I-71..I-73/I-77/I-79..I-82: logbook, shelf, briefing, verdicts, banner, press, skeletons, optimistic submit. Batch 13 I-84/I-85/I-86/I-89/I-90: field errors, selection, scrollbars, density, narrow phones. Batch 19 I-115: lesson version banner. Batch 21 I-92: scrollable tables.
+CSS += palettemod.palette_css() + darkmodemod.dark_css() + typescalemod.scale_css() + fontstackmod.stack_css() + wordmarkmod.wordmark_css() + bloomchipsmod.chip_css() + progbarmod.progbar_css() + ownedbadgemod.badge_css() + staggermod.stagger_css() + caretsmod.carets_css() + codelinesmod.codelines_css() + highlightmod.highlight_css() + hinttiersmod.hinttiers_css() + confslidermod.css() + focusringsmod.css() + taptargetsmod.target_css() + radiusmod.radius_css() + spacingmod.spacing_css() + doneheromod.hero_css() + logbookmod.logbook_css() + shelfmod.shelf_css() + briefingmod.briefing_css() + verdictsmod.verdicts_css() + ownbannermod.ownbanner_css() + pressfxmod.pressfx_css() + skeletonsmod.skeletons_css() + optimisticmod.optimistic_css() + formerrmod.formerr_css() + selectionmod.selection_css() + scrollbarmod.scrollbar_css() + densitymod.density_css() + responsivemod.narrow_css() + emojimod.icon_css() + parsonsmod.parsons_css() + contrastmod.contrast_css() + motionmod.motion_css() + lessonvermod.banner_css() + tablescrollmod.scroll_css() + dyslexiamod.dyslexia_css() + unlockfxmod.badge_css() + conceptbadgesmod.badge_css() + showcasemod.showcase_css() + themeunlockmod.theme_css() + avatarmod.avatar_css() + mascotmod.mascot_css()  # Batch 9 I-51/52/53/54: token variables, dark overrides, type scale, font stacks. Batch 10 I-55..I-62: wordmark, bloom chips, progress motion, owned badge, stagger, carets, code lines, highlight. Batch 11 I-63..I-70: hint tiers, confidence segments, focus rings, tap floor, radii, spacing, hero. Batch 12 I-71..I-73/I-77/I-79..I-82: logbook, shelf, briefing, verdicts, banner, press, skeletons, optimistic submit. Batch 13 I-84/I-85/I-86/I-89/I-90: field errors, selection, scrollbars, density, narrow phones. Batch 19 I-115: lesson version banner. Batch 21 I-92: scrollable tables.
 
 GLOBAL_JS = """
 <script>
@@ -365,7 +365,7 @@ def page(title: str, body: str, active: str = "projects",
             f"{shortcutsmod.overlay_html()}{GLOBAL_JS}{shortcutsmod.script_js()}"
             f"{searchmod.script_js()}{scrollposmod.record_js()}"
             f"{reviewedmod.script_js()}{unsavedmod.guard_js()}{autofocusmod.focus_js()}"
-            f"{collapsemod.collapse_js()}{optimisticmod.optimistic_js()}{densitymod.toggle_js()}{dyslexiamod.toggle_js()}{readoutmod.script_js()}{calmmod.script_js()}</body></html>").encode()
+            f"{collapsemod.collapse_js()}{optimisticmod.optimistic_js()}{densitymod.toggle_js()}{dyslexiamod.toggle_js()}{readoutmod.script_js()}{audiosummod.script_js()}{calmmod.script_js()}</body></html>").encode()
 
 
 def _first_unowned(owned: dict, cids_in_order: list[str]) -> str | None:
@@ -640,7 +640,7 @@ class Handler(BaseHTTPRequestHandler):
                     page_id="modules", counts=counts, tour=tour_ctx))
         elif url.path.startswith("/modules/"):
             mid = url.path.split("/")[-1]
-            body = self.module_html(mid, level, order, replay_step)
+            body = self.module_html(mid, level, order, replay_step, query.get("buddy", []))
             if body == "<p>Unknown module.</p>":
                 self._send(page("Not found", errmod.not_found_html(
                     url.path, "Unknown module."), active="modules",
@@ -724,8 +724,8 @@ class Handler(BaseHTTPRequestHandler):
                  peaktimemod.banner_html(peak_rows),
                  recentmod.strip_html(),
                  minisessionmod.session_box_html(due, recent=[r["grade"] for r in cal_rows], tried=tries, flow_attempts=flowdetectmod.attempts_with_pace(flow_rows)),
-                 minisessionmod.dial_box(dial, mode),
-                 resumemod.resume_box_html(resume_key or "", len(due)),
+                 minisessionmod.dial_box(dial, mode) + mascotmod.line_html(self.db_path),
+                 resumemod.resume_box_html(resume_key or "", len(due)) + focustimermod.timer_html(due),
                  reteachmod.reteach_box_html(reteachmod.pick_reteach(
                      reteachmod.first_attempts(first_rows)))]
         if cold:
@@ -737,7 +737,7 @@ class Handler(BaseHTTPRequestHandler):
         else:
             parts.append("<p><a id='one-card' href='/due?mode=one'>"
                          "Just one card</a> for low-energy days.</p>")
-        parts.append(sermod.section_html(self.db_path))
+        parts.append(sermod.section_html(self.db_path) + partytrickmod.section_html(self.db_path))
         if not due:
             stats = self._hero_stats()
             parts.append(doneheromod.done_hero_html(
@@ -1002,7 +1002,7 @@ class Handler(BaseHTTPRequestHandler):
         return "".join(parts)
 
     def module_html(self, mid: str, level: str = "auto", order: str = "definition",
-                      replay_step=None) -> str:
+                      replay_step=None, buddies=()) -> str:
         con = self._con()
         try:
             m = con.execute("SELECT * FROM modules WHERE id=?", (mid,)).fetchone()
@@ -1058,8 +1058,8 @@ class Handler(BaseHTTPRequestHandler):
             mod_commit, mod_head = "", ""
         if repo_line:
             parts.append(f"<p><small>Session: {html.escape(repo_line)}</small></p>")
-        parts.append(resetmod.reset_link_html(mid))
-        parts.append(recentmod.record_js(mid, m["task_summary"] or mid))
+        parts.append(resetmod.reset_link_html(mid) + archivelessmod.archive_html(archivelessmod.retired_for(concepts, cards_by_concept, archivelessmod.repo_of(m))))
+        parts.append(recentmod.record_js(mid, m["task_summary"] or mid) + readnudgemod.nudge_html())
         toc = []
         for row in concepts:
             node = row["cid"].split(":", 1)[1] if ":" in row["cid"] else row["cid"]
@@ -1070,7 +1070,7 @@ class Handler(BaseHTTPRequestHandler):
             parts.append(tochighlightmod.enhance_toc(
                 f"<p class='toc' id='readtime'><small>In this module: {' · '.join(toc)}</small> <small>(minutes per lesson)</small></p>"))
         # F-89: reading-group section; no presence keeps legacy bytes.
-        parts.append(readgroupmod.session_html(lesson_map, None))
+        parts.append(readgroupmod.session_html(lesson_map, None) + buddymod.entry_html(base) + buddymod.buddy_html(concepts[0]["name"] if concepts else "", buddies))
         if concepts:
             owned_n = 0
             for row in concepts:
@@ -1089,8 +1089,7 @@ class Handler(BaseHTTPRequestHandler):
         dec_nodes = [r["cid"].split(":", 1)[1] if ":" in r["cid"] else r["cid"]
                      for r in concepts]
         dec_matches = decmod.matches_for_module(self.db_path, dec_nodes)
-        cl_sums = claritymod.summaries(
-            self.db_path, [r["cid"] for r in concepts])
+        cl_sums = claritymod.summaries(self.db_path, [r["cid"] for r in concepts]); dv_sums = diffvotemod.tallies(self.db_path, [r["cid"] for r in concepts])
         known_pending = knownmod.pending(
             self.db_path, [r["cid"] for r in concepts])
         sym_index = symlinksmod.build_index(
@@ -1117,8 +1116,8 @@ class Handler(BaseHTTPRequestHandler):
             parts.append(
                 f"<section id='lesson-{slug}'>"
                 f"<h2>{html.escape(row['name'])}"
-                f" {chiplinksmod.chip_link(mid, node, status)}"
-                f"{debtmod.ladder_html(ladders.get(row['cid'], -1), ladder_extra)}{stale}</h2>"
+                f" {chiplinksmod.chip_link(mid, node, status)}{conceptbadgesmod.badge_html(node, is_owned)}"
+                f"{debtmod.ladder_html(ladders.get(row['cid'], -1), ladder_extra)}{stale}{unlockfxmod.badge_for(node, lesson_map, mastery_of)}</h2>"
                 f"<p><small>{html.escape(row['kind'])} · "
                 f"{html.escape(row['file'])}:{row['line']}"
                 f"{realfilemod.file_link(row['file'], row['line'], first=(ci == 0))}</small></p>")
@@ -1141,12 +1140,11 @@ class Handler(BaseHTTPRequestHandler):
                 parts.append(lessondepsmod.deps_html(lesson_map[node], earlier))
                 seen.append(node)
                 parts.append(debugkatamod.lesson_block(lesson_map[node]))
-                parts.append(handoutmod.handout_link_html(mid, node))
+                parts.append(audiosummod.block_html(lesson_map[node]) + handoutmod.handout_link_html(mid, node))
             parts.append(decmod.lesson_block(
                 node, dec_matches.get(node, []), ci == 0))
             avg, nvotes = cl_sums.get(row["cid"], (0.0, 0))
-            parts.append(claritymod.block_html(
-                row["cid"], avg, nvotes, base, ci == 0))
+            parts.append(claritymod.block_html(row["cid"], avg, nvotes, base, ci == 0) + diffvotemod.block_html(row["cid"], dv_sums.get(row["cid"], {}), base, ci == 0))
             parts.append(knownmod.button_html(
                 row["cid"], known_pending.get(row["cid"], ""), base,
                 ci == 0))
@@ -1254,6 +1252,18 @@ class Handler(BaseHTTPRequestHandler):
                         f"<p><a class='btn' href='{html.escape(back)}'>"
                         f"Back to module</a></p>")
             self._send(page("Clarity", body, counts=self._nav_counts()))
+            return
+        if url.path.startswith("/concepts/") and url.path.endswith("/diffvote"):
+            cid = url.path.split("/")[2]
+            form = parse_qs(raw, keep_blank_values=True)
+            origin = _safe_origin(form.get("origin", ["/modules"])[0])
+            out = diffvotemod.record(self.db_path, cid, form.get("vote", [""])[0])
+            if "error" in out:
+                body = (f"<p>Could not record: {html.escape(out['error'])}</p>" f"<p><a class='btn' href='{html.escape(origin)}'>Back</a></p>")
+            else:
+                back = f"/modules/{out['module_id']}"
+                body = (f"<p>Difficulty vote recorded — thank you.</p>" f"<p><a class='btn' href='{html.escape(back)}'>Back to module</a></p>")
+            self._send(page("Difficulty", body, counts=self._nav_counts()))
             return
         if url.path.startswith("/concepts/") and url.path.endswith("/confusing"):
             form = parse_qs(raw, keep_blank_values=True)

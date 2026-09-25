@@ -8,6 +8,7 @@ from __future__ import annotations
 import html
 from datetime import timedelta
 
+from . import avatar as avatarmod
 from . import bests as bestsmod
 from . import bloomchips as bloomchipsmod
 from . import cardlinks as cardlinksmod
@@ -20,7 +21,9 @@ from . import knowngarden as knowngardenmod
 from . import timeledger as timeledgermod
 from . import verdicts as verdictsmod
 from . import monthreview as monthmod
-from . import milestones as milestonesmod
+from . import milestones as milestonesmod, teachcert as teachcertmod  # lean join: one import line
+from . import showcase as showcasemod
+from . import themeunlock as themeunlockmod
 from . import endorse as endorsemod
 from . import learnresume as learnresumemod
 from . import overconf as overconfmod
@@ -33,7 +36,7 @@ from . import sched as schedmod
 from . import tablescroll as tablescrollmod
 from . import timetag as timetagmod
 from . import tztime as tztimemod
-from . import workload as workloadmod
+from . import workload as workloadmod, weekdigest as weekdigestmod  # one line keeps history.py lean
 
 COACH_TIPS = {
     "recall": "Say the answer aloud before rating yourself.",
@@ -138,14 +141,18 @@ def history_html(db_path: str) -> str:
             tl_stats[tm["id"]] = (cards_n, tries_n, omap)
     finally:
         con.close()
-    parts = [ownheadmod.headline_html(db_path),
+    parts = [ownheadmod.headline_html(db_path) + avatarmod.box_html(db_path),
              growringsmod.section_html(db_path),
              knowngardenmod.section_html(db_path),
              timeledgermod.section_html(db_path),
              milestonesmod.section_html(db_path),
              sharecardsmod.section_html(db_path),
              learnresumemod.section_html(db_path),
-             endorsemod.section_html(db_path)]
+             endorsemod.section_html(db_path),
+             teachcertmod.section_html(db_path),
+             showcasemod.gallery_html(db_path),
+             themeunlockmod.gallery_html(db_path),
+             weekdigestmod.block_html(db_path)]
     if cal and cal["n"]:
         acc = (cal["g"] or 0) / 5.0
         conf = ((cal["c"] or 3) - 1) / 4.0

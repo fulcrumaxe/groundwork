@@ -64,6 +64,17 @@ def init_db(db_path: str | Path = DEFAULT_DB) -> Path:
             " section_id TEXT PRIMARY KEY,"
             " flagged_at TEXT NOT NULL DEFAULT"
             " (strftime('%Y-%m-%dT%H:%M:%SZ','now')))")
+        # Batch 23 migration (new nullable table only): per-lesson
+        # difficulty votes. Downgrade: DROP TABLE diffvote_votes
+        # or restore the pre-batch23 backup.
+        con.execute(
+            "CREATE TABLE IF NOT EXISTS diffvote_votes ("
+            " id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            " concept_id TEXT NOT NULL REFERENCES concepts(id)"
+            " ON DELETE CASCADE,"
+            " vote TEXT NOT NULL DEFAULT 'just',"
+            " created_at TEXT NOT NULL DEFAULT"
+            " (strftime('%Y-%m-%dT%H:%M:%SZ','now')))")
         con.commit()
     finally:
         con.close()
