@@ -32,6 +32,7 @@ _VOLATILE = (
     re.compile(r"/modules/[0-9a-f]{8,128}"),
     re.compile(r"card-[0-9a-f]{8,128}(?:ex\d+)?"),
     re.compile(r"\b[0-9a-f]{12}\b"),
+    re.compile(r"/tmp/[A-Za-z0-9_][A-Za-z0-9_.\-]*"),
 )
 
 _WS_BETWEEN = re.compile(r">\s+<")
