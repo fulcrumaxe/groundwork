@@ -69,6 +69,7 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
     from . import lessonver as lessonvermod
     from . import peerhelp as peerhelpmod
     from . import lessondiff as lessondiffmod
+    from . import calmreplay as calmmod
     from . import confusing as confusingmod
     levels = explainmod.levels_for(lesson)
     order = flipmod.normalize_order(order)
@@ -139,6 +140,8 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
     replay_block = replaymod.replay_html(lesson, replay_step, base_path)
     if replay_block:
         out.append(replay_block)
+        # I-140: hidden full-steps twin for reduced-motion users.
+        out.append(calmmod.instant_html(lesson))
     elif steps:
         pack = dualmod.pack_html(
             lesson.get("name") or "",

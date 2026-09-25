@@ -20,6 +20,7 @@ from . import autoscroll as autoscrollmod
 from . import bloomchips as bloomchipsmod
 from . import briefing as briefingmod
 from . import callgraph as callgraphmod
+from . import calmreplay as calmmod
 from . import carets as caretsmod
 from . import codelines as codelinesmod
 from . import highlight as highlightmod
@@ -364,7 +365,7 @@ def page(title: str, body: str, active: str = "projects",
             f"{shortcutsmod.overlay_html()}{GLOBAL_JS}{shortcutsmod.script_js()}"
             f"{searchmod.script_js()}{scrollposmod.record_js()}"
             f"{reviewedmod.script_js()}{unsavedmod.guard_js()}{autofocusmod.focus_js()}"
-            f"{collapsemod.collapse_js()}{optimisticmod.optimistic_js()}{densitymod.toggle_js()}{dyslexiamod.toggle_js()}{readoutmod.script_js()}</body></html>").encode()
+            f"{collapsemod.collapse_js()}{optimisticmod.optimistic_js()}{densitymod.toggle_js()}{dyslexiamod.toggle_js()}{readoutmod.script_js()}{calmmod.script_js()}</body></html>").encode()
 
 
 def _first_unowned(owned: dict, cids_in_order: list[str]) -> str | None:
