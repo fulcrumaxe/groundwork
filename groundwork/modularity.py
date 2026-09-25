@@ -311,6 +311,23 @@ AREAS = {
     "dyslexia": "dyslexia.py",
     "calmreplay": "calmreplay.py",
     "batch22": "batch22.py",
+    "audiosum": "audiosum.py",
+    "buddyview": "buddyview.py",
+    "readnudge": "readnudge.py",
+    "diffvote": "diffvote.py",
+    "diffweights": "diffweights.py",
+    "unlockfx": "unlockfx.py",
+    "weekdigest": "weekdigest.py",
+    "archiveless": "archiveless.py",
+    "partytrick": "partytrick.py",
+    "teachcert": "teachcert.py",
+    "conceptbadges": "conceptbadges.py",
+    "showcase": "showcase.py",
+    "themeunlock": "themeunlock.py",
+    "avatar": "avatar.py",
+    "mascot": "mascot.py",
+    "focustimer": "focustimer.py",
+    "batch23": "batch23.py",
 }
 
 
