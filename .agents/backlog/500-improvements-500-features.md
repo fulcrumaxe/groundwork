@@ -940,6 +940,72 @@ lead once via the init list); tour 133/138 → 141/146; docs regen
 replay-full twin, reviews proof block, status batch22 sections);
 chrome_sweep +29 Batch 22 DOM checks.
 
+Batch 23 — eight improvements (I-141, I-143–I-146, I-148–I-150) +
+eight features (F-111–F-117, F-119) + CI fix. Shipped on branch
+`batch23-f8-i8`. Selection: next-unshipped in backlog order,
+skipping already-satisfied items (I-9 /reviews→History done; I-11
+nav counts wired; I-21 module resume links live; I-43 Card N of M
+on Due; I-75 difficulty dots rendered; F-1 docstring type 25;
+F-53 bloom ladder shipped batch 1) and 2 recorded-not-shipped
+(I-100 hallway test needs human subjects; I-137 has no locale
+signal). I-142 recorded, not shipped: zero audio assets exist
+anywhere (sole hit: interview.py "no audio capture exists"), so
+transcripts have no data source — blocked until I-141-grade audio
+is stored, not just synthesized. I-150 substituted next-in-order.
+F-118 recorded, not shipped: ambient files need local audio
+files that do not exist (same verdict class as I-142); F-119
+substituted next-in-order. Base commit fixes CI red on main:
+DialQueueTest fixtures used absolute 2026-09-21 dates, so elapsed
+retrievability decayed below dial floors as the wall clock moved
+— fixtures now derive from utcnow (test-only change, product
+correct).
+- [x] I-141 audiosum → spoken lesson summaries (audiosum.py).
+  Caller Handler.module_html lesson loop + web.page script wire.
+- [x] I-143 buddyview → twin-pane friend view (buddyview.py).
+  Caller Handler.module_html + ?buddy= route (?buddy=A&buddy=B).
+- [x] I-144 readnudge → still-with-us banner (readnudge.py).
+  Caller Handler.module_html beside record_js.
+- [x] I-145 diffvote → 3-way difficulty votes (diffvote.py).
+  Caller Handler.module_html + /concepts/<cid>/diffvote POST.
+- [x] I-146 diffweights → vote-weighted queue order (diffweights.py).
+  Caller MCPServer.tool_list_due_reviews after boredom promote.
+- [x] I-148 unlockfx → newly-unlocked badge (unlockfx.py).
+  Caller Handler.module_html h2 + CSS join (mo-reveal reuse).
+- [x] I-149 weekdigest → studied-changes digest (weekdigest.py).
+  Caller history.history_html parts list.
+- [x] I-150 archiveless → retired lessons + reason (archiveless.py).
+  Caller Handler.module_html beside reset link.
+- [x] F-111 partytrick → owned-list explain-it (partytrick.py).
+  Caller Handler.due_html beside serendipity.
+- [x] F-112 teachcert → pack certificates (teachcert.py).
+  Caller history.history_html parts list.
+- [x] F-113 conceptbadges → deterministic emblems (conceptbadges.py).
+  Caller Handler.module_html h2 + CSS join.
+- [x] F-114 showcase → private gallery (showcase.py).
+  Caller history.history_html parts list + CSS join.
+- [x] F-115 themeunlock → milestone palettes (themeunlock.py).
+  Caller history.history_html parts list + CSS join.
+- [x] F-116 avatar → library identity tile (avatar.py).
+  Caller history.history_html headline + CSS join.
+- [x] F-117 mascot → effort companion (mascot.py).
+  Caller Handler.due_html beside dial box + CSS join.
+- [x] F-119 focustimer → pomodoro + auto-fill (focustimer.py).
+  Caller Handler.due_html beside resume box.
+
+Batch 23 migration: diffvote_votes (new nullable table only;
+downgrade DROP TABLE diffvote_votes or restore the pre-batch23
+backup).
+
+Batch 23 wires: WEB_CEILING 1406 → 1406 (all item wires
+same-line joins; only the I-145 diffvote POST route is new
+structure, covered by the I-145 bump); status.py unchanged at
+349 (same-line batch23 join); history.py +6 (weekdigest,
+teachcert, showcase, themeunlock, avatar imports + parts);
+mcp.py diffweights bridge (unregistered, no ceiling);
+tour 141/146 → 149/154; docs regen (README + features.md from
+tour registry); goldens refreshed (module/due/reviews/status
+batch23 sections).
+
 ## IMPROVEMENTS (500)
 
 ### A. Navigation, IA & routing (I-1–50)
@@ -1090,16 +1156,16 @@ chrome_sweep +29 Batch 22 DOM checks.
 - [x] I-138: Add code-reading-aloud mode (speech synthesis of walkthrough steps).
 - [x] I-139: Add dyslexia-friendly type/spacing toggle.
 - [x] I-140: Reduce motion in walkthrough reveals; instant when reduced-motion set.
-- I-141: Add lesson audio summaries (offline TTS where available).
+- [x] I-141: Add lesson audio summaries (offline TTS where available).
 - I-142: Transcript every audio asset for search and accessibility.
-- I-143: Add "study with a friend" side-by-side lesson view (two cursors, local).
-- I-144: Time-box reading with a gentle "still with us?" nudge after 10 idle min.
-- I-145: Let learners set a per-lesson difficulty vote (too easy/just/hard).
-- I-146: Feed difficulty votes into exercise-type selection weights.
+- [x] I-143: Add "study with a friend" side-by-side lesson view (two cursors, local).
+- [x] I-144: Time-box reading with a gentle "still with us?" nudge after 10 idle min.
+- [x] I-145: Let learners set a per-lesson difficulty vote (too easy/just/hard).
+- [x] I-146: Feed difficulty votes into exercise-type selection weights.
 - [x] I-147: Show prerequisite chain as a visual path at module top.
-- I-148: Unlock animation when a new lesson becomes available.
-- I-149: Weekly "lesson digest" page: what changed in code you studied.
-- I-150: Archive retired lessons with reason (renamed, deleted, split).
+- [x] I-148: Unlock animation when a new lesson becomes available.
+- [x] I-149: Weekly "lesson digest" page: what changed in code you studied.
+- [x] I-150: Archive retired lessons with reason (renamed, deleted, split).
 
 ### D. Practice & answer UX (I-151–200)
 
@@ -1592,15 +1658,15 @@ chrome_sweep +29 Batch 22 DOM checks.
 - [x] F-108: Milestone share-cards (exportable PNG for socials, opt-in).
 - [x] F-109: Learning resume (verified skills page per repo, portable).
 - [x] F-110: Skill endorsements by your own delayed tests (not peers).
-- F-111: "Explain it to me" party trick mode (quiz from your owned list).
-- F-112: Teaching certificates per module pack (combines owned proofs).
-- F-113: Collectible concept badges (art per idea, no rarity pressure).
-- F-114: Badge showcase page (your gallery, private by default).
-- F-115: Theme unlocks (new palettes for milestones, cosmetic only).
-- F-116: Custom avatar/duo-tone identity (local, playful).
-- F-117: Mascot companion reacting to effort (encourages attempts, not wins).
+- [x] F-111: "Explain it to me" party trick mode (quiz from your owned list).
+- [x] F-112: Teaching certificates per module pack (combines owned proofs).
+- [x] F-113: Collectible concept badges (art per idea, no rarity pressure).
+- [x] F-114: Badge showcase page (your gallery, private by default).
+- [x] F-115: Theme unlocks (new palettes for milestones, cosmetic only).
+- [x] F-116: Custom avatar/duo-tone identity (local, playful).
+- [x] F-117: Mascot companion reacting to effort (encourages attempts, not wins).
 - F-118: Ambient progress sounds (optional, off by default, local files).
-- F-119: Focus timer integration (pomodoro with queue auto-fill).
+- [x] F-119: Focus timer integration (pomodoro with queue auto-fill).
 - F-120: Session playlists (5/10/20-min mixes, one click).
 - F-121: "Just one card" mode for low-energy days (no guilt design).
 - F-122: Rest-day affirmations (breaks framed as consolidation).
