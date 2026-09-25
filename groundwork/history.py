@@ -15,6 +15,7 @@ from . import cards as cardsmod
 from . import db as dbmod
 from . import emptyart as emptyartmod
 from . import exercises as exmod
+from . import growrings as growringsmod
 from . import verdicts as verdictsmod
 from . import monthreview as monthmod
 from . import overconf as overconfmod
@@ -129,7 +130,8 @@ def history_html(db_path: str) -> str:
             tl_stats[tm["id"]] = (cards_n, tries_n, omap)
     finally:
         con.close()
-    parts = [ownheadmod.headline_html(db_path)]
+    parts = [ownheadmod.headline_html(db_path),
+             growringsmod.section_html(db_path)]
     if cal and cal["n"]:
         acc = (cal["g"] or 0) / 5.0
         conf = ((cal["c"] or 3) - 1) / 4.0
@@ -171,6 +173,7 @@ def history_html(db_path: str) -> str:
                              "<th>Cards</th><th>Attempts</th><th>Owned</th></tr>"
                              + "".join(tl_rows) + "</table>"))
     else:
+        parts.append(growringsmod.section_html(db_path))
         parts.append(emptyartmod.art_for("history") +
                      "<p>No attempts yet. Answer a card on the "
                      "<a href='/due'>Due</a> page and it will show up here.</p>")
