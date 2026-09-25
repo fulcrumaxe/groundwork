@@ -13,6 +13,7 @@ import secrets
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, quote, urlparse
 
+from . import abphrase as abmod
 from . import api as apimod
 from . import autofocus as autofocusmod
 from . import autoscroll as autoscrollmod
@@ -1125,7 +1126,7 @@ class Handler(BaseHTTPRequestHandler):
                                callgraphmod.block_html(lesson_map[node]),
                                imgattachmod.figures_html(lesson_map[node])]
                 text_bits = [whyitmod.lesson_why_html(lesson_map[node], first=(ci == 0)),
-                             lesmod.render_levels(lesson_map[node], mastery_of[node], concept_tries, level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node), order=order, symbols=sym_index, sym_mid=mid, replay_step=replay_step, lesson_commit=mod_commit, current_commit=mod_head, recent=explcalibmod.recent_from_rows([r for c in concept_cards for r in history.get(c["id"], [])]), confusing=confflags, confusing_cid=row["cid"]),
+                             lesmod.render_levels(lesson_map[node], mastery_of[node], concept_tries, level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node), order=order, symbols=sym_index, sym_mid=mid, replay_step=replay_step, lesson_commit=mod_commit, current_commit=mod_head, recent=explcalibmod.recent_from_rows([r for c in concept_cards for r in history.get(c["id"], [])]), confusing=confflags, confusing_cid=row["cid"], ab_variant=abmod.variant_for(row["cid"])),
                              beforaftermod.lesson_block(lesson_map[node], ci == 0)]
                 if stylemixmod.order_sections(lesson_map[node], affinity)[0] == "visual":
                     parts.extend(visual_bits)
@@ -1155,7 +1156,7 @@ class Handler(BaseHTTPRequestHandler):
                     parts.append("<h3>Practice</h3>")
             for c in concept_cards:
                 lesson = (tabmemorymod.details_html(
-                    lesmod.render_levels(lesson_map[node], mastery_of.get(node, 0.0), tries.get(c['id'], 0), level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node), order=order, symbols=sym_index, sym_mid=mid, replay_step=replay_step, lesson_commit=mod_commit, current_commit=mod_head, recent=explcalibmod.recent_from_rows(history.get(c['id'], []))),
+                    lesmod.render_levels(lesson_map[node], mastery_of.get(node, 0.0), tries.get(c['id'], 0), level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node), order=order, symbols=sym_index, sym_mid=mid, replay_step=replay_step, lesson_commit=mod_commit, current_commit=mod_head, recent=explcalibmod.recent_from_rows(history.get(c['id'], [])), ab_variant=abmod.variant_for(row["cid"])),
                     f"mod:{node}")
                     if node in lesson_map else "")
                 parts.append(

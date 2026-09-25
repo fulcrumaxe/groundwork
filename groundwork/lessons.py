@@ -18,7 +18,8 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
                     lesson_commit: str = "",
                     current_commit: str = "", recent=None,
                     peer_votes=None, confusing=None,
-                    confusing_cid: str = "") -> str:
+                    confusing_cid: str = "",
+                    ab_variant: str = "") -> str:
     """Leveled explainer with tabs; auto-places from mastery by default.
 
     ``recent`` is an optional oldest-first list of (grade, confidence)
@@ -46,6 +47,9 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
     block gains a confusing toggle posting to
     ``/concepts/<cid>/confusing``. Absent/empty ``confusing_cid``
     renders the legacy page with no toggles.
+
+    ``ab_variant`` is "A", "B", or "" (I-136); "B" leads
+    tradeoffs-first, anything else keeps the legacy ELI5-first order.
     """
     from . import codelines as codelinesmod
     from . import dualcode as dualmod
@@ -88,6 +92,9 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
         + lessondiffmod.lesson_block(lesson))
     # I-123: ELI5 block above, tradeoffs below; "" keeps bytes.
     top, bottom = extremesmod.extreme_blocks(lesson)
+    if ab_variant == "B":
+        # I-136: tradeoffs-first phrasing; A/empty keeps legacy order.
+        top, bottom = bottom, top
     # I-124: peer level hint beside the tabs; "" until quorum.
     peer = peerhelpmod.line_html(peer_votes)
     out = [ver + top + f"<p><small>Explain it {'simply' if active <= 2 else 'technically'}: "
