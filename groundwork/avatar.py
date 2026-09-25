@@ -59,11 +59,35 @@ def avatar_svg(key) -> str:
                 "mark'><circle cx='20' cy='20' r='11'/></svg>")
 
 
+def library_key(db_path: str) -> str:
+    """Content-addressed identity key: sorted names + summaries.
+
+    Tmp paths differ per checkout, so the key derives from library
+    content instead — same content, same mark, stable goldens.
+    """
+    try:
+        from . import db as dbmod
+        con = dbmod.connect(db_path)
+        try:
+            names = sorted(
+                str(r[0] or "") for r in con.execute(
+                    "SELECT name FROM concepts").fetchall())
+            sums = sorted(
+                str(r[0] or "") for r in con.execute(
+                    "SELECT task_summary FROM modules").fetchall())
+        finally:
+            con.close()
+        key = "|".join(names + sums)
+        return key if key.strip("|") else "learner"
+    except Exception:  # noqa: BLE001 -- key must never raise
+        return "learner"
+
+
 def box_html(db_path: str) -> str:
     """Identity box for the History headline."""
     try:
         return (f"<p class='avatar-box' id='library-identity'>"
-                f"{avatar_svg(db_path)} "
+                f"{avatar_svg(library_key(db_path))} "
                 f"<small>Your library mark — same colors every visit, "
                 f"private to this library.</small></p>")
     except Exception:  # noqa: BLE001 -- box must never raise

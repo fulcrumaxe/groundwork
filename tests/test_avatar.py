@@ -25,6 +25,12 @@ class IdentityTest(unittest.TestCase):
         self.assertIn("<svg", mod.avatar_svg(None))
         self.assertIn("library-identity", mod.box_html(None))
 
+    def test_key_content_addressed(self):
+        _t1, db1, _s1, _o1 = make_module("same content")
+        _t2, db2, _s2, _o2 = make_module("same content")
+        self.assertEqual(mod.library_key(db1), mod.library_key(db2))
+        self.assertEqual(mod.library_key("/nonexistent.db"), "learner")
+
     def test_css_has_no_style_tags(self):
         self.assertNotIn("<style", mod.avatar_css())
 
