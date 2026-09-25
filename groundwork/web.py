@@ -101,7 +101,7 @@ from . import quests as questsmod
 from . import readgroup as readgroupmod
 from . import realfile as realfilemod
 from . import regenstat as regenstatmod
-from . import readout as readoutmod
+from . import readout as readoutmod, readnudge as readnudgemod  # one line keeps web.py at WEB_CEILING
 from . import readtime as readtimemod
 from . import recent as recentmod
 from . import related as relmod
@@ -1059,7 +1059,7 @@ class Handler(BaseHTTPRequestHandler):
         if repo_line:
             parts.append(f"<p><small>Session: {html.escape(repo_line)}</small></p>")
         parts.append(resetmod.reset_link_html(mid))
-        parts.append(recentmod.record_js(mid, m["task_summary"] or mid))
+        parts.append(recentmod.record_js(mid, m["task_summary"] or mid) + readnudgemod.nudge_html())
         toc = []
         for row in concepts:
             node = row["cid"].split(":", 1)[1] if ":" in row["cid"] else row["cid"]
