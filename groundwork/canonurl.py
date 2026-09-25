@@ -51,6 +51,7 @@ ROUTES = (
     ("/journal", "Private journal"),
     ("/styleguide", "Component gallery"),
     ("/search", "Ranked header search"),
+    ("/file", "Read-only source viewer"),
     ("/modules/{mid}", "Module detail page"),
     ("/modules/{mid}/reset", "Module reset confirm + action"),
     ("/modules/{mid}/handout/{node}", "Printable lesson handout"),

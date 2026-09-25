@@ -36,7 +36,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 
-WEB_CEILING = 1375  # Batch 18: +3 head-wire imports, +order threading (explainflip). Batch 19: symbols/replay/version params, ?replay threading, delegation lines. Batch 21 I-92: tablescroll import + scroll_css delegation. I-126: callgraph import + lesson-block delegation. I-130: imgattach import + figures delegation. I-131: lessondeps import + seen-order delegation. I-134: confusing import + banner + confusing POST route. F-95: flowdetect import + flow rows query. F-96: relief banner line on result page. F-98: stylemix import + affinity + visual-first lesson order. Batch 20: lessonpin import + pin-order delegation. Handout route + per-section link. Explcalib import + calibration query/wires. Diagrams import + badge/mark wires. Debugkata import + kata block wire. Readgroup import + session wire. Reteach import + first-attempt query/box. Forgetcurve import + decay fit/order; minisession decay floor. Peaktime import + banner wire.
+WEB_CEILING = 1396  # Batch 18: +3 head-wire imports, +order threading (explainflip). Batch 22: abphrase/learn variant threading, calmreplay/readout/dyslexia script wires, dyslexia CSS+header, realfile import/header/file route, regenstat import/banner, timetag import/skip wire. Batch 19: symbols/replay/version params, ?replay threading, delegation lines. Batch 21 I-92: tablescroll import + scroll_css delegation. I-126: callgraph import + lesson-block delegation. I-130: imgattach import + figures delegation. I-131: lessondeps import + seen-order delegation. I-134: confusing import + banner + confusing POST route. F-95: flowdetect import + flow rows query. F-96: relief banner line on result page. F-98: stylemix import + affinity + visual-first lesson order. Batch 20: lessonpin import + pin-order delegation. Handout route + per-section link. Explcalib import + calibration query/wires. Diagrams import + badge/mark wires. Debugkata import + kata block wire. Readgroup import + session wire. Reteach import + first-attempt query/box. Forgetcurve import + decay fit/order; minisession decay floor. Peaktime import + banner wire.
 AREA_CAP = 350
 
 # Capability area -> module implementing it. Batch 3 appends its areas here.
@@ -294,6 +294,23 @@ AREAS = {
     "skillatoms": "skillatoms.py",
     "remedpath": "remedpath.py",
     "batch21": "batch21.py",
+    "ownhead": "ownhead.py",
+    "growrings": "growrings.py",
+    "knowngarden": "knowngarden.py",
+    "timeledger": "timeledger.py",
+    "milestones": "milestones.py",
+    "sharecards": "sharecards.py",
+    "learnresume": "learnresume.py",
+    "endorse": "endorse.py",
+    "tztime": "tztime.py",
+    "timetag": "timetag.py",
+    "realfile": "realfile.py",
+    "regenstat": "regenstat.py",
+    "abphrase": "abphrase.py",
+    "readout": "readout.py",
+    "dyslexia": "dyslexia.py",
+    "calmreplay": "calmreplay.py",
+    "batch22": "batch22.py",
 }
 
 

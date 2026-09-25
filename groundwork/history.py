@@ -15,14 +15,24 @@ from . import cards as cardsmod
 from . import db as dbmod
 from . import emptyart as emptyartmod
 from . import exercises as exmod
+from . import growrings as growringsmod
+from . import knowngarden as knowngardenmod
+from . import timeledger as timeledgermod
 from . import verdicts as verdictsmod
 from . import monthreview as monthmod
+from . import milestones as milestonesmod
+from . import endorse as endorsemod
+from . import learnresume as learnresumemod
 from . import overconf as overconfmod
+from . import sharecards as sharecardsmod
+from . import ownhead as ownheadmod
 from . import ownership as ownmod
 from . import resume as resumemod
 from . import undo as undomod
 from . import sched as schedmod
 from . import tablescroll as tablescrollmod
+from . import timetag as timetagmod
+from . import tztime as tztimemod
 from . import workload as workloadmod
 
 COACH_TIPS = {
@@ -128,7 +138,14 @@ def history_html(db_path: str) -> str:
             tl_stats[tm["id"]] = (cards_n, tries_n, omap)
     finally:
         con.close()
-    parts = []
+    parts = [ownheadmod.headline_html(db_path),
+             growringsmod.section_html(db_path),
+             knowngardenmod.section_html(db_path),
+             timeledgermod.section_html(db_path),
+             milestonesmod.section_html(db_path),
+             sharecardsmod.section_html(db_path),
+             learnresumemod.section_html(db_path),
+             endorsemod.section_html(db_path)]
     if cal and cal["n"]:
         acc = (cal["g"] or 0) / 5.0
         conf = ((cal["c"] or 3) - 1) / 4.0
@@ -156,7 +173,7 @@ def history_html(db_path: str) -> str:
                 owned_n = sum(1 for _, o in omap.values() if o)
                 date = (tm["created_at"] or "")[:10]
                 tl_rows.append(
-                    f"<tr><td>{html.escape(date)}</td>"
+                    f"<tr><td>{tztimemod.day_html(date)}</td>"
                     f"<td><a href='/modules/{tm['id']}'>"
                     f"{html.escape(tm['task_summary'] or tm['id'])}</a>"
                     f"<br><small>{html.escape(tm['repo'] or '')}</small></td>"
@@ -170,6 +187,8 @@ def history_html(db_path: str) -> str:
                              "<th>Cards</th><th>Attempts</th><th>Owned</th></tr>"
                              + "".join(tl_rows) + "</table>"))
     else:
+        # Proof sections already lead via the init list above; the
+        # empty branch only adds the empty-state art and ritual links.
         parts.append(emptyartmod.art_for("history") +
                      "<p>No attempts yet. Answer a card on the "
                      "<a href='/due'>Due</a> page and it will show up here.</p>")
@@ -179,7 +198,7 @@ def history_html(db_path: str) -> str:
         return "".join(parts)
     if days:
         cells = "".join(
-            f"<tr><td>{html.escape(d['d'])}</td><td>{d['n']}</td>"
+            f"<tr><td>{timetagmod.stamp(d['d'])}</td><td>{d['n']}</td>"
             f"<td>{d['ok']}</td></tr>" for d in days)
         parts.append("<h2>Last 14 practice days</h2>"
                      + tablescrollmod.wrap_table(
@@ -209,7 +228,7 @@ def history_html(db_path: str) -> str:
         parts.append(
             f"<p class='{cls}'>{mark} {html.escape(r['concept'] or '')} — "
             f"grade {r['grade']}/5, confidence {r['confidence']}/5 "
-            f"<small>{cardsmod._rel_time(r['reviewed_at'] or '')}</small>"
+            f"<small>{tztimemod.stamp_html(r['reviewed_at'] or '')}</small>"
             f"{(' ' + cont) if cont else ''}<br>"
             f"<small>in {cardlinksmod.history_link(r['module_id'], r['card_id'], r['summary'] or r['module_id'])}</small></p>")
     return "".join(parts)

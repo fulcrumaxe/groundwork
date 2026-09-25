@@ -881,6 +881,65 @@ tour 126/130 → 133/138; docs regen (README + features.md from tour
 registry); goldens refreshed (result-page atoms/relief, due order,
 status batch21 sections).
 
+Batch 22 — eight improvements (I-26, I-93, I-129, I-135, I-136,
+I-138–I-140) + eight features (F-102–F-105, F-107–F-110). Shipped on
+branch `batch22-f8-i8`. Selection: next-unshipped in backlog order,
+skipping already-satisfied items. The design wave's discovery picked
+13 already-shipped/satisfied items (I-5, I-9, I-11, I-13, I-15, I-18,
+I-21, I-23, F-1, F-52, F-53, F-68, F-101 — verified item-by-item
+against this ledger and the code); the parent replaced them with the
+true next-unshipped before implementing, so no duplicate modules were
+created and nothing was re-crossed-off. I-36 skipped (the reset
+confirm page already ships it). I-137 recorded, not shipped: no
+locale/language signal exists anywhere (no Accept-Language read, no
+per-language content), so structural localization has nothing to key
+off; substituted next-in-order I-140. Batch 21's cut note is
+resolved: I-129 ships now with the /file viewer route it was missing.
+- [x] I-26 tztime → timezone-explicit stamps (tztime.py).
+  Caller history.history_html attempt rows + coverage dates.
+- [x] I-93 timetag → one <time> element everywhere (timetag.py).
+  Callers history days, known, workload, journal, web skip-confirm.
+- [x] I-129 realfile → source-line links + jailed viewer (realfile.py).
+  Caller Handler.module_html headers + /file route.
+- [x] I-135 regenstat → queue positions + ages (regenstat.py).
+  Caller Handler.module_html banner.
+- [x] I-136 abphrase → A/B phrasings by recall (abphrase.py).
+  Caller lessons.render_levels variant.
+- [x] I-138 readout → read-aloud walkthroughs (readout.py).
+  Caller web.page script wire.
+- [x] I-139 dyslexia → readable-type toggle (dyslexia.py).
+  Caller web.page chrome wire.
+- [x] I-140 calmreplay → instant reveals (calmreplay.py).
+  Caller lessons.render_levels twin + web.page script wire.
+- [x] F-102 ownhead → owned headline (ownhead.py).
+  Caller history.history_html headline lift.
+- [x] F-103 growrings → growth rings (growrings.py).
+  Caller history.history_html section lift.
+- [x] F-104 knowngarden → knowledge garden (knowngarden.py).
+  Caller history.history_html section lift.
+- [x] F-105 timeledger → time ROI ledger (timeledger.py).
+  Caller history.history_html section lift.
+- [x] F-107 milestones → milestone moments (milestones.py).
+  Caller history.history_html section lift.
+- [x] F-108 sharecards → PNG share-cards (sharecards.py).
+  Caller history.history_html section lift.
+- [x] F-109 learnresume → verified-skills resume (learnresume.py).
+  Caller history.history_html section lift.
+- [x] F-110 endorse → delayed-test endorsements (endorse.py).
+  Caller history.history_html section lift.
+
+Batch 22 migration: none (no schema changes; every item computes off
+existing tables; share-cards embed data-URI PNGs).
+
+Batch 22 wires: WEB_CEILING 1375 → 1396 (variant threading, script
+wires, dyslexia CSS+header, /file route, banner/timetag imports);
+status.py unchanged at 349 (same-line batch22 join); lessons.py +2
+(ab_variant, calm twin); history.py empty-branch dedupe (proof sections
+lead once via the init list); tour 133/138 → 141/146; docs regen
+(README + features.md from tour registry); goldens refreshed (due
+replay-full twin, reviews proof block, status batch22 sections);
+chrome_sweep +29 Batch 22 DOM checks.
+
 ## IMPROVEMENTS (500)
 
 ### A. Navigation, IA & routing (I-1–50)
@@ -910,7 +969,7 @@ status batch21 sections).
 - I-23: Show related modules ("same symbols", "same repo") at module bottom.
 - [x] I-24: Add a "recently visited" strip on Due.
 - I-25: Unify date/time formatting and add relative times ("2h ago", "due tomorrow").
-- I-26: Make all timestamps timezone-explicit with title tooltips.
+- [x] I-26: Make all timestamps timezone-explicit with title tooltips.
 - [x] I-27: Add print stylesheet so lessons print cleanly as study sheets.
 - [x] I-28: Add "copy link" button per lesson section (copies anchor URL).
 - [x] I-29: Confirm before leaving a half-answered card (unsaved textarea guard).
@@ -980,7 +1039,7 @@ status batch21 sections).
 - [x] I-90: Responsive breakpoints audit at 360/768/1024/1440px with screenshots.
 - [x] I-91: Prevent layout shift from Parsons drag list (fixed min-heights).
 - [x] I-92: Make tables horizontally scrollable with sticky first column on mobile.
-- I-93: Unify all timestamps into a `<time>` element with datetime attr.
+- [x] I-93: Unify all timestamps into a `<time>` element with datetime attr.
 - [x] I-94: Add a design-tokens section to README for contributors.
 - [x] I-95: Snapshot-test rendered page HTML to catch visual regressions.
 - I-96: Add a `/styleguide` dev page showcasing every component.
@@ -1019,18 +1078,18 @@ status batch21 sections).
 - [x] I-126: Render call graphs as inline SVG instead of text lists.
 - [x] I-127: Sequence diagrams for the 3-step call chains (type-10 content reused).
 - [x] I-128: File-map mini-view: where this concept sits in the repo tree.
-- I-129: Add "see it in the real file" link with line anchor to repo viewer.
+- [x] I-129: Add "see it in the real file" link with line anchor to repo viewer.
 - [x] I-130: Support image attachments in concept_notes (screenshots, whiteboard).
 - [x] I-131: Add lesson dependencies ("understand X first") with jump links.
 - [x] I-132: Detect circular lesson dependencies and break ties deterministically.
 - I-133: Add "I already know this" skip that schedules a delayed verification.
 - [x] I-134: Add "confusing" flag per lesson section routing to regeneration queue.
-- I-135: Show regeneration status ("improved draft pending") transparently.
-- I-136: A/B test explainer phrasings and keep winners by delayed recall.
+- [x] I-135: Show regeneration status ("improved draft pending") transparently.
+- [x] I-136: A/B test explainer phrasings and keep winners by delayed recall.
 - I-137: Localize lesson templates (structure, not just words) per language.
-- I-138: Add code-reading-aloud mode (speech synthesis of walkthrough steps).
-- I-139: Add dyslexia-friendly type/spacing toggle.
-- I-140: Reduce motion in walkthrough reveals; instant when reduced-motion set.
+- [x] I-138: Add code-reading-aloud mode (speech synthesis of walkthrough steps).
+- [x] I-139: Add dyslexia-friendly type/spacing toggle.
+- [x] I-140: Reduce motion in walkthrough reveals; instant when reduced-motion set.
 - I-141: Add lesson audio summaries (offline TTS where available).
 - I-142: Transcript every audio asset for search and accessibility.
 - I-143: Add "study with a friend" side-by-side lesson view (two cursors, local).
@@ -1524,15 +1583,15 @@ status batch21 sections).
 ### M. Motivation without dark patterns (F-101–150)
 
 - F-101: Personal-best tracking (accuracy, speed, depth) with history charts.
-- F-102: "Concepts owned" counter as the headline number (never streaks).
-- F-103: Growth rings visualization (each owned concept adds a ring).
-- F-104: Knowledge-garden view (repo map blooming as you learn).
-- F-105: Time-invested ledger (hours → owned concepts ROI view).
+- [x] F-102: "Concepts owned" counter as the headline number (never streaks).
+- [x] F-103: Growth rings visualization (each owned concept adds a ring).
+- [x] F-104: Knowledge-garden view (repo map blooming as you learn).
+- [x] F-105: Time-invested ledger (hours → owned concepts ROI view).
 - F-106: Weekly letter to self (auto-drafted progress note, private).
-- F-107: Milestone moments (first Owned, 10th module, full repo coverage).
-- F-108: Milestone share-cards (exportable PNG for socials, opt-in).
-- F-109: Learning resume (verified skills page per repo, portable).
-- F-110: Skill endorsements by your own delayed tests (not peers).
+- [x] F-107: Milestone moments (first Owned, 10th module, full repo coverage).
+- [x] F-108: Milestone share-cards (exportable PNG for socials, opt-in).
+- [x] F-109: Learning resume (verified skills page per repo, portable).
+- [x] F-110: Skill endorsements by your own delayed tests (not peers).
 - F-111: "Explain it to me" party trick mode (quiz from your owned list).
 - F-112: Teaching certificates per module pack (combines owned proofs).
 - F-113: Collectible concept badges (art per idea, no rarity pressure).

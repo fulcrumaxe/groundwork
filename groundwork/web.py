@@ -13,12 +13,14 @@ import secrets
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, quote, urlparse
 
+from . import abphrase as abmod
 from . import api as apimod
 from . import autofocus as autofocusmod
 from . import autoscroll as autoscrollmod
 from . import bloomchips as bloomchipsmod
 from . import briefing as briefingmod
 from . import callgraph as callgraphmod
+from . import calmreplay as calmmod
 from . import carets as caretsmod
 from . import codelines as codelinesmod
 from . import highlight as highlightmod
@@ -45,6 +47,7 @@ from . import debt as debtmod
 from . import debugkata as debugkatamod
 from . import decisions as decmod
 from . import density as densitymod
+from . import dyslexia as dyslexiamod
 from . import diagrams as diagramsmod
 from . import diagnose as diamod
 from . import diff as diffmod
@@ -96,6 +99,9 @@ from . import radius as radiusmod
 from . import queue as qmod
 from . import quests as questsmod
 from . import readgroup as readgroupmod
+from . import realfile as realfilemod
+from . import regenstat as regenstatmod
+from . import readout as readoutmod
 from . import readtime as readtimemod
 from . import recent as recentmod
 from . import related as relmod
@@ -122,6 +128,7 @@ from . import spacing as spacingmod
 from . import tabmemory as tabmemorymod
 from . import tablescroll as tablescrollmod
 from . import taptargets as taptargetsmod
+from . import timetag as timetagmod
 from . import status as statusmod
 from . import storage as storagemod
 from . import styleguide as styleguidemod
@@ -249,7 +256,7 @@ CSS = ("body{font-family:system-ui,-apple-system,sans-serif;max-width:48rem;"
 # concatenated into CSS (that nests <style> inside <style>, closes the
 # head stylesheet early, and dumps all later CSS into <body> as text).
 FOCUS_CSS = clickcardsmod.focus_css()
-CSS += palettemod.palette_css() + darkmodemod.dark_css() + typescalemod.scale_css() + fontstackmod.stack_css() + wordmarkmod.wordmark_css() + bloomchipsmod.chip_css() + progbarmod.progbar_css() + ownedbadgemod.badge_css() + staggermod.stagger_css() + caretsmod.carets_css() + codelinesmod.codelines_css() + highlightmod.highlight_css() + hinttiersmod.hinttiers_css() + confslidermod.css() + focusringsmod.css() + taptargetsmod.target_css() + radiusmod.radius_css() + spacingmod.spacing_css() + doneheromod.hero_css() + logbookmod.logbook_css() + shelfmod.shelf_css() + briefingmod.briefing_css() + verdictsmod.verdicts_css() + ownbannermod.ownbanner_css() + pressfxmod.pressfx_css() + skeletonsmod.skeletons_css() + optimisticmod.optimistic_css() + formerrmod.formerr_css() + selectionmod.selection_css() + scrollbarmod.scrollbar_css() + densitymod.density_css() + responsivemod.narrow_css() + emojimod.icon_css() + parsonsmod.parsons_css() + contrastmod.contrast_css() + motionmod.motion_css() + lessonvermod.banner_css() + tablescrollmod.scroll_css()  # Batch 9 I-51/52/53/54: token variables, dark overrides, type scale, font stacks. Batch 10 I-55..I-62: wordmark, bloom chips, progress motion, owned badge, stagger, carets, code lines, highlight. Batch 11 I-63..I-70: hint tiers, confidence segments, focus rings, tap floor, radii, spacing, hero. Batch 12 I-71..I-73/I-77/I-79..I-82: logbook, shelf, briefing, verdicts, banner, press, skeletons, optimistic submit. Batch 13 I-84/I-85/I-86/I-89/I-90: field errors, selection, scrollbars, density, narrow phones. Batch 19 I-115: lesson version banner. Batch 21 I-92: scrollable tables.
+CSS += palettemod.palette_css() + darkmodemod.dark_css() + typescalemod.scale_css() + fontstackmod.stack_css() + wordmarkmod.wordmark_css() + bloomchipsmod.chip_css() + progbarmod.progbar_css() + ownedbadgemod.badge_css() + staggermod.stagger_css() + caretsmod.carets_css() + codelinesmod.codelines_css() + highlightmod.highlight_css() + hinttiersmod.hinttiers_css() + confslidermod.css() + focusringsmod.css() + taptargetsmod.target_css() + radiusmod.radius_css() + spacingmod.spacing_css() + doneheromod.hero_css() + logbookmod.logbook_css() + shelfmod.shelf_css() + briefingmod.briefing_css() + verdictsmod.verdicts_css() + ownbannermod.ownbanner_css() + pressfxmod.pressfx_css() + skeletonsmod.skeletons_css() + optimisticmod.optimistic_css() + formerrmod.formerr_css() + selectionmod.selection_css() + scrollbarmod.scrollbar_css() + densitymod.density_css() + responsivemod.narrow_css() + emojimod.icon_css() + parsonsmod.parsons_css() + contrastmod.contrast_css() + motionmod.motion_css() + lessonvermod.banner_css() + tablescrollmod.scroll_css() + dyslexiamod.dyslexia_css()  # Batch 9 I-51/52/53/54: token variables, dark overrides, type scale, font stacks. Batch 10 I-55..I-62: wordmark, bloom chips, progress motion, owned badge, stagger, carets, code lines, highlight. Batch 11 I-63..I-70: hint tiers, confidence segments, focus rings, tap floor, radii, spacing, hero. Batch 12 I-71..I-73/I-77/I-79..I-82: logbook, shelf, briefing, verdicts, banner, press, skeletons, optimistic submit. Batch 13 I-84/I-85/I-86/I-89/I-90: field errors, selection, scrollbars, density, narrow phones. Batch 19 I-115: lesson version banner. Batch 21 I-92: scrollable tables.
 
 GLOBAL_JS = """
 <script>
@@ -335,7 +342,7 @@ def page(title: str, body: str, active: str = "projects",
     links = sitenavmod.header_nav(active, counts)
     head = (f"<a class='skip' href='#main'>Skip to content</a>"
             f"<header class='page-head' id='top'><nav id='sitenav'>{links}</nav>"
-            f"<h1>{wordmarkmod.wordmark_svg()} {html.escape(title)}</h1>{searchmod.header_html()}{densitymod.toggle_html()}")
+            f"<h1>{wordmarkmod.wordmark_svg()} {html.escape(title)}</h1>{searchmod.header_html()}{densitymod.toggle_html()}{dyslexiamod.toggle_html()}")
     if lede:
         head += f"<p class='lede'>{html.escape(lede)}</p>"
     head += "</header>"
@@ -358,7 +365,7 @@ def page(title: str, body: str, active: str = "projects",
             f"{shortcutsmod.overlay_html()}{GLOBAL_JS}{shortcutsmod.script_js()}"
             f"{searchmod.script_js()}{scrollposmod.record_js()}"
             f"{reviewedmod.script_js()}{unsavedmod.guard_js()}{autofocusmod.focus_js()}"
-            f"{collapsemod.collapse_js()}{optimisticmod.optimistic_js()}{densitymod.toggle_js()}</body></html>").encode()
+            f"{collapsemod.collapse_js()}{optimisticmod.optimistic_js()}{densitymod.toggle_js()}{dyslexiamod.toggle_js()}{readoutmod.script_js()}{calmmod.script_js()}</body></html>").encode()
 
 
 def _first_unowned(owned: dict, cids_in_order: list[str]) -> str | None:
@@ -547,6 +554,18 @@ class Handler(BaseHTTPRequestHandler):
                             active="projects", page_id="projects",
                             lede="Concepts, modules, and symbols — ranked.",
                             counts=counts, tour=tour_ctx))
+        elif url.path == "/file":
+            fpath = query.get("path", [""])[0]
+            try:
+                fline = int(query.get("line", ["1"])[0])
+            except (TypeError, ValueError):
+                fline = 1
+            title, body = realfilemod.page_html(
+                realfilemod.db_root(self.db_path), fpath, fline)
+            self._send(page(title, body, active="modules",
+                            page_id="modules", counts=counts,
+                            tour=tour_ctx),
+                       200 if title != "Not found" else 404)
         elif url.path == "/export/anki.tsv":
             self._send(self.anki_tsv().encode(), 200,
                        "text/tab-separated-values; charset=utf-8")
@@ -1080,6 +1099,7 @@ class Handler(BaseHTTPRequestHandler):
              for r in concepts], mid)
         confflags = confusingmod.flags_for_module(self.db_path, mid)
         parts.append(confusingmod.queue_banner_html(confflags, base))
+        parts.append(regenstatmod.status_html(self.db_path, mid))
         # F-98: one page-level visual-vs-textual affinity from performance.
         affinity = stylemixmod.affinity(stylemixmod.records_for(
             history, cards_by_concept, lesson_map))
@@ -1100,7 +1120,8 @@ class Handler(BaseHTTPRequestHandler):
                 f" {chiplinksmod.chip_link(mid, node, status)}"
                 f"{debtmod.ladder_html(ladders.get(row['cid'], -1), ladder_extra)}{stale}</h2>"
                 f"<p><small>{html.escape(row['kind'])} · "
-                f"{html.escape(row['file'])}:{row['line']}</small></p>")
+                f"{html.escape(row['file'])}:{row['line']}"
+                f"{realfilemod.file_link(row['file'], row['line'], first=(ci == 0))}</small></p>")
             if node in lesson_map:
                 # F-98: visual blocks lead only under visual affinity;
                 # otherwise the historical text-first order stands.
@@ -1108,7 +1129,7 @@ class Handler(BaseHTTPRequestHandler):
                                callgraphmod.block_html(lesson_map[node]),
                                imgattachmod.figures_html(lesson_map[node])]
                 text_bits = [whyitmod.lesson_why_html(lesson_map[node], first=(ci == 0)),
-                             lesmod.render_levels(lesson_map[node], mastery_of[node], concept_tries, level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node), order=order, symbols=sym_index, sym_mid=mid, replay_step=replay_step, lesson_commit=mod_commit, current_commit=mod_head, recent=explcalibmod.recent_from_rows([r for c in concept_cards for r in history.get(c["id"], [])]), confusing=confflags, confusing_cid=row["cid"]),
+                             lesmod.render_levels(lesson_map[node], mastery_of[node], concept_tries, level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node), order=order, symbols=sym_index, sym_mid=mid, replay_step=replay_step, lesson_commit=mod_commit, current_commit=mod_head, recent=explcalibmod.recent_from_rows([r for c in concept_cards for r in history.get(c["id"], [])]), confusing=confflags, confusing_cid=row["cid"], ab_variant=abmod.variant_for(row["cid"])),
                              beforaftermod.lesson_block(lesson_map[node], ci == 0)]
                 if stylemixmod.order_sections(lesson_map[node], affinity)[0] == "visual":
                     parts.extend(visual_bits)
@@ -1138,7 +1159,7 @@ class Handler(BaseHTTPRequestHandler):
                     parts.append("<h3>Practice</h3>")
             for c in concept_cards:
                 lesson = (tabmemorymod.details_html(
-                    lesmod.render_levels(lesson_map[node], mastery_of.get(node, 0.0), tries.get(c['id'], 0), level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node), order=order, symbols=sym_index, sym_mid=mid, replay_step=replay_step, lesson_commit=mod_commit, current_commit=mod_head, recent=explcalibmod.recent_from_rows(history.get(c['id'], []))),
+                    lesmod.render_levels(lesson_map[node], mastery_of.get(node, 0.0), tries.get(c['id'], 0), level, base, owned=lesmod.owned_lessons(lesson_map, mastery_of, node), order=order, symbols=sym_index, sym_mid=mid, replay_step=replay_step, lesson_commit=mod_commit, current_commit=mod_head, recent=explcalibmod.recent_from_rows(history.get(c['id'], [])), ab_variant=abmod.variant_for(row["cid"])),
                     f"mod:{node}")
                     if node in lesson_map else "")
                 parts.append(
@@ -1261,7 +1282,7 @@ class Handler(BaseHTTPRequestHandler):
             else:
                 back = f"/modules/{out['module_id']}"
                 body = (f"<p>Skipped — verification due "
-                        f"<b>{html.escape(out['verify_due'][:10])}</b>.</p>"
+                        f"<b>{timetagmod.stamp(out['verify_due'])}</b>.</p>"
                         f"<p><a class='btn' href='{html.escape(back)}'>"
                         f"Back to module</a></p>")
             self._send(page("Already know", body, counts=self._nav_counts()))
