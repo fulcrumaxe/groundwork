@@ -187,13 +187,8 @@ def history_html(db_path: str) -> str:
                              "<th>Cards</th><th>Attempts</th><th>Owned</th></tr>"
                              + "".join(tl_rows) + "</table>"))
     else:
-        parts.append(growringsmod.section_html(db_path))
-        parts.append(knowngardenmod.section_html(db_path))
-        parts.append(timeledgermod.section_html(db_path))
-        parts.append(milestonesmod.section_html(db_path))
-        parts.append(sharecardsmod.section_html(db_path))
-        parts.append(learnresumemod.section_html(db_path))
-        parts.append(endorsemod.section_html(db_path))
+        # Proof sections already lead via the init list above; the
+        # empty branch only adds the empty-state art and ritual links.
         parts.append(emptyartmod.art_for("history") +
                      "<p>No attempts yet. Answer a card on the "
                      "<a href='/due'>Due</a> page and it will show up here.</p>")
