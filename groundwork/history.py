@@ -22,6 +22,7 @@ from . import verdicts as verdictsmod
 from . import monthreview as monthmod
 from . import milestones as milestonesmod
 from . import overconf as overconfmod
+from . import sharecards as sharecardsmod
 from . import ownhead as ownheadmod
 from . import ownership as ownmod
 from . import resume as resumemod
@@ -137,7 +138,8 @@ def history_html(db_path: str) -> str:
              growringsmod.section_html(db_path),
              knowngardenmod.section_html(db_path),
              timeledgermod.section_html(db_path),
-             milestonesmod.section_html(db_path)]
+             milestonesmod.section_html(db_path),
+             sharecardsmod.section_html(db_path)]
     if cal and cal["n"]:
         acc = (cal["g"] or 0) / 5.0
         conf = ((cal["c"] or 3) - 1) / 4.0
@@ -183,6 +185,7 @@ def history_html(db_path: str) -> str:
         parts.append(knowngardenmod.section_html(db_path))
         parts.append(timeledgermod.section_html(db_path))
         parts.append(milestonesmod.section_html(db_path))
+        parts.append(sharecardsmod.section_html(db_path))
         parts.append(emptyartmod.art_for("history") +
                      "<p>No attempts yet. Answer a card on the "
                      "<a href='/due'>Due</a> page and it will show up here.</p>")
