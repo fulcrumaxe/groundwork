@@ -12,6 +12,8 @@ from pathlib import Path
 from . import calibdrill as drillmod
 from . import confweight as confweightmod
 from . import db as dbmod
+from . import diffvote as diffvotemod
+from . import diffweights as diffweightsmod
 from . import boredom as boredommod
 from . import exercises as exmod
 from . import frustcatch as frustcatchmod
@@ -333,6 +335,15 @@ class MCPServer:
         ordered = boredommod.promote(
             ordered, {cid: grades[-boredommod.HISTORY_TAIL:]
                       for cid, grades in hist.items()})
+        # I-146: difficulty votes reweight voted concepts' cards;
+        # no votes keeps today's order (empty tallies fall back).
+        try:
+            cids = [c.get("concept_id") for c in ordered
+                    if isinstance(c, dict)]
+            ordered = diffweightsmod.order_due(
+                ordered, diffvotemod.tallies(self.db_path, cids))
+        except Exception:  # noqa: BLE001 -- votes never break the queue
+            pass
         # F-100: a failed concept pulls its unmastered prerequisites
         # ahead of the retry; calm queues keep today's order.
         try:
