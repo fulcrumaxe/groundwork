@@ -17,6 +17,7 @@ from . import emptyart as emptyartmod
 from . import exercises as exmod
 from . import growrings as growringsmod
 from . import knowngarden as knowngardenmod
+from . import timeledger as timeledgermod
 from . import verdicts as verdictsmod
 from . import monthreview as monthmod
 from . import overconf as overconfmod
@@ -133,7 +134,8 @@ def history_html(db_path: str) -> str:
         con.close()
     parts = [ownheadmod.headline_html(db_path),
              growringsmod.section_html(db_path),
-             knowngardenmod.section_html(db_path)]
+             knowngardenmod.section_html(db_path),
+             timeledgermod.section_html(db_path)]
     if cal and cal["n"]:
         acc = (cal["g"] or 0) / 5.0
         conf = ((cal["c"] or 3) - 1) / 4.0
@@ -177,6 +179,7 @@ def history_html(db_path: str) -> str:
     else:
         parts.append(growringsmod.section_html(db_path))
         parts.append(knowngardenmod.section_html(db_path))
+        parts.append(timeledgermod.section_html(db_path))
         parts.append(emptyartmod.art_for("history") +
                      "<p>No attempts yet. Answer a card on the "
                      "<a href='/due'>Due</a> page and it will show up here.</p>")
