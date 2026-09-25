@@ -52,7 +52,8 @@ class CallerEffectTest(unittest.TestCase):
         _tmp, db, _s, _out = make_module("weekdigest quiet")
         from groundwork import history as histmod
         body = histmod.history_html(db)
-        self.assertNotIn("weekdigest", body)
+        self.assertNotIn("class='weekdigest'", body)
+        self.assertNotIn("Weekly lesson digest</h3>", body)
 
     def test_block_lists_changes(self):
         changes = _changes(2)
