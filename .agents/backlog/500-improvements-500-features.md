@@ -1004,7 +1004,8 @@ teachcert, showcase, themeunlock, avatar imports + parts);
 mcp.py diffweights bridge (unregistered, no ceiling);
 tour 141/146 → 149/154; docs regen (README + features.md from
 tour registry); goldens refreshed (module/due/reviews/status
-batch23 sections).
+batch23 sections); chrome_sweep +24 Batch 23 DOM checks, 192/192
+green with review-submit interaction.
 
 ## IMPROVEMENTS (500)
 
