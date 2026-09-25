@@ -51,7 +51,7 @@ from . import dyslexia as dyslexiamod
 from . import diagrams as diagramsmod
 from . import diagnose as diamod
 from . import diff as diffmod
-from . import digest as digestmod
+from . import digest as digestmod, diffvote as diffvotemod  # one line keeps web.py at WEB_CEILING
 from . import disputes as dismod
 from . import donehero as doneheromod
 from . import emoji as emojimod, parsons as parsonsmod  # one line keeps web.py at WEB_CEILING
@@ -1089,8 +1089,7 @@ class Handler(BaseHTTPRequestHandler):
         dec_nodes = [r["cid"].split(":", 1)[1] if ":" in r["cid"] else r["cid"]
                      for r in concepts]
         dec_matches = decmod.matches_for_module(self.db_path, dec_nodes)
-        cl_sums = claritymod.summaries(
-            self.db_path, [r["cid"] for r in concepts])
+        cl_sums = claritymod.summaries(self.db_path, [r["cid"] for r in concepts]); dv_sums = diffvotemod.tallies(self.db_path, [r["cid"] for r in concepts])
         known_pending = knownmod.pending(
             self.db_path, [r["cid"] for r in concepts])
         sym_index = symlinksmod.build_index(
@@ -1145,8 +1144,7 @@ class Handler(BaseHTTPRequestHandler):
             parts.append(decmod.lesson_block(
                 node, dec_matches.get(node, []), ci == 0))
             avg, nvotes = cl_sums.get(row["cid"], (0.0, 0))
-            parts.append(claritymod.block_html(
-                row["cid"], avg, nvotes, base, ci == 0))
+            parts.append(claritymod.block_html(row["cid"], avg, nvotes, base, ci == 0) + diffvotemod.block_html(row["cid"], dv_sums.get(row["cid"], {}), base, ci == 0))
             parts.append(knownmod.button_html(
                 row["cid"], known_pending.get(row["cid"], ""), base,
                 ci == 0))
@@ -1254,6 +1252,18 @@ class Handler(BaseHTTPRequestHandler):
                         f"<p><a class='btn' href='{html.escape(back)}'>"
                         f"Back to module</a></p>")
             self._send(page("Clarity", body, counts=self._nav_counts()))
+            return
+        if url.path.startswith("/concepts/") and url.path.endswith("/diffvote"):
+            cid = url.path.split("/")[2]
+            form = parse_qs(raw, keep_blank_values=True)
+            origin = _safe_origin(form.get("origin", ["/modules"])[0])
+            out = diffvotemod.record(self.db_path, cid, form.get("vote", [""])[0])
+            if "error" in out:
+                body = (f"<p>Could not record: {html.escape(out['error'])}</p>" f"<p><a class='btn' href='{html.escape(origin)}'>Back</a></p>")
+            else:
+                back = f"/modules/{out['module_id']}"
+                body = (f"<p>Difficulty vote recorded — thank you.</p>" f"<p><a class='btn' href='{html.escape(back)}'>Back to module</a></p>")
+            self._send(page("Difficulty", body, counts=self._nav_counts()))
             return
         if url.path.startswith("/concepts/") and url.path.endswith("/confusing"):
             form = parse_qs(raw, keep_blank_values=True)
