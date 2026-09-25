@@ -64,14 +64,13 @@ def batch22_html(db_path: str = "") -> str:
         readmod.status_section_html(),
         dysmod.status_section_html(),
         calmmod.status_section_html(),
-        ownmod.section_html() if not db_path else
-        f"<h3 id='{ownmod.STATUS_ANCHOR}'>Owned headline "
-        "<small>(feature)</small></h3>" + ownmod.headline_html(db_path),
-        growmod.section_html(db_path),
-        gardenmod.section_html(db_path),
-        ledgermod.section_html(db_path),
-        milesmod.section_html(db_path),
-        sharemod.section_html(db_path),
-        resumemod.section_html(db_path),
-        endorsemod.section_html(db_path),
+        (ownmod.section_html() if not db_path else
+         ownmod.headline_html(db_path) + ownmod.section_html()),
+        growmod.section_html(db_path) + growmod.status_section_html(),
+        gardenmod.section_html(db_path) + gardenmod.status_section_html(),
+        ledgermod.section_html(db_path) + ledgermod.status_section_html(),
+        milesmod.section_html(db_path) + milesmod.status_section_html(),
+        sharemod.section_html(db_path) + sharemod.status_section_html(),
+        resumemod.section_html(db_path) + resumemod.status_section_html(),
+        endorsemod.section_html(db_path) + endorsemod.status_section_html(),
     ])

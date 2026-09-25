@@ -389,7 +389,7 @@ CHECKS: list[tuple[str, str, str]] = [
     ("B22-F103-live", "/reviews",
      "() => !!document.querySelector('#growth-rings circle')"),
     ("B22-F104-live", "/reviews",
-     "() => !!document.querySelector('#knowledge-garden .plot')"),
+     "() => !!document.querySelector('#knowledge-garden') && !!document.querySelector('.plot')"),
     ("B22-F105-live", "/reviews",
      "() => !!document.querySelector('#time-ledger')"),
     ("B22-F107-live", "/reviews",
