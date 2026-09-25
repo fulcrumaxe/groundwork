@@ -10,6 +10,7 @@ import html
 
 from . import db as dbmod
 from . import emptyart as emptyartmod
+from . import timetag as timetagmod
 from . import exercises as exmod
 from . import sched as schedmod
 
@@ -81,7 +82,7 @@ def page_html(db_path: str) -> str:
     """Journal page: this week's prompt, the form, past entries."""
     prompt = week_prompt(db_path)
     past = "".join(
-        f"<article><h3>{html.escape(r['created_day'] or '')}</h3>"
+        f"<article><h3>{timetagmod.stamp(r['created_day'])}</h3>"
         f"<p><small>{html.escape(r['prompt'] or '')}</small></p>"
         f"<p>{html.escape(r['body'] or '')}</p></article>"
         for r in entries(db_path))

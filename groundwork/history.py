@@ -31,6 +31,7 @@ from . import resume as resumemod
 from . import undo as undomod
 from . import sched as schedmod
 from . import tablescroll as tablescrollmod
+from . import timetag as timetagmod
 from . import tztime as tztimemod
 from . import workload as workloadmod
 
@@ -202,7 +203,7 @@ def history_html(db_path: str) -> str:
         return "".join(parts)
     if days:
         cells = "".join(
-            f"<tr><td>{html.escape(d['d'])}</td><td>{d['n']}</td>"
+            f"<tr><td>{timetagmod.stamp(d['d'])}</td><td>{d['n']}</td>"
             f"<td>{d['ok']}</td></tr>" for d in days)
         parts.append("<h2>Last 14 practice days</h2>"
                      + tablescrollmod.wrap_table(

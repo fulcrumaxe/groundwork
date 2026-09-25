@@ -10,6 +10,7 @@ from datetime import timedelta
 import html
 
 from . import db as dbmod
+from . import timetag as timetagmod
 from . import sched as schedmod
 
 VERIFY_DAYS = 30
@@ -58,7 +59,7 @@ def button_html(cid: str, verify_due: str, origin: str,
     mark = " id='already-know'" if anchor else ""
     if verify_due:
         return (f"<p{mark}><small>Already-knows verified no later than "
-                f"{html.escape(verify_due[:10])} — the cards come due then."
+                f"{timetagmod.stamp(verify_due)} — the cards come due then."
                 f"</small></p>")
     return (
         f"<form{mark} method='post' action='/concepts/{html.escape(cid)}/known'>"

@@ -21,6 +21,7 @@ import struct
 import zlib
 
 from . import milestones as momentsmod
+from . import timetag as timetagmod
 
 STATUS_ANCHOR = "status-b22-sharecards"
 
@@ -226,7 +227,7 @@ def section_html(db_path: str) -> str:
                     " ", "-") or "milestone"
                 cards.append(
                     f"<p><b>{html.escape(str(m['label']))}</b> — "
-                    f"<small>{html.escape(str(m['when'])[:10])}</small><br>"
+                    f"<small>{timetagmod.stamp(m['when'])}</small><br>"
                     f"<a class='btn' download='{name}.png' "
                     f"href='{uri}'>Download PNG</a></p>")
             body = "".join(cards) or "<p>Cards temporarily unavailable.</p>"

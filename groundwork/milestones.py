@@ -17,6 +17,7 @@ from __future__ import annotations
 
 from . import db as dbmod
 from . import ownership as ownmod
+from . import timetag as timetagmod
 
 STATUS_ANCHOR = "status-b22-milestones"
 
@@ -147,7 +148,7 @@ def section_html(db_path: str) -> str:
         else:
             items = "".join(
                 f"<li><b>{_esc(m['label'])}</b> — "
-                f"<small>{_esc((m['when'] or '')[:10])}</small></li>"
+                f"<small>{timetagmod.stamp(m['when'])}</small></li>"
                 for m in ms)
             body = f"<ul>{items}</ul>"
         return f"<h2 id='milestones'>Milestone moments</h2>{body}"

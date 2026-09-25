@@ -6,11 +6,11 @@ before they arrive.
 """
 from __future__ import annotations
 
-import html
 from datetime import timedelta
 
 from . import db as dbmod
 from . import sched as schedmod
+from . import timetag as timetagmod
 
 HORIZON_DAYS = 30
 
@@ -40,7 +40,7 @@ def section_html(db_path: str) -> str:
     rows = buckets(db_path)
     peak = max((n for _, n in rows), default=0)
     cells = "".join(
-        f"<tr><td>{d}</td><td>{n}</td>"
+        f"<tr><td>{timetagmod.stamp(d)}</td><td>{n}</td>"
         f"<td>{'▇' * min(n, 20) if n else '·'}</td></tr>"
         for d, n in rows)
     return ("<h2 id='workload'>Workload forecast</h2>"

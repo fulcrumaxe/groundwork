@@ -21,6 +21,7 @@ import html
 from . import db as dbmod
 from . import exercises as exmod
 from . import milestones as momentsmod
+from . import timetag as timetagmod
 
 STATUS_ANCHOR = "status-b22-learnresume"
 
@@ -108,7 +109,7 @@ def section_html(db_path: str) -> str:
                     f"<tr><td>{html.escape(s['skill'])}</td>"
                     f"<td>{html.escape(', '.join(s['concepts']))}</td>"
                     f"<td>{'delayed-proof' if s['delayed'] else 'fresh'}</td>"
-                    f"<td>{html.escape(s['first'])}</td></tr>"
+                    f"<td>{timetagmod.stamp(s['first'])}</td></tr>"
                     for s in table[repo])
                 parts.append(
                     f"<h3>{html.escape(repo)}</h3>"

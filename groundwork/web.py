@@ -122,6 +122,7 @@ from . import spacing as spacingmod
 from . import tabmemory as tabmemorymod
 from . import tablescroll as tablescrollmod
 from . import taptargets as taptargetsmod
+from . import timetag as timetagmod
 from . import status as statusmod
 from . import storage as storagemod
 from . import styleguide as styleguidemod
@@ -1261,7 +1262,7 @@ class Handler(BaseHTTPRequestHandler):
             else:
                 back = f"/modules/{out['module_id']}"
                 body = (f"<p>Skipped — verification due "
-                        f"<b>{html.escape(out['verify_due'][:10])}</b>.</p>"
+                        f"<b>{timetagmod.stamp(out['verify_due'])}</b>.</p>"
                         f"<p><a class='btn' href='{html.escape(back)}'>"
                         f"Back to module</a></p>")
             self._send(page("Already know", body, counts=self._nav_counts()))
