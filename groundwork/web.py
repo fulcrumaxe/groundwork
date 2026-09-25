@@ -63,7 +63,7 @@ from . import exports as expmod
 from . import favicon as faviconmod
 from . import fontstack as fontstackmod
 from . import focusrings as focusringsmod
-from . import flowdetect as flowdetectmod
+from . import flowdetect as flowdetectmod, focustimer as focustimermod  # one line keeps web.py at WEB_CEILING
 from . import footnav as footnavmod
 from . import forgetcurve as forgetcurvemod
 from . import formerr as formerrmod
@@ -725,7 +725,7 @@ class Handler(BaseHTTPRequestHandler):
                  recentmod.strip_html(),
                  minisessionmod.session_box_html(due, recent=[r["grade"] for r in cal_rows], tried=tries, flow_attempts=flowdetectmod.attempts_with_pace(flow_rows)),
                  minisessionmod.dial_box(dial, mode) + mascotmod.line_html(self.db_path),
-                 resumemod.resume_box_html(resume_key or "", len(due)),
+                 resumemod.resume_box_html(resume_key or "", len(due)) + focustimermod.timer_html(due),
                  reteachmod.reteach_box_html(reteachmod.pick_reteach(
                      reteachmod.first_attempts(first_rows)))]
         if cold:
