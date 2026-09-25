@@ -18,6 +18,7 @@ from . import exercises as exmod
 from . import verdicts as verdictsmod
 from . import monthreview as monthmod
 from . import overconf as overconfmod
+from . import ownhead as ownheadmod
 from . import ownership as ownmod
 from . import resume as resumemod
 from . import undo as undomod
@@ -128,7 +129,7 @@ def history_html(db_path: str) -> str:
             tl_stats[tm["id"]] = (cards_n, tries_n, omap)
     finally:
         con.close()
-    parts = []
+    parts = [ownheadmod.headline_html(db_path)]
     if cal and cal["n"]:
         acc = (cal["g"] or 0) / 5.0
         conf = ((cal["c"] or 3) - 1) / 4.0
