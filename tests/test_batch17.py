@@ -6,12 +6,14 @@ rounds open from ?mode=cold, and the type contract is CI-gated over
 a registry derived from the real code.
 """
 import unittest
+from datetime import timedelta
 
 from groundwork import contractaudit as auditmod
 from groundwork import diffdial as dialmod
 from groundwork import exercises as exmod
 from groundwork import minisession as minimod
 from groundwork import quests as questsmod
+from groundwork import sched as schedmod
 from groundwork import typecontract as tcmod
 
 from test_web import handler_for, make_module
@@ -62,8 +64,12 @@ class DialQueueTest(unittest.TestCase):
         self.assertEqual([c["id"] for c in due], ["a", "b"])
 
     def test_gentle_caps_new_cards(self):
-        due = [{"id": f"c{i}", "stability": 1.0,
-                "due": "2026-09-21T12:00:00Z"} for i in range(5)]
+        # Due right now: elapsed ~0 so R ~= 1.0 clears every floor and
+        # only the new-card cap shapes the queue (dates stay relative
+        # to today so the test cannot age out).
+        now = schedmod.iso(schedmod.utcnow())
+        due = [{"id": f"c{i}", "stability": 1.0, "due": now}
+               for i in range(5)]
         gentle = minimod.apply_dial(due, "1", {})
         self.assertEqual([c["id"] for c in gentle], ["c0"])
         spicy = minimod.apply_dial(due, "5", {})
@@ -71,15 +77,18 @@ class DialQueueTest(unittest.TestCase):
 
     def test_floor_drops_forgotten_reviews(self):
         # R = (1 + 10/18)^-1 ~= 0.64: below gentle/steady/balanced,
-        # kept by bold (0.6).
-        card = {"id": "r", "stability": 2.0, "due": "2026-09-11T12:00:00Z"}
+        # kept by bold (0.6). Ten days back from today, not a fixed
+        # date, so the elapsed stay is 10 days on every run.
+        ten_ago = schedmod.iso(schedmod.utcnow() - timedelta(days=10))
+        card = {"id": "r", "stability": 2.0, "due": ten_ago}
         self.assertEqual(minimod.apply_dial([card], "1", {"r": 4}), [])
         kept = minimod.apply_dial([card], "4", {"r": 4})
         self.assertEqual([c["id"] for c in kept], ["r"])
 
     def test_reviewed_cards_ignore_new_cap(self):
-        due = [{"id": f"c{i}", "stability": 1.0,
-                "due": "2026-09-21T12:00:00Z"} for i in range(4)]
+        now = schedmod.iso(schedmod.utcnow())
+        due = [{"id": f"c{i}", "stability": 1.0, "due": now}
+               for i in range(4)]
         tried = {"c0": 2, "c1": 3, "c2": 1, "c3": 5}
         kept = minimod.apply_dial(due, "1", tried)
         self.assertEqual(len(kept), 4)
