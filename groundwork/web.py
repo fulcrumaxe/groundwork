@@ -96,6 +96,7 @@ from . import radius as radiusmod
 from . import queue as qmod
 from . import quests as questsmod
 from . import readgroup as readgroupmod
+from . import realfile as realfilemod
 from . import readtime as readtimemod
 from . import recent as recentmod
 from . import related as relmod
@@ -548,6 +549,18 @@ class Handler(BaseHTTPRequestHandler):
                             active="projects", page_id="projects",
                             lede="Concepts, modules, and symbols — ranked.",
                             counts=counts, tour=tour_ctx))
+        elif url.path == "/file":
+            fpath = query.get("path", [""])[0]
+            try:
+                fline = int(query.get("line", ["1"])[0])
+            except (TypeError, ValueError):
+                fline = 1
+            title, body = realfilemod.page_html(
+                realfilemod.db_root(self.db_path), fpath, fline)
+            self._send(page(title, body, active="modules",
+                            page_id="modules", counts=counts,
+                            tour=tour_ctx),
+                       200 if title != "Not found" else 404)
         elif url.path == "/export/anki.tsv":
             self._send(self.anki_tsv().encode(), 200,
                        "text/tab-separated-values; charset=utf-8")
@@ -1101,7 +1114,8 @@ class Handler(BaseHTTPRequestHandler):
                 f" {chiplinksmod.chip_link(mid, node, status)}"
                 f"{debtmod.ladder_html(ladders.get(row['cid'], -1), ladder_extra)}{stale}</h2>"
                 f"<p><small>{html.escape(row['kind'])} · "
-                f"{html.escape(row['file'])}:{row['line']}</small></p>")
+                f"{html.escape(row['file'])}:{row['line']}"
+                f"{realfilemod.file_link(row['file'], row['line'], first=(ci == 0))}</small></p>")
             if node in lesson_map:
                 # F-98: visual blocks lead only under visual affinity;
                 # otherwise the historical text-first order stands.
