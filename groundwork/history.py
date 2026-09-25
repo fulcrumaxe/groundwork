@@ -21,6 +21,7 @@ from . import timeledger as timeledgermod
 from . import verdicts as verdictsmod
 from . import monthreview as monthmod
 from . import milestones as milestonesmod
+from . import endorse as endorsemod
 from . import learnresume as learnresumemod
 from . import overconf as overconfmod
 from . import sharecards as sharecardsmod
@@ -141,7 +142,8 @@ def history_html(db_path: str) -> str:
              timeledgermod.section_html(db_path),
              milestonesmod.section_html(db_path),
              sharecardsmod.section_html(db_path),
-             learnresumemod.section_html(db_path)]
+             learnresumemod.section_html(db_path),
+             endorsemod.section_html(db_path)]
     if cal and cal["n"]:
         acc = (cal["g"] or 0) / 5.0
         conf = ((cal["c"] or 3) - 1) / 4.0
@@ -189,6 +191,7 @@ def history_html(db_path: str) -> str:
         parts.append(milestonesmod.section_html(db_path))
         parts.append(sharecardsmod.section_html(db_path))
         parts.append(learnresumemod.section_html(db_path))
+        parts.append(endorsemod.section_html(db_path))
         parts.append(emptyartmod.art_for("history") +
                      "<p>No attempts yet. Answer a card on the "
                      "<a href='/due'>Due</a> page and it will show up here.</p>")
