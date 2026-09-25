@@ -18,7 +18,7 @@ from . import api as apimod, audiosum as audiosummod  # one line keeps web.py at
 from . import autofocus as autofocusmod
 from . import autoscroll as autoscrollmod
 from . import bloomchips as bloomchipsmod
-from . import briefing as briefingmod
+from . import briefing as briefingmod, buddyview as buddymod  # one line keeps web.py at WEB_CEILING
 from . import callgraph as callgraphmod
 from . import calmreplay as calmmod
 from . import carets as caretsmod
@@ -640,7 +640,7 @@ class Handler(BaseHTTPRequestHandler):
                     page_id="modules", counts=counts, tour=tour_ctx))
         elif url.path.startswith("/modules/"):
             mid = url.path.split("/")[-1]
-            body = self.module_html(mid, level, order, replay_step)
+            body = self.module_html(mid, level, order, replay_step, query.get("buddy", []))
             if body == "<p>Unknown module.</p>":
                 self._send(page("Not found", errmod.not_found_html(
                     url.path, "Unknown module."), active="modules",
@@ -1002,7 +1002,7 @@ class Handler(BaseHTTPRequestHandler):
         return "".join(parts)
 
     def module_html(self, mid: str, level: str = "auto", order: str = "definition",
-                      replay_step=None) -> str:
+                      replay_step=None, buddies=()) -> str:
         con = self._con()
         try:
             m = con.execute("SELECT * FROM modules WHERE id=?", (mid,)).fetchone()
@@ -1070,7 +1070,7 @@ class Handler(BaseHTTPRequestHandler):
             parts.append(tochighlightmod.enhance_toc(
                 f"<p class='toc' id='readtime'><small>In this module: {' · '.join(toc)}</small> <small>(minutes per lesson)</small></p>"))
         # F-89: reading-group section; no presence keeps legacy bytes.
-        parts.append(readgroupmod.session_html(lesson_map, None))
+        parts.append(readgroupmod.session_html(lesson_map, None) + buddymod.entry_html(base) + buddymod.buddy_html(concepts[0]["name"] if concepts else "", buddies))
         if concepts:
             owned_n = 0
             for row in concepts:
