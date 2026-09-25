@@ -22,6 +22,7 @@ from . import verdicts as verdictsmod
 from . import monthreview as monthmod
 from . import milestones as milestonesmod, teachcert as teachcertmod  # lean join: one import line
 from . import showcase as showcasemod
+from . import themeunlock as themeunlockmod
 from . import endorse as endorsemod
 from . import learnresume as learnresumemod
 from . import overconf as overconfmod
@@ -149,6 +150,7 @@ def history_html(db_path: str) -> str:
              endorsemod.section_html(db_path),
              teachcertmod.section_html(db_path),
              showcasemod.gallery_html(db_path),
+             themeunlockmod.gallery_html(db_path),
              weekdigestmod.block_html(db_path)]
     if cal and cal["n"]:
         acc = (cal["g"] or 0) / 5.0
