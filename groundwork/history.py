@@ -31,6 +31,7 @@ from . import resume as resumemod
 from . import undo as undomod
 from . import sched as schedmod
 from . import tablescroll as tablescrollmod
+from . import tztime as tztimemod
 from . import workload as workloadmod
 
 COACH_TIPS = {
@@ -171,7 +172,7 @@ def history_html(db_path: str) -> str:
                 owned_n = sum(1 for _, o in omap.values() if o)
                 date = (tm["created_at"] or "")[:10]
                 tl_rows.append(
-                    f"<tr><td>{html.escape(date)}</td>"
+                    f"<tr><td>{tztimemod.day_html(date)}</td>"
                     f"<td><a href='/modules/{tm['id']}'>"
                     f"{html.escape(tm['task_summary'] or tm['id'])}</a>"
                     f"<br><small>{html.escape(tm['repo'] or '')}</small></td>"
@@ -231,7 +232,7 @@ def history_html(db_path: str) -> str:
         parts.append(
             f"<p class='{cls}'>{mark} {html.escape(r['concept'] or '')} — "
             f"grade {r['grade']}/5, confidence {r['confidence']}/5 "
-            f"<small>{cardsmod._rel_time(r['reviewed_at'] or '')}</small>"
+            f"<small>{tztimemod.stamp_html(r['reviewed_at'] or '')}</small>"
             f"{(' ' + cont) if cont else ''}<br>"
             f"<small>in {cardlinksmod.history_link(r['module_id'], r['card_id'], r['summary'] or r['module_id'])}</small></p>")
     return "".join(parts)
