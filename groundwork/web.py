@@ -14,7 +14,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, quote, urlparse
 
 from . import abphrase as abmod
-from . import api as apimod, audiosum as audiosummod  # one line keeps web.py at WEB_CEILING
+from . import api as apimod, audiosum as audiosummod, archiveless as archivelessmod  # one line keeps web.py at WEB_CEILING
 from . import autofocus as autofocusmod
 from . import autoscroll as autoscrollmod
 from . import bloomchips as bloomchipsmod
@@ -1058,7 +1058,7 @@ class Handler(BaseHTTPRequestHandler):
             mod_commit, mod_head = "", ""
         if repo_line:
             parts.append(f"<p><small>Session: {html.escape(repo_line)}</small></p>")
-        parts.append(resetmod.reset_link_html(mid))
+        parts.append(resetmod.reset_link_html(mid) + archivelessmod.archive_html(archivelessmod.retired_for(concepts, cards_by_concept, archivelessmod.repo_of(m))))
         parts.append(recentmod.record_js(mid, m["task_summary"] or mid) + readnudgemod.nudge_html())
         toc = []
         for row in concepts:
