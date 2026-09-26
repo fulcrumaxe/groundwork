@@ -71,6 +71,7 @@ from . import formerr as formerrmod
 from . import handout as handoutmod
 from . import hinttiers as hinttiersmod
 from . import history as histmod
+from . import interviewprep as interviewprepmod
 from . import journal as journalmod
 from . import known as knownmod
 from . import lessons as lesmod
@@ -687,7 +688,7 @@ class Handler(BaseHTTPRequestHandler):
                 f" WHERE card_id IN ({','.join('?' * len(due))})"
                 " ORDER BY id DESC",
                 [c["id"] for c in due]).fetchall() if due else []
-            crows = quemod.cold_rows(con2) if cold else []
+            prows = quemod.cold_rows(con2); crows = prows if cold else []
             # F-91: recall history for the personal decay constant.
             fc_rows = con2.execute(
                 "SELECT card_id, stability, grade, reviewed_at FROM reviews"
@@ -738,7 +739,7 @@ class Handler(BaseHTTPRequestHandler):
         else:
             parts.append("<p><a id='one-card' href='/due?mode=one'>"
                          "Just one card</a> for low-energy days.</p>")
-        parts.append(sermod.section_html(self.db_path) + partytrickmod.section_html(self.db_path))
+        parts.append(sermod.section_html(self.db_path) + partytrickmod.section_html(self.db_path) + interviewprepmod.track_html(prows, due))
         if not due:
             stats = self._hero_stats()
             parts.append(doneheromod.done_hero_html(
