@@ -27,6 +27,7 @@ from . import retest as retestmod
 from . import remedpath as remedpathmod
 from . import giveup as giveupmod
 from . import partial as partialmod
+from . import retryblanks as retryblanksmod
 from . import reveal as revealmod
 from . import skillatoms as skillatomsmod
 from . import pipeline as pipelinemod
@@ -443,13 +444,19 @@ class MCPServer:
             else:
                 result = exmod.grade(exercise, submission, sbmod.SandboxRunner())
                 grade_val = 5 if result["pass"] else 1
-            # I-160: missed cloze names which blanks passed; clean
-            # cards and surrender feedback render exactly as before.
+            # I-160/I-161: missed cloze names which blanks passed
+            # and offers a retry of the wrong ones only; clean cards
+            # and surrender feedback render exactly as before.
+            retry_html = ""
             if (exercise["type"] == 2 and not result.get("pass")
                     and not result.get("revealed")):
                 rows = partialmod.per_blank(exercise["payload"], submission)
-                if rows and any(not r["passed"] for r in rows):
+                missed = [r["id"] for r in rows if not r.get("passed")]
+                if rows and missed:
                     result["feedback"] += " " + partialmod.summary_line(rows)
+                    retry_html = retryblanksmod.retry_form(
+                        {"id": card_id, "payload": exercise["payload"]},
+                        submission, wrong_ids=missed)
             hist = [r[0] for r in con.execute(
                 "SELECT grade FROM reviews WHERE card_id=? ORDER BY rowid",
                 (card_id,)).fetchall()]
@@ -580,7 +587,7 @@ class MCPServer:
             relief_html = ""
         return {"result": result, "grade": grade_val, "next_due": upd["due"],
                 "points": points, "drill": drill, "relief": relief_html,
-                "atoms": atoms_html}
+                "atoms": atoms_html, "retry": retry_html}
 
 
 def serve_stdio(db_path=None) -> None:
