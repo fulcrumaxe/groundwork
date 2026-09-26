@@ -18,7 +18,7 @@ from . import api as apimod, audiosum as audiosummod, archiveless as archiveless
 from . import autofocus as autofocusmod, avatar as avatarmod  # one line keeps web.py at WEB_CEILING
 from . import autoscroll as autoscrollmod
 from . import bloomchips as bloomchipsmod
-from . import briefing as briefingmod, buddyview as buddymod, buddyping as buddypingmod  # one line keeps web.py at WEB_CEILING
+from . import briefing as briefingmod, buddyview as buddymod, buddyping as buddypingmod, buddymatch as buddymatchmod  # one line keeps web.py at WEB_CEILING
 from . import callgraph as callgraphmod
 from . import calmreplay as calmmod
 from . import carets as caretsmod
@@ -640,7 +640,7 @@ class Handler(BaseHTTPRequestHandler):
                     page_id="modules", counts=counts, tour=tour_ctx))
         elif url.path.startswith("/modules/"):
             mid = url.path.split("/")[-1]
-            body = self.module_html(mid, level, order, replay_step, query.get("buddy", []))
+            body = self.module_html(mid, level, order, replay_step, query.get("buddy", []), query.get("buddymatch", [""])[0] == "1", query.get("bmatch_repos", []), query.get("bmatch_concepts", []))
             if body == "<p>Unknown module.</p>":
                 self._send(page("Not found", errmod.not_found_html(
                     url.path, "Unknown module."), active="modules",
@@ -1002,7 +1002,7 @@ class Handler(BaseHTTPRequestHandler):
         return "".join(parts)
 
     def module_html(self, mid: str, level: str = "auto", order: str = "definition",
-                      replay_step=None, buddies=()) -> str:
+                      replay_step=None, buddies=(), match_opt_in=False, match_repos=(), match_concepts=()) -> str:
         con = self._con()
         try:
             m = con.execute("SELECT * FROM modules WHERE id=?", (mid,)).fetchone()
@@ -1070,7 +1070,7 @@ class Handler(BaseHTTPRequestHandler):
             parts.append(tochighlightmod.enhance_toc(
                 f"<p class='toc' id='readtime'><small>In this module: {' · '.join(toc)}</small> <small>(minutes per lesson)</small></p>"))
         # F-89: reading-group section; no presence keeps legacy bytes.
-        parts.append(readgroupmod.session_html(lesson_map, None) + buddymod.entry_html(base) + buddymod.buddy_html(concepts[0]["name"] if concepts else "", buddies))
+        parts.append(readgroupmod.session_html(lesson_map, None) + buddymod.entry_html(base) + buddymod.buddy_html(concepts[0]["name"] if concepts else "", buddies) + buddymatchmod.entry_html(base) + buddymatchmod.match_html({"name": (buddies[0] if buddies else "you"), "repos": [m["repo"]], "concepts": [r["name"] for r in concepts]}, [{"name": (buddies[1] if len(buddies) > 1 else "friend"), "repos": match_repos, "concepts": match_concepts}], match_opt_in))
         if concepts:
             owned_n = 0
             for row in concepts:
