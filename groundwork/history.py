@@ -27,6 +27,7 @@ from . import northstar as northstarmod, wagers as wagersmod  # F-128: live sett
 from . import showcase as showcasemod
 from . import teamchallenge as teamchallengemod
 from . import seasonevent as seasoneventmod
+from . import anniversary as anniversarymod
 from . import themeunlock as themeunlockmod
 from . import endorse as endorsemod
 from . import learnresume as learnresumemod
@@ -166,7 +167,7 @@ def history_html(db_path: str, query=None) -> str:
              teachcertmod.section_html(db_path),
              showcasemod.gallery_html(db_path),
              themeunlockmod.gallery_html(db_path),
-             weekdigestmod.block_html(db_path) + teamchallengemod.section_html(db_path) + seasoneventmod.section_html(db_path)]
+             weekdigestmod.block_html(db_path) + teamchallengemod.section_html(db_path) + seasoneventmod.section_html(db_path) + anniversarymod.block_html(db_path)]
     if cal and cal["n"]:
         acc = (cal["g"] or 0) / 5.0
         conf = ((cal["c"] or 3) - 1) / 4.0
