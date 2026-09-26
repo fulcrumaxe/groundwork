@@ -77,8 +77,8 @@ class ChecklistHtmlTest(unittest.TestCase):
                 {"id": 1, "passed": False, "given": "wrng",
                  "answers": ["retries"]}]
         body = partialmod.checklist_html(rows)
-        self.assertIn("✓ Blank 0", body)
-        self.assertIn("✗ Blank 1", body)
+        self.assertIn("[+] Blank 0", body)
+        self.assertIn("[!] Blank 1", body)
         self.assertIn("retries", body)
 
     def test_empty_is_empty_string(self):

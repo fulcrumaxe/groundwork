@@ -110,7 +110,7 @@ def summary_line(rows: list[dict]) -> str:
 
 
 def checklist_html(rows: list[dict]) -> str:
-    """Escaped <ul> checklist: ✓ per passed blank, ✗ + answer per miss.
+    """Escaped <ul> checklist: [+] per passed blank, [!] + answer per miss.
 
     Returns "" for empty input so callers append unconditionally and
     legacy cards render byte-identical.
@@ -122,11 +122,11 @@ def checklist_html(rows: list[dict]) -> str:
         for r in rows:
             bid = html.escape(str(r.get("id")))
             if r.get("passed"):
-                items.append(f"<li>✓ Blank {bid} — "
+                items.append(f"<li>[+] Blank {bid} — "
                              f"<code>{html.escape(str(r.get('given', ''))[:60])}</code></li>")
             else:
                 want = html.escape(str((r.get("answers") or [''])[0])[:60])
-                items.append(f"<li>✗ Blank {bid} — expected <code>{want}</code></li>")
+                items.append(f"<li>[!] Blank {bid} — expected <code>{want}</code></li>")
         return ("<ul class='partial-checklist'>" + "".join(items) + "</ul>")
     except Exception:  # noqa: BLE001 -- display must never raise
         return ""

@@ -328,6 +328,23 @@ AREAS = {
     "mascot": "mascot.py",
     "focustimer": "focustimer.py",
     "batch23": "batch23.py",
+    "codeedit": "codeedit.py",
+    "runkey": "runkey.py",
+    "sandout": "sandout.py",
+    "outdiff": "outdiff.py",
+    "reveal": "reveal.py",
+    "giveup": "giveup.py",
+    "partial": "partial.py",
+    "retryblanks": "retryblanks.py",
+    "playlists": "playlists.py",
+    "restday": "restday.py",
+    "comeback": "comeback.py",
+    "antistreak": "antistreak.py",
+    "buddyping": "buddyping.py",
+    "buddymatch": "buddymatch.py",
+    "coop": "coop.py",
+    "wagers": "wagers.py",
+    "batch24": "batch24.py",
 }
 
 
