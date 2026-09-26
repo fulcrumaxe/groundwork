@@ -25,6 +25,7 @@ from . import modules as modmod
 from . import ownership as ownmod
 from . import retest as retestmod
 from . import remedpath as remedpathmod
+from . import giveup as giveupmod
 from . import reveal as revealmod
 from . import skillatoms as skillatomsmod
 from . import pipeline as pipelinemod
@@ -418,10 +419,14 @@ class MCPServer:
             exercise = {"id": card["id"], "type": int(card["exercise_type"]),
                         "front": card["front"], "back": card["back"],
                         "payload": json.loads(card["payload"] or "{}")}
-            # I-158: give-up reveal — surrender logs grade 0 on any
-            # type; downstream scheduling/History inserts run unchanged.
+            # I-158/I-159: surrender logs grade 0 (reveal) and
+            # records a lapse (giveup); downstream scheduling and
+            # History inserts run unchanged.
+            new_lapses = card["lapses"]
             if revealmod.is_reveal_request(submission, confidence):
+                new_lapses = giveupmod.next_lapses(card["lapses"])
                 result = revealmod.reveal_result(card)
+                result["feedback"] += " " + giveupmod.lapse_line(new_lapses)
                 grade_val = 0
             elif exercise["type"] == 1:
                 result = exmod.grade(exercise, submission)
@@ -476,10 +481,10 @@ class MCPServer:
             except Exception:  # noqa: BLE001 -- probe check never blocks
                 now_iso, was_probe = schedmod.iso(schedmod.utcnow()), False
             con.execute(
-                "UPDATE cards SET stability=?, difficulty=?, retrievability=?, due=?"
-                " WHERE id=?",
+                "UPDATE cards SET stability=?, difficulty=?, retrievability=?, due=?,"
+                " lapses=? WHERE id=?",
                 (upd["stability"], upd["difficulty"], upd["retrievability"],
-                 upd["due"], card_id))
+                 upd["due"], new_lapses, card_id))
             if was_probe:
                 # Stamp after the INSERT so last_probe always covers the
                 # just-recorded review (same-second equality counts).
