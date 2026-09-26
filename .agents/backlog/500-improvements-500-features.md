@@ -1062,6 +1062,85 @@ I-154/I-156/I-157/I-159/F-120/F-122/F-123/F-126 + 3 neighbor modules;
 parent filed I-155/I-158/I-160/I-161/F-124/F-125/F-127/F-128 symbols,
 each closing the loop the child run left open).
 
+Batch 25 — eight improvements (I-162–I-169) + eight features
+(F-129–F-136). Shipped on branch `batch25-f8-i8`. Selection:
+next-unshipped in backlog order with zero skips (I-161/F-128 closed
+Batch 24, so I-162/F-129 open Batch 25; all sixteen wave designs
+returned buildable verdicts with real caller paths).
+- [x] I-162 parkeys → touch + keyboard Parsons reorder.
+  Caller cards.answer_widget etype 10/11 branch + head CSS join.
+- [x] I-163 parcheck → partial-order check, longest run.
+  Caller cards.answer_widget etype 10/11 branch.
+- [x] I-164 matchpair → click-to-pair matching.
+  Caller cards.answer_widget etype 30 branch.
+- [x] I-165 tracetable → pre-filled trace rows + per-cell feedback.
+  Caller cards.answer_widget type-9 branch + exercises.grade t==9.
+- [x] I-166 predtry → predict 3-strike pre-submit retries.
+  Caller cards.answer_widget etype 8 branch (reveal join).
+- [x] I-167 rubriclive → live rubric checklist on explain answers.
+  Caller cards.answer_widget explain branches (5/6/24/25 + 82–90).
+- [x] I-168 linecomment → line-comment UI on code review.
+  Caller cards.answer_widget etype 21 branch (split out, keeps wrap).
+- [x] I-169 comparesplit → side-by-side synced compare panes.
+  Caller cards.answer_widget etype 22 branch (split out) + CSS join.
+- [x] F-129 teamchallenge → aggregate-only team challenges.
+  Caller history.history_html parts list.
+- [x] F-130 classquests → classroom quests via ?quest= spec.
+  Caller Handler.module_html + quest route param.
+- [x] F-131 seasonevent → October Owntober own-5 goal.
+  Caller history.history_html parts list.
+- [x] F-132 anniversary → year-in-review recaps.
+  Caller history.history_html parts list.
+- [x] F-133 shipconf → ship-it confidence meter on the newest diff.
+  Caller history.history_html headline.
+- [x] F-134 interviewprep → weakest-first recap track.
+  Caller Handler.due_html beside serendipity.
+- [x] F-135 onboard → 30-day onboarding countdown.
+  Caller Handler.module_html beside owned bar.
+- [x] F-136 rabbithole → ?trail= free-explore mode.
+  Caller Handler.module_html lesson loop + trail route param.
+
+Batch 25 deviations (all green-trunk, ledger-noted): I-163 carries
+truth as index-space values in a hidden unnamed input (no
+parsons/parkeys change; view-source sees indices the way choice
+cards already show answers — grading stays server-side). I-164
+buttons write into the existing typing inputs (designer's extra
+hidden m<i> fields would double-post; _parse_review_form takes the
+first value). I-166 reads input[name=answer] (choice buttons share
+the name) and tier1 fails closed on non-str. I-167 uses ASCII
+[ ]/[x] (box glyphs are emoji-gate-blocked), tours to /status, and
+reads cards Row-safe (module-page cards are Rows, Due cards dicts;
+predtry got the same Row fix as a follow-up). I-168/I-169 put
+branch_html in the area modules with lazy cards imports, and 21
+keeps the rubriclive wrap — cards.py would otherwise break
+AREA_CAP (eight widget wires share one import line, web.py
+precedent; the I-167/I-169 folds saved 4 lines). F-130 travels the
+teacher spec in ?quest= (a spec-less section could never render —
+demo-only without the param). F-131 omits itself out of season
+(legacy bytes) and tours to /status. F-132 drops the SQL cutoff
+(summarize spans eligibility over full history by design).
+F-135 uses ASCII marks (U+2713 blocked); F-136 drops the rabbit
+emoji (blocked). F-129/F-133 tour to /reviews (fixture renders
+both); the other six features tour to /status. Baseline pagesnap
+red was a TMPDIR=/tmp/nix-shell.* artifact (volatile pattern
+assumes TMPDIR=/tmp) — all verification runs use TMPDIR=/tmp.
+
+Batch 25 migration: none (no schema changes; quest/trail specs
+ride URL params, retries/checklists run client-side).
+
+Batch 25 wires: WEB_CEILING 1406 → 1412 (F-130 import + append,
+F-134 import, F-135 import + banner, F-136 import; all other wires
+same-line joins); status.py holds at AREA_CAP (same-line batch25
+join + import); history.py 258 → 262 (4 imports); cards.py
+341 → 342 (shared import line + pcc/trows/21/22 branches, minus
+the I-167/I-169 folds); tour 157/162 → 165/170; docs regen
+(README + features.md from tour registry); goldens refreshed
+(due +preptrack, reviews +ship/teamchallenge, status table +
+batch25 home); every item module under 350 lines; MCP learning
+content covers every item (all 16 children filed decisions
+222–237 + 16 modules against the served DB — zero parent
+gap-closes, verified in-DB).
+
 ## IMPROVEMENTS (500)
 
 ### A. Navigation, IA & routing (I-1–50)
@@ -1236,14 +1315,14 @@ each closing the loop the child run left open).
 - [x] I-159: "Give up" path records a lapse and schedules sooner (honest FSRS).
 - [x] I-160: Partial-credit display for multi-blank cloze (which blanks passed).
 - [x] I-161: Retry wrong blanks only (keep correct ones filled).
-- I-162: Parsons: touch-friendly drag plus full keyboard reorder.
-- I-163: Parsons: "check partial order" showing longest correct run.
-- I-164: Match-pairs: click-to-pair UI alternative to letter typing.
-- I-165: Trace tables: pre-filled step rows with per-cell feedback.
-- I-166: Predict-output: multiple attempts with shrinking hint (3 strikes).
-- I-167: Explain answers: live rubric checklist filling as you type keywords.
-- I-168: Code review: line-comment UI (attach note to a line, like real review).
-- I-169: Compare: side-by-side panes with synchronized scrolling.
+- [x] I-162: Parsons: touch-friendly drag plus full keyboard reorder.
+- [x] I-163: Parsons: "check partial order" showing longest correct run.
+- [x] I-164: Match-pairs: click-to-pair UI alternative to letter typing.
+- [x] I-165: Trace tables: pre-filled step rows with per-cell feedback.
+- [x] I-166: Predict-output: multiple attempts with shrinking hint (3 strikes).
+- [x] I-167: Explain answers: live rubric checklist filling as you type keywords.
+- [x] I-168: Code review: line-comment UI (attach note to a line, like real review).
+- [x] I-169: Compare: side-by-side panes with synchronized scrolling.
 - I-170: Extend-feature: show param checklist (exists? default? used?) live.
 - I-171: Rebuild: show spec alongside editor in split view.
 - I-172: Refactor: behavior-diff view proving output equivalence on sample inputs.
@@ -1732,14 +1811,14 @@ each closing the loop the child run left open).
 - [x] F-126: Buddy matching by repo overlap (opt-in, local).
 - [x] F-127: Co-op modules (two learners, complementary card splits).
 - [x] F-128: Friendly wagers (bet coffee on delayed-test outcomes, logged).
-- F-129: Team challenges (own a subsystem together, aggregate only).
-- F-130: Classroom quests (teacher-defined, completion-based, no ranking).
-- F-131: Seasonal events (Hacktober-style: own 5 OSS concepts).
-- F-132: Anniversary recaps (your year in code comprehension).
-- F-133: "Ship-it confidence" meter before releases (your coverage on diff).
-- F-134: Pre-interview confidence builder (targeted recap track).
-- F-135: Onboarding countdown (new-hire: own core flows in 30 days).
-- F-136: Curiosity-driven "rabbit hole" mode (follow callers freely, tracked).
+- [x] F-129: Team challenges (own a subsystem together, aggregate only).
+- [x] F-130: Classroom quests (teacher-defined, completion-based, no ranking).
+- [x] F-131: Seasonal events (Hacktober-style: own 5 OSS concepts).
+- [x] F-132: Anniversary recaps (your year in code comprehension).
+- [x] F-133: "Ship-it confidence" meter before releases (your coverage on diff).
+- [x] F-134: Pre-interview confidence builder (targeted recap track).
+- [x] F-135: Onboarding countdown (new-hire: own core flows in 30 days).
+- [x] F-136: Curiosity-driven "rabbit hole" mode (follow callers freely, tracked).
 - F-137: Serendipity cards (adjacent concept you might love, clearly labeled).
 - F-138: "Why am I seeing this?" transparency on every recommendation.
 - F-139: Opt out of any motivational element individually (granular toggles).
