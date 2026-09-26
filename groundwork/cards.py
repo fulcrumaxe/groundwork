@@ -8,6 +8,9 @@ from __future__ import annotations
 import html
 import json
 
+from . import codeedit as codeeditmod
+from . import runkey as runkeymod
+from . import sandout as sandoutmod
 from . import confslider as confslidermod
 from . import hinttiers as hinttiersmod
 from . import parsons as parsonsmod
@@ -128,6 +131,8 @@ def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:
                 f"placeholder='{hint}'></textarea><br>"
                 f"{_confidence()}<button>Submit answer</button>")
     elif etype == "8":
+        # I-156: measured output reveals inline; "" when unmeasured.
+        reveal = sandoutmod.output_html(card)
         if p.get("choices"):
             btns = " ".join(
                 f"<button name='answer' value='{html.escape(c)}'>{html.escape(c)}</button>"
@@ -135,10 +140,10 @@ def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:
             body = (f"<p>Pick the output — or type it from memory when these feel easy:</p>"
                     f"{btns}<br>"
                     f"<label>Type it: <input name='answer' size='20'></label> "
-                    f"{_confidence()}<button>Check</button>")
+                    f"{_confidence()}<button>Check</button>" + reveal)
         else:
             body = (f"<label>It prints/returns: <input name='answer' size='30'></label> "
-                    f"{_confidence()}<button>Check prediction</button>")
+                    f"{_confidence()}<button>Check prediction</button>" + reveal)
     elif etype == "3" and p.get("choices"):
         btns = " ".join(
             f"<button name='answer' value='{html.escape(c)}'>{html.escape(c)}</button>"
@@ -179,9 +184,10 @@ def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:
         body = (fig + parsonsmod.block_html(cid, p.get("lines", []))
                 + f"{_confidence()}<button>Check order</button>{PARSONS_JS}")
     elif etype in ("12", "14", "19", "20", "23"):
-        body = (f"<textarea name='answer' rows='12' cols='70' "
-                f"placeholder='Write your code here'></textarea><br>"
-                f"{_confidence()}<button>Run tests</button>")
+        # I-154/I-155: editor + visible Run button; same field, same grade.
+        body = (codeeditmod.editor_html() + runkeymod.hint_html() + "<br>"
+                f"{_confidence()}" + runkeymod.run_button_html()
+                + codeeditmod.editor_js() + runkeymod.exercise_script_js())
     elif etype == "13":
         opts = "".join(
             f"<label><input type='radio' name='answer' value='{i + 1}'> "

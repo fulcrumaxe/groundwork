@@ -18,11 +18,11 @@ from . import api as apimod, audiosum as audiosummod, archiveless as archiveless
 from . import autofocus as autofocusmod, avatar as avatarmod  # one line keeps web.py at WEB_CEILING
 from . import autoscroll as autoscrollmod
 from . import bloomchips as bloomchipsmod
-from . import briefing as briefingmod, buddyview as buddymod  # one line keeps web.py at WEB_CEILING
+from . import briefing as briefingmod, buddyview as buddymod, buddyping as buddypingmod, buddymatch as buddymatchmod  # one line keeps web.py at WEB_CEILING
 from . import callgraph as callgraphmod
 from . import calmreplay as calmmod
 from . import carets as caretsmod
-from . import codelines as codelinesmod
+from . import codelines as codelinesmod, codeedit as codeeditmod  # Batch 24 I-154: editor CSS join keeps web.py at WEB_CEILING
 from . import highlight as highlightmod
 from . import imgattach as imgattachmod
 from . import ownedbadge as ownedbadgemod
@@ -63,7 +63,7 @@ from . import exports as expmod
 from . import favicon as faviconmod
 from . import fontstack as fontstackmod
 from . import focusrings as focusringsmod
-from . import flowdetect as flowdetectmod, focustimer as focustimermod  # one line keeps web.py at WEB_CEILING
+from . import flowdetect as flowdetectmod, focustimer as focustimermod, playlists as playlistsmod, restday as restdaymod, comeback as comebackmod, coop as coopmod  # one line keeps web.py at WEB_CEILING
 from . import footnav as footnavmod
 from . import forgetcurve as forgetcurvemod
 from . import formerr as formerrmod
@@ -86,7 +86,7 @@ from . import modularity as modularitymod
 from . import modules as modmod
 from . import motion as motionmod
 from . import ogtags as ogtagsmod
-from . import optimistic as optimisticmod
+from . import optimistic as optimisticmod, outdiff as outdiffmod  # Batch 24 I-157: diff CSS join keeps web.py at WEB_CEILING
 from . import ownbanner as ownbannermod
 from . import ownership as ownmod
 from . import pageicon as pageiconmod
@@ -256,7 +256,7 @@ CSS = ("body{font-family:system-ui,-apple-system,sans-serif;max-width:48rem;"
 # concatenated into CSS (that nests <style> inside <style>, closes the
 # head stylesheet early, and dumps all later CSS into <body> as text).
 FOCUS_CSS = clickcardsmod.focus_css()
-CSS += palettemod.palette_css() + darkmodemod.dark_css() + typescalemod.scale_css() + fontstackmod.stack_css() + wordmarkmod.wordmark_css() + bloomchipsmod.chip_css() + progbarmod.progbar_css() + ownedbadgemod.badge_css() + staggermod.stagger_css() + caretsmod.carets_css() + codelinesmod.codelines_css() + highlightmod.highlight_css() + hinttiersmod.hinttiers_css() + confslidermod.css() + focusringsmod.css() + taptargetsmod.target_css() + radiusmod.radius_css() + spacingmod.spacing_css() + doneheromod.hero_css() + logbookmod.logbook_css() + shelfmod.shelf_css() + briefingmod.briefing_css() + verdictsmod.verdicts_css() + ownbannermod.ownbanner_css() + pressfxmod.pressfx_css() + skeletonsmod.skeletons_css() + optimisticmod.optimistic_css() + formerrmod.formerr_css() + selectionmod.selection_css() + scrollbarmod.scrollbar_css() + densitymod.density_css() + responsivemod.narrow_css() + emojimod.icon_css() + parsonsmod.parsons_css() + contrastmod.contrast_css() + motionmod.motion_css() + lessonvermod.banner_css() + tablescrollmod.scroll_css() + dyslexiamod.dyslexia_css() + unlockfxmod.badge_css() + conceptbadgesmod.badge_css() + showcasemod.showcase_css() + themeunlockmod.theme_css() + avatarmod.avatar_css() + mascotmod.mascot_css()  # Batch 9 I-51/52/53/54: token variables, dark overrides, type scale, font stacks. Batch 10 I-55..I-62: wordmark, bloom chips, progress motion, owned badge, stagger, carets, code lines, highlight. Batch 11 I-63..I-70: hint tiers, confidence segments, focus rings, tap floor, radii, spacing, hero. Batch 12 I-71..I-73/I-77/I-79..I-82: logbook, shelf, briefing, verdicts, banner, press, skeletons, optimistic submit. Batch 13 I-84/I-85/I-86/I-89/I-90: field errors, selection, scrollbars, density, narrow phones. Batch 19 I-115: lesson version banner. Batch 21 I-92: scrollable tables.
+CSS += palettemod.palette_css() + darkmodemod.dark_css() + typescalemod.scale_css() + fontstackmod.stack_css() + wordmarkmod.wordmark_css() + bloomchipsmod.chip_css() + progbarmod.progbar_css() + ownedbadgemod.badge_css() + staggermod.stagger_css() + caretsmod.carets_css() + codelinesmod.codelines_css() + highlightmod.highlight_css() + hinttiersmod.hinttiers_css() + confslidermod.css() + focusringsmod.css() + taptargetsmod.target_css() + radiusmod.radius_css() + spacingmod.spacing_css() + doneheromod.hero_css() + logbookmod.logbook_css() + shelfmod.shelf_css() + briefingmod.briefing_css() + verdictsmod.verdicts_css() + ownbannermod.ownbanner_css() + pressfxmod.pressfx_css() + skeletonsmod.skeletons_css() + optimisticmod.optimistic_css() + formerrmod.formerr_css() + selectionmod.selection_css() + scrollbarmod.scrollbar_css() + densitymod.density_css() + responsivemod.narrow_css() + emojimod.icon_css() + parsonsmod.parsons_css() + contrastmod.contrast_css() + motionmod.motion_css() + lessonvermod.banner_css() + tablescrollmod.scroll_css() + dyslexiamod.dyslexia_css() + unlockfxmod.badge_css() + conceptbadgesmod.badge_css() + showcasemod.showcase_css() + themeunlockmod.theme_css() + avatarmod.avatar_css() + mascotmod.mascot_css() + codeeditmod.editor_css() + outdiffmod.diff_css()  # Batch 24 I-154: code editor. I-157: output diff. Batch 9 I-51/52/53/54: token variables, dark overrides, type scale, font stacks. Batch 10 I-55..I-62: wordmark, bloom chips, progress motion, owned badge, stagger, carets, code lines, highlight. Batch 11 I-63..I-70: hint tiers, confidence segments, focus rings, tap floor, radii, spacing, hero. Batch 12 I-71..I-73/I-77/I-79..I-82: logbook, shelf, briefing, verdicts, banner, press, skeletons, optimistic submit. Batch 13 I-84/I-85/I-86/I-89/I-90: field errors, selection, scrollbars, density, narrow phones. Batch 19 I-115: lesson version banner. Batch 21 I-92: scrollable tables.
 
 GLOBAL_JS = """
 <script>
@@ -499,12 +499,12 @@ class Handler(BaseHTTPRequestHandler):
             one, cold = mode == "one", mode == "cold"
             dial = query.get("dial", [""])[0] or None
             resume_key = query.get("resume", [""])[0]
-            self._send(page("Due", self.due_html(level, one, resume_key, dial, cold, mode, order, replay_step),
+            self._send(page("Due", self.due_html(level, one, resume_key, dial, cold, mode, order, replay_step, query.get("buddy", [])),
                             active="due", page_id="due",
                             lede="What to practice next — your spaced queue, one card at a time.",
                             counts=counts, tour=tour_ctx))
         elif url.path == "/reviews":
-            self._send(page("History", self.history_html(),
+            self._send(page("History", self.history_html(query),
                             active="history", page_id="history",
                             lede="What you have practiced — every attempt, grade and calibration.",
                             counts=counts, tour=tour_ctx))
@@ -640,7 +640,7 @@ class Handler(BaseHTTPRequestHandler):
                     page_id="modules", counts=counts, tour=tour_ctx))
         elif url.path.startswith("/modules/"):
             mid = url.path.split("/")[-1]
-            body = self.module_html(mid, level, order, replay_step, query.get("buddy", []))
+            body = self.module_html(mid, level, order, replay_step, query.get("buddy", []), query.get("buddymatch", [""])[0] == "1", query.get("bmatch_repos", []), query.get("bmatch_concepts", []))
             if body == "<p>Unknown module.</p>":
                 self._send(page("Not found", errmod.not_found_html(
                     url.path, "Unknown module."), active="modules",
@@ -672,7 +672,7 @@ class Handler(BaseHTTPRequestHandler):
     def due_html(self, level: str = "auto", one: bool = False,
                  resume_key: str = "", dial=None, cold: bool = False,
                  mode: str = "", order: str = "definition",
-                 replay_step=None) -> str:
+                 replay_step=None, buddies=()) -> str:
         server = mcplib.MCPServer(self.db_path)
         due = server.tool_list_due_reviews({"limit": 20})["due"]
         due = resumemod.session_cards(due, resume_key or "")
@@ -719,13 +719,13 @@ class Handler(BaseHTTPRequestHandler):
             forgetcurvemod.clean_attempts(fc_rows))
         due = minisessionmod.apply_dial(due, dial, tries, decay=decay)
         due = forgetcurvemod.order_due(due, decay)
-        parts = [digestmod.section_html(self.db_path),
+        parts = [coopmod.split_html(due, buddies) + comebackmod.comeback_box_html(rows=[{"name": r[0], "reviewed_at": r[1]} for r in first_rows]) + digestmod.section_html(self.db_path),
                  # F-92: peak-recall banner; "" below threshold.
                  peaktimemod.banner_html(peak_rows),
                  recentmod.strip_html(),
                  minisessionmod.session_box_html(due, recent=[r["grade"] for r in cal_rows], tried=tries, flow_attempts=flowdetectmod.attempts_with_pace(flow_rows)),
                  minisessionmod.dial_box(dial, mode) + mascotmod.line_html(self.db_path),
-                 resumemod.resume_box_html(resume_key or "", len(due)) + focustimermod.timer_html(due),
+                 resumemod.resume_box_html(resume_key or "", len(due)) + focustimermod.timer_html(due) + playlistsmod.playlist_html(due, recent=[r["grade"] for r in cal_rows], tried=tries),
                  reteachmod.reteach_box_html(reteachmod.pick_reteach(
                      reteachmod.first_attempts(first_rows)))]
         if cold:
@@ -741,7 +741,7 @@ class Handler(BaseHTTPRequestHandler):
         if not due:
             stats = self._hero_stats()
             parts.append(doneheromod.done_hero_html(
-                stats["answered"], stats["accuracy"], stats["next_due"]))
+                stats["answered"], stats["accuracy"], stats["next_due"]) + restdaymod.restday_html(0, restdaymod.idle_days_from_rows(peak_rows)))
         grouped = qmod.groups(self.db_path, due)
         n = 0
         for gi, g in enumerate(grouped):
@@ -812,8 +812,8 @@ class Handler(BaseHTTPRequestHandler):
         return ("<div id='queue'>" + "".join(parts)
                 + tabmemorymod.memory_js() + "</div>")
 
-    def history_html(self) -> str:
-        return histmod.history_html(self.db_path)
+    def history_html(self, query=None) -> str:
+        return histmod.history_html(self.db_path, query)
 
     # Thin delegation: the real renderers live in focused modules
     # per the Batch 3 modularity rule (exports, api, sitemap,
@@ -1002,7 +1002,7 @@ class Handler(BaseHTTPRequestHandler):
         return "".join(parts)
 
     def module_html(self, mid: str, level: str = "auto", order: str = "definition",
-                      replay_step=None, buddies=()) -> str:
+                      replay_step=None, buddies=(), match_opt_in=False, match_repos=(), match_concepts=()) -> str:
         con = self._con()
         try:
             m = con.execute("SELECT * FROM modules WHERE id=?", (mid,)).fetchone()
@@ -1070,7 +1070,7 @@ class Handler(BaseHTTPRequestHandler):
             parts.append(tochighlightmod.enhance_toc(
                 f"<p class='toc' id='readtime'><small>In this module: {' · '.join(toc)}</small> <small>(minutes per lesson)</small></p>"))
         # F-89: reading-group section; no presence keeps legacy bytes.
-        parts.append(readgroupmod.session_html(lesson_map, None) + buddymod.entry_html(base) + buddymod.buddy_html(concepts[0]["name"] if concepts else "", buddies))
+        parts.append(readgroupmod.session_html(lesson_map, None) + buddymod.entry_html(base) + buddymod.buddy_html(concepts[0]["name"] if concepts else "", buddies) + buddymatchmod.entry_html(base) + buddymatchmod.match_html({"name": (buddies[0] if buddies else "you"), "repos": [m["repo"]], "concepts": [r["name"] for r in concepts]}, [{"name": (buddies[1] if len(buddies) > 1 else "friend"), "repos": match_repos, "concepts": match_concepts}], match_opt_in))
         if concepts:
             owned_n = 0
             for row in concepts:
@@ -1083,7 +1083,7 @@ class Handler(BaseHTTPRequestHandler):
             parts.append(
                 f"<div class='bar' role='img' aria-label='{owned_n} of "
                 f"{len(concepts)} concepts owned'><i style='width:{pct}%'></i></div>"
-                f"<p><small>{owned_n}/{len(concepts)} concepts owned</small></p>")
+                f"<p><small>{owned_n}/{len(concepts)} concepts owned</small></p>" + buddypingmod.ping_html(buddies, owned_n, len(concepts)))
         parts.append(questsmod.skills_view(concepts, lesson_map, mastery_of))
         practice_tagged = False
         dec_nodes = [r["cid"].split(":", 1)[1] if ":" in r["cid"] else r["cid"]
@@ -1351,7 +1351,7 @@ class Handler(BaseHTTPRequestHandler):
             body = (cerr + scrollposmod.restore_js(origin)
                     + autoscrollmod.enhance_result(
                         resmod.render_result(res["pass"], res["feedback"], back, out["next_due"], origin, mod_id, due_left, points=res.get("points"), drill=res.get("drill", "")))
-                    + out.get("relief", "") + out.get("atoms", "")
+                    + out.get("relief", "") + out.get("atoms", "") + out.get("retry", "")
                     + autoscrollmod.verdict_js())
             self._send(page("Result", body, counts=self._nav_counts()))
             return

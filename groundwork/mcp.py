@@ -25,6 +25,10 @@ from . import modules as modmod
 from . import ownership as ownmod
 from . import retest as retestmod
 from . import remedpath as remedpathmod
+from . import giveup as giveupmod
+from . import partial as partialmod
+from . import retryblanks as retryblanksmod
+from . import reveal as revealmod
 from . import skillatoms as skillatomsmod
 from . import pipeline as pipelinemod
 from . import sched as schedmod
@@ -417,7 +421,16 @@ class MCPServer:
             exercise = {"id": card["id"], "type": int(card["exercise_type"]),
                         "front": card["front"], "back": card["back"],
                         "payload": json.loads(card["payload"] or "{}")}
-            if exercise["type"] == 1:
+            # I-158/I-159: surrender logs grade 0 (reveal) and
+            # records a lapse (giveup); downstream scheduling and
+            # History inserts run unchanged.
+            new_lapses = card["lapses"]
+            if revealmod.is_reveal_request(submission, confidence):
+                new_lapses = giveupmod.next_lapses(card["lapses"])
+                result = revealmod.reveal_result(card)
+                result["feedback"] += " " + giveupmod.lapse_line(new_lapses)
+                grade_val = 0
+            elif exercise["type"] == 1:
                 result = exmod.grade(exercise, submission)
                 try:
                     grade_val = int(str(submission).strip() or 0)
@@ -431,6 +444,19 @@ class MCPServer:
             else:
                 result = exmod.grade(exercise, submission, sbmod.SandboxRunner())
                 grade_val = 5 if result["pass"] else 1
+            # I-160/I-161: missed cloze names which blanks passed
+            # and offers a retry of the wrong ones only; clean cards
+            # and surrender feedback render exactly as before.
+            retry_html = ""
+            if (exercise["type"] == 2 and not result.get("pass")
+                    and not result.get("revealed")):
+                rows = partialmod.per_blank(exercise["payload"], submission)
+                missed = [r["id"] for r in rows if not r.get("passed")]
+                if rows and missed:
+                    result["feedback"] += " " + partialmod.summary_line(rows)
+                    retry_html = retryblanksmod.retry_form(
+                        {"id": card_id, "payload": exercise["payload"]},
+                        submission, wrong_ids=missed)
             hist = [r[0] for r in con.execute(
                 "SELECT grade FROM reviews WHERE card_id=? ORDER BY rowid",
                 (card_id,)).fetchall()]
@@ -470,10 +496,10 @@ class MCPServer:
             except Exception:  # noqa: BLE001 -- probe check never blocks
                 now_iso, was_probe = schedmod.iso(schedmod.utcnow()), False
             con.execute(
-                "UPDATE cards SET stability=?, difficulty=?, retrievability=?, due=?"
-                " WHERE id=?",
+                "UPDATE cards SET stability=?, difficulty=?, retrievability=?, due=?,"
+                " lapses=? WHERE id=?",
                 (upd["stability"], upd["difficulty"], upd["retrievability"],
-                 upd["due"], card_id))
+                 upd["due"], new_lapses, card_id))
             if was_probe:
                 # Stamp after the INSERT so last_probe always covers the
                 # just-recorded review (same-second equality counts).
@@ -561,7 +587,7 @@ class MCPServer:
             relief_html = ""
         return {"result": result, "grade": grade_val, "next_due": upd["due"],
                 "points": points, "drill": drill, "relief": relief_html,
-                "atoms": atoms_html}
+                "atoms": atoms_html, "retry": retry_html}
 
 
 def serve_stdio(db_path=None) -> None:

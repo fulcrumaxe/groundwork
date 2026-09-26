@@ -8,6 +8,7 @@ from __future__ import annotations
 import html
 from datetime import timedelta
 
+from . import antistreak as antistreakmod
 from . import avatar as avatarmod
 from . import bests as bestsmod
 from . import bloomchips as bloomchipsmod
@@ -22,6 +23,7 @@ from . import timeledger as timeledgermod
 from . import verdicts as verdictsmod
 from . import monthreview as monthmod
 from . import milestones as milestonesmod, teachcert as teachcertmod  # lean join: one import line
+from . import northstar as northstarmod, wagers as wagersmod  # F-128: live settlement data + ledger
 from . import showcase as showcasemod
 from . import themeunlock as themeunlockmod
 from . import endorse as endorsemod
@@ -89,7 +91,7 @@ def calibration_coach(rows: list) -> str:
     return "".join(parts)
 
 
-def history_html(db_path: str) -> str:
+def history_html(db_path: str, query=None) -> str:
     """Past attempts: grades, confidence, calibration — not a second queue."""
     con = dbmod.connect(db_path)
     try:
@@ -141,6 +143,16 @@ def history_html(db_path: str) -> str:
             tl_stats[tm["id"]] = (cards_n, tries_n, omap)
     finally:
         con.close()
+    # F-128: settle query-placed coffee bets against live outcomes.
+    latest: dict = {}
+    for r in rows:
+        latest.setdefault(r["card_id"], r["grade"])
+    try:
+        delayed = northstarmod.snapshot(db_path)["delayed_acc"]
+    except Exception:  # noqa: BLE001 -- no mature data keeps bets open
+        delayed = None
+    ledger = wagersmod.settle_all(wagersmod.wagers_from_query(query),
+                                  latest, delayed)
     parts = [ownheadmod.headline_html(db_path) + avatarmod.box_html(db_path),
              growringsmod.section_html(db_path),
              knowngardenmod.section_html(db_path),
@@ -200,8 +212,10 @@ def history_html(db_path: str) -> str:
                      "<p>No attempts yet. Answer a card on the "
                      "<a href='/due'>Due</a> page and it will show up here.</p>")
         parts.append(monthmod.section_html(db_path))
+        parts.append(antistreakmod.history_section(db_path))
         parts.append(undomod.section_html(db_path))
         parts.append(bestsmod.section_html(db_path))
+        parts.append(wagersmod.section_html(ledger))
         return "".join(parts)
     if days:
         cells = "".join(
@@ -221,8 +235,10 @@ def history_html(db_path: str) -> str:
             f"({acc}) — your weekly review ritual: wins, weak spots, "
             f"next week on the <a href='/due'>Due</a> queue.</p>")
         parts.append(monthmod.section_html(db_path))
+        parts.append(antistreakmod.history_section(db_path))
         parts.append(undomod.section_html(db_path))
         parts.append(bestsmod.section_html(db_path))
+        parts.append(wagersmod.section_html(ledger))
     parts.append("<h2 id='attempts'>Attempts</h2>"
                      "<p id='timestamps'><small>Relative times "
                      "(“just now”, “3h ago”) — hover any time for "

@@ -160,6 +160,14 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | Library identity | One stable duo-tone mark per library — local, playful, no account. | `/reviews#library-identity` |
 | Mascot companion | A small companion that notices attempts — never wins, never streaks. | `/due#mascot` |
 | Focus timer | A 25-minute block auto-filled from your queue — start, practice, break. | `/due#focus-timer` |
+| Session playlists | Pick your minutes — 5, 10, or 20 — and start a mix built from your queue. | `/due#playlists` |
+| Rest-day affirmations | An empty queue after time away says rest is consolidation — not failure. | `/status#status-b24-restday` |
+| Comeback after time away | Away 30 days? A gentle recap greets you — no shame, one card restarts the loop. | `/status#status-b24-comeback` |
+| Anti-streak pledge | Why Groundwork never counts streaks — missed days cost nothing. | `/reviews#antistreak` |
+| Study-buddy pings | A gentle nudge for your study pair — no leaderboards. | `/status#status-b24-buddyping` |
+| Buddy matching by repo overlap | Opt in to find overlapping repos — local only, no directory. | `/status#status-b24-buddymatch` |
+| Co-op card splits | Two learners split the due queue — complementary hands, no repeats, local only. | `/status#status-b24-coop` |
+| Friendly wagers | Bet a coffee on your next delayed retest — probe passes win, and the History ledger keeps score. | `/reviews#status-wagers` |
 
 ## Improvements
 
@@ -314,6 +322,14 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | Unlock animation | Newly unlocked lessons pop with a calm badge — still when reduced-motion is set. | `/status#status-b23-unlockfx` |
 | Weekly lesson digest | What changed in code you studied this week. | `/status#status-b23-weekdigest` |
 | Retired lessons | Lessons that retire say why — deleted file or regenerated cards. | `/status#status-b23-archiveless` |
+| Real code editor | Code answers get monospace type, line numbers, and Tab-to-indent — the same answer field, so grading is unchanged. | `/status#status-b24-codeedit` |
+| Run button with shortcut | Every code exercise shows a Run button with its Ctrl+Enter shortcut — run from the keyboard, no mouse needed. | `/due#up-next` |
+| Sandbox output inline | Predict-output cards reveal the measured output on the card — guess first, then check without leaving the queue. | `/status#status-b24-sandout` |
+| Output mismatch side-by-side | Wrong prediction? Yours vs expected, line by line. | `/status#status-b24-outdiff` |
+| Give-up reveal logs 0 | Stuck? Give up reveals the answer after logging an honest grade 0 on any card. | `/status#status-b24-reveal` |
+| Honest give-up | Giving up records a lapse and brings the card back sooner — the scheduler tells the truth. | `/status#status-b24-giveup` |
+| Per-blank partial credit | Miss a multi-blank cloze and the result names which blanks passed — retry the miss, not the whole card. | `/status#status-b24-partial` |
+| Retry wrong blanks only | Miss a cloze blank or two: correct blanks stay filled and locked, so the retry asks only for the ones you missed. | `/status#status-b24-retryblanks` |
 
 ## The original loop
 
