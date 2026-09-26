@@ -26,6 +26,7 @@ from . import ownership as ownmod
 from . import retest as retestmod
 from . import remedpath as remedpathmod
 from . import giveup as giveupmod
+from . import partial as partialmod
 from . import reveal as revealmod
 from . import skillatoms as skillatomsmod
 from . import pipeline as pipelinemod
@@ -442,6 +443,13 @@ class MCPServer:
             else:
                 result = exmod.grade(exercise, submission, sbmod.SandboxRunner())
                 grade_val = 5 if result["pass"] else 1
+            # I-160: missed cloze names which blanks passed; clean
+            # cards and surrender feedback render exactly as before.
+            if (exercise["type"] == 2 and not result.get("pass")
+                    and not result.get("revealed")):
+                rows = partialmod.per_blank(exercise["payload"], submission)
+                if rows and any(not r["passed"] for r in rows):
+                    result["feedback"] += " " + partialmod.summary_line(rows)
             hist = [r[0] for r in con.execute(
                 "SELECT grade FROM reviews WHERE card_id=? ORDER BY rowid",
                 (card_id,)).fetchall()]
