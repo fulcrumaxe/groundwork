@@ -18,7 +18,7 @@ from . import api as apimod, audiosum as audiosummod, archiveless as archiveless
 from . import autofocus as autofocusmod, avatar as avatarmod  # one line keeps web.py at WEB_CEILING
 from . import autoscroll as autoscrollmod
 from . import bloomchips as bloomchipsmod
-from . import briefing as briefingmod, buddyview as buddymod  # one line keeps web.py at WEB_CEILING
+from . import briefing as briefingmod, buddyview as buddymod, buddyping as buddypingmod  # one line keeps web.py at WEB_CEILING
 from . import callgraph as callgraphmod
 from . import calmreplay as calmmod
 from . import carets as caretsmod
@@ -1083,7 +1083,7 @@ class Handler(BaseHTTPRequestHandler):
             parts.append(
                 f"<div class='bar' role='img' aria-label='{owned_n} of "
                 f"{len(concepts)} concepts owned'><i style='width:{pct}%'></i></div>"
-                f"<p><small>{owned_n}/{len(concepts)} concepts owned</small></p>")
+                f"<p><small>{owned_n}/{len(concepts)} concepts owned</small></p>" + buddypingmod.ping_html(buddies, owned_n, len(concepts)))
         parts.append(questsmod.skills_view(concepts, lesson_map, mastery_of))
         practice_tagged = False
         dec_nodes = [r["cid"].split(":", 1)[1] if ":" in r["cid"] else r["cid"]
