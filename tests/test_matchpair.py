@@ -48,7 +48,7 @@ class MatchpairUnitTest(unittest.TestCase):
         self.assertIn("data-mp='r'", out)
         self.assertIn("data-mp='clear'", out)
         self.assertIn("__mpInit", out)
-        self.assertIn('input[name=\\"m', out)
+        self.assertIn('input[name="m', out)
         self.assertNotIn("type='hidden'", out)
 
     def test_pair_html_empty_is_legacy(self):
