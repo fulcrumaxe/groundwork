@@ -13,7 +13,7 @@ from . import runkey as runkeymod
 from . import sandout as sandoutmod
 from . import confslider as confslidermod
 from . import hinttiers as hinttiersmod
-from . import parkeys as parkeysmod, parcheck as parcheckmod, matchpair as matchpairmod, tracetable as tracetablemod  # Batch 25: one shared line keeps cards.py under AREA_CAP
+from . import parkeys as parkeysmod, parcheck as parcheckmod, matchpair as matchpairmod, tracetable as tracetablemod, predtry as predtrymod  # Batch 25: one shared line keeps cards.py under AREA_CAP
 from . import parsons as parsonsmod
 
 
@@ -133,7 +133,7 @@ def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:
                 f"{_confidence()}<button>Submit answer</button>")
     elif etype == "8":
         # I-156: measured output reveals inline; "" when unmeasured.
-        reveal = sandoutmod.output_html(card)
+        reveal = sandoutmod.output_html(card) + predtrymod.tries_html(card)
         if p.get("choices"):
             btns = " ".join(
                 f"<button name='answer' value='{html.escape(c)}'>{html.escape(c)}</button>"
