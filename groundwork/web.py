@@ -63,7 +63,7 @@ from . import exports as expmod
 from . import favicon as faviconmod
 from . import fontstack as fontstackmod
 from . import focusrings as focusringsmod
-from . import flowdetect as flowdetectmod, focustimer as focustimermod, playlists as playlistsmod, restday as restdaymod  # one line keeps web.py at WEB_CEILING
+from . import flowdetect as flowdetectmod, focustimer as focustimermod, playlists as playlistsmod, restday as restdaymod, comeback as comebackmod  # one line keeps web.py at WEB_CEILING
 from . import footnav as footnavmod
 from . import forgetcurve as forgetcurvemod
 from . import formerr as formerrmod
@@ -719,7 +719,7 @@ class Handler(BaseHTTPRequestHandler):
             forgetcurvemod.clean_attempts(fc_rows))
         due = minisessionmod.apply_dial(due, dial, tries, decay=decay)
         due = forgetcurvemod.order_due(due, decay)
-        parts = [digestmod.section_html(self.db_path),
+        parts = [comebackmod.comeback_box_html(rows=[{"name": r[0], "reviewed_at": r[1]} for r in first_rows]) + digestmod.section_html(self.db_path),
                  # F-92: peak-recall banner; "" below threshold.
                  peaktimemod.banner_html(peak_rows),
                  recentmod.strip_html(),
