@@ -20,6 +20,11 @@ def _payload_of(card) -> dict:
             return json.loads(card.get("payload") or "{}")
         if isinstance(card, dict):
             return card
+        try:
+            raw = card["payload"]
+        except (KeyError, IndexError, TypeError):
+            return {}
+        return json.loads(raw or "{}")
     except (ValueError, TypeError):
         pass
     return {}
