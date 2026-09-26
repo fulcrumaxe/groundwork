@@ -1007,6 +1007,61 @@ tour registry); goldens refreshed (module/due/reviews/status
 batch23 sections); chrome_sweep +24 Batch 23 DOM checks, 192/192
 green with review-submit interaction.
 
+Batch 24 — eight improvements (I-154–I-161) + eight
+features (F-120, F-122–F-128) + one slim-down follow-up. Shipped on
+branch `batch24-f8-i8`. Selection: next-unshipped in backlog order
+(I-152 substituted: draft preservation already lives in web.py
+GLOBAL_JS `gw-draft`, tested in test_web/test_collapse — recorded,
+not shipped; I-161 substituted next-in-order).
+- [x] I-154 codeedit → real code editor (gutter, Tab indent).
+  Caller cards.answer_widget code branch + head CSS join.
+- [x] I-155 runkey → visible Run button + Ctrl+Enter hint.
+  Caller cards.answer_widget code branch.
+- [x] I-156 sandout → sandbox output inline on predict cards.
+  Caller cards.answer_widget type-8 branch.
+- [x] I-157 outdiff → yours-vs-expected side-by-side on predict miss.
+  Caller exercises.grade type-8 branch + head CSS join.
+- [x] I-158 reveal → give-up logs grade 0 on any type.
+  Caller MCPServer.submit_review surrender branch.
+- [x] I-159 giveup → surrender records lapses+1, schedules sooner.
+  Caller MCPServer.submit_review surrender branch + lapses UPDATE.
+- [x] I-160 partial → per-blank credit line on missed cloze.
+  Caller MCPServer.submit_review type-2 feedback.
+- [x] I-161 retryblanks → retry wrong blanks only, correct locked.
+  Caller MCPServer.submit_review retry key + result embed.
+- [x] F-120 playlists → 5/10/20-min mixes from the live queue.
+  Caller Handler.due_html beside resume box.
+- [x] F-122 restday → rest-day affirmation on idle empty queue.
+  Caller Handler.due_html empty-queue branch.
+- [x] F-123 comeback → 30-idle-day recap banner atop queue.
+  Caller Handler.due_html queue head.
+- [x] F-124 antistreak → anti-streak pledge after month review.
+  Caller history.history_html (both branches).
+- [x] F-125 buddyping → pair nudge after owned bar.
+  Caller Handler.module_html after owned bar.
+- [x] F-126 buddymatch → opt-in repo-overlap ranking beside buddy panes.
+  Caller Handler.module_html buddy chain + route params.
+- [x] F-127 coop → complementary hands for a ?buddy= pair.
+  Caller Handler.due_html queue head + route param.
+- [x] F-128 wagers → coffee ledger settling on live outcomes.
+  Caller history.history_html ledger + reviews route query.
+- [x] Follow-up: wagers.py slimmed under AREA_CAP (single-spec
+  place form, shared helpers).
+
+Batch 24 migration: none (no schema changes; lapses column
+pre-existed and simply never had an UPDATE).
+
+Batch 24 wires: WEB_CEILING 1406 → 1406 (every item wire is a
+same-line join; web.py holds 1405); status.py unchanged at 349
+(same-line batch24 join + import); history.py 241 → 257 (pledge +
+ledger appends, settlement block); cards.py 334 → 340 (editor/run/
+sandout branch joins); tour 149/154 → 157/162; docs regen (README +
+features.md from tour registry); every item module under 350 lines;
+MCP learning content covers every item (children filed 8 full modules
+I-154/I-156/I-157/I-159/F-120/F-122/F-123/F-126 + 3 neighbor modules;
+parent filed I-155/I-158/I-160/I-161/F-124/F-125/F-127/F-128 symbols,
+each closing the loop the child run left open).
+
 ## IMPROVEMENTS (500)
 
 ### A. Navigation, IA & routing (I-1–50)
@@ -1173,14 +1228,14 @@ green with review-submit interaction.
 - [x] I-151: Inline validation: "answer looks empty" warning before submit.
 - I-152: Save draft answers in localStorage so reloads never lose work.
 - [x] I-153: Show character/line counts on code textareas.
-- I-154: Add a real code editor (tab key, mono font, line numbers) replacing textarea.
-- I-155: Run button with shortcut (Ctrl+Enter) on all code exercises.
-- I-156: Show sandbox output inline without leaving the card.
-- I-157: Diff learner output vs expected output side-by-side on mismatch.
-- I-158: Reveal answer only after attempt (already) plus "reveal" for giving up (logs grade 0).
-- I-159: "Give up" path records a lapse and schedules sooner (honest FSRS).
-- I-160: Partial-credit display for multi-blank cloze (which blanks passed).
-- I-161: Retry wrong blanks only (keep correct ones filled).
+- [x] I-154: Add a real code editor (tab key, mono font, line numbers) replacing textarea.
+- [x] I-155: Run button with shortcut (Ctrl+Enter) on all code exercises.
+- [x] I-156: Show sandbox output inline without leaving the card.
+- [x] I-157: Diff learner output vs expected output side-by-side on mismatch.
+- [x] I-158: Reveal answer only after attempt (already) plus "reveal" for giving up (logs grade 0).
+- [x] I-159: "Give up" path records a lapse and schedules sooner (honest FSRS).
+- [x] I-160: Partial-credit display for multi-blank cloze (which blanks passed).
+- [x] I-161: Retry wrong blanks only (keep correct ones filled).
 - I-162: Parsons: touch-friendly drag plus full keyboard reorder.
 - I-163: Parsons: "check partial order" showing longest correct run.
 - I-164: Match-pairs: click-to-pair UI alternative to letter typing.
@@ -1668,15 +1723,15 @@ green with review-submit interaction.
 - [x] F-117: Mascot companion reacting to effort (encourages attempts, not wins).
 - F-118: Ambient progress sounds (optional, off by default, local files).
 - [x] F-119: Focus timer integration (pomodoro with queue auto-fill).
-- F-120: Session playlists (5/10/20-min mixes, one click).
+- [x] F-120: Session playlists (5/10/20-min mixes, one click).
 - F-121: "Just one card" mode for low-energy days (no guilt design).
-- F-122: Rest-day affirmations (breaks framed as consolidation).
-- F-123: Comeback path (after 30 idle days: gentle recap, no shame).
-- F-124: Anti-streak pledge page (why we never count streaks).
-- F-125: Social accountability without leaderboards (study buddy pings).
-- F-126: Buddy matching by repo overlap (opt-in, local).
-- F-127: Co-op modules (two learners, complementary card splits).
-- F-128: Friendly wagers (bet coffee on delayed-test outcomes, logged).
+- [x] F-122: Rest-day affirmations (breaks framed as consolidation).
+- [x] F-123: Comeback path (after 30 idle days: gentle recap, no shame).
+- [x] F-124: Anti-streak pledge page (why we never count streaks).
+- [x] F-125: Social accountability without leaderboards (study buddy pings).
+- [x] F-126: Buddy matching by repo overlap (opt-in, local).
+- [x] F-127: Co-op modules (two learners, complementary card splits).
+- [x] F-128: Friendly wagers (bet coffee on delayed-test outcomes, logged).
 - F-129: Team challenges (own a subsystem together, aggregate only).
 - F-130: Classroom quests (teacher-defined, completion-based, no ranking).
 - F-131: Seasonal events (Hacktober-style: own 5 OSS concepts).
