@@ -81,6 +81,7 @@ from . import fluency as fluencymod
 from . import nameguess as nameguessmod
 from . import invariant as invariantmod
 from . import outdiff as outdiffmod
+from . import tracetable as tracetablemod
 
 # type number -> (name, bloom)
 TYPES = {
@@ -1227,8 +1228,11 @@ def grade(exercise: dict, submission: str, runner=None) -> dict:
         if len(given) == 1 and len(expected) > 1:
             given = [x.strip() for x in given[0].replace(",", " ").split()]
         ok = given == expected
+        # I-165: per-cell detail on fail; "" keeps the legacy line.
+        detail = tracetablemod.summary_line(tracetablemod.per_cell(expected, submission), max(0, len(given) - len(expected)))
+        legacy = f"Expected {len(expected)} steps; got {given[:8]}"
         return {"pass": ok, "score": 1.0 if ok else 0.0,
-                "feedback": "Trace matches." if ok else f"Expected {len(expected)} steps; got {given[:8]}"}
+                "feedback": "Trace matches." if ok else (legacy if not detail else legacy + " " + detail)}
     if t == 11:
         if not p.get("tests"):
             # No harness: the shown slice need not run standalone, so the

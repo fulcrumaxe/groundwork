@@ -13,7 +13,7 @@ from . import runkey as runkeymod
 from . import sandout as sandoutmod
 from . import confslider as confslidermod
 from . import hinttiers as hinttiersmod
-from . import parkeys as parkeysmod, parcheck as parcheckmod, matchpair as matchpairmod  # Batch 25: one shared line keeps cards.py under AREA_CAP
+from . import parkeys as parkeysmod, parcheck as parcheckmod, matchpair as matchpairmod, tracetable as tracetablemod  # Batch 25: one shared line keeps cards.py under AREA_CAP
 from . import parsons as parsonsmod
 
 
@@ -166,12 +166,13 @@ def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:
                 + f"{_confidence()}<button>Check matches</button>")
     elif etype == "9":
         steps = p.get("expected", [])
+        trows = tracetablemod.table_rows_html(p)
         rows = "".join(
             f"<tr><td>Step {i + 1}</td>"
             f"<td><input name='s{i}' size='12'></td></tr>"
             for i in range(len(steps))) or \
             "<tr><td>Value</td><td><input name='s0' size='12'></td></tr>"
-        body = (f"<table>{rows}</table>{_confidence()}"
+        body = (f"<table>{trows or rows}</table>{_confidence()}"
                 f"<button>Check trace</button>")
     elif etype in ("10", "11"):
         from . import seqdiag as seqdiagmod
