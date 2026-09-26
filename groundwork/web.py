@@ -63,7 +63,7 @@ from . import exports as expmod
 from . import favicon as faviconmod
 from . import fontstack as fontstackmod
 from . import focusrings as focusringsmod
-from . import flowdetect as flowdetectmod, focustimer as focustimermod, playlists as playlistsmod  # one line keeps web.py at WEB_CEILING
+from . import flowdetect as flowdetectmod, focustimer as focustimermod, playlists as playlistsmod, restday as restdaymod  # one line keeps web.py at WEB_CEILING
 from . import footnav as footnavmod
 from . import forgetcurve as forgetcurvemod
 from . import formerr as formerrmod
@@ -741,7 +741,7 @@ class Handler(BaseHTTPRequestHandler):
         if not due:
             stats = self._hero_stats()
             parts.append(doneheromod.done_hero_html(
-                stats["answered"], stats["accuracy"], stats["next_due"]))
+                stats["answered"], stats["accuracy"], stats["next_due"]) + restdaymod.restday_html(0, restdaymod.idle_days_from_rows(peak_rows)))
         grouped = qmod.groups(self.db_path, due)
         n = 0
         for gi, g in enumerate(grouped):
