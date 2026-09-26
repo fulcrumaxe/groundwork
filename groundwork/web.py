@@ -504,7 +504,7 @@ class Handler(BaseHTTPRequestHandler):
                             lede="What to practice next — your spaced queue, one card at a time.",
                             counts=counts, tour=tour_ctx))
         elif url.path == "/reviews":
-            self._send(page("History", self.history_html(),
+            self._send(page("History", self.history_html(query),
                             active="history", page_id="history",
                             lede="What you have practiced — every attempt, grade and calibration.",
                             counts=counts, tour=tour_ctx))
@@ -812,8 +812,8 @@ class Handler(BaseHTTPRequestHandler):
         return ("<div id='queue'>" + "".join(parts)
                 + tabmemorymod.memory_js() + "</div>")
 
-    def history_html(self) -> str:
-        return histmod.history_html(self.db_path)
+    def history_html(self, query=None) -> str:
+        return histmod.history_html(self.db_path, query)
 
     # Thin delegation: the real renderers live in focused modules
     # per the Batch 3 modularity rule (exports, api, sitemap,
