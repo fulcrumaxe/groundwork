@@ -49,12 +49,10 @@ class QueryTest(unittest.TestCase):
         self.assertEqual(rows[0]["card_id"], "mod1:ex001")
         self.assertEqual(rows[0]["window"], 7)
 
-    def test_discrete_form_fields(self):
-        rows = wmod.wagers_from_query({"wager_kind": ["probe"],
-                                       "wager_card": ["c9"],
-                                       "wager_window": ["30"]})
-        self.assertEqual(rows[0]["card_id"], "c9")
-        self.assertEqual(rows[0]["window"], 30)
+    def test_place_form_submits_single_spec(self):
+        form = wmod.place_form()
+        self.assertIn("name='wager'", form)
+        self.assertIn("probe:CARD:7 or acc:0.8", form)
 
     def test_nothing_placed_gives_empty(self):
         self.assertEqual(wmod.wagers_from_query({}), [])

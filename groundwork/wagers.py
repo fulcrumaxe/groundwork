@@ -1,23 +1,11 @@
-"""Friendly wagers (F-128): bet coffee on delayed-test outcomes, logged.
+"""Friendly wagers (F-128): bet coffee on delayed-test outcomes.
 
-A local, single-learner dare ledger: bet a coffee that a probe review
-will pass, or that mature delayed accuracy will hold a target. Stakes
-are coffee only — no network, no real money.
-
-Bets are placed with plain query data (``?wager=probe:<card>:<window>``
-or the place form's ``wager_kind``/``wager_card``/``wager_window`` /
-``wager_target`` fields) and settle at render time against MEASURED
-outcomes owned elsewhere, never recomputed here: probe windows read
-the latest recorded grade for the card (pass = grade >= 4, mirroring
-groundwork/retest.py) and long-horizon wagers settle on the
-groundwork/northstar.py snapshot (mature 21+ day delayed accuracy).
-The caller (``history.history_html``) supplies those outcomes as plain
-dicts, so this module duplicates no selector, metric, or threshold
-logic and needs no DB/schema change.
-
-Pure functions of passed-in dicts/lists, stdlib only (``html``),
-no groundwork imports, no DB/schema, no I/O. Fail-closed:
-never raises.
+Bets arrive as query data (``?wager=probe:<card>:<window>`` or the
+place form fields) and settle at render against MEASURED outcomes
+the caller supplies (latest card grades, northstar delayed accuracy)
+— never recomputed here, no DB/schema change. Stakes are coffee only:
+no network, no real money. Pure functions, stdlib ``html`` only,
+no groundwork imports, no I/O. Fail-closed: never raises.
 """
 from __future__ import annotations
 
@@ -47,6 +35,13 @@ def _str(value, default: str = "") -> str:
         return default
 
 
+def _blank() -> dict:
+    """Fresh open probe wager."""
+    return {"kind": "probe", "card_id": None, "window": WINDOWS[0],
+            "target": None, "bettor": "you", "rival": "a friend",
+            "stake": STAKE, "status": "open", "placed_at": ""}
+
+
 def _copy(wager) -> dict:
     """Shallow-copy a wager dict; garbage becomes a fresh open probe."""
     try:
@@ -54,9 +49,26 @@ def _copy(wager) -> dict:
             return dict(wager)
     except Exception:  # noqa: BLE001 — copy must never raise
         pass
-    return {"kind": "probe", "card_id": None, "window": WINDOWS[0],
-            "target": None, "bettor": "you", "rival": "a friend",
-            "stake": STAKE, "status": "open", "placed_at": ""}
+    return _blank()
+
+
+def _window(value) -> int:
+    """7/30-day window; anything else falls back to 7."""
+    try:
+        return int(value) if int(value) in WINDOWS else WINDOWS[0]
+    except (TypeError, ValueError):
+        return WINDOWS[0]
+
+
+def _card_id(value):
+    """int when numeric, stripped text, else None; never raises."""
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        try:
+            return str(value).strip() or None
+        except Exception:  # noqa: BLE001
+            return None
 
 
 def place_probe_wager(card_id, window: int = 7, bettor: str = "you",
@@ -68,27 +80,25 @@ def place_probe_wager(card_id, window: int = 7, bettor: str = "you",
     by explicit grade later). Never raises.
     """
     try:
-        try:
-            window = int(window)
-        except (TypeError, ValueError):
-            window = WINDOWS[0]
-        if window not in WINDOWS:
-            window = WINDOWS[0]
-        try:
-            cid: object = int(card_id)
-        except (TypeError, ValueError):
-            try:
-                cid = str(card_id).strip() or None
-            except Exception:  # noqa: BLE001 — id must never raise
-                cid = None
+        window = _window(window)
+        cid: object = _card_id(card_id)
         return {"kind": "probe", "card_id": cid, "window": window,
                 "target": None, "bettor": _str(bettor, "you"),
                 "rival": _str(rival, "a friend"), "stake": STAKE,
                 "status": "open", "placed_at": _str(placed_at)}
     except Exception:  # noqa: BLE001 — placement must never raise
-        return {"kind": "probe", "card_id": None, "window": WINDOWS[0],
-                "target": None, "bettor": "you", "rival": "a friend",
-                "stake": STAKE, "status": "open", "placed_at": ""}
+        return _blank()
+
+
+def _goal(value) -> float:
+    """0–1 target; garbage and NaN fall back to the default."""
+    try:
+        goal = float(value)
+        if goal != goal:
+            return DEFAULT_TARGET
+        return round(min(1.0, max(0.0, goal)), 2)
+    except (TypeError, ValueError):
+        return DEFAULT_TARGET
 
 
 def place_accuracy_wager(target: float = DEFAULT_TARGET, bettor: str = "you",
@@ -100,31 +110,32 @@ def place_accuracy_wager(target: float = DEFAULT_TARGET, bettor: str = "you",
     ``settle()`` against a northstar-style snapshot dict. Never raises.
     """
     try:
-        try:
-            goal = float(target)
-            if goal != goal:  # NaN fails closed to the default
-                goal = DEFAULT_TARGET
-        except (TypeError, ValueError):
-            goal = DEFAULT_TARGET
-        goal = min(1.0, max(0.0, goal))
+        goal = _goal(target)
         return {"kind": "accuracy", "card_id": None, "window": None,
-                "target": round(goal, 2), "bettor": _str(bettor, "you"),
+                "target": goal, "bettor": _str(bettor, "you"),
                 "rival": _str(rival, "a friend"), "stake": STAKE,
                 "status": "open", "placed_at": _str(placed_at)}
     except Exception:  # noqa: BLE001 — placement must never raise
-        return {"kind": "accuracy", "card_id": None, "window": None,
-                "target": DEFAULT_TARGET, "bettor": "you",
-                "rival": "a friend", "stake": STAKE,
-                "status": "open", "placed_at": ""}
+        out = _blank()
+        out.update({"kind": "accuracy", "window": None,
+                    "target": DEFAULT_TARGET})
+        return out
+
+
+def _probe_spec(bits: list):
+    """(card_id, window) from probe spec parts; window splits from right."""
+    if len(bits) > 2:
+        try:
+            return ":".join(bits[1:-1]), int(bits[-1])
+        except (TypeError, ValueError):
+            return ":".join(bits[1:]), 7
+    return bits[1], 7
 
 
 def wagers_from_query(query) -> list:
-    """Wager dicts from /reviews query data; [] when nothing placed.
+    """Wager dicts from ``?wager=probe:<card>:<window>`` / ``?wager=acc:<target>`` specs.
 
-    Accepts ``?wager=probe:<card>:<window>`` / ``?wager=acc:<target>``
-    specs plus the place form's discrete ``wager_kind`` /
-    ``wager_card`` / ``wager_window`` / ``wager_target`` fields.
-    Never raises.
+    The place form submits the same single-spec shape. Never raises.
     """
     out = []
     try:
@@ -134,39 +145,13 @@ def wagers_from_query(query) -> list:
             try:
                 bits = str(spec).split(":")
                 if bits[0] == "probe" and len(bits) >= 2:
-                    # Card ids may contain colons: the window is the
-                    # trailing int, everything between is the card id.
-                    if len(bits) > 2:
-                        try:
-                            window = int(bits[-1])
-                            cid = ":".join(bits[1:-1])
-                        except (TypeError, ValueError):
-                            window, cid = 7, ":".join(bits[1:])
-                    else:
-                        window, cid = 7, bits[1]
+                    cid, window = _probe_spec(bits)
                     out.append(place_probe_wager(cid, window))
                 elif bits[0] == "acc":
                     out.append(place_accuracy_wager(
                         bits[1] if len(bits) > 1 else DEFAULT_TARGET))
             except Exception:  # noqa: BLE001 -- one bad spec never breaks
                 continue
-        kind = (query.get("wager_kind", [""])[0]
-                if isinstance(query.get("wager_kind"), list)
-                else query.get("wager_kind", ""))
-        if str(kind or "").strip():
-            if str(kind).strip() == "accuracy":
-                out.append(place_accuracy_wager(
-                    (query.get("wager_target", [""])[0]
-                     if isinstance(query.get("wager_target"), list)
-                     else query.get("wager_target", "")) or DEFAULT_TARGET))
-            else:
-                card = (query.get("wager_card", [""])[0]
-                        if isinstance(query.get("wager_card"), list)
-                        else query.get("wager_card", ""))
-                window = (query.get("wager_window", [""])[0]
-                          if isinstance(query.get("wager_window"), list)
-                          else query.get("wager_window", ""))
-                out.append(place_probe_wager(card, window or 7))
     except Exception:  # noqa: BLE001 -- placement must never raise
         pass
     return out
@@ -190,18 +175,13 @@ def settle(wager: dict, outcome: dict) -> dict:
             return mine
         if mine.get("kind") == "accuracy":
             raw = outcome.get("delayed_acc", outcome.get("accuracy"))
-            if raw is None:
-                return mine
             try:
                 acc = float(raw)
             except (TypeError, ValueError):
                 return mine
-            if acc != acc:  # NaN is not a measurement
+            if acc != acc or raw is None:  # NaN/missing is not a measurement
                 return mine
-            try:
-                goal = float(mine.get("target", DEFAULT_TARGET))
-            except (TypeError, ValueError):
-                goal = DEFAULT_TARGET
+            goal = _goal(mine.get("target", DEFAULT_TARGET))
             mine["status"] = "won" if acc >= goal else "lost"
             return mine
         try:
@@ -306,26 +286,13 @@ def _row_html(wager: dict) -> str:
 
 
 def place_form() -> str:
-    """Compact bet placer (GET ?wager=…); always safe to render."""
-    try:
-        return (
-            "<form class='wager-place' method='get' action='/reviews'>"
-            "<label>Bet a coffee "
-            "<select name='wager_kind'>"
-            "<option value='probe'>probe passes</option>"
-            "<option value='accuracy'>delayed accuracy holds</option>"
-            "</select></label> "
-            "<label>Card <input name='wager_card' size='6' "
-            "placeholder='card id'></label> "
-            "<label>Window <select name='wager_window'>"
-            "<option value='7'>7-day</option>"
-            "<option value='30'>30-day</option>"
-            "</select></label> "
-            "<label>Target <input name='wager_target' size='4' "
-            "placeholder='0.8'></label> "
-            "<button type='submit'>Bet coffee</button></form>")
-    except Exception:  # noqa: BLE001 -- form must never raise
-        return ""
+    """One-line bet placer (GET ?wager=…); always safe to render."""
+    return (
+        "<form class='wager-place' method='get' action='/reviews'>"
+        "<label>Bet a coffee "
+        "<input name='wager' size='28' "
+        "placeholder='probe:CARD:7 or acc:0.8'></label> "
+        "<button type='submit'>Bet coffee</button></form>")
 
 
 def section_html(wagers=None) -> str:
@@ -366,14 +333,8 @@ def status_section_html() -> str:
 
 
 def tour_entry() -> dict:
-    """Tour registry entry for friendly wagers; never raises."""
-    try:
-        return {"id": "friendly-wagers", "kind": "feature",
-                "title": "Friendly wagers",
-                "blurb": "Bet a coffee on your next delayed retest — probe passes win, and the History ledger keeps score.",
-                "path": "/reviews", "anchor": STATUS_ANCHOR}
-    except Exception:  # noqa: BLE001 — tour entry must never raise
-        return {"id": "friendly-wagers", "kind": "feature",
-                "title": "Friendly wagers",
-                "blurb": "Bet a coffee on delayed recalls.",
-                "path": "/reviews", "anchor": STATUS_ANCHOR}
+    """Tour registry entry for friendly wagers."""
+    return {"id": "friendly-wagers", "kind": "feature",
+            "title": "Friendly wagers",
+            "blurb": "Bet a coffee on your next delayed retest — probe passes win, and the History ledger keeps score.",
+            "path": "/reviews", "anchor": STATUS_ANCHOR}
