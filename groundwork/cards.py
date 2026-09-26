@@ -10,6 +10,7 @@ import json
 
 from . import codeedit as codeeditmod
 from . import runkey as runkeymod
+from . import sandout as sandoutmod
 from . import confslider as confslidermod
 from . import hinttiers as hinttiersmod
 from . import parsons as parsonsmod
@@ -130,6 +131,8 @@ def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:
                 f"placeholder='{hint}'></textarea><br>"
                 f"{_confidence()}<button>Submit answer</button>")
     elif etype == "8":
+        # I-156: measured output reveals inline; "" when unmeasured.
+        reveal = sandoutmod.output_html(card)
         if p.get("choices"):
             btns = " ".join(
                 f"<button name='answer' value='{html.escape(c)}'>{html.escape(c)}</button>"
@@ -137,10 +140,10 @@ def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:
             body = (f"<p>Pick the output — or type it from memory when these feel easy:</p>"
                     f"{btns}<br>"
                     f"<label>Type it: <input name='answer' size='20'></label> "
-                    f"{_confidence()}<button>Check</button>")
+                    f"{_confidence()}<button>Check</button>" + reveal)
         else:
             body = (f"<label>It prints/returns: <input name='answer' size='30'></label> "
-                    f"{_confidence()}<button>Check prediction</button>")
+                    f"{_confidence()}<button>Check prediction</button>" + reveal)
     elif etype == "3" and p.get("choices"):
         btns = " ".join(
             f"<button name='answer' value='{html.escape(c)}'>{html.escape(c)}</button>"
