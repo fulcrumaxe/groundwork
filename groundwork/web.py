@@ -106,6 +106,7 @@ from . import realfile as realfilemod
 from . import regenstat as regenstatmod
 from . import readout as readoutmod, readnudge as readnudgemod  # one line keeps web.py at WEB_CEILING
 from . import readtime as readtimemod
+from . import rabbithole as rabbitholemod
 from . import recent as recentmod
 from . import related as relmod
 from . import reset as resetmod
@@ -643,7 +644,7 @@ class Handler(BaseHTTPRequestHandler):
                     page_id="modules", counts=counts, tour=tour_ctx))
         elif url.path.startswith("/modules/"):
             mid = url.path.split("/")[-1]
-            body = self.module_html(mid, level, order, replay_step, query.get("buddy", []), query.get("buddymatch", [""])[0] == "1", query.get("bmatch_repos", []), query.get("bmatch_concepts", []), query.get("quest", [""])[0] or None)
+            body = self.module_html(mid, level, order, replay_step, query.get("buddy", []), query.get("buddymatch", [""])[0] == "1", query.get("bmatch_repos", []), query.get("bmatch_concepts", []), query.get("quest", [""])[0] or None, query.get("trail", [""])[0])
             if body == "<p>Unknown module.</p>":
                 self._send(page("Not found", errmod.not_found_html(
                     url.path, "Unknown module."), active="modules",
@@ -1005,7 +1006,7 @@ class Handler(BaseHTTPRequestHandler):
         return "".join(parts)
 
     def module_html(self, mid: str, level: str = "auto", order: str = "definition",
-                      replay_step=None, buddies=(), match_opt_in=False, match_repos=(), match_concepts=(), quest_spec=None) -> str:
+                      replay_step=None, buddies=(), match_opt_in=False, match_repos=(), match_concepts=(), quest_spec=None, trail="") -> str:
         con = self._con()
         try:
             m = con.execute("SELECT * FROM modules WHERE id=?", (mid,)).fetchone()
@@ -1102,7 +1103,7 @@ class Handler(BaseHTTPRequestHandler):
               "file": r["file"], "line": r["line"]}
              for r in concepts], mid)
         confflags = confusingmod.flags_for_module(self.db_path, mid)
-        parts.append(confusingmod.queue_banner_html(confflags, base))
+        parts.append(confusingmod.queue_banner_html(confflags, base) + rabbitholemod.trail_html(trail, mid))
         parts.append(regenstatmod.status_html(self.db_path, mid))
         # F-98: one page-level visual-vs-textual affinity from performance.
         affinity = stylemixmod.affinity(stylemixmod.records_for(
@@ -1142,7 +1143,7 @@ class Handler(BaseHTTPRequestHandler):
                     parts.extend(text_bits)
                     parts.extend(visual_bits)
                 earlier = [lesson_map[n] for n in seen if n in lesson_map]
-                parts.append(lessondepsmod.deps_html(lesson_map[node], earlier))
+                parts.append(lessondepsmod.deps_html(lesson_map[node], earlier) + rabbitholemod.wander_html(lesson_map[node], trail, mid, {lesmod.slug(r["name"]) for r in concepts}))
                 seen.append(node)
                 parts.append(debugkatamod.lesson_block(lesson_map[node]))
                 parts.append(audiosummod.block_html(lesson_map[node]) + handoutmod.handout_link_html(mid, node))
