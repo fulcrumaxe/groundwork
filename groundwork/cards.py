@@ -13,6 +13,7 @@ from . import runkey as runkeymod
 from . import sandout as sandoutmod
 from . import confslider as confslidermod
 from . import hinttiers as hinttiersmod
+from . import parkeys as parkeysmod, parcheck as parcheckmod, matchpair as matchpairmod, tracetable as tracetablemod, predtry as predtrymod, rubriclive as rubriclivemod, linecomment as linecommentmod, comparesplit as comparesplitmod  # Batch 25: one shared line keeps cards.py under AREA_CAP
 from . import parsons as parsonsmod
 
 
@@ -113,12 +114,12 @@ def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:
             f"<button name='answer' value='{html.escape(c)}'>{html.escape(c)}</button>"
             for c in p.get("choices", []))
         body = f"{btns} {_confidence()}"
-    elif etype in ("5", "6", "21", "22", "24", "25"):
-        hint = ("First line: A or B, then your reasons."
-                if etype == "22" else "Explain in your own words…")
-        body = (f"<textarea name='answer' rows='5' cols='70' "
-                f"placeholder='{hint}'></textarea><br>"
-                f"{_confidence()}<button>Submit explanation</button>")
+    elif etype in ("5", "6", "24", "25"):
+        body = rubriclivemod.enhance(card, f"<textarea name='answer' rows='5' cols='70' placeholder='Explain in your own words…'></textarea><br>{_confidence()}<button>Submit explanation</button>")
+    elif etype == "21":
+        body = rubriclivemod.enhance(card, linecommentmod.branch_html(card, p))
+    elif etype == "22":
+        body = comparesplitmod.branch_html(card, p, cid)
     elif etype in ("82", "83", "84", "85", "86", "90"):
         hint = {"82": "One edge per line: caller -> concept.",
                 "83": "Q1… Q2… Q3…",
@@ -127,12 +128,10 @@ def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:
                 "86": "The mapping…, and where it breaks…",
                 "90": "requires(x)…, then ensures(x, out)…"}.get(
                     etype, "Answer…")
-        body = (f"<textarea name='answer' rows='5' cols='70' "
-                f"placeholder='{hint}'></textarea><br>"
-                f"{_confidence()}<button>Submit answer</button>")
+        body = rubriclivemod.enhance(card, f"<textarea name='answer' rows='5' cols='70' placeholder='{hint}'></textarea><br>{_confidence()}<button>Submit answer</button>")
     elif etype == "8":
         # I-156: measured output reveals inline; "" when unmeasured.
-        reveal = sandoutmod.output_html(card)
+        reveal = sandoutmod.output_html(card) + predtrymod.tries_html(card)
         if p.get("choices"):
             btns = " ".join(
                 f"<button name='answer' value='{html.escape(c)}'>{html.escape(c)}</button>"
@@ -161,16 +160,17 @@ def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:
             f"<tr><td><b>{i}</b> {html.escape(a)}</td>"
             f"<td><input name='m{i}' size='3' placeholder='letter'></td></tr>"
             for i, a in enumerate(left))
-        body = (f"<p>{letters}</p><table>{rows}</table>"
-                f"{_confidence()}<button>Check matches</button>")
+        body = (f"<p>{letters}</p><table>{rows}</table>" + matchpairmod.pair_html(cid, left, right)
+                + f"{_confidence()}<button>Check matches</button>")
     elif etype == "9":
         steps = p.get("expected", [])
+        trows = tracetablemod.table_rows_html(p)
         rows = "".join(
             f"<tr><td>Step {i + 1}</td>"
             f"<td><input name='s{i}' size='12'></td></tr>"
             for i in range(len(steps))) or \
             "<tr><td>Value</td><td><input name='s0' size='12'></td></tr>"
-        body = (f"<table>{rows}</table>{_confidence()}"
+        body = (f"<table>{trows or rows}</table>{_confidence()}"
                 f"<button>Check trace</button>")
     elif etype in ("10", "11"):
         from . import seqdiag as seqdiagmod
@@ -181,8 +181,9 @@ def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:
             except (KeyError, IndexError, TypeError):
                 concept = ""
             fig = seqdiagmod.figure_html({"payload": p}, concept)
-        body = (fig + parsonsmod.block_html(cid, p.get("lines", []))
-                + f"{_confidence()}<button>Check order</button>{PARSONS_JS}")
+        pcc = parcheckmod.check_html(cid, p.get("lines", []), p.get("solution", []))
+        body = (fig + parkeysmod.block_html(cid, p.get("lines", [])) + pcc
+                + f"{_confidence()}<button>Check order</button>{PARSONS_JS}{parkeysmod.parkeys_js()}{parcheckmod.check_js() if pcc else ''}")
     elif etype in ("12", "14", "19", "20", "23"):
         # I-154/I-155: editor + visible Run button; same field, same grade.
         body = (codeeditmod.editor_html() + runkeymod.hint_html() + "<br>"

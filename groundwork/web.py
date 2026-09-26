@@ -35,6 +35,7 @@ from . import cardlinks as cardlinksmod
 from . import cards as cardsmod
 from . import chiplinks as chiplinksmod, conceptbadges as conceptbadgesmod  # one line keeps web.py at WEB_CEILING
 from . import clarity as claritymod
+from . import classquests as classquestsmod
 from . import clickcards as clickcardsmod
 from . import collapse as collapsemod
 from . import confslider as confslidermod
@@ -54,7 +55,7 @@ from . import diff as diffmod
 from . import digest as digestmod, diffvote as diffvotemod  # one line keeps web.py at WEB_CEILING
 from . import disputes as dismod
 from . import donehero as doneheromod
-from . import emoji as emojimod, parsons as parsonsmod  # one line keeps web.py at WEB_CEILING
+from . import emoji as emojimod, parsons as parsonsmod, parkeys as parkeysmod, comparesplit as comparesplitmod  # one line keeps web.py at WEB_CEILING
 from . import emptyart as emptyartmod
 from . import errors as errmod
 from . import explcalib as explcalibmod
@@ -70,6 +71,7 @@ from . import formerr as formerrmod
 from . import handout as handoutmod
 from . import hinttiers as hinttiersmod
 from . import history as histmod
+from . import interviewprep as interviewprepmod
 from . import journal as journalmod
 from . import known as knownmod
 from . import lessons as lesmod
@@ -87,6 +89,7 @@ from . import modules as modmod
 from . import motion as motionmod
 from . import ogtags as ogtagsmod
 from . import optimistic as optimisticmod, outdiff as outdiffmod  # Batch 24 I-157: diff CSS join keeps web.py at WEB_CEILING
+from . import onboard as onboardmod
 from . import ownbanner as ownbannermod
 from . import ownership as ownmod
 from . import pageicon as pageiconmod
@@ -103,6 +106,7 @@ from . import realfile as realfilemod
 from . import regenstat as regenstatmod
 from . import readout as readoutmod, readnudge as readnudgemod  # one line keeps web.py at WEB_CEILING
 from . import readtime as readtimemod
+from . import rabbithole as rabbitholemod
 from . import recent as recentmod
 from . import related as relmod
 from . import reset as resetmod
@@ -256,7 +260,7 @@ CSS = ("body{font-family:system-ui,-apple-system,sans-serif;max-width:48rem;"
 # concatenated into CSS (that nests <style> inside <style>, closes the
 # head stylesheet early, and dumps all later CSS into <body> as text).
 FOCUS_CSS = clickcardsmod.focus_css()
-CSS += palettemod.palette_css() + darkmodemod.dark_css() + typescalemod.scale_css() + fontstackmod.stack_css() + wordmarkmod.wordmark_css() + bloomchipsmod.chip_css() + progbarmod.progbar_css() + ownedbadgemod.badge_css() + staggermod.stagger_css() + caretsmod.carets_css() + codelinesmod.codelines_css() + highlightmod.highlight_css() + hinttiersmod.hinttiers_css() + confslidermod.css() + focusringsmod.css() + taptargetsmod.target_css() + radiusmod.radius_css() + spacingmod.spacing_css() + doneheromod.hero_css() + logbookmod.logbook_css() + shelfmod.shelf_css() + briefingmod.briefing_css() + verdictsmod.verdicts_css() + ownbannermod.ownbanner_css() + pressfxmod.pressfx_css() + skeletonsmod.skeletons_css() + optimisticmod.optimistic_css() + formerrmod.formerr_css() + selectionmod.selection_css() + scrollbarmod.scrollbar_css() + densitymod.density_css() + responsivemod.narrow_css() + emojimod.icon_css() + parsonsmod.parsons_css() + contrastmod.contrast_css() + motionmod.motion_css() + lessonvermod.banner_css() + tablescrollmod.scroll_css() + dyslexiamod.dyslexia_css() + unlockfxmod.badge_css() + conceptbadgesmod.badge_css() + showcasemod.showcase_css() + themeunlockmod.theme_css() + avatarmod.avatar_css() + mascotmod.mascot_css() + codeeditmod.editor_css() + outdiffmod.diff_css()  # Batch 24 I-154: code editor. I-157: output diff. Batch 9 I-51/52/53/54: token variables, dark overrides, type scale, font stacks. Batch 10 I-55..I-62: wordmark, bloom chips, progress motion, owned badge, stagger, carets, code lines, highlight. Batch 11 I-63..I-70: hint tiers, confidence segments, focus rings, tap floor, radii, spacing, hero. Batch 12 I-71..I-73/I-77/I-79..I-82: logbook, shelf, briefing, verdicts, banner, press, skeletons, optimistic submit. Batch 13 I-84/I-85/I-86/I-89/I-90: field errors, selection, scrollbars, density, narrow phones. Batch 19 I-115: lesson version banner. Batch 21 I-92: scrollable tables.
+CSS += palettemod.palette_css() + darkmodemod.dark_css() + typescalemod.scale_css() + fontstackmod.stack_css() + wordmarkmod.wordmark_css() + bloomchipsmod.chip_css() + progbarmod.progbar_css() + ownedbadgemod.badge_css() + staggermod.stagger_css() + caretsmod.carets_css() + codelinesmod.codelines_css() + highlightmod.highlight_css() + hinttiersmod.hinttiers_css() + confslidermod.css() + focusringsmod.css() + taptargetsmod.target_css() + radiusmod.radius_css() + spacingmod.spacing_css() + doneheromod.hero_css() + logbookmod.logbook_css() + shelfmod.shelf_css() + briefingmod.briefing_css() + verdictsmod.verdicts_css() + ownbannermod.ownbanner_css() + pressfxmod.pressfx_css() + skeletonsmod.skeletons_css() + optimisticmod.optimistic_css() + formerrmod.formerr_css() + selectionmod.selection_css() + scrollbarmod.scrollbar_css() + densitymod.density_css() + responsivemod.narrow_css() + emojimod.icon_css() + parsonsmod.parsons_css() + parkeysmod.parkeys_css() + comparesplitmod.split_css() + contrastmod.contrast_css() + motionmod.motion_css() + lessonvermod.banner_css() + tablescrollmod.scroll_css() + dyslexiamod.dyslexia_css() + unlockfxmod.badge_css() + conceptbadgesmod.badge_css() + showcasemod.showcase_css() + themeunlockmod.theme_css() + avatarmod.avatar_css() + mascotmod.mascot_css() + codeeditmod.editor_css() + outdiffmod.diff_css()  # Batch 24 I-154: code editor. I-157: output diff. Batch 9 I-51/52/53/54: token variables, dark overrides, type scale, font stacks. Batch 10 I-55..I-62: wordmark, bloom chips, progress motion, owned badge, stagger, carets, code lines, highlight. Batch 11 I-63..I-70: hint tiers, confidence segments, focus rings, tap floor, radii, spacing, hero. Batch 12 I-71..I-73/I-77/I-79..I-82: logbook, shelf, briefing, verdicts, banner, press, skeletons, optimistic submit. Batch 13 I-84/I-85/I-86/I-89/I-90: field errors, selection, scrollbars, density, narrow phones. Batch 19 I-115: lesson version banner. Batch 21 I-92: scrollable tables.
 
 GLOBAL_JS = """
 <script>
@@ -640,7 +644,7 @@ class Handler(BaseHTTPRequestHandler):
                     page_id="modules", counts=counts, tour=tour_ctx))
         elif url.path.startswith("/modules/"):
             mid = url.path.split("/")[-1]
-            body = self.module_html(mid, level, order, replay_step, query.get("buddy", []), query.get("buddymatch", [""])[0] == "1", query.get("bmatch_repos", []), query.get("bmatch_concepts", []))
+            body = self.module_html(mid, level, order, replay_step, query.get("buddy", []), query.get("buddymatch", [""])[0] == "1", query.get("bmatch_repos", []), query.get("bmatch_concepts", []), query.get("quest", [""])[0] or None, query.get("trail", [""])[0])
             if body == "<p>Unknown module.</p>":
                 self._send(page("Not found", errmod.not_found_html(
                     url.path, "Unknown module."), active="modules",
@@ -686,7 +690,7 @@ class Handler(BaseHTTPRequestHandler):
                 f" WHERE card_id IN ({','.join('?' * len(due))})"
                 " ORDER BY id DESC",
                 [c["id"] for c in due]).fetchall() if due else []
-            crows = quemod.cold_rows(con2) if cold else []
+            prows = quemod.cold_rows(con2); crows = prows if cold else []
             # F-91: recall history for the personal decay constant.
             fc_rows = con2.execute(
                 "SELECT card_id, stability, grade, reviewed_at FROM reviews"
@@ -737,7 +741,7 @@ class Handler(BaseHTTPRequestHandler):
         else:
             parts.append("<p><a id='one-card' href='/due?mode=one'>"
                          "Just one card</a> for low-energy days.</p>")
-        parts.append(sermod.section_html(self.db_path) + partytrickmod.section_html(self.db_path))
+        parts.append(sermod.section_html(self.db_path) + partytrickmod.section_html(self.db_path) + interviewprepmod.track_html(prows, due))
         if not due:
             stats = self._hero_stats()
             parts.append(doneheromod.done_hero_html(
@@ -1002,7 +1006,7 @@ class Handler(BaseHTTPRequestHandler):
         return "".join(parts)
 
     def module_html(self, mid: str, level: str = "auto", order: str = "definition",
-                      replay_step=None, buddies=(), match_opt_in=False, match_repos=(), match_concepts=()) -> str:
+                      replay_step=None, buddies=(), match_opt_in=False, match_repos=(), match_concepts=(), quest_spec=None, trail="") -> str:
         con = self._con()
         try:
             m = con.execute("SELECT * FROM modules WHERE id=?", (mid,)).fetchone()
@@ -1085,6 +1089,8 @@ class Handler(BaseHTTPRequestHandler):
                 f"{len(concepts)} concepts owned'><i style='width:{pct}%'></i></div>"
                 f"<p><small>{owned_n}/{len(concepts)} concepts owned</small></p>" + buddypingmod.ping_html(buddies, owned_n, len(concepts)))
         parts.append(questsmod.skills_view(concepts, lesson_map, mastery_of))
+        parts.append(onboardmod.countdown_box_html(lessons=list(lesson_map.values()), owned=owned, rows=history))
+        parts.append(classquestsmod.quest_html(quest_spec, [r["name"] for r in concepts if owned.get(r["cid"], (0, False))[1]], mastery_of))
         practice_tagged = False
         dec_nodes = [r["cid"].split(":", 1)[1] if ":" in r["cid"] else r["cid"]
                      for r in concepts]
@@ -1097,7 +1103,7 @@ class Handler(BaseHTTPRequestHandler):
               "file": r["file"], "line": r["line"]}
              for r in concepts], mid)
         confflags = confusingmod.flags_for_module(self.db_path, mid)
-        parts.append(confusingmod.queue_banner_html(confflags, base))
+        parts.append(confusingmod.queue_banner_html(confflags, base) + rabbitholemod.trail_html(trail, mid))
         parts.append(regenstatmod.status_html(self.db_path, mid))
         # F-98: one page-level visual-vs-textual affinity from performance.
         affinity = stylemixmod.affinity(stylemixmod.records_for(
@@ -1137,7 +1143,7 @@ class Handler(BaseHTTPRequestHandler):
                     parts.extend(text_bits)
                     parts.extend(visual_bits)
                 earlier = [lesson_map[n] for n in seen if n in lesson_map]
-                parts.append(lessondepsmod.deps_html(lesson_map[node], earlier))
+                parts.append(lessondepsmod.deps_html(lesson_map[node], earlier) + rabbitholemod.wander_html(lesson_map[node], trail, mid, {lesmod.slug(r["name"]) for r in concepts}))
                 seen.append(node)
                 parts.append(debugkatamod.lesson_block(lesson_map[node]))
                 parts.append(audiosummod.block_html(lesson_map[node]) + handoutmod.handout_link_html(mid, node))
