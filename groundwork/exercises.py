@@ -80,6 +80,7 @@ from . import premortem as premortemmod
 from . import fluency as fluencymod
 from . import nameguess as nameguessmod
 from . import invariant as invariantmod
+from . import outdiff as outdiffmod
 
 # type number -> (name, bloom)
 TYPES = {
@@ -1205,11 +1206,17 @@ def grade(exercise: dict, submission: str, runner=None) -> dict:
         res = runner.run(p.get("code", ""))
         ref_ok = res.ok and res.stdout.strip() == expected
         ok = ref_ok and str(submission).strip() == expected
-        return {"pass": ok, "score": 1.0 if ok else 0.0,
-                "feedback": "Prediction matches." if ok else (
-                    "Reference no longer reproduces; flagged stale."
-                    if not ref_ok else
-                    f"Actual output: {res.stdout.strip()[:200]!r}.")}
+        if ok:
+            return {"pass": True, "score": 1.0,
+                    "feedback": "Prediction matches."}
+        if not ref_ok:
+            return {"pass": False, "score": 0.0,
+                    "feedback": "Reference no longer reproduces; flagged stale."}
+        # I-157: yours-vs-expected side-by-side; "" keeps the legacy line.
+        extra = outdiffmod.mismatch_text(submission, expected)
+        legacy = f"Actual output: {res.stdout.strip()[:200]!r}."
+        return {"pass": False, "score": 0.0,
+                "feedback": legacy if not extra else legacy + "\n" + extra}
     if t == 9:
         expected = [str(x) for x in p.get("expected", [])]
         if not expected:
