@@ -63,7 +63,7 @@ from . import exports as expmod
 from . import favicon as faviconmod
 from . import fontstack as fontstackmod
 from . import focusrings as focusringsmod
-from . import flowdetect as flowdetectmod, focustimer as focustimermod, playlists as playlistsmod, restday as restdaymod, comeback as comebackmod  # one line keeps web.py at WEB_CEILING
+from . import flowdetect as flowdetectmod, focustimer as focustimermod, playlists as playlistsmod, restday as restdaymod, comeback as comebackmod, coop as coopmod  # one line keeps web.py at WEB_CEILING
 from . import footnav as footnavmod
 from . import forgetcurve as forgetcurvemod
 from . import formerr as formerrmod
@@ -499,7 +499,7 @@ class Handler(BaseHTTPRequestHandler):
             one, cold = mode == "one", mode == "cold"
             dial = query.get("dial", [""])[0] or None
             resume_key = query.get("resume", [""])[0]
-            self._send(page("Due", self.due_html(level, one, resume_key, dial, cold, mode, order, replay_step),
+            self._send(page("Due", self.due_html(level, one, resume_key, dial, cold, mode, order, replay_step, query.get("buddy", [])),
                             active="due", page_id="due",
                             lede="What to practice next — your spaced queue, one card at a time.",
                             counts=counts, tour=tour_ctx))
@@ -672,7 +672,7 @@ class Handler(BaseHTTPRequestHandler):
     def due_html(self, level: str = "auto", one: bool = False,
                  resume_key: str = "", dial=None, cold: bool = False,
                  mode: str = "", order: str = "definition",
-                 replay_step=None) -> str:
+                 replay_step=None, buddies=()) -> str:
         server = mcplib.MCPServer(self.db_path)
         due = server.tool_list_due_reviews({"limit": 20})["due"]
         due = resumemod.session_cards(due, resume_key or "")
@@ -719,7 +719,7 @@ class Handler(BaseHTTPRequestHandler):
             forgetcurvemod.clean_attempts(fc_rows))
         due = minisessionmod.apply_dial(due, dial, tries, decay=decay)
         due = forgetcurvemod.order_due(due, decay)
-        parts = [comebackmod.comeback_box_html(rows=[{"name": r[0], "reviewed_at": r[1]} for r in first_rows]) + digestmod.section_html(self.db_path),
+        parts = [coopmod.split_html(due, buddies) + comebackmod.comeback_box_html(rows=[{"name": r[0], "reviewed_at": r[1]} for r in first_rows]) + digestmod.section_html(self.db_path),
                  # F-92: peak-recall banner; "" below threshold.
                  peaktimemod.banner_html(peak_rows),
                  recentmod.strip_html(),
