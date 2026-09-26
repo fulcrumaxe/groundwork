@@ -25,6 +25,7 @@ from . import modules as modmod
 from . import ownership as ownmod
 from . import retest as retestmod
 from . import remedpath as remedpathmod
+from . import reveal as revealmod
 from . import skillatoms as skillatomsmod
 from . import pipeline as pipelinemod
 from . import sched as schedmod
@@ -417,7 +418,12 @@ class MCPServer:
             exercise = {"id": card["id"], "type": int(card["exercise_type"]),
                         "front": card["front"], "back": card["back"],
                         "payload": json.loads(card["payload"] or "{}")}
-            if exercise["type"] == 1:
+            # I-158: give-up reveal — surrender logs grade 0 on any
+            # type; downstream scheduling/History inserts run unchanged.
+            if revealmod.is_reveal_request(submission, confidence):
+                result = revealmod.reveal_result(card)
+                grade_val = 0
+            elif exercise["type"] == 1:
                 result = exmod.grade(exercise, submission)
                 try:
                     grade_val = int(str(submission).strip() or 0)
