@@ -13,7 +13,7 @@ from . import runkey as runkeymod
 from . import sandout as sandoutmod
 from . import confslider as confslidermod
 from . import hinttiers as hinttiersmod
-from . import parkeys as parkeysmod, parcheck as parcheckmod  # Batch 25: one shared line keeps cards.py under AREA_CAP
+from . import parkeys as parkeysmod, parcheck as parcheckmod, matchpair as matchpairmod  # Batch 25: one shared line keeps cards.py under AREA_CAP
 from . import parsons as parsonsmod
 
 
@@ -162,8 +162,8 @@ def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:
             f"<tr><td><b>{i}</b> {html.escape(a)}</td>"
             f"<td><input name='m{i}' size='3' placeholder='letter'></td></tr>"
             for i, a in enumerate(left))
-        body = (f"<p>{letters}</p><table>{rows}</table>"
-                f"{_confidence()}<button>Check matches</button>")
+        body = (f"<p>{letters}</p><table>{rows}</table>" + matchpairmod.pair_html(cid, left, right)
+                + f"{_confidence()}<button>Check matches</button>")
     elif etype == "9":
         steps = p.get("expected", [])
         rows = "".join(
