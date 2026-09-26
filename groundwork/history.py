@@ -28,6 +28,7 @@ from . import showcase as showcasemod
 from . import teamchallenge as teamchallengemod
 from . import seasonevent as seasoneventmod
 from . import anniversary as anniversarymod
+from . import shipconf as shipconfmod
 from . import themeunlock as themeunlockmod
 from . import endorse as endorsemod
 from . import learnresume as learnresumemod
@@ -156,7 +157,7 @@ def history_html(db_path: str, query=None) -> str:
         delayed = None
     ledger = wagersmod.settle_all(wagersmod.wagers_from_query(query),
                                   latest, delayed)
-    parts = [ownheadmod.headline_html(db_path) + avatarmod.box_html(db_path),
+    parts = [ownheadmod.headline_html(db_path) + shipconfmod.meter_html(db_path) + avatarmod.box_html(db_path),
              growringsmod.section_html(db_path),
              knowngardenmod.section_html(db_path),
              timeledgermod.section_html(db_path),
