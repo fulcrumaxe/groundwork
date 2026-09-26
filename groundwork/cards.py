@@ -13,7 +13,7 @@ from . import runkey as runkeymod
 from . import sandout as sandoutmod
 from . import confslider as confslidermod
 from . import hinttiers as hinttiersmod
-from . import parkeys as parkeysmod  # Batch 25: one shared line keeps cards.py under AREA_CAP
+from . import parkeys as parkeysmod, parcheck as parcheckmod  # Batch 25: one shared line keeps cards.py under AREA_CAP
 from . import parsons as parsonsmod
 
 
@@ -182,8 +182,9 @@ def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:
             except (KeyError, IndexError, TypeError):
                 concept = ""
             fig = seqdiagmod.figure_html({"payload": p}, concept)
-        body = (fig + parkeysmod.block_html(cid, p.get("lines", []))
-                + f"{_confidence()}<button>Check order</button>{PARSONS_JS}{parkeysmod.parkeys_js()}")
+        pcc = parcheckmod.check_html(cid, p.get("lines", []), p.get("solution", []))
+        body = (fig + parkeysmod.block_html(cid, p.get("lines", [])) + pcc
+                + f"{_confidence()}<button>Check order</button>{PARSONS_JS}{parkeysmod.parkeys_js()}{parcheckmod.check_js() if pcc else ''}")
     elif etype in ("12", "14", "19", "20", "23"):
         # I-154/I-155: editor + visible Run button; same field, same grade.
         body = (codeeditmod.editor_html() + runkeymod.hint_html() + "<br>"
