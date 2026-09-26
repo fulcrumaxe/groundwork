@@ -13,7 +13,7 @@ from . import runkey as runkeymod
 from . import sandout as sandoutmod
 from . import confslider as confslidermod
 from . import hinttiers as hinttiersmod
-from . import parkeys as parkeysmod, parcheck as parcheckmod, matchpair as matchpairmod, tracetable as tracetablemod, predtry as predtrymod, rubriclive as rubriclivemod, linecomment as linecommentmod  # Batch 25: one shared line keeps cards.py under AREA_CAP
+from . import parkeys as parkeysmod, parcheck as parcheckmod, matchpair as matchpairmod, tracetable as tracetablemod, predtry as predtrymod, rubriclive as rubriclivemod, linecomment as linecommentmod, comparesplit as comparesplitmod  # Batch 25: one shared line keeps cards.py under AREA_CAP
 from . import parsons as parsonsmod
 
 
@@ -114,12 +114,12 @@ def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:
             f"<button name='answer' value='{html.escape(c)}'>{html.escape(c)}</button>"
             for c in p.get("choices", []))
         body = f"{btns} {_confidence()}"
-    elif etype in ("5", "6", "22", "24", "25"):
-        hint = ("First line: A or B, then your reasons."
-                if etype == "22" else "Explain in your own words…")
-        body = rubriclivemod.enhance(card, f"<textarea name='answer' rows='5' cols='70' placeholder='{hint}'></textarea><br>{_confidence()}<button>Submit explanation</button>")
+    elif etype in ("5", "6", "24", "25"):
+        body = rubriclivemod.enhance(card, f"<textarea name='answer' rows='5' cols='70' placeholder='Explain in your own words…'></textarea><br>{_confidence()}<button>Submit explanation</button>")
     elif etype == "21":
         body = rubriclivemod.enhance(card, linecommentmod.branch_html(card, p))
+    elif etype == "22":
+        body = comparesplitmod.branch_html(card, p, cid)
     elif etype in ("82", "83", "84", "85", "86", "90"):
         hint = {"82": "One edge per line: caller -> concept.",
                 "83": "Q1… Q2… Q3…",
