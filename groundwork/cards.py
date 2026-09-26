@@ -9,6 +9,7 @@ import html
 import json
 
 from . import codeedit as codeeditmod
+from . import runkey as runkeymod
 from . import confslider as confslidermod
 from . import hinttiers as hinttiersmod
 from . import parsons as parsonsmod
@@ -180,10 +181,10 @@ def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:
         body = (fig + parsonsmod.block_html(cid, p.get("lines", []))
                 + f"{_confidence()}<button>Check order</button>{PARSONS_JS}")
     elif etype in ("12", "14", "19", "20", "23"):
-        # I-154: real code editor; same posting field, grading unchanged.
-        body = (codeeditmod.editor_html() + "<br>"
-                f"{_confidence()}<button>Run tests</button>"
-                + codeeditmod.editor_js())
+        # I-154/I-155: editor + visible Run button; same field, same grade.
+        body = (codeeditmod.editor_html() + runkeymod.hint_html() + "<br>"
+                f"{_confidence()}" + runkeymod.run_button_html()
+                + codeeditmod.editor_js() + runkeymod.exercise_script_js())
     elif etype == "13":
         opts = "".join(
             f"<label><input type='radio' name='answer' value='{i + 1}'> "
