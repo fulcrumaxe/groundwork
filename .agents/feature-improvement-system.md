@@ -54,6 +54,23 @@ skip kinds of items; whatever is next in the backlog is what ships.
    Fix test bugs against the code's real behavior — never weaken
    correct code to fit a self-authored test.
 
+**Definition of done — every item, no exceptions, no ambiguity.**
+An item ships if and only if ALL of these hold. The artifact list
+in (3) is necessary but never sufficient — a module plus a Status
+demo with no caller is half work, not a shipped feature:
+
+1. A real learner/reader path CALLS it (Due queue, lesson
+   generation/rendering, grading, sched, coach, History — never a
+   Status demo, tour stop, or test fixture). Name the caller in the
+   commit message. A library no path calls is not shippable:
+   integrate it or cut it; never cross it off as done.
+2. A committed test proves the BEHAVIORAL effect (queue order
+   changes, rendered lessons differ, grades move, drills deal from
+   live data), with the legacy path pinned as the no-data fallback.
+3. Tour entry + status anchor + docs regen + MCP run + local commit.
+4. Status demos use live data where cheap; the effect test in (2)
+   is the proof, not the demo.
+
 5. **Central wiring (one commit).**
    - Register each area in `groundwork/modularity.py` AREAS.
    - Add one `status-b5-*`-style anchored subsection per item on
@@ -67,7 +84,10 @@ skip kinds of items; whatever is next in the backlog is what ships.
 
 6. **Backlog cross-off (same or next commit).**
    Flip shipped detail lines `- I-N:` → `- [x] I-N:` and extend the
-   shipped ledger with the batch section (items + module names).
+   shipped ledger with the batch section (items + module names +
+   named caller per item). Cross-off is forbidden until the
+   definition of done above holds in full — a `[x]` without a
+   caller is a ledger lie, not a shipment.
 
 7. **Verify.** `python -m unittest discover -s tests` (the CI
    command) must be fully green; `tests/test_modularity.py` guards
@@ -97,11 +117,17 @@ skip kinds of items; whatever is next in the backlog is what ships.
 
 - web.py never grows except thin delegation lines (Batch 3 rule).
 - Every area module stays under 350 lines.
-- Every shipped item: tour entry + status anchor + docs regen +
-  MCP run + local commit.
+- Every shipped item meets the definition of done above: real
+  caller + behavioral-effect test + fallback, then tour entry +
+  status anchor + docs regen + MCP run + local commit.
 - Never `push`, `--amend`, or rewrite history without an explicit ask.
 
 ## Integration rule — demos are specs, not features (Batch 14+)
+
+Historical record of how Batches 14–17 cleaned up the demo-only
+engines. It is now subsumed by the definition of done above, which
+governs EVERY item — there is no category of work exempt from
+naming a caller and proving the effect.
 
 Batches 12–13 shipped db-free "engines" that no learner path calls:
 pure libraries with Status demos and zero behavioral effect. That was
