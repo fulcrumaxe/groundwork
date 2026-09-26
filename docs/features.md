@@ -168,6 +168,14 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | Buddy matching by repo overlap | Opt in to find overlapping repos — local only, no directory. | `/status#status-b24-buddymatch` |
 | Co-op card splits | Two learners split the due queue — complementary hands, no repeats, local only. | `/status#status-b24-coop` |
 | Friendly wagers | Bet a coffee on your next delayed retest — probe passes win, and the History ledger keeps score. | `/reviews#status-wagers` |
+| Team challenges | Own each subsystem together — aggregate progress, no ranking. | `/reviews#teamchallenge` |
+| Classroom quests | Teacher-defined checklists graded by what you already own — complete, never ranked. | `/status#status-b25-classquests` |
+| Seasonal events | Each October: own 5 concepts. Gentle goal, no streak. | `/status#status-b25-seasonevent` |
+| Anniversary recaps | A year in? History shows your year in code comprehension — gentle, private, no streaks. | `/status#status-b25-anniversary` |
+| Ship-it confidence meter | Your owned coverage on the latest diff — unknown until proven. | `/reviews#ship-confidence` |
+| Pre-interview recap track | Your shakiest ideas first, capped with study links — recap before the interview. | `/status#status-b25-interviewprep` |
+| Onboarding countdown | Day N of 30 from your first review, with the core flows to own first — gentle, no streaks. | `/status#status-b25-onboard` |
+| Rabbit-hole mode | Follow caller links freely across lessons with a visible breadcrumb trail — bonus, never duty. | `/status#status-b25-rabbithole` |
 
 ## Improvements
 
@@ -330,6 +338,14 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | Honest give-up | Giving up records a lapse and brings the card back sooner — the scheduler tells the truth. | `/status#status-b24-giveup` |
 | Per-blank partial credit | Miss a multi-blank cloze and the result names which blanks passed — retry the miss, not the whole card. | `/status#status-b24-partial` |
 | Retry wrong blanks only | Miss a cloze blank or two: correct blanks stay filled and locked, so the retry asks only for the ones you missed. | `/status#status-b24-retryblanks` |
+| Touch + keyboard Parsons reorder | Parsons lists now drag from a fat fingertip grip and reorder from the keyboard: Tab in once, then arrows move the row. See below. | `/status#status-b25-parkeys` |
+| Parsons partial-order check | Stuck mid-reorder? 'Check partial order' shows your longest correct run without grading or revealing the answer — keep that block, move the rest. | `/status#status-b25-parcheck` |
+| Click-to-pair matching | Match-pairs cards pair by tapping left then right — no more letter typing; typed boxes stay as fallback. | `/status#status-b25-matchpair` |
+| Trace tables | Trace cards pre-fill each step row with its line; a miss marks every cell so you see exactly which step diverged. | `/status#status-b25-tracetable` |
+| Predict retries: 3 strikes | Try a prediction 3 times pre-submit; each miss narrows the hint. | `/status#status-b25-predtry` |
+| Live rubric checklist | Explain answers tick their rubric keywords live as you type — advisory, never graded. | `/status#status-b25-rubriclive` |
+| Line comments on code review | Click a line number to pin a note, like real review. | `/status#status-b25-linecomment` |
+| Side-by-side compare panes | A vs B with scrolling that stays in step. | `/status#status-b25-comparesplit` |
 
 ## The original loop
 

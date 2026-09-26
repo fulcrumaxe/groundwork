@@ -345,6 +345,23 @@ AREAS = {
     "coop": "coop.py",
     "wagers": "wagers.py",
     "batch24": "batch24.py",
+    "parkeys": "parkeys.py",
+    "parcheck": "parcheck.py",
+    "matchpair": "matchpair.py",
+    "tracetable": "tracetable.py",
+    "predtry": "predtry.py",
+    "rubriclive": "rubriclive.py",
+    "linecomment": "linecomment.py",
+    "comparesplit": "comparesplit.py",
+    "teamchallenge": "teamchallenge.py",
+    "classquests": "classquests.py",
+    "seasonevent": "seasonevent.py",
+    "anniversary": "anniversary.py",
+    "shipconf": "shipconf.py",
+    "interviewprep": "interviewprep.py",
+    "onboard": "onboard.py",
+    "rabbithole": "rabbithole.py",
+    "batch25": "batch25.py",
 }
 
 
