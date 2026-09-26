@@ -13,7 +13,7 @@ from . import runkey as runkeymod
 from . import sandout as sandoutmod
 from . import confslider as confslidermod
 from . import hinttiers as hinttiersmod
-from . import parkeys as parkeysmod, parcheck as parcheckmod, matchpair as matchpairmod, tracetable as tracetablemod, predtry as predtrymod  # Batch 25: one shared line keeps cards.py under AREA_CAP
+from . import parkeys as parkeysmod, parcheck as parcheckmod, matchpair as matchpairmod, tracetable as tracetablemod, predtry as predtrymod, rubriclive as rubriclivemod  # Batch 25: one shared line keeps cards.py under AREA_CAP
 from . import parsons as parsonsmod
 
 
@@ -117,9 +117,7 @@ def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:
     elif etype in ("5", "6", "21", "22", "24", "25"):
         hint = ("First line: A or B, then your reasons."
                 if etype == "22" else "Explain in your own words…")
-        body = (f"<textarea name='answer' rows='5' cols='70' "
-                f"placeholder='{hint}'></textarea><br>"
-                f"{_confidence()}<button>Submit explanation</button>")
+        body = rubriclivemod.enhance(card, f"<textarea name='answer' rows='5' cols='70' placeholder='{hint}'></textarea><br>{_confidence()}<button>Submit explanation</button>")
     elif etype in ("82", "83", "84", "85", "86", "90"):
         hint = {"82": "One edge per line: caller -> concept.",
                 "83": "Q1… Q2… Q3…",
@@ -128,9 +126,7 @@ def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:
                 "86": "The mapping…, and where it breaks…",
                 "90": "requires(x)…, then ensures(x, out)…"}.get(
                     etype, "Answer…")
-        body = (f"<textarea name='answer' rows='5' cols='70' "
-                f"placeholder='{hint}'></textarea><br>"
-                f"{_confidence()}<button>Submit answer</button>")
+        body = rubriclivemod.enhance(card, f"<textarea name='answer' rows='5' cols='70' placeholder='{hint}'></textarea><br>{_confidence()}<button>Submit answer</button>")
     elif etype == "8":
         # I-156: measured output reveals inline; "" when unmeasured.
         reveal = sandoutmod.output_html(card) + predtrymod.tries_html(card)
