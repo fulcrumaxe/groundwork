@@ -33,6 +33,7 @@ from . import themeunlock as themeunlockmod
 from . import endorse as endorsemod
 from . import freeedu as freeedumod
 from . import carbon as carbonmod
+from . import handoff as handoffmod
 from . import learnresume as learnresumemod
 from . import overconf as overconfmod
 from . import optout as optoutmod
@@ -162,7 +163,7 @@ def history_html(db_path: str, query=None) -> str:
                                   latest, delayed)
     opt = optoutmod.parse(query)
     tone = plaincopymod.tone_from_query(query)
-    parts = [ownheadmod.headline_html(db_path) + shipconfmod.meter_html(db_path) + avatarmod.box_html(db_path) + optoutmod.toggle_box_html(opt, "/reviews") + freeedumod.banner_html() + carbonmod.section_html(db_path),
+    parts = [ownheadmod.headline_html(db_path) + shipconfmod.meter_html(db_path) + avatarmod.box_html(db_path) + optoutmod.toggle_box_html(opt, "/reviews") + freeedumod.banner_html() + carbonmod.section_html(db_path) + handoffmod.section_html(db_path),
              (growringsmod.section_html(db_path) if optoutmod.show(opt, "rings") else ""),
              (knowngardenmod.section_html(db_path) if optoutmod.show(opt, "garden") else ""),
              timeledgermod.section_html(db_path),
