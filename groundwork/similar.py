@@ -140,6 +140,18 @@ def variant_id(card_id: str, n: int) -> str:
     return f"{card_id}{SEP}{n}"
 
 
+def is_variant(card_id) -> bool:
+    """True when the id marks an I-191 practice sibling (I-192 bonus).
+
+    The SEP infix is the mark: natural card ids ({module}:{name},
+    hex) never contain "~". Hostile input fails closed to False.
+    """
+    try:
+        return isinstance(card_id, str) and SEP in card_id
+    except Exception:  # noqa: BLE001 -- detection never raises
+        return False
+
+
 def existing_variants(con, card_id: str) -> list:
     """Variant ids already minted for one card, oldest first."""
     try:
@@ -191,6 +203,8 @@ def mint_variant(con, card, now_iso: str | None = None):
         payload = raw if isinstance(raw, dict) else json.loads(raw or "{}")
         if not cid or not concept or not isinstance(payload, dict):
             return None
+        if is_variant(cid):
+            return None  # variants never beget nested variants
         if not eligible(etype, payload):
             return None
         live = outstanding_variant(con, cid)
