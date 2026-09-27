@@ -9,6 +9,7 @@ from __future__ import annotations
 import html
 
 from . import db as dbmod
+from . import whysee as whyseemod
 
 
 def related_html(db_path: str, mid: str) -> str:
@@ -33,17 +34,33 @@ def related_html(db_path: str, mid: str) -> str:
                 f" WHERE concepts.name IN ({','.join('?' * len(names))})"
                 " AND concepts.module_id != ? LIMIT 10",
                 (*names, mid)).fetchall()
+        shared_names: dict = {}
+        found = [r["id"] for r in list(same_repo) + list(shared)]
+        if names and found:
+            for mod_id, cname in con.execute(
+                    "SELECT concepts.module_id, concepts.name FROM concepts"
+                    f" WHERE concepts.module_id IN ({','.join('?' * len(found))})"
+                    f" AND concepts.name IN ({','.join('?' * len(names))})",
+                    (*found, *names)).fetchall():
+                shared_names.setdefault(mod_id, [])
+                if cname and cname not in shared_names[mod_id]:
+                    shared_names[mod_id].append(cname)
     finally:
         con.close()
     seen = {mid}
+    repo_ids = {r["id"] for r in same_repo}
     items = []
     for r in list(same_repo) + list(shared):
         if r["id"] in seen:
             continue
         seen.add(r["id"])
+        why = whyseemod.reason_html(whyseemod.reason_for(
+            "related", {"same_repo": r["id"] in repo_ids,
+                        "shared": shared_names.get(r["id"], [])}))
         items.append(
             f"<li><a href='/modules/{r['id']}'>"
-            f"{html.escape(r['task_summary'] or r['id'])}</a></li>")
+            f"{html.escape(r['task_summary'] or r['id'])}</a>"
+            f" {why}</li>")
     if not items:
         return ("<h2 id='related'>Related modules</h2><p>No related "
                 "modules yet — related means the same repo or shared "

@@ -71,6 +71,7 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
     from . import lessondiff as lessondiffmod
     from . import calmreplay as calmmod
     from . import confusing as confusingmod
+    from . import whysee as whyseemod
     levels = explainmod.levels_for(lesson)
     order = flipmod.normalize_order(order)
     osuffix = "" if order == "definition" else f"&order={order}"
@@ -193,6 +194,7 @@ def render_levels(lesson: dict, mastery: float, attempts: int,
              "summary": lesson.get("summary") or ""}, owned_list)
         if drill.get("partners"):
             out.append(elabmod.drill_html(drill, wrapper="div"))
+            out.append(whyseemod.elaboration_html(lesson, owned_list, drill.get("partners")))
     if bottom:
         out.append(bottom)
     return "".join(out)

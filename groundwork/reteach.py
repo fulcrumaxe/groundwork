@@ -10,6 +10,8 @@ from __future__ import annotations
 
 import html
 
+from . import whysee as whyseemod
+
 STATUS_ANCHOR = "status-b20-reteach"
 
 RETEACH_AFTER_DAYS = 30
@@ -112,11 +114,17 @@ def reteach_box_html(items) -> str:
         for it in rows:
             name = str(it.get("name", "") or "this concept")
             quote = str(it.get("recording", "") or "")[:QUOTE_CHARS]
+            first = str(it.get("first_seen", "") or "")
+            days = _days_since(first)
+            why = whyseemod.reason_html(whyseemod.reason_for(
+                "reteach", {"first_seen": first,
+                            "days_ago": days if days is not None else -1}))
+            tail = f" {why}" if why else ""
             block = (f"<h4>{html.escape(name)}</h4>"
                      f"<p><small>Your words from then:</small> "
                      f"<q>{html.escape(quote)}</q></p>"
                      f"<p>Explain {html.escape(name)} again in your own "
-                     f"words — then compare.</p>")
+                     f"words — then compare.{tail}</p>")
             blocks.append(block)
         return f"<div id='reteach'><h3>Re-teach after 30 days</h3>{''.join(blocks)}</div>"
     except Exception:  # noqa: BLE001 -- markup never raises
