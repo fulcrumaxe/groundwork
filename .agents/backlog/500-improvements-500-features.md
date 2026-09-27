@@ -1319,6 +1319,92 @@ decisions 255–266 + 12 modules against the served DB, parent
 closed I-185; pre-shipped items correctly skipped MCP —
 verified in-DB).
 
+Batch 28 — six improvements (I-186–I-188, I-190–I-192) + two
+pre-shipped (I-193, I-194; I-189 recorded not-buildable) + seven
+features (F-166, F-170, F-174, F-175, F-178, F-180, F-181) + one
+pre-shipped (F-184; twelve recorded not-buildable, three probed
+buildable for Batch 29).
+- [x] I-186 scratchhint → scratch runs count toward hint unlocking.
+  Caller scratch result page via scratchrun.page_for.
+- [x] I-187 stuckhint → hint tiers unlock by attempts + time stuck.
+  Caller Due queue + module pages via cards.hints_html.
+- [x] I-188 asknudge → ask-for-a-nudge button reveals next tier.
+  Caller Due queue + module pages via cards.hints_html.
+- [x] I-190 nextup → post-answer what-to-review-next list.
+  Caller result screen via MCPServer.submit_review.
+- [x] I-191 similar → one-click practice-similar variant on fail.
+  Caller result screen via MCPServer.submit_review.
+- [x] I-192 bonus → bonus attempts skip stats; variants bonus by id.
+  Caller every review via MCPServer.submit_review.
+- [x] I-193 disputes → PRE-SHIPPED (one-click filing + cards wire).
+  No new code; crossed with this note.
+- [x] I-194 disputes queue → PRE-SHIPPED (accept/reject on Status).
+  No new code; crossed with this note.
+- [x] F-166 gradebook → owned-proofs gradebook CSV on History.
+  Caller History page lead block via history.history_html.
+- [x] F-170 guardian → aggregate-only guardian History view.
+  Caller History page entry guard (?guardian=1).
+- [x] F-174 curricmap → curriculum-outcome coverage matrix.
+  Caller /modules library page (?curriculum=).
+- [x] F-175 syllabus → syllabus week gates on Due queue.
+  Caller Due queue (?syllabus= gate + banner).
+- [x] F-178 officehours → office-hours bring-list from flags.
+  Caller Due queue head via Handler.due_html.
+- [x] F-180 certhash → verifiable certificate hashes.
+  Caller History page (?certcheck verify form).
+- [x] F-181 openbadge → portable Open Badges 3.0 assertions.
+  Caller History page (teachcert join).
+- [x] F-184 blindspots → PRE-SHIPPED (docstring claims F-184).
+  No new code; crossed with this note.
+
+Batch 28 deviations (all green-trunk, ledger-noted): I-189
+recorded not-buildable (no persisted hint-usage signal anywhere;
+all hint substrates client-side/unrecorded; schema frozen) and
+stays uncrossed. F-167/F-168/F-169/F-171/F-172/F-173/F-176/F-177/
+F-179/F-183/F-187/F-188 recorded not-buildable (multi-user
+identity, external protocols, or no substrate) and stay
+uncrossed. F-182/F-185/F-186 probed BUILDABLE past the filled
+8th slot — not shipped, Batch 29 candidates with designs +
+MCP on file. I-188 composes with I-187 (nudge covers tiers
+beyond the stuck-hidden copy; parent-added CallerTest pins
+no-duplication). I-192 parent rework: variants detected
+server-side by id (no form/cards.py change — cards.py at cap),
+variant answers reschedule without persisting stats (a frozen
+due would barnacle the queue), variants never beget nested
+variants. Test-expectation fixes (code behavior verified
+correct first): I-191 /due-fallback + slug pins; I-192
+display-vs-stored due pin; F-175 hostile name to locked week;
+F-181 unpack arity. F-178 tour retargeted /due → /status (the
+tour gate renders flagless fixtures; Batch 19 precedent).
+Base fix: pagesnap now scrubs bare YYYY-MM-DD dates (preptrack
+due dates rolled daily; main was red on clean HEAD) with a
+midnight-rollover regression test. One red intermediate
+(I-186 commit predates its golden companion; Batch 18
+precedent). Decision 268 is a junk placeholder row (asknudge
+x/y/z probe, superseded by 269) left in the append-only log.
+
+Batch 28 migration: none (no schema changes; variant rows are
+plain INSERTs, specs ride URL params, counts ride POST fields).
+
+Batch 28 wires: WEB_CEILING 1440 → 1440 (every wire same-line:
+scratch raw pass-through, result composition x3, library
+import/call/sig/append, Due import/parse/call/sig/gate+banner,
+digest import, parts[0] banner); status.py holds at AREA_CAP
+(same-line batch28 join + import); history.py 268 → 270
+(guardian entry guard); cards.py 348 → 349 (asknudge join;
+zero headroom left by the official count); mcp.py +similar/
++bonus imports and nextup/similar/exclusion blocks (ungated);
+tour 180/184 → 186/191; docs regen (README + features.md from
+tour registry); goldens refreshed (status counts x3 + purely
+additive batch28 home, reviews gradebook/certhash sections,
+bare-date scrub + refresh); every item module under 350 lines;
+MCP learning content covers every buildable item (children
+filed decisions 269–283 + 16 modules against the served DB
+including F-182/F-185/F-186 surplus probes, parent closed
+F-174 as decision 284 + module db09292c432b with
+designer-authored content; pre-shipped items correctly
+skipped MCP — verified in-DB).
+
 ## IMPROVEMENTS (500)
 
 ### A. Navigation, IA & routing (I-1–50)
@@ -1517,15 +1603,15 @@ verified in-DB).
 - [x] I-183: Timeout feedback tailored ("infinite loop?" vs "too slow?").
 - [x] I-184: Sandbox error messages translated to learner-friendly language.
 - [x] I-185: Allow "run without submitting" scratch runs on code cards.
-- I-186: Keep scratch runs out of grading but count them for hint unlocking.
-- I-187: Unlock hint tiers by attempts AND by time stuck (not attempts alone).
-- I-188: "Ask for a nudge" button that reveals next tier without an attempt.
+- [x] I-186: Keep scratch runs out of grading but count them for hint unlocking.
+- [x] I-187: Unlock hint tiers by attempts AND by time stuck (not attempts alone).
+- [x] I-188: "Ask for a nudge" button that reveals next tier without an attempt.
 - I-189: Track hint usage per card; heavy-hint passes schedule sooner.
-- I-190: Post-answer "what to review next" suggestion list.
-- I-191: One-click "practice similar" generating a variant card on demand.
-- I-192: Variant cards marked as bonus (don't pollute FSRS stats).
-- I-193: Let learners dispute a grade ("wrong reference") with one click.
-- I-194: Dispute queue page for maintainers with accept/reject actions.
+- [x] I-190: Post-answer "what to review next" suggestion list.
+- [x] I-191: One-click "practice similar" generating a variant card on demand.
+- [x] I-192: Variant cards marked as bonus (don't pollute FSRS stats).
+- [x] I-193: Let learners dispute a grade ("wrong reference") with one click.
+- [x] I-194: Dispute queue page for maintainers with accept/reject actions.
 - I-195: Accepted disputes auto-quarantine the card and regenerate it.
 - I-196: Show card authorship (template vs LLM vs community) for trust.
 - I-197: Add answer history diff ("last time you wrote X").
@@ -2029,25 +2115,25 @@ verified in-DB).
 - F-163: Classroom workspaces (teacher creates, students join via code).
 - [x] F-164: Assignment builder (repo + concepts + deadline → track).
 - [x] F-165: Anti-plagiarism by design (agents write code; humans prove it).
-- F-166: Gradebook export (owned proofs per student, CSV/LMS).
+- [x] F-166: Gradebook export (owned proofs per student, CSV/LMS).
 - F-167: LTI integration for Canvas/Moodle (launch + grade passback).
 - F-168: Plagiarism-resistant exams (live variant generation per student).
 - F-169: Accessibility accommodations engine (extra time, formats, no stigma).
-- F-170: Parent/guardian view for kids mode (progress, no surveillance).
+- [x] F-170: Parent/guardian view for kids mode (progress, no surveillance).
 - F-171: Study-group rooms (shared queue, turn-taking, local network).
 - F-172: Group retrospectives (what confused everyone → regenerate lessons).
 - F-173: Teacher analytics (class-wide weak concepts, no per-student shaming).
-- F-174: Curriculum mapping (modules → course outcomes matrix).
-- F-175: Prerequisite enforcement per syllabus (unlock weeks by proof).
+- [x] F-174: Curriculum mapping (modules → course outcomes matrix).
+- [x] F-175: Prerequisite enforcement per syllabus (unlock weeks by proof).
 - F-176: Peer-teaching marketplace (students publish explainers, reviewed).
 - F-177: TA dashboard (who needs help, suggested by data, human decides).
-- F-178: Office-hours queue fed by confusing flags.
+- [x] F-178: Office-hours queue fed by confusing flags.
 - F-179: Exam-mode lockdown (timed, no hints, variant cards, honor pledge).
-- F-180: Certificates with verification hashes (portable, offline-checkable).
-- F-181: Open-badge 3.0 compliance for all credentials.
+- [x] F-180: Certificates with verification hashes (portable, offline-checkable).
+- [x] F-181: Open-badge 3.0 compliance for all credentials.
 - F-182: Team knowledge half-life report (what decayed since last quarter).
 - F-183: Rotation suggestions from decay + bus-factor combined.
-- F-184: Documentation coverage from owned maps (what nobody understands).
+- [x] F-184: Documentation coverage from owned maps (what nobody understands).
 - F-185: "Explain this service" on-call prep packs.
 - F-186: Incident-commander certification track (replay + diagnose + decide).
 - F-187: Postmortem-linked lessons (incident → concepts → cards auto-made).
