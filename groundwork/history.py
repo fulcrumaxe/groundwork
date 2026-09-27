@@ -47,7 +47,7 @@ from . import sched as schedmod
 from . import tablescroll as tablescrollmod
 from . import timetag as timetagmod
 from . import tztime as tztimemod
-from . import kids as kidsmod, workload as workloadmod, weekdigest as weekdigestmod  # one line keeps history.py lean
+from . import kids as kidsmod, workload as workloadmod, weekdigest as weekdigestmod, guardian as guardianmod  # one line keeps history.py lean
 
 COACH_TIPS = {
     "recall": "Say the answer aloud before rating yourself.",
@@ -102,6 +102,8 @@ def calibration_coach(rows: list) -> str:
 
 def history_html(db_path: str, query=None) -> str:
     """Past attempts: grades, confidence, calibration — not a second queue."""
+    if guardianmod.is_guardian(query):
+        return guardianmod.view_html(db_path)
     con = dbmod.connect(db_path)
     try:
         cal = con.execute(
