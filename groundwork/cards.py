@@ -109,11 +109,14 @@ def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:
             f"<label>___({b['id']}) <input name='b{b['id']}' size='12'></label>"
             for b in blanks)
         body = f"{fields} {_confidence()}<button>Check blanks</button>"
-    elif etype in ("4", "7", "16", "18"):
+    elif etype in ("4", "7", "18"):
         btns = " ".join(
             f"<button name='answer' value='{html.escape(c)}'>{html.escape(c)}</button>"
             for c in p.get("choices", []))
         body = f"{btns} {_confidence()}"
+    elif etype == "16":
+        from . import blastgraph as blastgraphmod
+        body = blastgraphmod.branch_html(card, p, cid)
     elif etype in ("5", "6", "24", "25"):
         body = rubriclivemod.enhance(card, f"<textarea name='answer' rows='5' cols='70' placeholder='Explain in your own words…'></textarea><br>{_confidence()}<button>Submit explanation</button>")
     elif etype == "21":
