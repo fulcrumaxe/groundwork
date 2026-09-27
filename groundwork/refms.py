@@ -152,16 +152,16 @@ def attach(result, ex_type, payload, runner):
 
 
 def _demo() -> str:
-    """Live measured line; honest fallback when the sandbox is down."""
-    try:
-        from . import sandbox as sbmod
-        ms = measure_ms(sbmod.SandboxRunner(), "print(sum(range(100)))")
-        if ms is not None:
-            return line_html(ms)
-    except Exception:  # noqa: BLE001 -- demo falls back below
-        pass
-    return ("<p><small>Reference runtime unavailable: the sandbox did not "
-            "answer this render (grade-time measurement only).</small></p>")
+    """Static format sample; live values are measured at grade time.
+
+    Deliberately not a live measurement: the Status page must render
+    byte-identical across runs (pagesnap gate), and wall-clock ms
+    never repeats. Grade-time measurement is proven by the
+    CallerEffectTest, not by this illustration.
+    """
+    return ("<p><small>Sample rendering with an illustrative value "
+            "(live values are measured at grade time): "
+            "Reference runtime: 42 ms (measured).</small></p>")
 
 
 def section_html() -> str:
@@ -179,8 +179,8 @@ def section_html() -> str:
         "milliseconds on the result screen "
         "(<code>results.render_result</code>) -- calibrate your solution "
         "against the reference pace. Failed runs and non-executable cards "
-        "show nothing, so legacy output stays byte-identical. A live "
-        "measured sample renders below.</p>"
+        "show nothing, so legacy output stays byte-identical. A "
+        "format sample renders below.</p>"
         f"{demo}"
     )
 
