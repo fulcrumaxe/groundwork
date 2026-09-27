@@ -29,6 +29,7 @@ from . import giveup as giveupmod
 from . import partial as partialmod
 from . import retryblanks as retryblanksmod
 from . import reveal as revealmod
+from . import similar as simmod
 from . import skillatoms as skillatomsmod
 from . import pipeline as pipelinemod
 from . import sched as schedmod
@@ -560,6 +561,14 @@ class MCPServer:
                 atoms_html = skillatomsmod.section_html(concept, atoms)
             except Exception:  # noqa: BLE001 -- atoms never block
                 atoms_html = ""
+            # I-191: a failed shuffle-based card mints one reshuffled
+            # same-type sibling due now; the result page links to it.
+            try:
+                mid = mod_row["module_id"] if mod_row else ""
+                similar_html = simmod.offer_html(
+                    con, card, bool(result.get("pass")), mid)
+            except Exception:  # noqa: BLE001 -- similar never blocks
+                similar_html = ""
             con.commit()
         finally:
             con.close()
@@ -595,7 +604,7 @@ class MCPServer:
             nextup_html = ""
         return {"result": result, "grade": grade_val, "next_due": upd["due"],
                 "points": points, "drill": drill, "relief": relief_html,
-                "atoms": atoms_html, "retry": retry_html, "nextup": nextup_html}
+                "atoms": atoms_html, "retry": retry_html, "nextup": nextup_html, "similar": similar_html}
 
 
 def serve_stdio(db_path=None) -> None:

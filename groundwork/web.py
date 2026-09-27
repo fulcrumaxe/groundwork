@@ -1385,7 +1385,7 @@ class Handler(BaseHTTPRequestHandler):
             body = (cerr + scrollposmod.restore_js(origin)
                     + autoscrollmod.enhance_result(
                         resmod.render_result(res["pass"], res["feedback"], back, out["next_due"], origin, mod_id, due_left, points=res.get("points"), drill=res.get("drill", ""), ref_ms=res.get("ref_ms")))
-                    + out.get("relief", "") + out.get("atoms", "") + out.get("retry", "") + out.get("nextup", "")
+                    + out.get("relief", "") + out.get("atoms", "") + out.get("retry", "") + out.get("nextup", "") + out.get("similar", "")
                     + autoscrollmod.verdict_js())
             self._send(page("Result", body, counts=self._nav_counts()))
             return
