@@ -1224,6 +1224,101 @@ item (children filed decisions 238–254 + 17 modules against the
 served DB, F-145 probe included; F-137/F-146/F-147 correctly
 skipped MCP — verified in-DB).
 
+Batch 27 — eight improvements (I-178–I-185) + eight features
+(F-149/F-150 pre-shipped, F-154/F-155 pre-shipped, F-160–F-162,
+F-164 backfills; F-165 bonus pre-shipped cross-off). Shipped on
+branch `batch27-f8-i8`. Selection: next-unshipped in backlog
+order with zero skips (I-177/F-148 closed Batch 26, so I-178/F-149
+open Batch 27). I-181 verified already-shipped (grading.py
+disclosures cover types 1–90, rendered unconditionally) and
+crossed as pre-shipped, no new code. F-150 verified
+already-shipped as F-132 anniversary recaps; F-155 as F-135
+onboard checklist; both crossed as pre-shipped, no new code.
+F-151/F-152/F-153/F-156/F-157/F-158/F-159/F-163 returned honest
+NOT-BUILDABLE verdicts (multi-user core: no identity layer, no
+team/bus-factor/mentor/classroom substrate; schema frozen, no
+telemetry) and stay uncrossed; F-160/F-161/F-162/F-164 backfilled
+in order as the 5th–8th feature slots. F-165 verified
+already-shipped (the pipeline-plus-owned-proofs loop IS
+anti-plagiarism by design) and crossed without consuming a slot.
+I-185's NOT-BUILDABLE verdict was overruled by the parent: a thin
+scratch POST route has Batch-23 precedent (diffvote/confusing
+routes), writes nothing, and `formaction` needs no JS — built.
+- [x] I-178 clozein → inline blank inputs inside rendered code.
+  Caller cards.answer_widget etype-2 branch enhance.
+- [x] I-179 sigslots → signature skeleton, per-param tick slots.
+  Caller cards.answer_widget post-dispatch enhance.
+- [x] I-180 treepick → repo tree picker past six files.
+  Caller cards.answer_widget etype-4 split.
+- [x] I-181 grading → PRE-SHIPPED (per-type disclosures, all 90).
+  No new code; crossed with this note.
+- [x] I-182 refms → measured reference runtime on results.
+  Caller results.render_result via mcp.submit_review attach.
+- [x] I-183 timefb → tailored timeout feedback loop-vs-slow.
+  Caller exercises.grade t==11/12/19/23/20/14 + sandbox partials.
+- [x] I-184 errplain → sandbox errors in plain language.
+  Caller exercises.grade fail branches (same four sites).
+- [x] I-185 scratchrun → run without submitting (parent design).
+  Caller cards.answer_widget code bodies + POST /scratch route.
+- [x] F-149 carbon → carbon note of on-device reviews.
+  Caller history.history_html lead block.
+- [x] F-150 anniversary → PRE-SHIPPED as F-132 recaps.
+  No new code; crossed with this note.
+- [x] F-154 layerpath → layered onboarding path by week.
+  Caller Handler.module_html beside onboard countdown.
+- [x] F-155 onboard → PRE-SHIPPED as F-135 checklist.
+  No new code; crossed with this note.
+- [x] F-160 handoff → handoff packs exporting owned maps.
+  Caller history.history_html lead block.
+- [x] F-161 interviewloop → interview loop plan + proof report.
+  Caller history.history_html lead block.
+- [x] F-162 ramppack → contractor ramp packs by ?scope=.
+  Caller Handler.due_html scope filter + banner.
+- [x] F-164 selfassign → self-assigned plans via ?assign=.
+  Caller Handler.module_html assign dispatcher.
+- [x] F-165 pipeline+ownership → PRE-SHIPPED (bonus cross-off).
+  No new code; crossed with this note.
+
+Batch 27 deviations (all green-trunk, ledger-noted): I-185
+overrule documented above (thin route + parent MCP gap-close
+decision 267 + module a9784dfe1120). I-183's stdout-volume
+signals needed a 2-line sandbox.py partial-capture (stderr pin
+kept; all three TimeoutExpired handlers). I-184 wired to all
+four execution-graded fail sites (child pinned 12/19/23;
+t==11/20/14 take the same one-liner). I-183's plain-failure pin
+switched NameError → MyCustomError (I-184 correctly translates
+the former). timefb/errplain compose as appended extras; all
+exact feedback pins sit on pass paths. No new optout keys (19
+pinned; carbon/handoff/loop join ungated like freeedu).
+refms Status demo renders a labeled static sample, never a live
+measurement (wall-clock ms broke identical-rerender determinism).
+cards.py held at 348/350 via shared-import joins, branch splits,
+and the scratchrun/sigslots nested enhance. Test-expectation
+fixes (code behavior verified correct first): treepick label
+space + groundwork count 5 → 6; ramppack fixture renamed (module
+summary polluted the bare check).
+
+Batch 27 migration: none (no schema changes; scopes/plans ride
+URL params, scratch runs record nothing, packs reuse share docs).
+
+Batch 27 wires: WEB_CEILING 1420 → 1440 (I-185 scratch route 11,
+F-154 import + append, F-162 import + scope parse/thread/banner,
+F-164 import + assign parse/append/thread; I-182 same-line);
+status.py holds at AREA_CAP (same-line batch27 join + import);
+history.py 265 → 268 (3 imports); cards.py 343 → 348 (etype-2
+enhance, sigslots/scratchrun post-dispatch, etype-4 split);
+results.py +ref_ms param/line; exercises.py +timefb/errplain
+imports + extras; sandbox.py partial capture; tour 173/178 →
+180/184; docs regen (README + features.md from tour registry);
+goldens refreshed (reviews +carbon/handoff/loop, status table +
+batch27 home; pagesnap scrub fixed for nested TMPDIRs, which
+also repairs the pre-existing main-branch pagesnap failure in
+nix-shell environments); every item module under 350 lines; MCP
+learning content covers every buildable item (children filed
+decisions 255–266 + 12 modules against the served DB, parent
+closed I-185; pre-shipped items correctly skipped MCP —
+verified in-DB).
+
 ## IMPROVEMENTS (500)
 
 ### A. Navigation, IA & routing (I-1–50)
@@ -1414,14 +1509,14 @@ skipped MCP — verified in-DB).
 - [x] I-175: Odd-one-out: strike-through elimination UI before committing.
 - [x] I-176: Design-rationale: show decision context quote beside choices.
 - [x] I-177: Flashcards: flip animation (CSS) between recall and self-rate.
-- I-178: Cloze: inline blank inputs inside rendered code (not separate fields).
-- I-179: Signature: skeleton with per-param slots and individual ticks.
-- I-180: Where-live: repo tree picker instead of buttons when many files.
-- I-181: Add per-type "how grading works" disclosure (builds trust).
-- I-182: Show reference runtime (ms) so learners calibrate expectations.
-- I-183: Timeout feedback tailored ("infinite loop?" vs "too slow?").
-- I-184: Sandbox error messages translated to learner-friendly language.
-- I-185: Allow "run without submitting" scratch runs on code cards.
+- [x] I-178: Cloze: inline blank inputs inside rendered code (not separate fields).
+- [x] I-179: Signature: skeleton with per-param slots and individual ticks.
+- [x] I-180: Where-live: repo tree picker instead of buttons when many files.
+- [x] I-181: Add per-type "how grading works" disclosure (builds trust).
+- [x] I-182: Show reference runtime (ms) so learners calibrate expectations.
+- [x] I-183: Timeout feedback tailored ("infinite loop?" vs "too slow?").
+- [x] I-184: Sandbox error messages translated to learner-friendly language.
+- [x] I-185: Allow "run without submitting" scratch runs on code cards.
 - I-186: Keep scratch runs out of grading but count them for hint unlocking.
 - I-187: Unlock hint tiers by attempts AND by time stuck (not attempts alone).
 - I-188: "Ask for a nudge" button that reveals next tier without an attempt.
@@ -1914,26 +2009,26 @@ skipped MCP — verified in-DB).
 - F-146: Open-source karma ledger (your packs' learner counts).
 - F-147: Donation links for pack authors (support the commons).
 - [x] F-148: Nonprofit/edu licensing spotlight (free forever, prominently).
-- F-149: Carbon note (local-first = no cloud GPU per review, quantified).
-- F-150: Annual "state of my codebase brain" report (beautiful, private).
+- [x] F-149: Carbon note (local-first = no cloud GPU per review, quantified).
+- [x] F-150: Annual "state of my codebase brain" report (beautiful, private).
 
 ### N. Teams, classroom & social (F-151–200)
 
 - F-151: Team workspaces (shared server, private profiles, opt-in everything).
 - F-152: Bus-factor map (who owns what, aggregated, no individual ranking).
 - F-153: Bus-factor alerts ("only one person owns auth — fix this quarter").
-- F-154: Onboarding paths auto-built from the knowledge graph layers.
-- F-155: New-hire checklists tied to owned proofs (not checkboxes).
+- [x] F-154: Onboarding paths auto-built from the knowledge graph layers.
+- [x] F-155: New-hire checklists tied to owned proofs (not checkboxes).
 - F-156: Mentor view (see mentee's weak spots with permission, suggest cards).
 - F-157: Pair-review mode (two learners grade each other's explanations).
 - F-158: Team calibration league (accuracy vs confidence, anonymized).
 - F-159: Subsystem ownership rotation planner.
-- F-160: Handoff packs (leaving dev exports their owned map for successor).
-- F-161: Interview loop support (candidate studies repo, proves understanding).
-- F-162: Contractor ramp packs (scoped to their work area only).
+- [x] F-160: Handoff packs (leaving dev exports their owned map for successor).
+- [x] F-161: Interview loop support (candidate studies repo, proves understanding).
+- [x] F-162: Contractor ramp packs (scoped to their work area only).
 - F-163: Classroom workspaces (teacher creates, students join via code).
-- F-164: Assignment builder (repo + concepts + deadline → track).
-- F-165: Anti-plagiarism by design (agents write code; humans prove it).
+- [x] F-164: Assignment builder (repo + concepts + deadline → track).
+- [x] F-165: Anti-plagiarism by design (agents write code; humans prove it).
 - F-166: Gradebook export (owned proofs per student, CSV/LMS).
 - F-167: LTI integration for Canvas/Moodle (launch + grade passback).
 - F-168: Plagiarism-resistant exams (live variant generation per student).

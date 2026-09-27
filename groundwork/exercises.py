@@ -83,6 +83,8 @@ from . import invariant as invariantmod
 from . import outdiff as outdiffmod
 from . import tracetable as tracetablemod
 from . import behavdiff as behavdiffmod
+from . import timefb as timefbmod
+from . import errplain as errplainmod
 
 # type number -> (name, bloom)
 TYPES = {
@@ -1258,8 +1260,14 @@ def grade(exercise: dict, submission: str, runner=None) -> dict:
             bad.append(f"length {len(ordered)}≠{len(solution)}")
         right = max(0, len(solution) - len([b for b in bad if b.isdigit()]))
         detail = f"Positions {', '.join(bad)} wrong ({right}/{len(solution)} right). "
-        return {"pass": False, "score": 0.0,
-                "feedback": detail + f"Output: {res.stdout[:200]} {res.stderr[:200]}"}
+        legacy = detail + f"Output: {res.stdout[:200]} {res.stderr[:200]}"
+        extra = timefbmod.hint_text(res, code)
+        extra2 = errplainmod.hint_text(res.stderr)
+        feedback = legacy
+        for e in (extra, extra2):
+            if e:
+                feedback += "\n" + e
+        return {"pass": False, "score": 0.0, "feedback": feedback}
     if t in (12, 19, 23):
         # Hidden-tests harness shared by complete, refactor and rebuild:
         # the reference passes, so only the submission is on trial.
@@ -1268,8 +1276,14 @@ def grade(exercise: dict, submission: str, runner=None) -> dict:
         # I-172: behavior-diff on measured sample outputs; "" keeps legacy.
         legacy = "Tests pass." if ok else f"Output: {res.stdout[:300]} {res.stderr[:300]}"
         extra = behavdiffmod.grade_extra(p, submission, runner) if t == 19 else ""
+        extra2 = timefbmod.hint_text(res, submission)
+        extra3 = errplainmod.hint_text(res.stderr)
+        feedback = legacy
+        for e in (extra, extra2, extra3):
+            if e:
+                feedback += "\n" + e
         return {"pass": ok, "score": 1.0 if ok else 0.0,
-                "feedback": legacy if not extra else legacy + "\n" + extra}
+                "feedback": feedback}
     if t == 20:
         param = p.get("param", "strict")
         try:
@@ -1284,14 +1298,27 @@ def grade(exercise: dict, submission: str, runner=None) -> dict:
                     "feedback": f"No optional parameter `{param}=...` found."}
         res = runner.run(submission + "\n" + p.get("tests", ""))
         ok = res.ok and "FAIL" not in res.stdout
-        return {"pass": ok, "score": 1.0 if ok else 0.0,
-                "feedback": "Extended and green." if ok else
-                f"Old behavior broke: {res.stdout[:300]} {res.stderr[:300]}"}
+        legacy = ("Extended and green." if ok else
+                  f"Old behavior broke: {res.stdout[:300]} {res.stderr[:300]}")
+        extra = timefbmod.hint_text(res, submission)
+        extra2 = errplainmod.hint_text(res.stderr)
+        feedback = legacy
+        for e in (extra, extra2):
+            if e:
+                feedback += "\n" + e
+        return {"pass": ok, "score": 1.0 if ok else 0.0, "feedback": feedback}
     if t == 14:
         res = runner.run(submission + "\n" + p.get("tests", ""))
         ok = res.ok and "FAIL" not in res.stdout
-        return {"pass": ok, "score": 1.0 if ok else 0.0,
-                "feedback": "Bug fixed." if ok else f"Still failing: {res.stdout[:300]} {res.stderr[:300]}"}
+        legacy = ("Bug fixed." if ok else
+                  f"Still failing: {res.stdout[:300]} {res.stderr[:300]}")
+        extra = timefbmod.hint_text(res, submission)
+        extra2 = errplainmod.hint_text(res.stderr)
+        feedback = legacy
+        for e in (extra, extra2):
+            if e:
+                feedback += "\n" + e
+        return {"pass": ok, "score": 1.0 if ok else 0.0, "feedback": feedback}
     return {"pass": False, "score": 0.0, "feedback": "Unknown type."}
 
 

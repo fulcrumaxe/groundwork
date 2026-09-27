@@ -36,7 +36,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 
-WEB_CEILING = 1420  # Batch 26 F-139: optout import + _send carry + do_GET parse + due opt. Batch 26 F-140: plain import + _send strip + do_GET parse. F-135: onboard import + banner. F-134: interviewprep import. F-130: classquests import + quest append. Batch 23 I-145: diffvote import + tallies/block joins + diffvote POST route. Batch 18: +3 head-wire imports, +order threading (explainflip). Batch 22: abphrase/learn variant threading, calmreplay/readout/dyslexia script wires, dyslexia CSS+header, realfile import/header/file route, regenstat import/banner, timetag import/skip wire. Batch 19: symbols/replay/version params, ?replay threading, delegation lines. Batch 21 I-92: tablescroll import + scroll_css delegation. I-126: callgraph import + lesson-block delegation. I-130: imgattach import + figures delegation. I-131: lessondeps import + seen-order delegation. I-134: confusing import + banner + confusing POST route. F-95: flowdetect import + flow rows query. F-96: relief banner line on result page. F-98: stylemix import + affinity + visual-first lesson order. Batch 20: lessonpin import + pin-order delegation. Handout route + per-section link. Explcalib import + calibration query/wires. Diagrams import + badge/mark wires. Debugkata import + kata block wire. Readgroup import + session wire. Reteach import + first-attempt query/box. Forgetcurve import + decay fit/order; minisession decay floor. Peaktime import + banner wire.
+WEB_CEILING = 1440  # Batch 27 I-185: scratch POST route. F-154: layerpath import + append. F-162: ramppack import + scope parse/thread/banner. F-164: selfassign import + assign parse/append/thread. I-182: ref_ms same-line. Batch 26 F-139: optout import + _send carry + do_GET parse + due opt. Batch 26 F-140: plain import + _send strip + do_GET parse. F-135: onboard import + banner. F-134: interviewprep import. F-130: classquests import + quest append. Batch 23 I-145: diffvote import + tallies/block joins + diffvote POST route. Batch 18: +3 head-wire imports, +order threading (explainflip). Batch 22: abphrase/learn variant threading, calmreplay/readout/dyslexia script wires, dyslexia CSS+header, realfile import/header/file route, regenstat import/banner, timetag import/skip wire. Batch 19: symbols/replay/version params, ?replay threading, delegation lines. Batch 21 I-92: tablescroll import + scroll_css delegation. I-126: callgraph import + lesson-block delegation. I-130: imgattach import + figures delegation. I-131: lessondeps import + seen-order delegation. I-134: confusing import + banner + confusing POST route. F-95: flowdetect import + flow rows query. F-96: relief banner line on result page. F-98: stylemix import + affinity + visual-first lesson order. Batch 20: lessonpin import + pin-order delegation. Handout route + per-section link. Explcalib import + calibration query/wires. Diagrams import + badge/mark wires. Debugkata import + kata block wire. Readgroup import + session wire. Reteach import + first-attempt query/box. Forgetcurve import + decay fit/order; minisession decay floor. Peaktime import + banner wire.
 AREA_CAP = 350
 
 # Capability area -> module implementing it. Batch 3 appends its areas here.
@@ -379,6 +379,20 @@ AREAS = {
     "thanks": "thanks.py",
     "freeedu": "freeedu.py",
     "batch26": "batch26.py",
+    "clozein": "clozein.py",
+    "sigslots": "sigslots.py",
+    "treepick": "treepick.py",
+    "refms": "refms.py",
+    "timefb": "timefb.py",
+    "errplain": "errplain.py",
+    "scratchrun": "scratchrun.py",
+    "carbon": "carbon.py",
+    "layerpath": "layerpath.py",
+    "handoff": "handoff.py",
+    "interviewloop": "interviewloop.py",
+    "ramppack": "ramppack.py",
+    "selfassign": "selfassign.py",
+    "batch27": "batch27.py",
 }
 
 

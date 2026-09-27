@@ -412,6 +412,7 @@ class MCPServer:
     def submit_review(self, card_id: str, submission: str,
                       confidence: int = 3) -> dict:
         from . import sandbox as sbmod
+        from . import refms as refmsmod
         con = self._con()
         try:
             row = con.execute("SELECT * FROM cards WHERE id=?", (card_id,)).fetchone()
@@ -442,7 +443,9 @@ class MCPServer:
                               "feedback": "Enter a recall rating 0-5 first; "
                               "then read the explanation below."}
             else:
-                result = exmod.grade(exercise, submission, sbmod.SandboxRunner())
+                runner = sbmod.SandboxRunner()
+                result = exmod.grade(exercise, submission, runner)
+                result = refmsmod.attach(result, exercise["type"], exercise["payload"], runner)
                 grade_val = 5 if result["pass"] else 1
             # I-160/I-161: missed cloze names which blanks passed
             # and offers a retry of the wrong ones only; clean cards

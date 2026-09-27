@@ -89,7 +89,7 @@ from . import modules as modmod
 from . import motion as motionmod
 from . import ogtags as ogtagsmod
 from . import optimistic as optimisticmod, outdiff as outdiffmod  # Batch 24 I-157: diff CSS join keeps web.py at WEB_CEILING
-from . import onboard as onboardmod
+from . import onboard as onboardmod, layerpath as layerpathmod
 from . import ownbanner as ownbannermod
 from . import ownership as ownmod
 from . import pageicon as pageiconmod
@@ -98,7 +98,7 @@ from . import palette as palettemod
 from . import peaktime as peaktimemod
 from . import pressfx as pressfxmod, plain as plainmod  # F-140: plain-mode strip (same-line join)
 from . import queries as quemod
-from . import radius as radiusmod
+from . import radius as radiusmod, ramppack as ramppackmod
 from . import queue as qmod
 from . import quests as questsmod, thanks as thanksmod  # F-144: thank-the-author box (same-line join)
 from . import readgroup as readgroupmod
@@ -119,7 +119,7 @@ from . import sched as schedmod
 from . import scrollbar as scrollbarmod
 from . import scrollpos as scrollposmod
 from . import search as searchmod
-from . import selection as selectionmod
+from . import selection as selectionmod, selfassign as selfassignmod
 from . import serendipity as sermod, partytrick as partytrickmod, optout as optoutmod  # one line keeps web.py at WEB_CEILING
 from . import session as sessionmod
 from . import shelf as shelfmod, showcase as showcasemod  # one line keeps web.py at WEB_CEILING
@@ -510,7 +510,8 @@ class Handler(BaseHTTPRequestHandler):
             one, cold = mode == "one", mode == "cold"
             dial = query.get("dial", [""])[0] or None
             resume_key = query.get("resume", [""])[0]
-            self._send(page("Due", self.due_html(level, one, resume_key, dial, cold, mode, order, replay_step, query.get("buddy", []), self._optout, self._plain),
+            scope = query.get("scope", [""])[0]
+            self._send(page("Due", self.due_html(level, one, resume_key, dial, cold, mode, order, replay_step, query.get("buddy", []), self._optout, self._plain, scope=scope),
                             active="due", page_id="due",
                             lede="What to practice next — your spaced queue, one card at a time.",
                             counts=counts, tour=tour_ctx))
@@ -651,7 +652,9 @@ class Handler(BaseHTTPRequestHandler):
                     page_id="modules", counts=counts, tour=tour_ctx))
         elif url.path.startswith("/modules/"):
             mid = url.path.split("/")[-1]
-            body = self.module_html(mid, level, order, replay_step, query.get("buddy", []), query.get("buddymatch", [""])[0] == "1", query.get("bmatch_repos", []), query.get("bmatch_concepts", []), query.get("quest", [""])[0] or None, query.get("trail", [""])[0])
+            assign_spec = query.get("assign", [""])[0] or None
+            assign_fields = {"title": query.get("atitle", [""])[0], "due": query.get("adue", [""])[0], "steps": query.get("astep", []), "repo": query.get("arepo", [""])[0]} if query.get("assign", [""])[0] == "new" else None
+            body = self.module_html(mid, level, order, replay_step, query.get("buddy", []), query.get("buddymatch", [""])[0] == "1", query.get("bmatch_repos", []), query.get("bmatch_concepts", []), query.get("quest", [""])[0] or None, query.get("trail", [""])[0], assign_spec, assign_fields)
             if body == "<p>Unknown module.</p>":
                 self._send(page("Not found", errmod.not_found_html(
                     url.path, "Unknown module."), active="modules",
@@ -683,9 +686,12 @@ class Handler(BaseHTTPRequestHandler):
     def due_html(self, level: str = "auto", one: bool = False,
                  resume_key: str = "", dial=None, cold: bool = False,
                  mode: str = "", order: str = "definition",
-                 replay_step=None, buddies=(), optout: str = "", plain: str = "") -> str:
+                 replay_step=None, buddies=(), optout: str = "", plain: str = "",
+                 scope: str = "") -> str:
         server = mcplib.MCPServer(self.db_path)
         due = server.tool_list_due_reviews({"limit": 20})["due"]
+        due = ramppackmod.scope_due(self.db_path, due, scope)
+        pack_banner = ramppackmod.pack_html(self.db_path, scope, due)
         due = resumemod.session_cards(due, resume_key or "")
         con2 = self._con()
         try:
@@ -731,7 +737,7 @@ class Handler(BaseHTTPRequestHandler):
         due = minisessionmod.apply_dial(due, dial, tries, decay=decay)
         due = forgetcurvemod.order_due(due, decay)
         opt = optoutmod.parse(optout)
-        parts = [coopmod.split_html(due, buddies) + (comebackmod.comeback_box_html(rows=[{"name": r[0], "reviewed_at": r[1]} for r in first_rows]) if optoutmod.show(opt, "comeback") else "") + digestmod.section_html(self.db_path) + optoutmod.toggle_box_html(opt, "/due"),
+        parts = [pack_banner + coopmod.split_html(due, buddies) + (comebackmod.comeback_box_html(rows=[{"name": r[0], "reviewed_at": r[1]} for r in first_rows]) if optoutmod.show(opt, "comeback") else "") + digestmod.section_html(self.db_path) + optoutmod.toggle_box_html(opt, "/due"),
                  # F-92: peak-recall banner; "" below threshold.
                  (peaktimemod.banner_html(peak_rows) if optoutmod.show(opt, "peak") else ""),
                  recentmod.strip_html(),
@@ -1014,7 +1020,7 @@ class Handler(BaseHTTPRequestHandler):
         return "".join(parts)
 
     def module_html(self, mid: str, level: str = "auto", order: str = "definition",
-                      replay_step=None, buddies=(), match_opt_in=False, match_repos=(), match_concepts=(), quest_spec=None, trail="") -> str:
+                      replay_step=None, buddies=(), match_opt_in=False, match_repos=(), match_concepts=(), quest_spec=None, trail="", assign_spec=None, assign_fields=None) -> str:
         con = self._con()
         try:
             m = con.execute("SELECT * FROM modules WHERE id=?", (mid,)).fetchone()
@@ -1098,7 +1104,9 @@ class Handler(BaseHTTPRequestHandler):
                 f"<p><small>{owned_n}/{len(concepts)} concepts owned</small></p>" + buddypingmod.ping_html(buddies, owned_n, len(concepts)) + thanksmod.thanks_box_html(dict(m)))
         parts.append(questsmod.skills_view(concepts, lesson_map, mastery_of))
         parts.append(onboardmod.countdown_box_html(lessons=list(lesson_map.values()), owned=owned, rows=history))
+        parts.append(layerpathmod.starthere_html(lesson_map, owned))
         parts.append(classquestsmod.quest_html(quest_spec, [r["name"] for r in concepts if owned.get(r["cid"], (0, False))[1]], mastery_of))
+        parts.append(selfassignmod.assign_html(assign_spec, assign_fields, [r["name"] for r in concepts], [r["name"] for r in concepts if owned.get(r["cid"], (0, False))[1]], mastery_of, m["repo"], mid))
         practice_tagged = False
         dec_nodes = [r["cid"].split(":", 1)[1] if ":" in r["cid"] else r["cid"]
                      for r in concepts]
@@ -1338,6 +1346,18 @@ class Handler(BaseHTTPRequestHandler):
                     f"Back to queue</a></p>")
             self._send(page("Snoozed", body, counts=self._nav_counts()))
             return
+        if url.path.startswith("/cards/") and url.path.endswith("/scratch"):
+            from . import scratchrun as scratchmod
+            card_id = url.path.split("/")[2]
+            answer, conf_i, origin = _parse_review_form(raw)
+            body = scratchmod.page_for(self.db_path, card_id, answer,
+                                       origin, conf_i)
+            if body is None:
+                self._send(page("Error", "<p>Unknown card.</p>",
+                                counts=self._nav_counts()), 404)
+                return
+            self._send(page("Scratch run", body, counts=self._nav_counts()))
+            return
         if url.path.startswith("/cards/") and url.path.endswith("/review"):
             card_id = url.path.split("/")[2]
             answer, conf_i, origin = _parse_review_form(raw)
@@ -1364,7 +1384,7 @@ class Handler(BaseHTTPRequestHandler):
             due_left = server.tool_list_due_reviews({"limit": 1000})["count"]
             body = (cerr + scrollposmod.restore_js(origin)
                     + autoscrollmod.enhance_result(
-                        resmod.render_result(res["pass"], res["feedback"], back, out["next_due"], origin, mod_id, due_left, points=res.get("points"), drill=res.get("drill", "")))
+                        resmod.render_result(res["pass"], res["feedback"], back, out["next_due"], origin, mod_id, due_left, points=res.get("points"), drill=res.get("drill", ""), ref_ms=res.get("ref_ms")))
                     + out.get("relief", "") + out.get("atoms", "") + out.get("retry", "")
                     + autoscrollmod.verdict_js())
             self._send(page("Result", body, counts=self._nav_counts()))

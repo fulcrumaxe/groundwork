@@ -13,7 +13,7 @@ from . import runkey as runkeymod
 from . import sandout as sandoutmod
 from . import confslider as confslidermod
 from . import hinttiers as hinttiersmod
-from . import parkeys as parkeysmod, parcheck as parcheckmod, matchpair as matchpairmod, tracetable as tracetablemod, predtry as predtrymod, rubriclive as rubriclivemod, linecomment as linecommentmod, comparesplit as comparesplitmod, xout as xoutmod, ratquote as ratquotemod, extlive as extlivemod, callchips as callchipsmod  # Batch 25: one shared line keeps cards.py under AREA_CAP
+from . import parkeys as parkeysmod, parcheck as parcheckmod, matchpair as matchpairmod, tracetable as tracetablemod, predtry as predtrymod, rubriclive as rubriclivemod, linecomment as linecommentmod, comparesplit as comparesplitmod, xout as xoutmod, ratquote as ratquotemod, extlive as extlivemod, callchips as callchipsmod, treepick as treepickmod, scratchrun as scratchrunmod  # Batch 25: one shared line keeps cards.py under AREA_CAP
 from . import parsons as parsonsmod
 
 
@@ -97,12 +97,15 @@ def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:
         from . import cardflip as cardflipmod
         body = cardflipmod.branch_html(card, cid)
     elif etype == "2":
+        from . import clozein as clozeinmod
         blanks = p.get("blanks") or [{"id": 0, "answers": p.get("answers", [])}]
         fields = " ".join(
             f"<label>___({b['id']}) <input name='b{b['id']}' size='12'></label>"
             for b in blanks)
-        body = f"{fields} {_confidence()}<button>Check blanks</button>"
-    elif etype in ("4", "7", "18"):
+        body = clozeinmod.enhance(p, f"{fields} {_confidence()}<button>Check blanks</button>", _confidence())
+    elif etype == "4":
+        body = treepickmod.branch_html(card, p, cid)
+    elif etype in ("7", "18"):
         btns = " ".join(
             f"<button name='answer' value='{html.escape(c)}'>{html.escape(c)}</button>"
             for c in p.get("choices", []))
@@ -200,6 +203,8 @@ def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:
     else:
         body = (f"<input name='answer' size='50' placeholder='Your answer'> "
                 f"{_confidence()}<button>Submit</button>")
+    from . import sigslots as sigslotsmod
+    body = scratchrunmod.enhance(card, cid, sigslotsmod.enhance(card, body))
     giveup = (f"<form method='post' action='/cards/{cid}/review'>"
               f"<input type='hidden' name='answer' value=''>"
               f"<input type='hidden' name='confidence' value='1'>"

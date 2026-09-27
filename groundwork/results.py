@@ -8,6 +8,7 @@ from __future__ import annotations
 import html
 
 from . import verdicts as verdictsmod
+from . import refms as refmsmod
 
 
 def result_nav(origin: str, mod_id: str) -> str:
@@ -23,12 +24,15 @@ def result_nav(origin: str, mod_id: str) -> str:
 
 def render_result(passed: bool, feedback: str, back: str, next_due: str,
                  origin: str, mod_id: str, due_left: int | None = None,
-                 points: int | None = None, drill: str = "") -> str:
+                 points: int | None = None, drill: str = "",
+                 ref_ms: int | None = None) -> str:
     """Result screen: verdict first, explanation, then where to go next.
 
     ``points`` is the banked confidence-weighted score (Batch 15,
     F-65); None hides the line for pre-points reviews. ``drill`` is
     the settled explicit-odds line (Batch 15, F-66); "" hides it.
+    ``ref_ms`` is the measured reference runtime (Batch 27, I-182);
+    None hides the line.
     """
     cls = "ok" if passed else "stale"
     verdict = verdictsmod.stamp_html(passed)
@@ -50,4 +54,5 @@ def render_result(passed: bool, feedback: str, back: str, next_due: str,
     return (f"<p class='verdict {cls}'>{verdict} — {html.escape(feedback)}</p>"
             f"<details open><summary>Explanation</summary><p>{html.escape(back)}</p></details>"
             f"<p>Next review: {html.escape(next_due)}</p>{banked}{drill_line}"
+            f"{refmsmod.line_html(ref_ms)}"
             f"{left}{result_nav(origin, mod_id)}")
