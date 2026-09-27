@@ -22,7 +22,7 @@ from . import knowngarden as knowngardenmod
 from . import timeledger as timeledgermod
 from . import verdicts as verdictsmod
 from . import monthreview as monthmod
-from . import milestones as milestonesmod, teachcert as teachcertmod  # lean join: one import line
+from . import milestones as milestonesmod, teachcert as teachcertmod, certhash as certhashmod, openbadge as openbadgemod  # lean join: one import line
 from . import northstar as northstarmod, wagers as wagersmod  # F-128: live settlement data + ledger
 from . import showcase as showcasemod
 from . import teamchallenge as teamchallengemod
@@ -34,7 +34,7 @@ from . import endorse as endorsemod
 from . import freeedu as freeedumod
 from . import carbon as carbonmod
 from . import handoff as handoffmod
-from . import interviewloop as interviewloopmod
+from . import interviewloop as interviewloopmod, gradebook as gradebookmod
 from . import learnresume as learnresumemod
 from . import overconf as overconfmod
 from . import optout as optoutmod
@@ -47,7 +47,7 @@ from . import sched as schedmod
 from . import tablescroll as tablescrollmod
 from . import timetag as timetagmod
 from . import tztime as tztimemod
-from . import kids as kidsmod, workload as workloadmod, weekdigest as weekdigestmod  # one line keeps history.py lean
+from . import kids as kidsmod, workload as workloadmod, weekdigest as weekdigestmod, guardian as guardianmod  # one line keeps history.py lean
 
 COACH_TIPS = {
     "recall": "Say the answer aloud before rating yourself.",
@@ -102,6 +102,8 @@ def calibration_coach(rows: list) -> str:
 
 def history_html(db_path: str, query=None) -> str:
     """Past attempts: grades, confidence, calibration — not a second queue."""
+    if guardianmod.is_guardian(query):
+        return guardianmod.view_html(db_path)
     con = dbmod.connect(db_path)
     try:
         cal = con.execute(
@@ -164,7 +166,7 @@ def history_html(db_path: str, query=None) -> str:
                                   latest, delayed)
     opt = optoutmod.parse(query)
     tone = plaincopymod.tone_from_query(query)
-    parts = [ownheadmod.headline_html(db_path) + shipconfmod.meter_html(db_path) + avatarmod.box_html(db_path) + optoutmod.toggle_box_html(opt, "/reviews") + freeedumod.banner_html() + carbonmod.section_html(db_path) + handoffmod.section_html(db_path) + interviewloopmod.loop_html(db_path),
+    parts = [ownheadmod.headline_html(db_path) + shipconfmod.meter_html(db_path) + avatarmod.box_html(db_path) + optoutmod.toggle_box_html(opt, "/reviews") + freeedumod.banner_html() + carbonmod.section_html(db_path) + handoffmod.section_html(db_path) + interviewloopmod.loop_html(db_path) + gradebookmod.section_html(db_path),
              (growringsmod.section_html(db_path) if optoutmod.show(opt, "rings") else ""),
              (knowngardenmod.section_html(db_path) if optoutmod.show(opt, "garden") else ""),
              timeledgermod.section_html(db_path),
@@ -172,7 +174,7 @@ def history_html(db_path: str, query=None) -> str:
              (sharecardsmod.section_html(db_path) if optoutmod.show(opt, "share") else ""),
              learnresumemod.section_html(db_path),
              endorsemod.section_html(db_path),
-             teachcertmod.section_html(db_path),
+             teachcertmod.section_html(db_path) + certhashmod.section_html(db_path, query) + openbadgemod.section_html(db_path),
              (showcasemod.gallery_html(db_path) if optoutmod.show(opt, "showcase") else ""),
              (themeunlockmod.gallery_html(db_path) if optoutmod.show(opt, "unlocks") else ""),
              (weekdigestmod.block_html(db_path) if optoutmod.show(opt, "weekdigest") else "") + (teamchallengemod.section_html(db_path) if optoutmod.show(opt, "challenge") else "") + plaincopymod.apply((seasoneventmod.section_html(db_path) if optoutmod.show(opt, "season") else "") + (anniversarymod.block_html(db_path) if optoutmod.show(opt, "anniversary") else ""), tone)]

@@ -393,6 +393,20 @@ AREAS = {
     "ramppack": "ramppack.py",
     "selfassign": "selfassign.py",
     "batch27": "batch27.py",
+    "scratchhint": "scratchhint.py",
+    "stuckhint": "stuckhint.py",
+    "asknudge": "asknudge.py",
+    "nextup": "nextup.py",
+    "similar": "similar.py",
+    "bonus": "bonus.py",
+    "gradebook": "gradebook.py",
+    "guardian": "guardian.py",
+    "curricmap": "curricmap.py",
+    "syllabus": "syllabus.py",
+    "officehours": "officehours.py",
+    "certhash": "certhash.py",
+    "openbadge": "openbadge.py",
+    "batch28": "batch28.py",
 }
 
 

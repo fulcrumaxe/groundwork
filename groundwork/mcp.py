@@ -14,6 +14,7 @@ from . import confweight as confweightmod
 from . import db as dbmod
 from . import diffvote as diffvotemod
 from . import diffweights as diffweightsmod
+from . import bonus as bonusmod
 from . import boredom as boredommod
 from . import exercises as exmod
 from . import frustcatch as frustcatchmod
@@ -29,6 +30,7 @@ from . import giveup as giveupmod
 from . import partial as partialmod
 from . import retryblanks as retryblanksmod
 from . import reveal as revealmod
+from . import similar as simmod
 from . import skillatoms as skillatomsmod
 from . import pipeline as pipelinemod
 from . import sched as schedmod
@@ -410,7 +412,7 @@ class MCPServer:
     # ------------------------------------------------------- review/grade
 
     def submit_review(self, card_id: str, submission: str,
-                      confidence: int = 3) -> dict:
+                      confidence: int = 3, bonus: bool = False) -> dict:
         from . import sandbox as sbmod
         from . import refms as refmsmod
         con = self._con()
@@ -498,11 +500,21 @@ class MCPServer:
                       "last_probe": old_probe}], now_iso))
             except Exception:  # noqa: BLE001 -- probe check never blocks
                 now_iso, was_probe = schedmod.iso(schedmod.utcnow()), False
-            con.execute(
-                "UPDATE cards SET stability=?, difficulty=?, retrievability=?, due=?,"
-                " lapses=? WHERE id=?",
-                (upd["stability"], upd["difficulty"], upd["retrievability"],
-                 upd["due"], new_lapses, card_id))
+            # I-192: bonus attempts grade but persist no stats; variant
+            # siblings still reschedule (their own row) so answered
+            # variants leave the queue instead of barnacling it.
+            variant = simmod.is_variant(card_id)
+            excluded = bonusmod.should_exclude(was_probe=was_probe,
+                                               bonus=(bonus or variant))
+            if not excluded:
+                con.execute(
+                    "UPDATE cards SET stability=?, difficulty=?, retrievability=?, due=?,"
+                    " lapses=? WHERE id=?",
+                    (upd["stability"], upd["difficulty"], upd["retrievability"],
+                     upd["due"], new_lapses, card_id))
+            elif variant:
+                con.execute("UPDATE cards SET due=? WHERE id=?",
+                            (upd["due"], card_id))
             if was_probe:
                 # Stamp after the INSERT so last_probe always covers the
                 # just-recorded review (same-second equality counts).
@@ -515,20 +527,22 @@ class MCPServer:
                                              int(confidence))
             except Exception:  # noqa: BLE001 -- banking must never raise
                 points = 0
-            con.execute(
-                "INSERT INTO reviews(card_id, grade, confidence, submission,"
-                " prev_stability, prev_difficulty, prev_retrievability,"
-                " prev_due, prev_lapses, prev_mastery, points)"
-                " VALUES(?,?,?,?,?,?,?,?,?,?,?)",
-                (card_id, grade_val, int(confidence), str(submission)[:4000],
-                 card["stability"], card["difficulty"], card["retrievability"],
-                 card["due"], card["lapses"],
-                 (prev_mastery["mastery"] or 0.0) if prev_mastery else 0.0,
-                 points))
-            # Roll concept mastery toward latest performance.
-            con.execute(
-                "UPDATE concepts SET mastery = mastery * 0.7 + ? * 0.3 WHERE id=?",
-                (grade_val / 5.0, card["concept_id"]))
+            if not excluded:
+                con.execute(
+                    "INSERT INTO reviews(card_id, grade, confidence, submission,"
+                    " prev_stability, prev_difficulty, prev_retrievability,"
+                    " prev_due, prev_lapses, prev_mastery, points)"
+                    " VALUES(?,?,?,?,?,?,?,?,?,?,?)",
+                    (card_id, grade_val, int(confidence), str(submission)[:4000],
+                     card["stability"], card["difficulty"], card["retrievability"],
+                     card["due"], card["lapses"],
+                     (prev_mastery["mastery"] or 0.0) if prev_mastery else 0.0,
+                     points))
+            if not excluded:
+                # Roll concept mastery toward latest performance.
+                con.execute(
+                    "UPDATE concepts SET mastery = mastery * 0.7 + ? * 0.3 WHERE id=?",
+                    (grade_val / 5.0, card["concept_id"]))
             # F-96: frustration relief — three fast fails on this card
             # route to an easier same-concept card plus a breather note.
             try:
@@ -560,6 +574,14 @@ class MCPServer:
                 atoms_html = skillatomsmod.section_html(concept, atoms)
             except Exception:  # noqa: BLE001 -- atoms never block
                 atoms_html = ""
+            # I-191: a failed shuffle-based card mints one reshuffled
+            # same-type sibling due now; the result page links to it.
+            try:
+                mid = mod_row["module_id"] if mod_row else ""
+                similar_html = simmod.offer_html(
+                    con, card, bool(result.get("pass")), mid)
+            except Exception:  # noqa: BLE001 -- similar never blocks
+                similar_html = ""
             con.commit()
         finally:
             con.close()
@@ -588,9 +610,16 @@ class MCPServer:
                 relief_html = frustcatchmod.banner_html(plan, lesson_url)
         except Exception:  # noqa: BLE001 -- display must never raise
             relief_html = ""
-        return {"result": result, "grade": grade_val, "next_due": upd["due"],
-                "points": points, "drill": drill, "relief": relief_html,
-                "atoms": atoms_html, "retry": retry_html}
+        try:
+            from . import nextup as nextupmod
+            nextup_html = nextupmod.box_for(self.db_path, card_id)
+        except Exception:  # noqa: BLE001 -- suggestions never block grading
+            nextup_html = ""
+        return {"result": result, "grade": grade_val,
+                "next_due": (upd["due"] if (variant and excluded) else (card["due"] if excluded else upd["due"])),
+                "points": (0 if excluded else points), "bonus": excluded,
+                "drill": drill, "relief": relief_html,
+                "atoms": atoms_html, "retry": retry_html, "nextup": nextup_html, "similar": similar_html}
 
 
 def serve_stdio(db_path=None) -> None:

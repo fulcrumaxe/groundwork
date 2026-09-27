@@ -26,6 +26,7 @@ PAGES = ("due", "status", "modules", "reviews")
 _VOLATILE = (
     re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z?"),
     re.compile(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}(:\d{2})?"),
+    re.compile(r"\b\d{4}-\d{2}-\d{2}\b"),  # Batch 28 base: bare dates (preptrack "due YYYY-MM-DD") roll daily
     re.compile(r"\b\d+ (seconds?|minutes?|hours?|days?) ago\b"),
     re.compile(r"\bjust now\b"),
     re.compile(r'data-built="[^"]*"'),

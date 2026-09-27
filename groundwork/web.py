@@ -52,7 +52,7 @@ from . import dyslexia as dyslexiamod
 from . import diagrams as diagramsmod
 from . import diagnose as diamod
 from . import diff as diffmod
-from . import digest as digestmod, diffvote as diffvotemod  # one line keeps web.py at WEB_CEILING
+from . import digest as digestmod, diffvote as diffvotemod, officehours as officehoursmod  # one line keeps web.py at WEB_CEILING
 from . import disputes as dismod
 from . import donehero as doneheromod
 from . import emoji as emojimod, parsons as parsonsmod, parkeys as parkeysmod, comparesplit as comparesplitmod, specsplit as specsplitmod, cardflip as cardflipmod  # one line keeps web.py at WEB_CEILING
@@ -119,7 +119,7 @@ from . import sched as schedmod
 from . import scrollbar as scrollbarmod
 from . import scrollpos as scrollposmod
 from . import search as searchmod
-from . import selection as selectionmod, selfassign as selfassignmod
+from . import selection as selectionmod, selfassign as selfassignmod, curricmap as curricmapmod, syllabus as syllabusmod
 from . import serendipity as sermod, partytrick as partytrickmod, optout as optoutmod  # one line keeps web.py at WEB_CEILING
 from . import session as sessionmod
 from . import shelf as shelfmod, showcase as showcasemod  # one line keeps web.py at WEB_CEILING
@@ -510,8 +510,8 @@ class Handler(BaseHTTPRequestHandler):
             one, cold = mode == "one", mode == "cold"
             dial = query.get("dial", [""])[0] or None
             resume_key = query.get("resume", [""])[0]
-            scope = query.get("scope", [""])[0]
-            self._send(page("Due", self.due_html(level, one, resume_key, dial, cold, mode, order, replay_step, query.get("buddy", []), self._optout, self._plain, scope=scope),
+            scope = query.get("scope", [""])[0]; syllabus = query.get("syllabus", [""])[0]
+            self._send(page("Due", self.due_html(level, one, resume_key, dial, cold, mode, order, replay_step, query.get("buddy", []), self._optout, self._plain, scope=scope, syllabus=syllabus),
                             active="due", page_id="due",
                             lede="What to practice next — your spaced queue, one card at a time.",
                             counts=counts, tour=tour_ctx))
@@ -527,7 +527,7 @@ class Handler(BaseHTTPRequestHandler):
             page_num = query.get("page", ["1"])[0]
             lede = (f"Modules in {repo} — pick one and study it." if repo
                     else "Every agent session as a lesson — pick one and study it.")
-            self._send(page("Modules", self.modules_html(repo, sort, status, page_num),
+            self._send(page("Modules", self.modules_html(repo, sort, status, page_num, query.get("curriculum", [""])[0]),
                             active="modules", page_id="modules",
                             lede=lede, counts=counts, tour=tour_ctx))
         elif url.path == "/debt":
@@ -687,11 +687,11 @@ class Handler(BaseHTTPRequestHandler):
                  resume_key: str = "", dial=None, cold: bool = False,
                  mode: str = "", order: str = "definition",
                  replay_step=None, buddies=(), optout: str = "", plain: str = "",
-                 scope: str = "") -> str:
+                 scope: str = "", syllabus: str = "") -> str:
         server = mcplib.MCPServer(self.db_path)
         due = server.tool_list_due_reviews({"limit": 20})["due"]
-        due = ramppackmod.scope_due(self.db_path, due, scope)
-        pack_banner = ramppackmod.pack_html(self.db_path, scope, due)
+        due = syllabusmod.gate_due(self.db_path, ramppackmod.scope_due(self.db_path, due, scope), syllabus)
+        pack_banner = ramppackmod.pack_html(self.db_path, scope, due) + syllabusmod.banner_html(self.db_path, syllabus)
         due = resumemod.session_cards(due, resume_key or "")
         con2 = self._con()
         try:
@@ -737,7 +737,7 @@ class Handler(BaseHTTPRequestHandler):
         due = minisessionmod.apply_dial(due, dial, tries, decay=decay)
         due = forgetcurvemod.order_due(due, decay)
         opt = optoutmod.parse(optout)
-        parts = [pack_banner + coopmod.split_html(due, buddies) + (comebackmod.comeback_box_html(rows=[{"name": r[0], "reviewed_at": r[1]} for r in first_rows]) if optoutmod.show(opt, "comeback") else "") + digestmod.section_html(self.db_path) + optoutmod.toggle_box_html(opt, "/due"),
+        parts = [pack_banner + coopmod.split_html(due, buddies) + (comebackmod.comeback_box_html(rows=[{"name": r[0], "reviewed_at": r[1]} for r in first_rows]) if optoutmod.show(opt, "comeback") else "") + digestmod.section_html(self.db_path) + optoutmod.toggle_box_html(opt, "/due") + officehoursmod.bring_html(self.db_path),
                  # F-92: peak-recall banner; "" below threshold.
                  (peaktimemod.banner_html(peak_rows) if optoutmod.show(opt, "peak") else ""),
                  recentmod.strip_html(),
@@ -919,7 +919,7 @@ class Handler(BaseHTTPRequestHandler):
         return "".join(parts)
 
     def modules_html(self, repo: str = "", sort: str = "newest",
-                     status: str = "all", page=1) -> str:
+                     status: str = "all", page=1, curriculum: str = "") -> str:
         """The library: every MCP session as a module card with progress."""
         if sort not in ("newest", "oldest"):
             sort = "newest"
@@ -986,7 +986,7 @@ class Handler(BaseHTTPRequestHandler):
             keep_params["sort"] = sort
         if status != "all":
             keep_params["status"] = status
-        parts.append("<div id='library'>")
+        parts.append(curricmapmod.matrix_html(self.db_path, curriculum) + "<div id='library'>")
         if not shown:
             parts.append("<p>No modules with this status yet.</p>")
         for mi, (m, stats, omap, order, owned_n, total, stale) in enumerate(info["items"]):
@@ -1351,7 +1351,7 @@ class Handler(BaseHTTPRequestHandler):
             card_id = url.path.split("/")[2]
             answer, conf_i, origin = _parse_review_form(raw)
             body = scratchmod.page_for(self.db_path, card_id, answer,
-                                       origin, conf_i)
+                                       origin, conf_i, raw)
             if body is None:
                 self._send(page("Error", "<p>Unknown card.</p>",
                                 counts=self._nav_counts()), 404)
@@ -1385,7 +1385,7 @@ class Handler(BaseHTTPRequestHandler):
             body = (cerr + scrollposmod.restore_js(origin)
                     + autoscrollmod.enhance_result(
                         resmod.render_result(res["pass"], res["feedback"], back, out["next_due"], origin, mod_id, due_left, points=res.get("points"), drill=res.get("drill", ""), ref_ms=res.get("ref_ms")))
-                    + out.get("relief", "") + out.get("atoms", "") + out.get("retry", "")
+                    + out.get("relief", "") + out.get("atoms", "") + out.get("retry", "") + out.get("nextup", "") + out.get("similar", "")
                     + autoscrollmod.verdict_js())
             self._send(page("Result", body, counts=self._nav_counts()))
             return

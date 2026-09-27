@@ -99,7 +99,7 @@ def output_html(res) -> str:
 
 
 def page_for(db_path, card_id, code, origin: str = "/due",
-             confidence: int = 3):
+             confidence: int = 3, raw: str = ""):
     """Scratch-result body; None when the card is unknown.
 
     Runs ``code`` in the existing sandbox and renders the output with
@@ -132,17 +132,25 @@ def page_for(db_path, card_id, code, origin: str = "/due",
         safe_origin = html.escape(origin if isinstance(origin, str) else "/due",
                                   quote=True)
         safe_cid = html.escape(cid, quote=True)
+        from . import scratchhint as scratchhintmod
+        prior = scratchhintmod.parse_count(raw)
+        hint_block = scratchhintmod.unlock_html(db_path, cid, prior)
+        again = (scratchhintmod.again_html(
+            cid, draft, origin if isinstance(origin, str) else "/due",
+            conf_i, prior) if hint_block else "")
         return (
             "<h2>Scratch run</h2>"
             "<p><small>Not recorded: no grade, no scheduling change. "
             "Submit below to grade this draft for real.</small></p>"
             f"{output_html(res)}"
+            f"{hint_block}"
             f"<form method='post' action='/cards/{safe_cid}/review'>"
             f"<textarea name='answer' rows='12' cols='70'>"
             f"{html.escape(draft)}</textarea><br>"
             f"<input type='hidden' name='confidence' value='{conf_i}'>"
             f"<input type='hidden' name='origin' value='{safe_origin}'>"
             "<button>Submit for real</button></form>"
+            f"{again}"
             f"<p><a class='btn' href='{safe_origin}'>Back to card</a></p>")
     except Exception:  # noqa: BLE001 -- scratch never crashes the route
         return None

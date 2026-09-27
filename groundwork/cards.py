@@ -12,8 +12,8 @@ from . import codeedit as codeeditmod, specsplit as specsplitmod  # Batch 26 I-1
 from . import runkey as runkeymod
 from . import sandout as sandoutmod
 from . import confslider as confslidermod
-from . import hinttiers as hinttiersmod
-from . import parkeys as parkeysmod, parcheck as parcheckmod, matchpair as matchpairmod, tracetable as tracetablemod, predtry as predtrymod, rubriclive as rubriclivemod, linecomment as linecommentmod, comparesplit as comparesplitmod, xout as xoutmod, ratquote as ratquotemod, extlive as extlivemod, callchips as callchipsmod, treepick as treepickmod, scratchrun as scratchrunmod  # Batch 25: one shared line keeps cards.py under AREA_CAP
+from . import stuckhint as stuckhintmod
+from . import parkeys as parkeysmod, parcheck as parcheckmod, matchpair as matchpairmod, tracetable as tracetablemod, predtry as predtrymod, rubriclive as rubriclivemod, linecomment as linecommentmod, comparesplit as comparesplitmod, xout as xoutmod, ratquote as ratquotemod, extlive as extlivemod, callchips as callchipsmod, treepick as treepickmod, scratchrun as scratchrunmod, asknudge as asknudgemod  # Batch 25: one shared line keeps cards.py under AREA_CAP
 from . import parsons as parsonsmod
 
 
@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>"""
 
 
-def hints_html(card, attempts: int = 0) -> str:
+def hints_html(card, attempts: int = 0, stuck_seconds=None) -> str:
     """Progressive hint reveal (adaptive scaffolding): the nudge is always
     visible; each further attempt unlocks the next tier.
 
@@ -78,7 +78,8 @@ def hints_html(card, attempts: int = 0) -> str:
     which keeps the same 1+attempts prefix semantics.
     """
     hints = _payload(card).get("hints", [])
-    return hinttiersmod.hints_html(hints, attempts)
+    shown = stuckhintmod.visible_count(len(hints) if isinstance(hints, (list, tuple)) else 0, attempts, stuck_seconds)
+    return stuckhintmod.hints_html(hints, attempts, stuck_seconds) + asknudgemod.button_html(hints, shown)
 
 
 def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:

@@ -77,6 +77,16 @@ class PagesnapGateTest(unittest.TestCase):
         self.assertEqual(snapmod.normalize(None), "")
         self.assertEqual(snapmod.snapshot(None), {})
         self.assertEqual(snapmod.render_page(None, "due"), "")
+
+    def test_bare_dates_scrubbed_across_midnight(self):
+        # Batch 28 base: preptrack renders bare "due YYYY-MM-DD" from the
+        # wall clock; the gate must not go red when the date rolls.
+        before = "<li>add <small>mastery 0.00 · due 2026-09-27</small></li>"
+        after = "<li>add <small>mastery 0.00 · due 2026-09-28</small></li>"
+        self.assertEqual(snapmod.normalize(before),
+                         snapmod.normalize(after))
+        self.assertTrue(snapmod.compare({"due": before},
+                                        {"due": after})["ok"])
         self.assertEqual(
             snapmod.render_page(handler_for.__class__, "nope"), "")
         bad = snapmod.compare(None, None)
