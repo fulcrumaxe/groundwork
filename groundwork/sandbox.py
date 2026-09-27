@@ -32,8 +32,11 @@ class SandboxRunner:
                 proc = subprocess.run(
                     [sys.executable, "-c", code], capture_output=True,
                     text=True, timeout=self.timeout, cwd=tmp)
-            except subprocess.TimeoutExpired:
-                return RunResult(False, "", "timeout")
+            except subprocess.TimeoutExpired as e:
+                # I-183: keep partial stdout so timeout feedback can
+                # read volume/repetition/progress signals; stderr pin kept.
+                part = e.stdout if isinstance(e.stdout, str) else ""
+                return RunResult(False, part or "", "timeout")
             return RunResult(proc.returncode == 0, proc.stdout, proc.stderr)
 
     def trace_python(self, code: str, var: str) -> RunResult:
@@ -90,8 +93,9 @@ class SandboxRunner:
                 proc = subprocess.run([self.node, "--check", str(f)],
                                       capture_output=True, text=True,
                                       timeout=self.timeout, cwd=tmp)
-            except subprocess.TimeoutExpired:
-                return RunResult(False, "", "timeout")
+            except subprocess.TimeoutExpired as e:
+                part = e.stdout if isinstance(e.stdout, str) else ""
+                return RunResult(False, part or "", "timeout")
             return RunResult(proc.returncode == 0, proc.stdout, proc.stderr)
 
     def run_node(self, code: str) -> RunResult:
@@ -101,8 +105,9 @@ class SandboxRunner:
             try:
                 proc = subprocess.run([self.node, "-e", code], capture_output=True,
                                       text=True, timeout=self.timeout, cwd=tmp)
-            except subprocess.TimeoutExpired:
-                return RunResult(False, "", "timeout")
+            except subprocess.TimeoutExpired as e:
+                part = e.stdout if isinstance(e.stdout, str) else ""
+                return RunResult(False, part or "", "timeout")
             return RunResult(proc.returncode == 0, proc.stdout, proc.stderr)
 
 
