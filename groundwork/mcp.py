@@ -588,9 +588,14 @@ class MCPServer:
                 relief_html = frustcatchmod.banner_html(plan, lesson_url)
         except Exception:  # noqa: BLE001 -- display must never raise
             relief_html = ""
+        try:
+            from . import nextup as nextupmod
+            nextup_html = nextupmod.box_for(self.db_path, card_id)
+        except Exception:  # noqa: BLE001 -- suggestions never block grading
+            nextup_html = ""
         return {"result": result, "grade": grade_val, "next_due": upd["due"],
                 "points": points, "drill": drill, "relief": relief_html,
-                "atoms": atoms_html, "retry": retry_html}
+                "atoms": atoms_html, "retry": retry_html, "nextup": nextup_html}
 
 
 def serve_stdio(db_path=None) -> None:
