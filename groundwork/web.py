@@ -98,7 +98,7 @@ from . import palette as palettemod
 from . import peaktime as peaktimemod
 from . import pressfx as pressfxmod, plain as plainmod  # F-140: plain-mode strip (same-line join)
 from . import queries as quemod
-from . import radius as radiusmod
+from . import radius as radiusmod, ramppack as ramppackmod
 from . import queue as qmod
 from . import quests as questsmod, thanks as thanksmod  # F-144: thank-the-author box (same-line join)
 from . import readgroup as readgroupmod
@@ -510,7 +510,8 @@ class Handler(BaseHTTPRequestHandler):
             one, cold = mode == "one", mode == "cold"
             dial = query.get("dial", [""])[0] or None
             resume_key = query.get("resume", [""])[0]
-            self._send(page("Due", self.due_html(level, one, resume_key, dial, cold, mode, order, replay_step, query.get("buddy", []), self._optout, self._plain),
+            scope = query.get("scope", [""])[0]
+            self._send(page("Due", self.due_html(level, one, resume_key, dial, cold, mode, order, replay_step, query.get("buddy", []), self._optout, self._plain, scope=scope),
                             active="due", page_id="due",
                             lede="What to practice next — your spaced queue, one card at a time.",
                             counts=counts, tour=tour_ctx))
@@ -683,9 +684,12 @@ class Handler(BaseHTTPRequestHandler):
     def due_html(self, level: str = "auto", one: bool = False,
                  resume_key: str = "", dial=None, cold: bool = False,
                  mode: str = "", order: str = "definition",
-                 replay_step=None, buddies=(), optout: str = "", plain: str = "") -> str:
+                 replay_step=None, buddies=(), optout: str = "", plain: str = "",
+                 scope: str = "") -> str:
         server = mcplib.MCPServer(self.db_path)
         due = server.tool_list_due_reviews({"limit": 20})["due"]
+        due = ramppackmod.scope_due(self.db_path, due, scope)
+        pack_banner = ramppackmod.pack_html(self.db_path, scope, due)
         due = resumemod.session_cards(due, resume_key or "")
         con2 = self._con()
         try:
@@ -731,7 +735,7 @@ class Handler(BaseHTTPRequestHandler):
         due = minisessionmod.apply_dial(due, dial, tries, decay=decay)
         due = forgetcurvemod.order_due(due, decay)
         opt = optoutmod.parse(optout)
-        parts = [coopmod.split_html(due, buddies) + (comebackmod.comeback_box_html(rows=[{"name": r[0], "reviewed_at": r[1]} for r in first_rows]) if optoutmod.show(opt, "comeback") else "") + digestmod.section_html(self.db_path) + optoutmod.toggle_box_html(opt, "/due"),
+        parts = [pack_banner + coopmod.split_html(due, buddies) + (comebackmod.comeback_box_html(rows=[{"name": r[0], "reviewed_at": r[1]} for r in first_rows]) if optoutmod.show(opt, "comeback") else "") + digestmod.section_html(self.db_path) + optoutmod.toggle_box_html(opt, "/due"),
                  # F-92: peak-recall banner; "" below threshold.
                  (peaktimemod.banner_html(peak_rows) if optoutmod.show(opt, "peak") else ""),
                  recentmod.strip_html(),
