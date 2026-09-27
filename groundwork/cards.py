@@ -201,6 +201,8 @@ def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:
     else:
         body = (f"<input name='answer' size='50' placeholder='Your answer'> "
                 f"{_confidence()}<button>Submit</button>")
+    from . import sigslots as sigslotsmod
+    body = sigslotsmod.enhance(card, body)
     giveup = (f"<form method='post' action='/cards/{cid}/review'>"
               f"<input type='hidden' name='answer' value=''>"
               f"<input type='hidden' name='confidence' value='1'>"
