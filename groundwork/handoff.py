@@ -147,10 +147,16 @@ def _pack_block(db_path, summary: dict) -> str:
 
 
 def section_html(db_path) -> str:
-    """History-page handoff packs; anchor-stable placeholder when empty."""
+    """History-page handoff packs; anchor-stable placeholder when empty.
+
+    Only modules with owned proofs render a pack block: with nothing
+    owned there is no evidence to hand off, and empty History stays
+    table-free (tablescroll contract).
+    """
     try:
         mods = packs(db_path)
-        blocks = "".join(_pack_block(db_path, m) for m in mods)
+        blocks = "".join(_pack_block(db_path, m) for m in mods
+                         if m["owned"] > 0)
         if not blocks:
             inner = ("<p>No owned concepts yet -- answer cards first, "
                      "then export a handoff pack for your successor.</p>")

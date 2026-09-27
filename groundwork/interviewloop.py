@@ -175,11 +175,18 @@ def proof_for(db_path, repo=None) -> dict:
 
 
 def loop_html(db_path, repo=None) -> str:
-    """Plan plus proof report; anchor-stable line when empty."""
+    """Plan plus proof report; anchor-stable line when empty.
+
+    Zero attempts and zero owned render the placeholder, never an
+    empty proof table: empty History stays table-free (tablescroll
+    contract), and a loop with no evidence proves nothing.
+    """
     try:
         plan = plan_for(db_path, repo)
         proof = proof_for(db_path, plan["repo"])
-        if not plan["steps"]:
+        totals = proof["totals"] or {}
+        if (not plan["steps"] or (not totals.get("attempts")
+                                  and not totals.get("owned"))):
             return (f"<section id='{BOX_ANCHOR}'><h2>Interview loop</h2>"
                     "<p>No interview loop yet -- study a module first.</p>"
                     "</section>")
