@@ -27,7 +27,7 @@ from . import northstar as northstarmod, wagers as wagersmod  # F-128: live sett
 from . import showcase as showcasemod
 from . import teamchallenge as teamchallengemod
 from . import seasonevent as seasoneventmod, calmjoy as calmjoymod  # F-142: calm twin
-from . import anniversary as anniversarymod
+from . import anniversary as anniversarymod, plaincopy as plaincopymod
 from . import shipconf as shipconfmod
 from . import themeunlock as themeunlockmod
 from . import endorse as endorsemod
@@ -159,18 +159,19 @@ def history_html(db_path: str, query=None) -> str:
     ledger = wagersmod.settle_all(wagersmod.wagers_from_query(query),
                                   latest, delayed)
     opt = optoutmod.parse(query)
+    tone = plaincopymod.tone_from_query(query)
     parts = [ownheadmod.headline_html(db_path) + shipconfmod.meter_html(db_path) + avatarmod.box_html(db_path) + optoutmod.toggle_box_html(opt, "/reviews"),
              (growringsmod.section_html(db_path) if optoutmod.show(opt, "rings") else ""),
              (knowngardenmod.section_html(db_path) if optoutmod.show(opt, "garden") else ""),
              timeledgermod.section_html(db_path),
-             (milestonesmod.section_html(db_path) if optoutmod.show(opt, "milestones") else "") + calmjoymod.block_html(db_path, query),
+             plaincopymod.apply((milestonesmod.section_html(db_path) if optoutmod.show(opt, "milestones") else ""), tone) + calmjoymod.block_html(db_path, query),
              (sharecardsmod.section_html(db_path) if optoutmod.show(opt, "share") else ""),
              learnresumemod.section_html(db_path),
              endorsemod.section_html(db_path),
              teachcertmod.section_html(db_path),
              (showcasemod.gallery_html(db_path) if optoutmod.show(opt, "showcase") else ""),
              (themeunlockmod.gallery_html(db_path) if optoutmod.show(opt, "unlocks") else ""),
-             (weekdigestmod.block_html(db_path) if optoutmod.show(opt, "weekdigest") else "") + (teamchallengemod.section_html(db_path) if optoutmod.show(opt, "challenge") else "") + (seasoneventmod.section_html(db_path) if optoutmod.show(opt, "season") else "") + (anniversarymod.block_html(db_path) if optoutmod.show(opt, "anniversary") else "")]
+             (weekdigestmod.block_html(db_path) if optoutmod.show(opt, "weekdigest") else "") + (teamchallengemod.section_html(db_path) if optoutmod.show(opt, "challenge") else "") + plaincopymod.apply((seasoneventmod.section_html(db_path) if optoutmod.show(opt, "season") else "") + (anniversarymod.block_html(db_path) if optoutmod.show(opt, "anniversary") else ""), tone)]
     if cal and cal["n"]:
         acc = (cal["g"] or 0) / 5.0
         conf = ((cal["c"] or 3) - 1) / 4.0
