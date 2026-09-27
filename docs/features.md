@@ -190,6 +190,13 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | Interview loop | A study plan from your weakest modules plus a proof report from your own attempts -- interview-ready, honestly scoped. | `/reviews#interview-loop` |
 | Contractor ramp packs | Study only your work area: a scoped Due queue with scoped progress for ramping on one subsystem. | `/status#status-b27-ramppack` |
 | Self-assigned study plans | Pick your repo scope, concept set, and due date -- completion tracked from your own owned proofs, never ranked. | `/status#status-b27-selfassign` |
+| Gradebook export | Your owned proofs as one portable CSV -- one row per concept, ready for your records or your instructor. | `/reviews#gradebook` |
+| Guardian view | Big-picture progress for parents: add ?guardian=1 on History for totals only, never per-answer detail. | `/status#status-b28-guardian` |
+| Curriculum mapping | Course outcomes crossed with your library: per-outcome coverage from your own owned proofs -- complete, never ranked. | `/status#status-b28-curricmap` |
+| Syllabus week gates | Later syllabus weeks stay locked until earlier weeks are owned -- the Due queue withholds locked-week cards. | `/status#status-b28-syllabus` |
+| Office-hours bring-list | Your flagged sections, longest-confused first -- bring these to office hours. | `/status#status-b28-officehours` |
+| Verifiable certificates | Certificates with hashes any holder can check offline. | `/reviews#cert-hashes` |
+| Portable open badges | Fully-owned packs export as Open Badges 3.0 assertions -- download the JSON from History. | `/status#status-b28-openbadge` |
 
 ## Improvements
 
@@ -375,6 +382,12 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | Timeout feedback: loop or slow? | Timed-out code says whether it looks stuck in a loop or just slow -- from measured output, never guessed. | `/status#status-b27-timefb` |
 | Sandbox errors in plain language | Failed run? One plain sentence says what the error means and where to look. | `/status#status-b27-errplain` |
 | Run without submitting | Code cards gain a scratch run: execute the draft, see the output, record nothing. | `/status#status-b27-scratchrun` |
+| Scratch runs unlock hints | Scratch runs stay ungraded, and each one unlocks the next hint tier on the result page. | `/status#status-b28-scratchhint` |
+| Hints unlock with time stuck | Stuck 2 minutes with no new attempt? The next hint tier opens on its own. | `/status#status-b28-stuckhint` |
+| Ask for a nudge | Stuck before attempt one? One click reveals the next hint tier -- no wrong answer required. | `/status#status-b28-asknudge` |
+| What to review next | After each answer, the result screen suggests the next due cards with links back into the queue. | `/status#status-b28-nextup` |
+| Practice a similar card | Fail a shuffle-based card and one click deals a fresh sibling: same concept, same format, new order, due now. | `/status#status-b28-similar` |
+| Bonus attempts skip stats | Probe extras and bonus variants grade like normal but move no FSRS state, mastery, or accuracy count. | `/status#status-b28-bonus` |
 
 ## The original loop
 
