@@ -1338,6 +1338,18 @@ class Handler(BaseHTTPRequestHandler):
                     f"Back to queue</a></p>")
             self._send(page("Snoozed", body, counts=self._nav_counts()))
             return
+        if url.path.startswith("/cards/") and url.path.endswith("/scratch"):
+            from . import scratchrun as scratchmod
+            card_id = url.path.split("/")[2]
+            answer, conf_i, origin = _parse_review_form(raw)
+            body = scratchmod.page_for(self.db_path, card_id, answer,
+                                       origin, conf_i)
+            if body is None:
+                self._send(page("Error", "<p>Unknown card.</p>",
+                                counts=self._nav_counts()), 404)
+                return
+            self._send(page("Scratch run", body, counts=self._nav_counts()))
+            return
         if url.path.startswith("/cards/") and url.path.endswith("/review"):
             card_id = url.path.split("/")[2]
             answer, conf_i, origin = _parse_review_form(raw)

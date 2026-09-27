@@ -13,7 +13,7 @@ from . import runkey as runkeymod
 from . import sandout as sandoutmod
 from . import confslider as confslidermod
 from . import hinttiers as hinttiersmod
-from . import parkeys as parkeysmod, parcheck as parcheckmod, matchpair as matchpairmod, tracetable as tracetablemod, predtry as predtrymod, rubriclive as rubriclivemod, linecomment as linecommentmod, comparesplit as comparesplitmod, xout as xoutmod, ratquote as ratquotemod, extlive as extlivemod, callchips as callchipsmod, treepick as treepickmod  # Batch 25: one shared line keeps cards.py under AREA_CAP
+from . import parkeys as parkeysmod, parcheck as parcheckmod, matchpair as matchpairmod, tracetable as tracetablemod, predtry as predtrymod, rubriclive as rubriclivemod, linecomment as linecommentmod, comparesplit as comparesplitmod, xout as xoutmod, ratquote as ratquotemod, extlive as extlivemod, callchips as callchipsmod, treepick as treepickmod, scratchrun as scratchrunmod  # Batch 25: one shared line keeps cards.py under AREA_CAP
 from . import parsons as parsonsmod
 
 
@@ -204,7 +204,7 @@ def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:
         body = (f"<input name='answer' size='50' placeholder='Your answer'> "
                 f"{_confidence()}<button>Submit</button>")
     from . import sigslots as sigslotsmod
-    body = sigslotsmod.enhance(card, body)
+    body = scratchrunmod.enhance(card, cid, sigslotsmod.enhance(card, body))
     giveup = (f"<form method='post' action='/cards/{cid}/review'>"
               f"<input type='hidden' name='answer' value=''>"
               f"<input type='hidden' name='confidence' value='1'>"
