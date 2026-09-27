@@ -362,6 +362,23 @@ AREAS = {
     "onboard": "onboard.py",
     "rabbithole": "rabbithole.py",
     "batch25": "batch25.py",
+    "extlive": "extlive.py",
+    "specsplit": "specsplit.py",
+    "behavdiff": "behavdiff.py",
+    "callchips": "callchips.py",
+    "blastgraph": "blastgraph.py",
+    "xout": "xout.py",
+    "ratquote": "ratquote.py",
+    "cardflip": "cardflip.py",
+    "whysee": "whysee.py",
+    "optout": "optout.py",
+    "plain": "plain.py",
+    "kids": "kids.py",
+    "calmjoy": "calmjoy.py",
+    "plaincopy": "plaincopy.py",
+    "thanks": "thanks.py",
+    "freeedu": "freeedu.py",
+    "batch26": "batch26.py",
 }
 
 

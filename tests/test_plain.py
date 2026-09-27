@@ -233,7 +233,8 @@ class PlainShapeTest(unittest.TestCase):
         self.assertEqual(
             set(e), {"id", "kind", "title", "blurb", "path", "anchor"})
         self.assertEqual(e["kind"], "feature")
-        self.assertEqual(e["anchor"], plainmod.NOTICE_ANCHOR)
+        self.assertEqual(e["path"], "/due")
+        self.assertEqual(e["anchor"], plainmod.TOGGLE_ANCHOR)
 
     def test_section_anchor(self):
         self.assertIn(f"id='{plainmod.STATUS_ANCHOR}'",

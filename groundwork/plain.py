@@ -292,6 +292,6 @@ def tour_entry() -> dict:
         "blurb": ("Zero gamification with one flag - ?plain=1 strips badges, "
                   "celebrations, gardens and quests while grades and "
                   "schedule stay identical."),
-        "path": "/due?plain=1",
-        "anchor": NOTICE_ANCHOR,
+        "path": "/due",
+        "anchor": TOGGLE_ANCHOR,
     }
