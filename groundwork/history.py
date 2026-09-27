@@ -26,7 +26,7 @@ from . import milestones as milestonesmod, teachcert as teachcertmod  # lean joi
 from . import northstar as northstarmod, wagers as wagersmod  # F-128: live settlement data + ledger
 from . import showcase as showcasemod
 from . import teamchallenge as teamchallengemod
-from . import seasonevent as seasoneventmod
+from . import seasonevent as seasoneventmod, calmjoy as calmjoymod  # F-142: calm twin
 from . import anniversary as anniversarymod
 from . import shipconf as shipconfmod
 from . import themeunlock as themeunlockmod
@@ -163,7 +163,7 @@ def history_html(db_path: str, query=None) -> str:
              (growringsmod.section_html(db_path) if optoutmod.show(opt, "rings") else ""),
              (knowngardenmod.section_html(db_path) if optoutmod.show(opt, "garden") else ""),
              timeledgermod.section_html(db_path),
-             (milestonesmod.section_html(db_path) if optoutmod.show(opt, "milestones") else ""),
+             (milestonesmod.section_html(db_path) if optoutmod.show(opt, "milestones") else "") + calmjoymod.block_html(db_path, query),
              (sharecardsmod.section_html(db_path) if optoutmod.show(opt, "share") else ""),
              learnresumemod.section_html(db_path),
              endorsemod.section_html(db_path),
