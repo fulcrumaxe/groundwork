@@ -120,7 +120,7 @@ from . import scrollbar as scrollbarmod
 from . import scrollpos as scrollposmod
 from . import search as searchmod
 from . import selection as selectionmod
-from . import serendipity as sermod, partytrick as partytrickmod  # one line keeps web.py at WEB_CEILING
+from . import serendipity as sermod, partytrick as partytrickmod, optout as optoutmod  # one line keeps web.py at WEB_CEILING
 from . import session as sessionmod
 from . import shelf as shelfmod, showcase as showcasemod  # one line keeps web.py at WEB_CEILING
 from . import shortcuts as shortcutsmod
@@ -452,6 +452,8 @@ class Handler(BaseHTTPRequestHandler):
     def _send(self, data: bytes, code: int = 200, ctype: str = "text/html"):
         if ctype == "text/html" and getattr(self, "_level", "auto") != "auto":
             data = levelcarrymod.carry_html(data.decode(), self._level).encode()
+        if ctype == "text/html" and getattr(self, "_optout", ""):
+            data = optoutmod.carry_html(data.decode(), self._optout).encode()
         if ctype == "text/html" and getattr(self, "_plain", "") == "1":
             data = plainmod.strip_html(plainmod.carry_html(data.decode(), "1"), "1", getattr(self, "_plain_exit", "/")).encode()
         self.send_response(code)
@@ -486,6 +488,7 @@ class Handler(BaseHTTPRequestHandler):
         self._level = level
         self._plain = plainmod.normalize(query.get("plain", [""])[0])
         self._plain_exit = plainmod.exit_href(self.path)
+        self._optout = optoutmod.normalize(query)
         order = flipmod.normalize_order(query.get("order", ["definition"])[0])
         try:
             replay_step = int(query.get("replay", [""])[0])
@@ -507,7 +510,7 @@ class Handler(BaseHTTPRequestHandler):
             one, cold = mode == "one", mode == "cold"
             dial = query.get("dial", [""])[0] or None
             resume_key = query.get("resume", [""])[0]
-            self._send(page("Due", self.due_html(level, one, resume_key, dial, cold, mode, order, replay_step, query.get("buddy", [])),
+            self._send(page("Due", self.due_html(level, one, resume_key, dial, cold, mode, order, replay_step, query.get("buddy", []), self._optout),
                             active="due", page_id="due",
                             lede="What to practice next — your spaced queue, one card at a time.",
                             counts=counts, tour=tour_ctx))
@@ -680,7 +683,7 @@ class Handler(BaseHTTPRequestHandler):
     def due_html(self, level: str = "auto", one: bool = False,
                  resume_key: str = "", dial=None, cold: bool = False,
                  mode: str = "", order: str = "definition",
-                 replay_step=None, buddies=()) -> str:
+                 replay_step=None, buddies=(), optout: str = "") -> str:
         server = mcplib.MCPServer(self.db_path)
         due = server.tool_list_due_reviews({"limit": 20})["due"]
         due = resumemod.session_cards(due, resume_key or "")
@@ -727,12 +730,13 @@ class Handler(BaseHTTPRequestHandler):
             forgetcurvemod.clean_attempts(fc_rows))
         due = minisessionmod.apply_dial(due, dial, tries, decay=decay)
         due = forgetcurvemod.order_due(due, decay)
-        parts = [coopmod.split_html(due, buddies) + comebackmod.comeback_box_html(rows=[{"name": r[0], "reviewed_at": r[1]} for r in first_rows]) + digestmod.section_html(self.db_path),
+        opt = optoutmod.parse(optout)
+        parts = [coopmod.split_html(due, buddies) + (comebackmod.comeback_box_html(rows=[{"name": r[0], "reviewed_at": r[1]} for r in first_rows]) if optoutmod.show(opt, "comeback") else "") + digestmod.section_html(self.db_path) + optoutmod.toggle_box_html(opt, "/due"),
                  # F-92: peak-recall banner; "" below threshold.
-                 peaktimemod.banner_html(peak_rows),
+                 (peaktimemod.banner_html(peak_rows) if optoutmod.show(opt, "peak") else ""),
                  recentmod.strip_html(),
                  minisessionmod.session_box_html(due, recent=[r["grade"] for r in cal_rows], tried=tries, flow_attempts=flowdetectmod.attempts_with_pace(flow_rows)),
-                 minisessionmod.dial_box(dial, mode) + mascotmod.line_html(self.db_path),
+                 minisessionmod.dial_box(dial, mode) + (mascotmod.line_html(self.db_path) if optoutmod.show(opt, "mascot") else ""),
                  resumemod.resume_box_html(resume_key or "", len(due)) + focustimermod.timer_html(due) + playlistsmod.playlist_html(due, recent=[r["grade"] for r in cal_rows], tried=tries),
                  reteachmod.reteach_box_html(reteachmod.pick_reteach(
                      reteachmod.first_attempts(first_rows)))]
@@ -745,11 +749,11 @@ class Handler(BaseHTTPRequestHandler):
         else:
             parts.append("<p><a id='one-card' href='/due?mode=one'>"
                          "Just one card</a> for low-energy days.</p>")
-        parts.append(sermod.section_html(self.db_path) + partytrickmod.section_html(self.db_path) + interviewprepmod.track_html(prows, due))
+        parts.append((sermod.section_html(self.db_path) if optoutmod.show(opt, "serendipity") else "") + (partytrickmod.section_html(self.db_path) if optoutmod.show(opt, "party") else "") + interviewprepmod.track_html(prows, due))
         if not due:
             stats = self._hero_stats()
-            parts.append(doneheromod.done_hero_html(
-                stats["answered"], stats["accuracy"], stats["next_due"]) + restdaymod.restday_html(0, restdaymod.idle_days_from_rows(peak_rows)))
+            parts.append((doneheromod.done_hero_html(
+                stats["answered"], stats["accuracy"], stats["next_due"]) if optoutmod.show(opt, "hero") else "") + (restdaymod.restday_html(0, restdaymod.idle_days_from_rows(peak_rows)) if optoutmod.show(opt, "rest") else ""))
         grouped = qmod.groups(self.db_path, due)
         n = 0
         for gi, g in enumerate(grouped):

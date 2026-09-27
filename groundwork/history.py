@@ -33,6 +33,7 @@ from . import themeunlock as themeunlockmod
 from . import endorse as endorsemod
 from . import learnresume as learnresumemod
 from . import overconf as overconfmod
+from . import optout as optoutmod
 from . import sharecards as sharecardsmod
 from . import ownhead as ownheadmod
 from . import ownership as ownmod
@@ -157,18 +158,19 @@ def history_html(db_path: str, query=None) -> str:
         delayed = None
     ledger = wagersmod.settle_all(wagersmod.wagers_from_query(query),
                                   latest, delayed)
-    parts = [ownheadmod.headline_html(db_path) + shipconfmod.meter_html(db_path) + avatarmod.box_html(db_path),
-             growringsmod.section_html(db_path),
-             knowngardenmod.section_html(db_path),
+    opt = optoutmod.parse(query)
+    parts = [ownheadmod.headline_html(db_path) + shipconfmod.meter_html(db_path) + avatarmod.box_html(db_path) + optoutmod.toggle_box_html(opt, "/reviews"),
+             (growringsmod.section_html(db_path) if optoutmod.show(opt, "rings") else ""),
+             (knowngardenmod.section_html(db_path) if optoutmod.show(opt, "garden") else ""),
              timeledgermod.section_html(db_path),
-             milestonesmod.section_html(db_path),
-             sharecardsmod.section_html(db_path),
+             (milestonesmod.section_html(db_path) if optoutmod.show(opt, "milestones") else ""),
+             (sharecardsmod.section_html(db_path) if optoutmod.show(opt, "share") else ""),
              learnresumemod.section_html(db_path),
              endorsemod.section_html(db_path),
              teachcertmod.section_html(db_path),
-             showcasemod.gallery_html(db_path),
-             themeunlockmod.gallery_html(db_path),
-             weekdigestmod.block_html(db_path) + teamchallengemod.section_html(db_path) + seasoneventmod.section_html(db_path) + anniversarymod.block_html(db_path)]
+             (showcasemod.gallery_html(db_path) if optoutmod.show(opt, "showcase") else ""),
+             (themeunlockmod.gallery_html(db_path) if optoutmod.show(opt, "unlocks") else ""),
+             (weekdigestmod.block_html(db_path) if optoutmod.show(opt, "weekdigest") else "") + (teamchallengemod.section_html(db_path) if optoutmod.show(opt, "challenge") else "") + (seasoneventmod.section_html(db_path) if optoutmod.show(opt, "season") else "") + (anniversarymod.block_html(db_path) if optoutmod.show(opt, "anniversary") else "")]
     if cal and cal["n"]:
         acc = (cal["g"] or 0) / 5.0
         conf = ((cal["c"] or 3) - 1) / 4.0
@@ -216,9 +218,9 @@ def history_html(db_path: str, query=None) -> str:
                      "<p>No attempts yet. Answer a card on the "
                      "<a href='/due'>Due</a> page and it will show up here.</p>")
         parts.append(monthmod.section_html(db_path))
-        parts.append(antistreakmod.history_section(db_path))
+        parts.append(antistreakmod.history_section(db_path) if optoutmod.show(opt, "pledge") else "")
         parts.append(undomod.section_html(db_path))
-        parts.append(bestsmod.section_html(db_path))
+        parts.append(bestsmod.section_html(db_path) if optoutmod.show(opt, "bests") else "")
         parts.append(wagersmod.section_html(ledger))
         return "".join(parts)
     if days:
@@ -239,9 +241,9 @@ def history_html(db_path: str, query=None) -> str:
             f"({acc}) — your weekly review ritual: wins, weak spots, "
             f"next week on the <a href='/due'>Due</a> queue.</p>")
         parts.append(monthmod.section_html(db_path))
-        parts.append(antistreakmod.history_section(db_path))
+        parts.append(antistreakmod.history_section(db_path) if optoutmod.show(opt, "pledge") else "")
         parts.append(undomod.section_html(db_path))
-        parts.append(bestsmod.section_html(db_path))
+        parts.append(bestsmod.section_html(db_path) if optoutmod.show(opt, "bests") else "")
         parts.append(wagersmod.section_html(ledger))
     parts.append("<h2 id='attempts'>Attempts</h2>"
                      "<p id='timestamps'><small>Relative times "
