@@ -510,7 +510,7 @@ class Handler(BaseHTTPRequestHandler):
             one, cold = mode == "one", mode == "cold"
             dial = query.get("dial", [""])[0] or None
             resume_key = query.get("resume", [""])[0]
-            self._send(page("Due", self.due_html(level, one, resume_key, dial, cold, mode, order, replay_step, query.get("buddy", []), self._optout),
+            self._send(page("Due", self.due_html(level, one, resume_key, dial, cold, mode, order, replay_step, query.get("buddy", []), self._optout, self._plain),
                             active="due", page_id="due",
                             lede="What to practice next — your spaced queue, one card at a time.",
                             counts=counts, tour=tour_ctx))
@@ -683,7 +683,7 @@ class Handler(BaseHTTPRequestHandler):
     def due_html(self, level: str = "auto", one: bool = False,
                  resume_key: str = "", dial=None, cold: bool = False,
                  mode: str = "", order: str = "definition",
-                 replay_step=None, buddies=(), optout: str = "") -> str:
+                 replay_step=None, buddies=(), optout: str = "", plain: str = "") -> str:
         server = mcplib.MCPServer(self.db_path)
         due = server.tool_list_due_reviews({"limit": 20})["due"]
         due = resumemod.session_cards(due, resume_key or "")
@@ -739,7 +739,7 @@ class Handler(BaseHTTPRequestHandler):
                  minisessionmod.dial_box(dial, mode) + (mascotmod.line_html(self.db_path) if optoutmod.show(opt, "mascot") else ""),
                  resumemod.resume_box_html(resume_key or "", len(due)) + focustimermod.timer_html(due) + playlistsmod.playlist_html(due, recent=[r["grade"] for r in cal_rows], tried=tries),
                  reteachmod.reteach_box_html(reteachmod.pick_reteach(
-                     reteachmod.first_attempts(first_rows)))]
+                     reteachmod.first_attempts(first_rows))) + (plainmod.toggle_link_html("/due") if plain != "1" else "")]
         if cold:
             return "<div id='queue'>" + "".join(parts[:2] + [minisessionmod.cold_box(crows, {c["concept_id"] for c in due})] + ["<p><a href='/due'>Full queue</a></p>"]) + "</div>"
         if one and due:

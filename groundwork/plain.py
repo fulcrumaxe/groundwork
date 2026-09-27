@@ -21,6 +21,7 @@ ON = "1"
 OFF = ""
 STATUS_ANCHOR = "status-b26-plain"
 NOTICE_ANCHOR = "plain-mode"
+TOGGLE_ANCHOR = "plain-toggle"
 MAIN_OPEN = "<main id='main'>"
 
 #: Human labels for every stripped decoration (Due, module, History).
@@ -123,6 +124,17 @@ def notice_html(exit="/") -> str:
 def gate(block, plain: str):
     """A decoration block, kept normally and dropped in plain mode."""
     return "" if is_plain(plain) else block
+
+
+def toggle_link_html(entry: str = "/due") -> str:
+    """Entry link into plain mode (the tour target); never raises."""
+    try:
+        dest = entry if isinstance(entry, str) and entry else "/due"
+        href = html.escape(carry(dest, ON), quote=True)
+        return (f"<p id='{TOGGLE_ANCHOR}'><small>Prefer lists only? "
+                f"<a href='{href}'>Plain mode</a></small></p>")
+    except Exception:  # noqa: BLE001 -- entry link never raises
+        return ""
 
 
 def _pattern_list() -> list:

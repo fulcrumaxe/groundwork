@@ -218,6 +218,15 @@ class PlainEffectTest(unittest.TestCase):
                          [c["front"] for c in q2])
 
 
+    def test_due_page_offers_plain_entry_link(self):
+        _t, db, _s, _o = make_module("plain entry mod")
+        off = handler_for(db).due_html()
+        self.assertIn("id='plain-toggle'", off)
+        self.assertIn("/due?plain=1", off)
+        on = handler_for(db).due_html(plain="1")
+        self.assertNotIn("id='plain-toggle'", on)
+
+
 class PlainShapeTest(unittest.TestCase):
     def test_tour_entry_shape(self):
         e = plainmod.tour_entry()
