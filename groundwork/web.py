@@ -96,7 +96,7 @@ from . import pageicon as pageiconmod
 from . import pager as pagermod
 from . import palette as palettemod
 from . import peaktime as peaktimemod
-from . import pressfx as pressfxmod
+from . import pressfx as pressfxmod, plain as plainmod  # F-140: plain-mode strip (same-line join)
 from . import queries as quemod
 from . import radius as radiusmod
 from . import queue as qmod
@@ -452,6 +452,8 @@ class Handler(BaseHTTPRequestHandler):
     def _send(self, data: bytes, code: int = 200, ctype: str = "text/html"):
         if ctype == "text/html" and getattr(self, "_level", "auto") != "auto":
             data = levelcarrymod.carry_html(data.decode(), self._level).encode()
+        if ctype == "text/html" and getattr(self, "_plain", "") == "1":
+            data = plainmod.strip_html(plainmod.carry_html(data.decode(), "1"), "1", getattr(self, "_plain_exit", "/")).encode()
         self.send_response(code)
         self.send_header("Content-Type", ctype)
         self.send_header("Content-Length", str(len(data)))
@@ -482,6 +484,8 @@ class Handler(BaseHTTPRequestHandler):
         query = parse_qs(url.query)
         level = levelcarrymod.normalize(query.get("level", ["auto"])[0])
         self._level = level
+        self._plain = plainmod.normalize(query.get("plain", [""])[0])
+        self._plain_exit = plainmod.exit_href(self.path)
         order = flipmod.normalize_order(query.get("order", ["definition"])[0])
         try:
             replay_step = int(query.get("replay", [""])[0])
