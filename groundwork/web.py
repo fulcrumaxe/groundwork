@@ -52,7 +52,7 @@ from . import dyslexia as dyslexiamod
 from . import diagrams as diagramsmod
 from . import diagnose as diamod
 from . import diff as diffmod
-from . import digest as digestmod, diffvote as diffvotemod  # one line keeps web.py at WEB_CEILING
+from . import digest as digestmod, diffvote as diffvotemod, officehours as officehoursmod  # one line keeps web.py at WEB_CEILING
 from . import disputes as dismod
 from . import donehero as doneheromod
 from . import emoji as emojimod, parsons as parsonsmod, parkeys as parkeysmod, comparesplit as comparesplitmod, specsplit as specsplitmod, cardflip as cardflipmod  # one line keeps web.py at WEB_CEILING
@@ -737,7 +737,7 @@ class Handler(BaseHTTPRequestHandler):
         due = minisessionmod.apply_dial(due, dial, tries, decay=decay)
         due = forgetcurvemod.order_due(due, decay)
         opt = optoutmod.parse(optout)
-        parts = [pack_banner + coopmod.split_html(due, buddies) + (comebackmod.comeback_box_html(rows=[{"name": r[0], "reviewed_at": r[1]} for r in first_rows]) if optoutmod.show(opt, "comeback") else "") + digestmod.section_html(self.db_path) + optoutmod.toggle_box_html(opt, "/due"),
+        parts = [pack_banner + coopmod.split_html(due, buddies) + (comebackmod.comeback_box_html(rows=[{"name": r[0], "reviewed_at": r[1]} for r in first_rows]) if optoutmod.show(opt, "comeback") else "") + digestmod.section_html(self.db_path) + optoutmod.toggle_box_html(opt, "/due") + officehoursmod.bring_html(self.db_path),
                  # F-92: peak-recall banner; "" below threshold.
                  (peaktimemod.banner_html(peak_rows) if optoutmod.show(opt, "peak") else ""),
                  recentmod.strip_html(),
