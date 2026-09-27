@@ -119,7 +119,7 @@ from . import sched as schedmod
 from . import scrollbar as scrollbarmod
 from . import scrollpos as scrollposmod
 from . import search as searchmod
-from . import selection as selectionmod, selfassign as selfassignmod, curricmap as curricmapmod
+from . import selection as selectionmod, selfassign as selfassignmod, curricmap as curricmapmod, syllabus as syllabusmod
 from . import serendipity as sermod, partytrick as partytrickmod, optout as optoutmod  # one line keeps web.py at WEB_CEILING
 from . import session as sessionmod
 from . import shelf as shelfmod, showcase as showcasemod  # one line keeps web.py at WEB_CEILING
@@ -510,8 +510,8 @@ class Handler(BaseHTTPRequestHandler):
             one, cold = mode == "one", mode == "cold"
             dial = query.get("dial", [""])[0] or None
             resume_key = query.get("resume", [""])[0]
-            scope = query.get("scope", [""])[0]
-            self._send(page("Due", self.due_html(level, one, resume_key, dial, cold, mode, order, replay_step, query.get("buddy", []), self._optout, self._plain, scope=scope),
+            scope = query.get("scope", [""])[0]; syllabus = query.get("syllabus", [""])[0]
+            self._send(page("Due", self.due_html(level, one, resume_key, dial, cold, mode, order, replay_step, query.get("buddy", []), self._optout, self._plain, scope=scope, syllabus=syllabus),
                             active="due", page_id="due",
                             lede="What to practice next — your spaced queue, one card at a time.",
                             counts=counts, tour=tour_ctx))
@@ -687,11 +687,11 @@ class Handler(BaseHTTPRequestHandler):
                  resume_key: str = "", dial=None, cold: bool = False,
                  mode: str = "", order: str = "definition",
                  replay_step=None, buddies=(), optout: str = "", plain: str = "",
-                 scope: str = "") -> str:
+                 scope: str = "", syllabus: str = "") -> str:
         server = mcplib.MCPServer(self.db_path)
         due = server.tool_list_due_reviews({"limit": 20})["due"]
-        due = ramppackmod.scope_due(self.db_path, due, scope)
-        pack_banner = ramppackmod.pack_html(self.db_path, scope, due)
+        due = syllabusmod.gate_due(self.db_path, ramppackmod.scope_due(self.db_path, due, scope), syllabus)
+        pack_banner = ramppackmod.pack_html(self.db_path, scope, due) + syllabusmod.banner_html(self.db_path, syllabus)
         due = resumemod.session_cards(due, resume_key or "")
         con2 = self._con()
         try:
