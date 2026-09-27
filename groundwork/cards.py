@@ -8,7 +8,7 @@ from __future__ import annotations
 import html
 import json
 
-from . import codeedit as codeeditmod
+from . import codeedit as codeeditmod, specsplit as specsplitmod  # Batch 26 I-171: rebuild spec split
 from . import runkey as runkeymod
 from . import sandout as sandoutmod
 from . import confslider as confslidermod
@@ -187,7 +187,10 @@ def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:
         pcc = parcheckmod.check_html(cid, p.get("lines", []), p.get("solution", []))
         body = (fig + parkeysmod.block_html(cid, p.get("lines", [])) + pcc
                 + f"{_confidence()}<button>Check order</button>{PARSONS_JS}{parkeysmod.parkeys_js()}{parcheckmod.check_js() if pcc else ''}")
-    elif etype in ("12", "14", "19", "20", "23"):
+    elif etype == "23":
+        # I-171: spec pane beside the editor; same field, same grade.
+        body = specsplitmod.branch_html(card, p, cid)
+    elif etype in ("12", "14", "19", "20"):
         # I-154/I-155: editor + visible Run button; same field, same grade.
         body = (codeeditmod.editor_html() + runkeymod.hint_html() + "<br>"
                 f"{_confidence()}" + runkeymod.run_button_html()
