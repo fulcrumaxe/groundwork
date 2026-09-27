@@ -97,11 +97,12 @@ def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:
         from . import cardflip as cardflipmod
         body = cardflipmod.branch_html(card, cid)
     elif etype == "2":
+        from . import clozein as clozeinmod
         blanks = p.get("blanks") or [{"id": 0, "answers": p.get("answers", [])}]
         fields = " ".join(
             f"<label>___({b['id']}) <input name='b{b['id']}' size='12'></label>"
             for b in blanks)
-        body = f"{fields} {_confidence()}<button>Check blanks</button>"
+        body = clozeinmod.enhance(p, f"{fields} {_confidence()}<button>Check blanks</button>", _confidence())
     elif etype in ("4", "7", "18"):
         btns = " ".join(
             f"<button name='answer' value='{html.escape(c)}'>{html.escape(c)}</button>"
