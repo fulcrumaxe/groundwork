@@ -100,7 +100,7 @@ from . import pressfx as pressfxmod, plain as plainmod  # F-140: plain-mode stri
 from . import queries as quemod
 from . import radius as radiusmod
 from . import queue as qmod
-from . import quests as questsmod
+from . import quests as questsmod, thanks as thanksmod  # F-144: thank-the-author box (same-line join)
 from . import readgroup as readgroupmod
 from . import realfile as realfilemod
 from . import regenstat as regenstatmod
@@ -1095,7 +1095,7 @@ class Handler(BaseHTTPRequestHandler):
             parts.append(
                 f"<div class='bar' role='img' aria-label='{owned_n} of "
                 f"{len(concepts)} concepts owned'><i style='width:{pct}%'></i></div>"
-                f"<p><small>{owned_n}/{len(concepts)} concepts owned</small></p>" + buddypingmod.ping_html(buddies, owned_n, len(concepts)))
+                f"<p><small>{owned_n}/{len(concepts)} concepts owned</small></p>" + buddypingmod.ping_html(buddies, owned_n, len(concepts)) + thanksmod.thanks_box_html(dict(m)))
         parts.append(questsmod.skills_view(concepts, lesson_map, mastery_of))
         parts.append(onboardmod.countdown_box_html(lessons=list(lesson_map.values()), owned=owned, rows=history))
         parts.append(classquestsmod.quest_html(quest_spec, [r["name"] for r in concepts if owned.get(r["cid"], (0, False))[1]], mastery_of))
