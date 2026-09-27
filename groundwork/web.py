@@ -89,7 +89,7 @@ from . import modules as modmod
 from . import motion as motionmod
 from . import ogtags as ogtagsmod
 from . import optimistic as optimisticmod, outdiff as outdiffmod  # Batch 24 I-157: diff CSS join keeps web.py at WEB_CEILING
-from . import onboard as onboardmod
+from . import onboard as onboardmod, layerpath as layerpathmod
 from . import ownbanner as ownbannermod
 from . import ownership as ownmod
 from . import pageicon as pageiconmod
@@ -1098,6 +1098,7 @@ class Handler(BaseHTTPRequestHandler):
                 f"<p><small>{owned_n}/{len(concepts)} concepts owned</small></p>" + buddypingmod.ping_html(buddies, owned_n, len(concepts)) + thanksmod.thanks_box_html(dict(m)))
         parts.append(questsmod.skills_view(concepts, lesson_map, mastery_of))
         parts.append(onboardmod.countdown_box_html(lessons=list(lesson_map.values()), owned=owned, rows=history))
+        parts.append(layerpathmod.starthere_html(lesson_map, owned))
         parts.append(classquestsmod.quest_html(quest_spec, [r["name"] for r in concepts if owned.get(r["cid"], (0, False))[1]], mastery_of))
         practice_tagged = False
         dec_nodes = [r["cid"].split(":", 1)[1] if ":" in r["cid"] else r["cid"]
