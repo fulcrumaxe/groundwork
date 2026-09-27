@@ -22,7 +22,7 @@ from . import knowngarden as knowngardenmod
 from . import timeledger as timeledgermod
 from . import verdicts as verdictsmod
 from . import monthreview as monthmod
-from . import milestones as milestonesmod, teachcert as teachcertmod, certhash as certhashmod  # lean join: one import line
+from . import milestones as milestonesmod, teachcert as teachcertmod, certhash as certhashmod, openbadge as openbadgemod  # lean join: one import line
 from . import northstar as northstarmod, wagers as wagersmod  # F-128: live settlement data + ledger
 from . import showcase as showcasemod
 from . import teamchallenge as teamchallengemod
@@ -174,7 +174,7 @@ def history_html(db_path: str, query=None) -> str:
              (sharecardsmod.section_html(db_path) if optoutmod.show(opt, "share") else ""),
              learnresumemod.section_html(db_path),
              endorsemod.section_html(db_path),
-             teachcertmod.section_html(db_path) + certhashmod.section_html(db_path, query),
+             teachcertmod.section_html(db_path) + certhashmod.section_html(db_path, query) + openbadgemod.section_html(db_path),
              (showcasemod.gallery_html(db_path) if optoutmod.show(opt, "showcase") else ""),
              (themeunlockmod.gallery_html(db_path) if optoutmod.show(opt, "unlocks") else ""),
              (weekdigestmod.block_html(db_path) if optoutmod.show(opt, "weekdigest") else "") + (teamchallengemod.section_html(db_path) if optoutmod.show(opt, "challenge") else "") + plaincopymod.apply((seasoneventmod.section_html(db_path) if optoutmod.show(opt, "season") else "") + (anniversarymod.block_html(db_path) if optoutmod.show(opt, "anniversary") else ""), tone)]
