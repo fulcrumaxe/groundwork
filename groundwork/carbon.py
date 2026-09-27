@@ -60,9 +60,24 @@ def note_for(counts) -> dict:
     return {"reviews": n, "cloud_calls": 0, "line": line}
 
 
+def _readable(db_path) -> bool:
+    """True when the reviews table answers; False otherwise."""
+    try:
+        con = dbmod.connect(db_path)
+        try:
+            con.execute("SELECT 1 FROM reviews LIMIT 1").fetchone()
+        finally:
+            con.close()
+        return True
+    except Exception:  # noqa: BLE001 -- unreadable reads False
+        return False
+
+
 def section_html(db_path) -> str:
     """History-page carbon note; "" when the DB is unreadable."""
     try:
+        if not _readable(db_path):
+            return ""
         note = note_for(counts(db_path))
         return (
             f"<h2 id='{BOX_ANCHOR}'>Carbon note</h2>"
