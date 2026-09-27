@@ -94,15 +94,8 @@ def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:
     open_form = (f"<form method='post' action='/cards/{cid}/review'>"
                  f"<input type='hidden' name='origin' value='{html.escape(origin, quote=True)}'>")
     if etype == "1":
-        opts = "".join(f"<option value='{i}'>{i} — {w}</option>"
-                       for i, w in enumerate(
-                           ["blank", "wrong", "shaky", "close", "right", "easy"]))
-        body = (f"<label>Say it back in your own words first "
-                f"(optional, this is the recall):<br>"
-                f"<textarea name='recall' rows='3' cols='60'></textarea></label><br>"
-                f"<label>Then rate how well you recalled it: "
-                f"<select name='answer'>{opts}</select></label> "
-                f"{_confidence()}<button>Submit rating</button>")
+        from . import cardflip as cardflipmod
+        body = cardflipmod.branch_html(card, cid)
     elif etype == "2":
         blanks = p.get("blanks") or [{"id": 0, "answers": p.get("answers", [])}]
         fields = " ".join(
