@@ -119,7 +119,7 @@ from . import sched as schedmod
 from . import scrollbar as scrollbarmod
 from . import scrollpos as scrollposmod
 from . import search as searchmod
-from . import selection as selectionmod, selfassign as selfassignmod
+from . import selection as selectionmod, selfassign as selfassignmod, curricmap as curricmapmod
 from . import serendipity as sermod, partytrick as partytrickmod, optout as optoutmod  # one line keeps web.py at WEB_CEILING
 from . import session as sessionmod
 from . import shelf as shelfmod, showcase as showcasemod  # one line keeps web.py at WEB_CEILING
@@ -527,7 +527,7 @@ class Handler(BaseHTTPRequestHandler):
             page_num = query.get("page", ["1"])[0]
             lede = (f"Modules in {repo} — pick one and study it." if repo
                     else "Every agent session as a lesson — pick one and study it.")
-            self._send(page("Modules", self.modules_html(repo, sort, status, page_num),
+            self._send(page("Modules", self.modules_html(repo, sort, status, page_num, query.get("curriculum", [""])[0]),
                             active="modules", page_id="modules",
                             lede=lede, counts=counts, tour=tour_ctx))
         elif url.path == "/debt":
@@ -919,7 +919,7 @@ class Handler(BaseHTTPRequestHandler):
         return "".join(parts)
 
     def modules_html(self, repo: str = "", sort: str = "newest",
-                     status: str = "all", page=1) -> str:
+                     status: str = "all", page=1, curriculum: str = "") -> str:
         """The library: every MCP session as a module card with progress."""
         if sort not in ("newest", "oldest"):
             sort = "newest"
@@ -986,7 +986,7 @@ class Handler(BaseHTTPRequestHandler):
             keep_params["sort"] = sort
         if status != "all":
             keep_params["status"] = status
-        parts.append("<div id='library'>")
+        parts.append(curricmapmod.matrix_html(self.db_path, curriculum) + "<div id='library'>")
         if not shown:
             parts.append("<p>No modules with this status yet.</p>")
         for mi, (m, stats, omap, order, owned_n, total, stale) in enumerate(info["items"]):
