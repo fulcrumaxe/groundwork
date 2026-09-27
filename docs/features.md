@@ -184,6 +184,12 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | Plain milestone copy | Milestone praise in plain factual words - ?tone=plain restates the wordplay. | `/status#status-b26-plaincopy` |
 | Thank the author | Copy a ready-made thank-you note for the pack author - Groundwork sends nothing itself. | `/modules/&lt;id&gt;#thanks` |
 | Free forever for learners | History page spotlights the AGPL-3.0 freedoms for learners: run, study, share - every line backed by the live LICENSE file. | `/status#status-b26-freeedu` |
+| Carbon note | History page shows your review count graded on this device with zero cloud GPU calls - local-first, quantified from your own data. | `/reviews#carbon` |
+| Layered onboarding path | Newcomers get a Start-here study path grouped by week: foundations first, then their dependents, computed from your own module graph. | `/status#status-b27-layerpath` |
+| Handoff packs | Leaving? Export your owned-concepts map plus proofs as one file your successor imports with the existing import-module path -- progress transfers, private reviews stay behind. | `/reviews#handoff` |
+| Interview loop | A study plan from your weakest modules plus a proof report from your own attempts -- interview-ready, honestly scoped. | `/reviews#interview-loop` |
+| Contractor ramp packs | Study only your work area: a scoped Due queue with scoped progress for ramping on one subsystem. | `/status#status-b27-ramppack` |
+| Self-assigned study plans | Pick your repo scope, concept set, and due date -- completion tracked from your own owned proofs, never ranked. | `/status#status-b27-selfassign` |
 
 ## Improvements
 
@@ -362,6 +368,13 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | Odd-one-out elimination | Rule out odd-one-out choices with strike-through before committing - paint only, grading untouched. | `/status#status-b26-xout` |
 | Decision quote beside rationale choices | Type-7 cards quote the recorded chose-X-over-Y context beside the choice buttons. | `/status#status-b26-ratquote` |
 | Flashcard flip | Flashcards turn from recall to self-rate like a card in your hand -- still and stacked for reduced-motion users. | `/status#status-b26-cardflip` |
+| Inline cloze blanks in code | Cloze blanks render as inputs inside the code itself, so you fill them with context in view instead of detached fields. | `/status#status-b27-clozein` |
+| Signature skeleton with per-param ticks | Signature cards show each parameter as its own slot that ticks as you type it - advisory, grading unchanged. | `/status#status-b27-sigslots` |
+| Where-live tree picker | Where-live cards with many files answer from a directory-grouped tree picker instead of a wall of buttons. | `/status#status-b27-treepick` |
+| Reference runtime | After a code card grades, the result shows the measured reference runtime in ms -- calibrate your pace. | `/status#status-b27-refms` |
+| Timeout feedback: loop or slow? | Timed-out code says whether it looks stuck in a loop or just slow -- from measured output, never guessed. | `/status#status-b27-timefb` |
+| Sandbox errors in plain language | Failed run? One plain sentence says what the error means and where to look. | `/status#status-b27-errplain` |
+| Run without submitting | Code cards gain a scratch run: execute the draft, see the output, record nothing. | `/status#status-b27-scratchrun` |
 
 ## The original loop
 
