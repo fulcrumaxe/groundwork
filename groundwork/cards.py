@@ -13,7 +13,7 @@ from . import runkey as runkeymod
 from . import sandout as sandoutmod
 from . import confslider as confslidermod
 from . import hinttiers as hinttiersmod
-from . import parkeys as parkeysmod, parcheck as parcheckmod, matchpair as matchpairmod, tracetable as tracetablemod, predtry as predtrymod, rubriclive as rubriclivemod, linecomment as linecommentmod, comparesplit as comparesplitmod, xout as xoutmod  # Batch 25: one shared line keeps cards.py under AREA_CAP
+from . import parkeys as parkeysmod, parcheck as parcheckmod, matchpair as matchpairmod, tracetable as tracetablemod, predtry as predtrymod, rubriclive as rubriclivemod, linecomment as linecommentmod, comparesplit as comparesplitmod, xout as xoutmod, ratquote as ratquotemod  # Batch 25: one shared line keeps cards.py under AREA_CAP
 from . import parsons as parsonsmod
 
 
@@ -113,7 +113,7 @@ def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:
         btns = " ".join(
             f"<button name='answer' value='{html.escape(c)}'>{html.escape(c)}</button>"
             for c in p.get("choices", []))
-        body = f"{btns} {_confidence()}" + (xoutmod.elim_html(card) if etype == "18" else "")
+        body = f"{btns} {_confidence()}" + (xoutmod.elim_html(card) if etype == "18" else "") + (ratquotemod.quote_html(card) if etype == "7" else "")
     elif etype == "16":
         from . import blastgraph as blastgraphmod
         body = blastgraphmod.branch_html(card, p, cid)
