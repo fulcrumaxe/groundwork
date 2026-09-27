@@ -13,6 +13,8 @@ from __future__ import annotations
 import html
 import random
 
+from . import whysee as whyseemod
+
 STATUS_ANCHOR = "partytrick"
 
 
@@ -55,6 +57,19 @@ def pick(db_path: str, seed=None) -> dict | None:
         return None
 
 
+def _owned_count(db_path: str) -> int:
+    """Owned-concept count for the why-note; 0 when unreadable."""
+    try:
+        from . import db as dbmod
+        con = dbmod.connect(db_path)
+        try:
+            return len(owned_candidates(con))
+        finally:
+            con.close()
+    except Exception:  # noqa: BLE001 -- counts must never raise
+        return 0
+
+
 def prompt_for(concept: str) -> str:
     """The sixty-second explain-it prompt text."""
     try:
@@ -76,12 +91,14 @@ def section_html(db_path: str, seed=None) -> str:
                     "<p>No party tricks yet — own your first concept and "
                     "it becomes explain-it material.</p></section>")
         node = str(cand["cid"]).split(":", 1)[-1]
+        why = whyseemod.reason_html(whyseemod.reason_for(
+            "partytrick", {"owned_count": _owned_count(db_path)}))
         return (
             f"<section id='{STATUS_ANCHOR}'><h2>Party trick</h2>"
             f"<p>Explain it to me: <a href='/modules/{cand['mid']}"
             f"#lesson-{lesmod.slug(node)}'>"
             f"{html.escape(cand['concept'])}</a></p>"
-            f"<p>{prompt_for(cand['concept'])}</p></section>")
+            f"<p>{prompt_for(cand['concept'])} {why}</p></section>")
     except Exception:  # noqa: BLE001 -- section must never raise
         return (f"<section id='{STATUS_ANCHOR}'><h2>Party trick</h2>"
                 "<p>Party tricks temporarily unavailable.</p></section>")

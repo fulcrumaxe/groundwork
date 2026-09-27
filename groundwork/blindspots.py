@@ -10,6 +10,7 @@ import html
 
 from . import db as dbmod
 from . import lessons as lesmod
+from . import whysee as whyseemod
 
 LIMIT = 10
 
@@ -34,10 +35,13 @@ def section_html(db_path: str) -> str:
     for r in rows:
         node = r["cid"].split(":", 1)[-1]
         pct = round(100 * (r["mastery"] or 0.0))
+        why = whyseemod.reason_html(whyseemod.reason_for(
+            "blindspot", {"mastery": r["mastery"], "limit": LIMIT}))
         items.append(
             f"<li><a href='/modules/{r['mid']}#lesson-{lesmod.slug(node)}'>"
             f"{html.escape(r['concept'] or node)}</a> "
-            f"<small>({pct}% · {html.escape(r['summary'] or r['mid'])})</small></li>")
+            f"<small>({pct}% · {html.escape(r['summary'] or r['mid'])})</small>"
+            f" {why}</li>")
     return ("<h2 id='status-blindspots'>Blind spots</h2>"
             "<p>Lowest-mastery concepts — what nobody understands yet.</p>"
             "<ul>" + "".join(items) + "</ul>")

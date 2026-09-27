@@ -8,12 +8,12 @@ from __future__ import annotations
 import html
 import json
 
-from . import codeedit as codeeditmod
+from . import codeedit as codeeditmod, specsplit as specsplitmod  # Batch 26 I-171: rebuild spec split
 from . import runkey as runkeymod
 from . import sandout as sandoutmod
 from . import confslider as confslidermod
 from . import hinttiers as hinttiersmod
-from . import parkeys as parkeysmod, parcheck as parcheckmod, matchpair as matchpairmod, tracetable as tracetablemod, predtry as predtrymod, rubriclive as rubriclivemod, linecomment as linecommentmod, comparesplit as comparesplitmod  # Batch 25: one shared line keeps cards.py under AREA_CAP
+from . import parkeys as parkeysmod, parcheck as parcheckmod, matchpair as matchpairmod, tracetable as tracetablemod, predtry as predtrymod, rubriclive as rubriclivemod, linecomment as linecommentmod, comparesplit as comparesplitmod, xout as xoutmod, ratquote as ratquotemod, extlive as extlivemod, callchips as callchipsmod  # Batch 25: one shared line keeps cards.py under AREA_CAP
 from . import parsons as parsonsmod
 
 
@@ -94,26 +94,22 @@ def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:
     open_form = (f"<form method='post' action='/cards/{cid}/review'>"
                  f"<input type='hidden' name='origin' value='{html.escape(origin, quote=True)}'>")
     if etype == "1":
-        opts = "".join(f"<option value='{i}'>{i} — {w}</option>"
-                       for i, w in enumerate(
-                           ["blank", "wrong", "shaky", "close", "right", "easy"]))
-        body = (f"<label>Say it back in your own words first "
-                f"(optional, this is the recall):<br>"
-                f"<textarea name='recall' rows='3' cols='60'></textarea></label><br>"
-                f"<label>Then rate how well you recalled it: "
-                f"<select name='answer'>{opts}</select></label> "
-                f"{_confidence()}<button>Submit rating</button>")
+        from . import cardflip as cardflipmod
+        body = cardflipmod.branch_html(card, cid)
     elif etype == "2":
         blanks = p.get("blanks") or [{"id": 0, "answers": p.get("answers", [])}]
         fields = " ".join(
             f"<label>___({b['id']}) <input name='b{b['id']}' size='12'></label>"
             for b in blanks)
         body = f"{fields} {_confidence()}<button>Check blanks</button>"
-    elif etype in ("4", "7", "16", "18"):
+    elif etype in ("4", "7", "18"):
         btns = " ".join(
             f"<button name='answer' value='{html.escape(c)}'>{html.escape(c)}</button>"
             for c in p.get("choices", []))
-        body = f"{btns} {_confidence()}"
+        body = f"{btns} {_confidence()}" + (xoutmod.elim_html(card) if etype == "18" else "") + (ratquotemod.quote_html(card) if etype == "7" else "")
+    elif etype == "16":
+        from . import blastgraph as blastgraphmod
+        body = blastgraphmod.branch_html(card, p, cid)
     elif etype in ("5", "6", "24", "25"):
         body = rubriclivemod.enhance(card, f"<textarea name='answer' rows='5' cols='70' placeholder='Explain in your own words…'></textarea><br>{_confidence()}<button>Submit explanation</button>")
     elif etype == "21":
@@ -182,13 +178,19 @@ def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:
                 concept = ""
             fig = seqdiagmod.figure_html({"payload": p}, concept)
         pcc = parcheckmod.check_html(cid, p.get("lines", []), p.get("solution", []))
-        body = (fig + parkeysmod.block_html(cid, p.get("lines", [])) + pcc
+        chips = callchipsmod.chips_html(cid, p.get("lines", [])) if etype == "10" else ""
+        body = (fig + parkeysmod.block_html(cid, p.get("lines", [])) + chips + pcc
                 + f"{_confidence()}<button>Check order</button>{PARSONS_JS}{parkeysmod.parkeys_js()}{parcheckmod.check_js() if pcc else ''}")
-    elif etype in ("12", "14", "19", "20", "23"):
+    elif etype == "23":
+        # I-171: spec pane beside the editor; same field, same grade.
+        body = specsplitmod.branch_html(card, p, cid)
+    elif etype in ("12", "14", "19", "20"):
         # I-154/I-155: editor + visible Run button; same field, same grade.
         body = (codeeditmod.editor_html() + runkeymod.hint_html() + "<br>"
                 f"{_confidence()}" + runkeymod.run_button_html()
                 + codeeditmod.editor_js() + runkeymod.exercise_script_js())
+        if etype == "20":  # I-170: live param checklist; legacy when no data.
+            body = extlivemod.enhance(card, body)
     elif etype == "13":
         opts = "".join(
             f"<label><input type='radio' name='answer' value='{i + 1}'> "

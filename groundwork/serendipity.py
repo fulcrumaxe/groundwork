@@ -11,6 +11,7 @@ import html
 from . import db as dbmod
 from . import lessons as lesmod
 from . import sched as schedmod
+from . import whysee as whyseemod
 
 
 def pick(db_path: str) -> dict | None:
@@ -55,6 +56,9 @@ def section_html(db_path: str) -> str:
                 "<p>Nothing adjacent right now — the whole neighborhood "
                 "is already in your queue.</p></section>")
     node = cand["cid"].split(":", 1)[-1]
+    why = whyseemod.reason_html(whyseemod.reason_for(
+        "serendipity", {"module": cand["summary"] or cand["mid"],
+                        "in_due": False}))
     return (
         f"<section id='serendipity'><h2>Serendipity</h2>"
         f"<p>Bonus, not duty: <a href='/modules/{cand['mid']}"
@@ -62,4 +66,5 @@ def section_html(db_path: str) -> str:
         f"{html.escape(cand['concept'] or node)}</a> "
         f"(in {html.escape(cand['summary'] or cand['mid'])}) sits next to "
         f"what you are practicing — wander over if you are curious.</p>"
+        f"<p>{why}</p>"
         f"</section>")

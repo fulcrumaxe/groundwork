@@ -26,13 +26,15 @@ from . import milestones as milestonesmod, teachcert as teachcertmod  # lean joi
 from . import northstar as northstarmod, wagers as wagersmod  # F-128: live settlement data + ledger
 from . import showcase as showcasemod
 from . import teamchallenge as teamchallengemod
-from . import seasonevent as seasoneventmod
-from . import anniversary as anniversarymod
+from . import seasonevent as seasoneventmod, calmjoy as calmjoymod  # F-142: calm twin
+from . import anniversary as anniversarymod, plaincopy as plaincopymod
 from . import shipconf as shipconfmod
 from . import themeunlock as themeunlockmod
 from . import endorse as endorsemod
+from . import freeedu as freeedumod
 from . import learnresume as learnresumemod
 from . import overconf as overconfmod
+from . import optout as optoutmod
 from . import sharecards as sharecardsmod
 from . import ownhead as ownheadmod
 from . import ownership as ownmod
@@ -42,7 +44,7 @@ from . import sched as schedmod
 from . import tablescroll as tablescrollmod
 from . import timetag as timetagmod
 from . import tztime as tztimemod
-from . import workload as workloadmod, weekdigest as weekdigestmod  # one line keeps history.py lean
+from . import kids as kidsmod, workload as workloadmod, weekdigest as weekdigestmod  # one line keeps history.py lean
 
 COACH_TIPS = {
     "recall": "Say the answer aloud before rating yourself.",
@@ -157,18 +159,20 @@ def history_html(db_path: str, query=None) -> str:
         delayed = None
     ledger = wagersmod.settle_all(wagersmod.wagers_from_query(query),
                                   latest, delayed)
-    parts = [ownheadmod.headline_html(db_path) + shipconfmod.meter_html(db_path) + avatarmod.box_html(db_path),
-             growringsmod.section_html(db_path),
-             knowngardenmod.section_html(db_path),
+    opt = optoutmod.parse(query)
+    tone = plaincopymod.tone_from_query(query)
+    parts = [ownheadmod.headline_html(db_path) + shipconfmod.meter_html(db_path) + avatarmod.box_html(db_path) + optoutmod.toggle_box_html(opt, "/reviews") + freeedumod.banner_html(),
+             (growringsmod.section_html(db_path) if optoutmod.show(opt, "rings") else ""),
+             (knowngardenmod.section_html(db_path) if optoutmod.show(opt, "garden") else ""),
              timeledgermod.section_html(db_path),
-             milestonesmod.section_html(db_path),
-             sharecardsmod.section_html(db_path),
+             plaincopymod.apply((milestonesmod.section_html(db_path) if optoutmod.show(opt, "milestones") else ""), tone) + calmjoymod.block_html(db_path, query),
+             (sharecardsmod.section_html(db_path) if optoutmod.show(opt, "share") else ""),
              learnresumemod.section_html(db_path),
              endorsemod.section_html(db_path),
              teachcertmod.section_html(db_path),
-             showcasemod.gallery_html(db_path),
-             themeunlockmod.gallery_html(db_path),
-             weekdigestmod.block_html(db_path) + teamchallengemod.section_html(db_path) + seasoneventmod.section_html(db_path) + anniversarymod.block_html(db_path)]
+             (showcasemod.gallery_html(db_path) if optoutmod.show(opt, "showcase") else ""),
+             (themeunlockmod.gallery_html(db_path) if optoutmod.show(opt, "unlocks") else ""),
+             (weekdigestmod.block_html(db_path) if optoutmod.show(opt, "weekdigest") else "") + (teamchallengemod.section_html(db_path) if optoutmod.show(opt, "challenge") else "") + plaincopymod.apply((seasoneventmod.section_html(db_path) if optoutmod.show(opt, "season") else "") + (anniversarymod.block_html(db_path) if optoutmod.show(opt, "anniversary") else ""), tone)]
     if cal and cal["n"]:
         acc = (cal["g"] or 0) / 5.0
         conf = ((cal["c"] or 3) - 1) / 4.0
@@ -216,11 +220,11 @@ def history_html(db_path: str, query=None) -> str:
                      "<p>No attempts yet. Answer a card on the "
                      "<a href='/due'>Due</a> page and it will show up here.</p>")
         parts.append(monthmod.section_html(db_path))
-        parts.append(antistreakmod.history_section(db_path))
+        parts.append(antistreakmod.history_section(db_path) if optoutmod.show(opt, "pledge") else "")
         parts.append(undomod.section_html(db_path))
-        parts.append(bestsmod.section_html(db_path))
+        parts.append(bestsmod.section_html(db_path) if optoutmod.show(opt, "bests") else "")
         parts.append(wagersmod.section_html(ledger))
-        return "".join(parts)
+        return kidsmod.page_html("".join(parts), query, db_path)
     if days:
         cells = "".join(
             f"<tr><td>{timetagmod.stamp(d['d'])}</td><td>{d['n']}</td>"
@@ -239,9 +243,9 @@ def history_html(db_path: str, query=None) -> str:
             f"({acc}) — your weekly review ritual: wins, weak spots, "
             f"next week on the <a href='/due'>Due</a> queue.</p>")
         parts.append(monthmod.section_html(db_path))
-        parts.append(antistreakmod.history_section(db_path))
+        parts.append(antistreakmod.history_section(db_path) if optoutmod.show(opt, "pledge") else "")
         parts.append(undomod.section_html(db_path))
-        parts.append(bestsmod.section_html(db_path))
+        parts.append(bestsmod.section_html(db_path) if optoutmod.show(opt, "bests") else "")
         parts.append(wagersmod.section_html(ledger))
     parts.append("<h2 id='attempts'>Attempts</h2>"
                      "<p id='timestamps'><small>Relative times "
@@ -258,4 +262,4 @@ def history_html(db_path: str, query=None) -> str:
             f"<small>{tztimemod.stamp_html(r['reviewed_at'] or '')}</small>"
             f"{(' ' + cont) if cont else ''}<br>"
             f"<small>in {cardlinksmod.history_link(r['module_id'], r['card_id'], r['summary'] or r['module_id'])}</small></p>")
-    return "".join(parts)
+    return kidsmod.page_html("".join(parts), query, db_path)

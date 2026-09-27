@@ -31,6 +31,7 @@ _VOLATILE = (
     re.compile(r'data-built="[^"]*"'),
     re.compile(r"/modules/[0-9a-f]{8,128}"),
     re.compile(r"card-[0-9a-f]{8,128}(?:ex\d+)?"),
+    re.compile(r"cf[0-9a-f]{12}ex\d+"),  # cardflip per-card toggle ids
     re.compile(r"\b[0-9a-f]{12}\b"),
     re.compile(r"/tmp/[A-Za-z0-9_][A-Za-z0-9_.\-]*"),
 )

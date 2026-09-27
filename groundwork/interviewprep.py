@@ -10,6 +10,8 @@ from __future__ import annotations
 
 import html
 
+from . import whysee as whyseemod
+
 STATUS_ANCHOR = "status-b25-interviewprep"
 SECTION_ANCHOR = "preptrack"
 DEFAULT_SIZE = 5
@@ -101,9 +103,11 @@ def track_html(concepts, due=None, size=DEFAULT_SIZE) -> str:
             mid, name = p["module_id"], p["name"]
             href = (f"/modules/{mid}#lesson-{lesmod.slug(name)}"
                     if mid else "/modules")
+            why = whyseemod.reason_html(whyseemod.reason_for(
+                "preptrack", {"mastery": p["mastery"], "due": p["due"]}))
             lis.append(
                 f"<li>{html.escape(name)} "
-                f"<small>{html.escape(p['reason'])}</small> — "
+                f"<small>{html.escape(p['reason'])}</small> {why} — "
                 f"<a href='{html.escape(href, True)}'>Study</a></li>")
         n = len(picks)
         return (

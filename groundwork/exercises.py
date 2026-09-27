@@ -82,6 +82,7 @@ from . import nameguess as nameguessmod
 from . import invariant as invariantmod
 from . import outdiff as outdiffmod
 from . import tracetable as tracetablemod
+from . import behavdiff as behavdiffmod
 
 # type number -> (name, bloom)
 TYPES = {
@@ -1264,8 +1265,11 @@ def grade(exercise: dict, submission: str, runner=None) -> dict:
         # the reference passes, so only the submission is on trial.
         res = runner.run(submission + "\n" + p.get("tests", ""))
         ok = res.ok and "FAIL" not in res.stdout
+        # I-172: behavior-diff on measured sample outputs; "" keeps legacy.
+        legacy = "Tests pass." if ok else f"Output: {res.stdout[:300]} {res.stderr[:300]}"
+        extra = behavdiffmod.grade_extra(p, submission, runner) if t == 19 else ""
         return {"pass": ok, "score": 1.0 if ok else 0.0,
-                "feedback": "Tests pass." if ok else f"Output: {res.stdout[:300]} {res.stderr[:300]}"}
+                "feedback": legacy if not extra else legacy + "\n" + extra}
     if t == 20:
         param = p.get("param", "strict")
         try:

@@ -233,6 +233,14 @@ sandbox, never invented.
 | Pre-interview recap track | Your shakiest ideas first, capped with study links — recap before the interview. | `/status#status-b25-interviewprep` |
 | Onboarding countdown | Day N of 30 from your first review, with the core flows to own first — gentle, no streaks. | `/status#status-b25-onboard` |
 | Rabbit-hole mode | Follow caller links freely across lessons with a visible breadcrumb trail — bonus, never duty. | `/status#status-b25-rabbithole` |
+| Why am I seeing this? | Recommendations say why: recap track, blind spots, elaboration, serendipity, party tricks, related modules, re-teach. | `/status#status-b26-whysee` |
+| Granular motivational opt-outs | Hide any celebration, garden, mascot, or badge wall on its own - choices ride the URL. | `/due#optout-toggles` |
+| Plain mode | Zero gamification with one flag - ?plain=1 strips badges, celebrations, gardens and quests while grades and schedule stay identical. | `/due#plain-toggle` |
+| Kids mode | Easy words, big buttons and a parent dashboard: add ?kids=1 on the History page. | `/status#status-b26-kids` |
+| Quiet celebrations | Milestones and session wins, restated still -- calm by default for reduced-motion users, one click away for everyone. | `/status#status-b26-calmjoy` |
+| Plain milestone copy | Milestone praise in plain factual words - ?tone=plain restates the wordplay. | `/status#status-b26-plaincopy` |
+| Thank the author | Copy a ready-made thank-you note for the pack author - Groundwork sends nothing itself. | `/modules/&lt;id&gt;#thanks` |
+| Free forever for learners | History page spotlights the AGPL-3.0 freedoms for learners: run, study, share - every line backed by the live LICENSE file. | `/status#status-b26-freeedu` |
 <!-- GW-FEATURES:END -->
 
 ## Improvements
@@ -405,6 +413,14 @@ sandbox, never invented.
 | Live rubric checklist | Explain answers tick their rubric keywords live as you type — advisory, never graded. | `/status#status-b25-rubriclive` |
 | Line comments on code review | Click a line number to pin a note, like real review. | `/status#status-b25-linecomment` |
 | Side-by-side compare panes | A vs B with scrolling that stays in step. | `/status#status-b25-comparesplit` |
+| Live param checklist | Extend-feature drafts tick exists, default, and used live as you type - advisory, never graded. | `/status#status-b26-extlive` |
+| Rebuild spec beside the editor | Rebuild spec stays visible beside the editor while you type. | `/status#status-b26-specsplit` |
+| Refactor behavior-diff | Your refactor vs the original: measured outputs side by side on the same sample inputs. | `/status#status-b26-behavdiff` |
+| Click-to-order call paths | Call-path cards order by tapping chips entry-first -- no more index typing; drag and typed boxes stay as fallback. | `/status#status-b26-callchips` |
+| Clickable blast-radius graph | Blast-radius choices answer as nodes on a small graph. | `/status#status-b26-blastgraph` |
+| Odd-one-out elimination | Rule out odd-one-out choices with strike-through before committing - paint only, grading untouched. | `/status#status-b26-xout` |
+| Decision quote beside rationale choices | Type-7 cards quote the recorded chose-X-over-Y context beside the choice buttons. | `/status#status-b26-ratquote` |
+| Flashcard flip | Flashcards turn from recall to self-rate like a card in your hand -- still and stacked for reduced-motion users. | `/status#status-b26-cardflip` |
 <!-- GW-IMPROVEMENTS:END -->
 
 See also [docs/features.md](docs/features.md) and the in-app
