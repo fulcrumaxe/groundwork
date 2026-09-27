@@ -13,7 +13,7 @@ from . import runkey as runkeymod
 from . import sandout as sandoutmod
 from . import confslider as confslidermod
 from . import hinttiers as hinttiersmod
-from . import parkeys as parkeysmod, parcheck as parcheckmod, matchpair as matchpairmod, tracetable as tracetablemod, predtry as predtrymod, rubriclive as rubriclivemod, linecomment as linecommentmod, comparesplit as comparesplitmod, xout as xoutmod, ratquote as ratquotemod  # Batch 25: one shared line keeps cards.py under AREA_CAP
+from . import parkeys as parkeysmod, parcheck as parcheckmod, matchpair as matchpairmod, tracetable as tracetablemod, predtry as predtrymod, rubriclive as rubriclivemod, linecomment as linecommentmod, comparesplit as comparesplitmod, xout as xoutmod, ratquote as ratquotemod, extlive as extlivemod  # Batch 25: one shared line keeps cards.py under AREA_CAP
 from . import parsons as parsonsmod
 
 
@@ -195,6 +195,8 @@ def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:
         body = (codeeditmod.editor_html() + runkeymod.hint_html() + "<br>"
                 f"{_confidence()}" + runkeymod.run_button_html()
                 + codeeditmod.editor_js() + runkeymod.exercise_script_js())
+        if etype == "20":  # I-170: live param checklist; legacy when no data.
+            body = extlivemod.enhance(card, body)
     elif etype == "13":
         opts = "".join(
             f"<label><input type='radio' name='answer' value='{i + 1}'> "
