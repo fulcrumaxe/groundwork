@@ -1141,6 +1141,89 @@ content covers every item (all 16 children filed decisions
 222–237 + 16 modules against the served DB — zero parent
 gap-closes, verified in-DB).
 
+Batch 26 — eight improvements (I-170–I-177) + eight features
+(F-137 pre-shipped, F-138–F-144, F-148 backfill). Shipped on
+branch `batch26-f8-i8`. Selection: next-unshipped in backlog
+order with zero skips (I-169/F-136 closed Batch 25, so I-170/F-137
+open Batch 26). F-137 verified already-shipped (serendipity.py +
+due_html wire + tour + tests) and crossed as pre-shipped, no new
+code. F-145/F-146/F-147 returned honest NOT-BUILDABLE verdicts
+(no live author, recipient, or learner-count source anywhere;
+schema frozen, no telemetry) and stay uncrossed; F-148 backfilled
+as the 8th feature slot.
+- [x] I-170 extlive → live param checklist beside extend editor.
+  Caller cards.answer_widget etype 20 enhance.
+- [x] I-171 specsplit → rebuild spec beside editor in split view.
+  Caller cards.answer_widget etype 23 split + CSS join.
+- [x] I-172 behavdiff → refactor behavior-diff on measured samples.
+  Caller exercises.grade t==19 (measured sandbox outputs only).
+- [x] I-173 callchips → click-to-order chips for call paths.
+  Caller cards.answer_widget etype 10 chips (typed fallback kept).
+- [x] I-174 blastgraph → clickable dependency graph, not buttons.
+  Caller cards.answer_widget etype 16 split.
+- [x] I-175 xout → strike-through elimination before committing.
+  Caller cards.answer_widget etype 18 append.
+- [x] I-176 ratquote → decision quote beside rationale choices.
+  Caller cards.answer_widget etype 7 append (payload reason only).
+- [x] I-177 cardflip → CSS flip between recall and self-rate.
+  Caller cards.answer_widget etype 1 branch + CSS join.
+- [x] F-137 serendipity → PRE-SHIPPED (due bonus cards, labeled).
+  No new code; crossed with this note.
+- [x] F-138 whysee → why-am-I-seeing-this on all recommendations.
+  Callers lessons.render_levels + serendipity/interviewprep/
+  blindspots/related/partytrick/reteach sections.
+- [x] F-139 optout → granular motivational opt-outs via URL.
+  Callers Handler.due_html + history.history_html gates (19 keys).
+- [x] F-140 plain → plain-mode zero gamification, same engine.
+  Caller Handler._send strip + do_GET parse + Due entry toggle.
+- [x] F-141 kids → kids mode with parent dashboard.
+  Caller history.history_html return wraps + CSS join.
+- [x] F-142 calmjoy → quiet motion-free celebrations twin.
+  Caller history.history_html milestones line + CSS join.
+- [x] F-143 plaincopy → culturally neutral milestone copy table.
+  Caller history.history_html section wraps (?tone=plain).
+- [x] F-144 thanks → thank-the-author note composer.
+  Caller Handler.module_html owned bar (clipboard-first).
+- [x] F-148 freeedu → free-forever learner license spotlight.
+  Caller history.history_html parts head (live LICENSE gating).
+
+Batch 26 deviations (all green-trunk, ledger-noted): F-138 grew
+from a one-surface proof wire to all seven honest surfaces
+(remedial has no learner render surface — ordering only — so it
+stays unwired; due keeps Batch-1 _due_why; dead due/remedial
+builder branches removed to hold AREA_CAP, 393 → 335; hostile
+non-string reasons now render "" instead of leaking). F-140
+gained its missing Due entry toggle (the design referenced an
+anchor no code rendered; the tour gate requires it) and a test
+typo fix (asymmetric count strings). I-174 dropped a stray
+non-ASCII token (child-flagged). I-176 trades 3 em-dashes for
+hyphens; I-177 keeps 2 intentional em-dashes reproducing legacy
+bytes (emoji-gate clean). I-173 closes an unterminated
+triple-quote from the draft. Test-expectation fixes (code
+behavior verified correct first): xout posts-nothing scoped to
+markup, kids empty-history bests anchor (no timestamps branch),
+plaincopy count-drop (F-139 settings label keeps its name),
+freeedu fixture renamed (name polluted the bare check). cards.py
+order swapped (I-177 before I-173) to hold AREA_CAP mid-batch.
+Calm twin and freeedu banner stay outside the 19 optout keys and
+the plain strip (new elements; future batches may adopt them).
+
+Batch 26 migration: none (no schema changes; modes ride URL
+params, checklists/flips run client-side or post-render).
+
+Batch 26 wires: WEB_CEILING 1412 → 1420 (F-140 strip + parse,
+F-139 carry + parse + due opt; plain follow-up same-line);
+status.py holds at AREA_CAP (same-line batch26 join + import);
+history.py 261 → 265 (4 imports/parses); cards.py 341 → 343
+(choice/code splits, appends, etype-1 delegation); tour 165/170
+→ 173/178; docs regen (README + features.md from tour registry);
+goldens refreshed (due +optout/plain-toggle/whysee/date, reviews
++optout/freeedu, status table + batch26 home); every item module
+under 350 lines; MCP learning content covers every buildable
+item (children filed decisions 238–254 + 17 modules against the
+served DB, F-145 probe included; F-137/F-146/F-147 correctly
+skipped MCP — verified in-DB).
+
 ## IMPROVEMENTS (500)
 
 ### A. Navigation, IA & routing (I-1–50)
@@ -1323,14 +1406,14 @@ gap-closes, verified in-DB).
 - [x] I-167: Explain answers: live rubric checklist filling as you type keywords.
 - [x] I-168: Code review: line-comment UI (attach note to a line, like real review).
 - [x] I-169: Compare: side-by-side panes with synchronized scrolling.
-- I-170: Extend-feature: show param checklist (exists? default? used?) live.
-- I-171: Rebuild: show spec alongside editor in split view.
-- I-172: Refactor: behavior-diff view proving output equivalence on sample inputs.
-- I-173: Call-path: click-to-order chips instead of typing indices.
-- I-174: Blast-radius: clickable dependency graph instead of buttons.
-- I-175: Odd-one-out: strike-through elimination UI before committing.
-- I-176: Design-rationale: show decision context quote beside choices.
-- I-177: Flashcards: flip animation (CSS) between recall and self-rate.
+- [x] I-170: Extend-feature: show param checklist (exists? default? used?) live.
+- [x] I-171: Rebuild: show spec alongside editor in split view.
+- [x] I-172: Refactor: behavior-diff view proving output equivalence on sample inputs.
+- [x] I-173: Call-path: click-to-order chips instead of typing indices.
+- [x] I-174: Blast-radius: clickable dependency graph instead of buttons.
+- [x] I-175: Odd-one-out: strike-through elimination UI before committing.
+- [x] I-176: Design-rationale: show decision context quote beside choices.
+- [x] I-177: Flashcards: flip animation (CSS) between recall and self-rate.
 - I-178: Cloze: inline blank inputs inside rendered code (not separate fields).
 - I-179: Signature: skeleton with per-param slots and individual ticks.
 - I-180: Where-live: repo tree picker instead of buttons when many files.
@@ -1819,18 +1902,18 @@ gap-closes, verified in-DB).
 - [x] F-134: Pre-interview confidence builder (targeted recap track).
 - [x] F-135: Onboarding countdown (new-hire: own core flows in 30 days).
 - [x] F-136: Curiosity-driven "rabbit hole" mode (follow callers freely, tracked).
-- F-137: Serendipity cards (adjacent concept you might love, clearly labeled).
-- F-138: "Why am I seeing this?" transparency on every recommendation.
-- F-139: Opt out of any motivational element individually (granular toggles).
-- F-140: Plain-mode (zero gamification: lists only, same engine).
-- F-141: Kids mode (simpler words, bigger targets, parent dashboard).
-- F-142: Accessibility-first delight (motion-free celebrations that still feel good).
-- F-143: Localized celebrations (culturally neutral milestone copy).
-- F-144: Thank-the-author button (message to module-pack creators).
+- [x] F-137: Serendipity cards (adjacent concept you might love, clearly labeled).
+- [x] F-138: "Why am I seeing this?" transparency on every recommendation.
+- [x] F-139: Opt out of any motivational element individually (granular toggles).
+- [x] F-140: Plain-mode (zero gamification: lists only, same engine).
+- [x] F-141: Kids mode (simpler words, bigger targets, parent dashboard).
+- [x] F-142: Accessibility-first delight (motion-free celebrations that still feel good).
+- [x] F-143: Localized celebrations (culturally neutral milestone copy).
+- [x] F-144: Thank-the-author button (message to module-pack creators).
 - F-145: Contributor spotlight (pack authors featured monthly).
 - F-146: Open-source karma ledger (your packs' learner counts).
 - F-147: Donation links for pack authors (support the commons).
-- F-148: Nonprofit/edu licensing spotlight (free forever, prominently).
+- [x] F-148: Nonprofit/edu licensing spotlight (free forever, prominently).
 - F-149: Carbon note (local-first = no cloud GPU per review, quantified).
 - F-150: Annual "state of my codebase brain" report (beautiful, private).
 
