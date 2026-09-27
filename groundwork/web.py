@@ -1351,7 +1351,7 @@ class Handler(BaseHTTPRequestHandler):
             card_id = url.path.split("/")[2]
             answer, conf_i, origin = _parse_review_form(raw)
             body = scratchmod.page_for(self.db_path, card_id, answer,
-                                       origin, conf_i)
+                                       origin, conf_i, raw)
             if body is None:
                 self._send(page("Error", "<p>Unknown card.</p>",
                                 counts=self._nav_counts()), 404)
