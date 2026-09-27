@@ -43,7 +43,7 @@ from . import sched as schedmod
 from . import tablescroll as tablescrollmod
 from . import timetag as timetagmod
 from . import tztime as tztimemod
-from . import workload as workloadmod, weekdigest as weekdigestmod  # one line keeps history.py lean
+from . import kids as kidsmod, workload as workloadmod, weekdigest as weekdigestmod  # one line keeps history.py lean
 
 COACH_TIPS = {
     "recall": "Say the answer aloud before rating yourself.",
@@ -222,7 +222,7 @@ def history_html(db_path: str, query=None) -> str:
         parts.append(undomod.section_html(db_path))
         parts.append(bestsmod.section_html(db_path) if optoutmod.show(opt, "bests") else "")
         parts.append(wagersmod.section_html(ledger))
-        return "".join(parts)
+        return kidsmod.page_html("".join(parts), query, db_path)
     if days:
         cells = "".join(
             f"<tr><td>{timetagmod.stamp(d['d'])}</td><td>{d['n']}</td>"
@@ -260,4 +260,4 @@ def history_html(db_path: str, query=None) -> str:
             f"<small>{tztimemod.stamp_html(r['reviewed_at'] or '')}</small>"
             f"{(' ' + cont) if cont else ''}<br>"
             f"<small>in {cardlinksmod.history_link(r['module_id'], r['card_id'], r['summary'] or r['module_id'])}</small></p>")
-    return "".join(parts)
+    return kidsmod.page_html("".join(parts), query, db_path)
