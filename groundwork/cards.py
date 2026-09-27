@@ -13,7 +13,7 @@ from . import runkey as runkeymod
 from . import sandout as sandoutmod
 from . import confslider as confslidermod
 from . import hinttiers as hinttiersmod
-from . import parkeys as parkeysmod, parcheck as parcheckmod, matchpair as matchpairmod, tracetable as tracetablemod, predtry as predtrymod, rubriclive as rubriclivemod, linecomment as linecommentmod, comparesplit as comparesplitmod, xout as xoutmod, ratquote as ratquotemod, extlive as extlivemod  # Batch 25: one shared line keeps cards.py under AREA_CAP
+from . import parkeys as parkeysmod, parcheck as parcheckmod, matchpair as matchpairmod, tracetable as tracetablemod, predtry as predtrymod, rubriclive as rubriclivemod, linecomment as linecommentmod, comparesplit as comparesplitmod, xout as xoutmod, ratquote as ratquotemod, extlive as extlivemod, callchips as callchipsmod  # Batch 25: one shared line keeps cards.py under AREA_CAP
 from . import parsons as parsonsmod
 
 
@@ -178,7 +178,8 @@ def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:
                 concept = ""
             fig = seqdiagmod.figure_html({"payload": p}, concept)
         pcc = parcheckmod.check_html(cid, p.get("lines", []), p.get("solution", []))
-        body = (fig + parkeysmod.block_html(cid, p.get("lines", [])) + pcc
+        chips = callchipsmod.chips_html(cid, p.get("lines", [])) if etype == "10" else ""
+        body = (fig + parkeysmod.block_html(cid, p.get("lines", [])) + chips + pcc
                 + f"{_confidence()}<button>Check order</button>{PARSONS_JS}{parkeysmod.parkeys_js()}{parcheckmod.check_js() if pcc else ''}")
     elif etype == "23":
         # I-171: spec pane beside the editor; same field, same grade.
