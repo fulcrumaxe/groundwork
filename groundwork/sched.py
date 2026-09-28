@@ -33,7 +33,8 @@ def retrievability(stability: float, elapsed_days: float) -> float:
 
 
 def review_card(stability: float, difficulty: float, grade: int,
-                now: datetime | None = None, grades=None) -> dict:
+                now: datetime | None = None, grades=None,
+                params=None, lag_days=None) -> dict:
     """Apply one review. Returns {stability, difficulty, retrievability, due}.
 
     ``grades`` is the oldest-first grade history INCLUDING the current
@@ -44,14 +45,25 @@ def review_card(stability: float, difficulty: float, grade: int,
     stretches; collapse stays the stability model's job (halving on
     real fails), and pass here means grade >= 4 while the stability
     model moves at >= 3.
+
+    ``params`` carries a per-learner (growth, decay) fit (Batch 29,
+    I-201): when present the fuller FSRS-4.5 update runs instead of
+    the FSRS-lite block below. ``None`` runs today's code verbatim.
     """
     now = now or utcnow()
     g = max(0, min(5, grade))
-    difficulty = min(1.0, max(0.1, difficulty - 0.1 * (g - 3)))
-    if g >= 3:
-        stability = max(0.1, stability * (1.0 + math.exp(3.0 - difficulty) * (g - 3) * 0.2 + 0.2))
+    if params is not None:
+        from . import fsrs45 as fsrs45mod
+        first = grades is not None and len(grades) <= 1
+        stability, difficulty = fsrs45mod.advance(
+            stability, difficulty, g, lag_days=lag_days,
+            params=params, first=first)
     else:
-        stability = max(0.1, stability * 0.5)
+        difficulty = min(1.0, max(0.1, difficulty - 0.1 * (g - 3)))
+        if g >= 3:
+            stability = max(0.1, stability * (1.0 + math.exp(3.0 - difficulty) * (g - 3) * 0.2 + 0.2))
+        else:
+            stability = max(0.1, stability * 0.5)
     interval = max(1, round(stability))
     if grades is not None:
         from . import spacingopt as spacingoptmod
