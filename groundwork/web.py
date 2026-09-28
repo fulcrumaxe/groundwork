@@ -52,7 +52,7 @@ from . import dyslexia as dyslexiamod
 from . import diagrams as diagramsmod
 from . import diagnose as diamod
 from . import diff as diffmod
-from . import digest as digestmod, diffvote as diffvotemod, officehours as officehoursmod  # one line keeps web.py at WEB_CEILING
+from . import digest as digestmod, diffvote as diffvotemod, officehours as officehoursmod, a11ychamp as a11ychampmod  # one line keeps web.py at WEB_CEILING. Batch 29 F-191: a11y track.
 from . import disputes as dismod
 from . import donehero as doneheromod
 from . import emoji as emojimod, parsons as parsonsmod, parkeys as parkeysmod, comparesplit as comparesplitmod, specsplit as specsplitmod, cardflip as cardflipmod  # one line keeps web.py at WEB_CEILING
@@ -755,7 +755,7 @@ class Handler(BaseHTTPRequestHandler):
         else:
             parts.append("<p><a id='one-card' href='/due?mode=one'>"
                          "Just one card</a> for low-energy days.</p>")
-        parts.append((sermod.section_html(self.db_path) if optoutmod.show(opt, "serendipity") else "") + (partytrickmod.section_html(self.db_path) if optoutmod.show(opt, "party") else "") + interviewprepmod.track_html(prows, due) + oncallpackmod.prep_html(self.db_path, service, prows, due) + secchampmod.track_html(self.db_path, scope))
+        parts.append((sermod.section_html(self.db_path) if optoutmod.show(opt, "serendipity") else "") + (partytrickmod.section_html(self.db_path) if optoutmod.show(opt, "party") else "") + interviewprepmod.track_html(prows, due) + oncallpackmod.prep_html(self.db_path, service, prows, due) + secchampmod.track_html(self.db_path, scope) + a11ychampmod.champ_html(self.db_path, scope))
         if not due:
             stats = self._hero_stats()
             parts.append((doneheromod.done_hero_html(
