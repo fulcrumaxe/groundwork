@@ -47,7 +47,7 @@ from . import sched as schedmod
 from . import tablescroll as tablescrollmod
 from . import timetag as timetagmod
 from . import tztime as tztimemod
-from . import kids as kidsmod, workload as workloadmod, weekdigest as weekdigestmod, guardian as guardianmod  # one line keeps history.py lean
+from . import kids as kidsmod, workload as workloadmod, weekdigest as weekdigestmod, guardian as guardianmod, retention as retentionmod, halflife as halflifemod  # one line keeps history.py lean. Batch 29 I-202: retention box. F-182: half-life.
 
 COACH_TIPS = {
     "recall": "Say the answer aloud before rating yourself.",
@@ -169,7 +169,7 @@ def history_html(db_path: str, query=None) -> str:
     parts = [ownheadmod.headline_html(db_path) + shipconfmod.meter_html(db_path) + avatarmod.box_html(db_path) + optoutmod.toggle_box_html(opt, "/reviews") + freeedumod.banner_html() + carbonmod.section_html(db_path) + handoffmod.section_html(db_path) + interviewloopmod.loop_html(db_path) + gradebookmod.section_html(db_path),
              (growringsmod.section_html(db_path) if optoutmod.show(opt, "rings") else ""),
              (knowngardenmod.section_html(db_path) if optoutmod.show(opt, "garden") else ""),
-             timeledgermod.section_html(db_path),
+             timeledgermod.section_html(db_path) + halflifemod.section_html(db_path),
              plaincopymod.apply((milestonesmod.section_html(db_path) if optoutmod.show(opt, "milestones") else ""), tone) + calmjoymod.block_html(db_path, query),
              (sharecardsmod.section_html(db_path) if optoutmod.show(opt, "share") else ""),
              learnresumemod.section_html(db_path),
@@ -238,7 +238,7 @@ def history_html(db_path: str, query=None) -> str:
                      + tablescrollmod.wrap_table(
                          f"<table class='log'><tr><th>Day</th><th>Attempts</th>"
                          f"<th>Passed</th></tr>{cells}</table>"))
-        parts.append(workloadmod.section_html(db_path))
+        parts.append(workloadmod.section_html(db_path) + retentionmod.box_html(db_path, query))
         wn, wok, wdays = week["n"] or 0, week["ok"] or 0, week["days"] or 0
         acc = f"{round(100 * wok / wn)}%" if wn else "—"
         parts.append(

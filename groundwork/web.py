@@ -33,9 +33,9 @@ from . import badge as badgemod
 from . import beforafter as beforaftermod
 from . import cardlinks as cardlinksmod
 from . import cards as cardsmod
-from . import chiplinks as chiplinksmod, conceptbadges as conceptbadgesmod  # one line keeps web.py at WEB_CEILING
+from . import chiplinks as chiplinksmod, cmdtrack as cmdtrackmod, conceptbadges as conceptbadgesmod  # one line keeps web.py at WEB_CEILING. Batch 29 F-186: commander track.
 from . import clarity as claritymod
-from . import classquests as classquestsmod
+from . import classquests as classquestsmod, comptrack as comptrackmod  # Batch 29 F-189: compliance track join.
 from . import clickcards as clickcardsmod
 from . import collapse as collapsemod
 from . import confslider as confslidermod
@@ -52,7 +52,7 @@ from . import dyslexia as dyslexiamod
 from . import diagrams as diagramsmod
 from . import diagnose as diamod
 from . import diff as diffmod
-from . import digest as digestmod, diffvote as diffvotemod, officehours as officehoursmod  # one line keeps web.py at WEB_CEILING
+from . import digest as digestmod, diffvote as diffvotemod, officehours as officehoursmod, a11ychamp as a11ychampmod  # one line keeps web.py at WEB_CEILING. Batch 29 F-191: a11y track.
 from . import disputes as dismod
 from . import donehero as doneheromod
 from . import emoji as emojimod, parsons as parsonsmod, parkeys as parkeysmod, comparesplit as comparesplitmod, specsplit as specsplitmod, cardflip as cardflipmod  # one line keeps web.py at WEB_CEILING
@@ -64,32 +64,32 @@ from . import exports as expmod
 from . import favicon as faviconmod
 from . import fontstack as fontstackmod
 from . import focusrings as focusringsmod
-from . import flowdetect as flowdetectmod, focustimer as focustimermod, playlists as playlistsmod, restday as restdaymod, comeback as comebackmod, coop as coopmod  # one line keeps web.py at WEB_CEILING
+from . import flowdetect as flowdetectmod, focustimer as focustimermod, playlists as playlistsmod, restday as restdaymod, comeback as comebackmod, coop as coopmod, workshop as workshopmod  # one line keeps web.py at WEB_CEILING. Batch 29 F-195: workshop.
 from . import footnav as footnavmod
 from . import forgetcurve as forgetcurvemod
 from . import formerr as formerrmod
 from . import handout as handoutmod
 from . import hinttiers as hinttiersmod
 from . import history as histmod
-from . import interviewprep as interviewprepmod
+from . import interviewprep as interviewprepmod, oncallpack as oncallpackmod  # Batch 29 F-185: on-call pack join.
 from . import journal as journalmod
-from . import kids as kidsmod, known as knownmod  # one line keeps web.py at WEB_CEILING
+from . import kids as kidsmod, known as knownmod, keyflow as keyflowmod  # one line keeps web.py at WEB_CEILING. Batch 29 I-200: key flow.
 from . import lessons as lesmod
 from . import lessonpin as lessonpinmod
-from . import lessondeps as lessondepsmod
+from . import lessondeps as lessondepsmod, lightdays as lightdaysmod  # Batch 29 I-206: light-days join.
 from . import lessonver as lessonvermod
 from . import levelcarry as levelcarrymod
 from . import logbook as logbookmod
 from . import mascot as mascotmod, mcp as mcplib  # one line keeps web.py at WEB_CEILING
-from . import minisession as minisessionmod
+from . import minisession as minisessionmod, dailycap as dailycapmod  # Batch 29 I-205: daily cap join.
 from . import modfilter as modfiltermod
 from . import modpages as modpagesmod
 from . import modularity as modularitymod
 from . import modules as modmod
 from . import motion as motionmod
 from . import ogtags as ogtagsmod
-from . import optimistic as optimisticmod, outdiff as outdiffmod  # Batch 24 I-157: diff CSS join keeps web.py at WEB_CEILING
-from . import onboard as onboardmod, layerpath as layerpathmod
+from . import optimistic as optimisticmod, outdiff as outdiffmod, spamguard as spamguardmod  # Batch 24 I-157: diff CSS join keeps web.py at WEB_CEILING. Batch 29 I-199: throttle join.
+from . import onboard as onboardmod, layerpath as layerpathmod, osslader as ossladermod  # Batch 29 F-192: ladder join.
 from . import ownbanner as ownbannermod
 from . import ownership as ownmod
 from . import pageicon as pageiconmod
@@ -120,7 +120,7 @@ from . import scrollbar as scrollbarmod
 from . import scrollpos as scrollposmod
 from . import search as searchmod
 from . import selection as selectionmod, selfassign as selfassignmod, curricmap as curricmapmod, syllabus as syllabusmod
-from . import serendipity as sermod, partytrick as partytrickmod, optout as optoutmod  # one line keeps web.py at WEB_CEILING
+from . import serendipity as sermod, partytrick as partytrickmod, optout as optoutmod, secchamp as secchampmod  # one line keeps web.py at WEB_CEILING. Batch 29 F-190: sec track.
 from . import session as sessionmod
 from . import shelf as shelfmod, showcase as showcasemod  # one line keeps web.py at WEB_CEILING
 from . import shortcuts as shortcutsmod
@@ -260,7 +260,7 @@ CSS = ("body{font-family:system-ui,-apple-system,sans-serif;max-width:48rem;"
 # concatenated into CSS (that nests <style> inside <style>, closes the
 # head stylesheet early, and dumps all later CSS into <body> as text).
 FOCUS_CSS = clickcardsmod.focus_css()
-CSS += palettemod.palette_css() + darkmodemod.dark_css() + typescalemod.scale_css() + fontstackmod.stack_css() + wordmarkmod.wordmark_css() + bloomchipsmod.chip_css() + progbarmod.progbar_css() + ownedbadgemod.badge_css() + staggermod.stagger_css() + caretsmod.carets_css() + codelinesmod.codelines_css() + highlightmod.highlight_css() + hinttiersmod.hinttiers_css() + confslidermod.css() + focusringsmod.css() + taptargetsmod.target_css() + radiusmod.radius_css() + spacingmod.spacing_css() + doneheromod.hero_css() + logbookmod.logbook_css() + shelfmod.shelf_css() + briefingmod.briefing_css() + verdictsmod.verdicts_css() + ownbannermod.ownbanner_css() + pressfxmod.pressfx_css() + skeletonsmod.skeletons_css() + optimisticmod.optimistic_css() + formerrmod.formerr_css() + selectionmod.selection_css() + scrollbarmod.scrollbar_css() + densitymod.density_css() + responsivemod.narrow_css() + emojimod.icon_css() + parsonsmod.parsons_css() + parkeysmod.parkeys_css() + comparesplitmod.split_css() + specsplitmod.split_css() + cardflipmod.flip_css() + kidsmod.kids_css() + contrastmod.contrast_css() + motionmod.motion_css() + lessonvermod.banner_css() + tablescrollmod.scroll_css() + dyslexiamod.dyslexia_css() + unlockfxmod.badge_css() + conceptbadgesmod.badge_css() + showcasemod.showcase_css() + themeunlockmod.theme_css() + calmjoymod.celebrate_css() + avatarmod.avatar_css() + mascotmod.mascot_css() + codeeditmod.editor_css() + outdiffmod.diff_css()  # Batch 24 I-154: code editor. I-157: output diff. Batch 9 I-51/52/53/54: token variables, dark overrides, type scale, font stacks. Batch 10 I-55..I-62: wordmark, bloom chips, progress motion, owned badge, stagger, carets, code lines, highlight. Batch 11 I-63..I-70: hint tiers, confidence segments, focus rings, tap floor, radii, spacing, hero. Batch 12 I-71..I-73/I-77/I-79..I-82: logbook, shelf, briefing, verdicts, banner, press, skeletons, optimistic submit. Batch 13 I-84/I-85/I-86/I-89/I-90: field errors, selection, scrollbars, density, narrow phones. Batch 19 I-115: lesson version banner. Batch 21 I-92: scrollable tables.
+CSS += palettemod.palette_css() + darkmodemod.dark_css() + typescalemod.scale_css() + fontstackmod.stack_css() + wordmarkmod.wordmark_css() + bloomchipsmod.chip_css() + progbarmod.progbar_css() + ownedbadgemod.badge_css() + staggermod.stagger_css() + caretsmod.carets_css() + codelinesmod.codelines_css() + highlightmod.highlight_css() + hinttiersmod.hinttiers_css() + confslidermod.css() + focusringsmod.css() + taptargetsmod.target_css() + radiusmod.radius_css() + spacingmod.spacing_css() + doneheromod.hero_css() + logbookmod.logbook_css() + shelfmod.shelf_css() + briefingmod.briefing_css() + verdictsmod.verdicts_css() + ownbannermod.ownbanner_css() + pressfxmod.pressfx_css() + skeletonsmod.skeletons_css() + optimisticmod.optimistic_css() + formerrmod.formerr_css() + selectionmod.selection_css() + scrollbarmod.scrollbar_css() + densitymod.density_css() + responsivemod.narrow_css() + emojimod.icon_css() + parsonsmod.parsons_css() + parkeysmod.parkeys_css() + comparesplitmod.split_css() + specsplitmod.split_css() + cardflipmod.flip_css() + kidsmod.kids_css() + contrastmod.contrast_css() + motionmod.motion_css() + lessonvermod.banner_css() + tablescrollmod.scroll_css() + dyslexiamod.dyslexia_css() + unlockfxmod.badge_css() + conceptbadgesmod.badge_css() + showcasemod.showcase_css() + themeunlockmod.theme_css() + calmjoymod.celebrate_css() + avatarmod.avatar_css() + mascotmod.mascot_css() + codeeditmod.editor_css() + outdiffmod.diff_css() + spamguardmod.guard_css()  # Batch 24 I-154: code editor. I-157: output diff. Batch 29 I-199: throttle note. Batch 9 I-51/52/53/54: token variables, dark overrides, type scale, font stacks. Batch 10 I-55..I-62: wordmark, bloom chips, progress motion, owned badge, stagger, carets, code lines, highlight. Batch 11 I-63..I-70: hint tiers, confidence segments, focus rings, tap floor, radii, spacing, hero. Batch 12 I-71..I-73/I-77/I-79..I-82: logbook, shelf, briefing, verdicts, banner, press, skeletons, optimistic submit. Batch 13 I-84/I-85/I-86/I-89/I-90: field errors, selection, scrollbars, density, narrow phones. Batch 19 I-115: lesson version banner. Batch 21 I-92: scrollable tables.
 
 GLOBAL_JS = """
 <script>
@@ -368,8 +368,8 @@ def page(title: str, body: str, active: str = "projects",
             f"<body data-page='{page_id}'>{head}<main id='main'>{body}</main>{foot}"
             f"{shortcutsmod.overlay_html()}{GLOBAL_JS}{shortcutsmod.script_js()}"
             f"{searchmod.script_js()}{scrollposmod.record_js()}"
-            f"{reviewedmod.script_js()}{unsavedmod.guard_js()}{autofocusmod.focus_js()}"
-            f"{collapsemod.collapse_js()}{optimisticmod.optimistic_js()}{densitymod.toggle_js()}{dyslexiamod.toggle_js()}{readoutmod.script_js()}{audiosummod.script_js()}{calmmod.script_js()}</body></html>").encode()
+            f"{reviewedmod.script_js()}{unsavedmod.guard_js()}{autofocusmod.focus_js()}{keyflowmod.flow_js()}"
+            f"{collapsemod.collapse_js()}{optimisticmod.optimistic_js()}{spamguardmod.guard_js()}{densitymod.toggle_js()}{dyslexiamod.toggle_js()}{readoutmod.script_js()}{audiosummod.script_js()}{calmmod.script_js()}</body></html>").encode()
 
 
 def _first_unowned(owned: dict, cids_in_order: list[str]) -> str | None:
@@ -508,10 +508,10 @@ class Handler(BaseHTTPRequestHandler):
         elif url.path == "/due":
             mode = query.get("mode", [""])[0]
             one, cold = mode == "one", mode == "cold"
-            dial = query.get("dial", [""])[0] or None
+            dial = query.get("dial", [""])[0] or None; cap = query.get("cap", [""])[0] or None
             resume_key = query.get("resume", [""])[0]
-            scope = query.get("scope", [""])[0]; syllabus = query.get("syllabus", [""])[0]
-            self._send(page("Due", self.due_html(level, one, resume_key, dial, cold, mode, order, replay_step, query.get("buddy", []), self._optout, self._plain, scope=scope, syllabus=syllabus),
+            scope = query.get("scope", [""])[0]; syllabus = query.get("syllabus", [""])[0]; light = query.get("light", [""])[0]; lightfrac = query.get("lightfrac", [""])[0]; service = query.get("service", [""])[0]; workshop = query.get("workshop", [""])[0]
+            self._send(page("Due", self.due_html(level, one, resume_key, dial, cold, mode, order, replay_step, query.get("buddy", []), self._optout, self._plain, scope=scope, syllabus=syllabus, cap=cap, light=light, lightfrac=lightfrac, service=service, workshop=workshop),
                             active="due", page_id="due",
                             lede="What to practice next — your spaced queue, one card at a time.",
                             counts=counts, tour=tour_ctx))
@@ -654,7 +654,7 @@ class Handler(BaseHTTPRequestHandler):
             mid = url.path.split("/")[-1]
             assign_spec = query.get("assign", [""])[0] or None
             assign_fields = {"title": query.get("atitle", [""])[0], "due": query.get("adue", [""])[0], "steps": query.get("astep", []), "repo": query.get("arepo", [""])[0]} if query.get("assign", [""])[0] == "new" else None
-            body = self.module_html(mid, level, order, replay_step, query.get("buddy", []), query.get("buddymatch", [""])[0] == "1", query.get("bmatch_repos", []), query.get("bmatch_concepts", []), query.get("quest", [""])[0] or None, query.get("trail", [""])[0], assign_spec, assign_fields)
+            body = self.module_html(mid, level, order, replay_step, query.get("buddy", []), query.get("buddymatch", [""])[0] == "1", query.get("bmatch_repos", []), query.get("bmatch_concepts", []), query.get("quest", [""])[0] or None, query.get("trail", [""])[0], assign_spec, assign_fields, query.get("comply", [""])[0] or None)
             if body == "<p>Unknown module.</p>":
                 self._send(page("Not found", errmod.not_found_html(
                     url.path, "Unknown module."), active="modules",
@@ -687,7 +687,7 @@ class Handler(BaseHTTPRequestHandler):
                  resume_key: str = "", dial=None, cold: bool = False,
                  mode: str = "", order: str = "definition",
                  replay_step=None, buddies=(), optout: str = "", plain: str = "",
-                 scope: str = "", syllabus: str = "") -> str:
+                 scope: str = "", syllabus: str = "", cap=None, light: str = "", lightfrac: str = "", service: str = "", workshop: str = "") -> str:
         server = mcplib.MCPServer(self.db_path)
         due = server.tool_list_due_reviews({"limit": 20})["due"]
         due = syllabusmod.gate_due(self.db_path, ramppackmod.scope_due(self.db_path, due, scope), syllabus)
@@ -734,16 +734,16 @@ class Handler(BaseHTTPRequestHandler):
         # k=1.0 (no history) keeps both legacy paths byte-identical.
         decay = forgetcurvemod.fit_decay(
             forgetcurvemod.clean_attempts(fc_rows))
-        due = minisessionmod.apply_dial(due, dial, tries, decay=decay)
-        due = forgetcurvemod.order_due(due, decay)
+        due = lightdaysmod.apply_light_days(minisessionmod.apply_dial(due, dial, tries, decay=decay), light, lightfrac, tried=tries)
+        due = forgetcurvemod.order_due(due, decay); due, track_banner = cmdtrackmod.apply_track(self.db_path, due); due, _capplan = dailycapmod.apply_cap(due, cap)
         opt = optoutmod.parse(optout)
-        parts = [pack_banner + coopmod.split_html(due, buddies) + (comebackmod.comeback_box_html(rows=[{"name": r[0], "reviewed_at": r[1]} for r in first_rows]) if optoutmod.show(opt, "comeback") else "") + digestmod.section_html(self.db_path) + optoutmod.toggle_box_html(opt, "/due") + officehoursmod.bring_html(self.db_path),
+        parts = [pack_banner + track_banner + coopmod.split_html(due, buddies) + (comebackmod.comeback_box_html(rows=[{"name": r[0], "reviewed_at": r[1]} for r in first_rows]) if optoutmod.show(opt, "comeback") else "") + digestmod.section_html(self.db_path) + optoutmod.toggle_box_html(opt, "/due") + officehoursmod.bring_html(self.db_path),
                  # F-92: peak-recall banner; "" below threshold.
                  (peaktimemod.banner_html(peak_rows) if optoutmod.show(opt, "peak") else ""),
                  recentmod.strip_html(),
                  minisessionmod.session_box_html(due, recent=[r["grade"] for r in cal_rows], tried=tries, flow_attempts=flowdetectmod.attempts_with_pace(flow_rows)),
-                 minisessionmod.dial_box(dial, mode) + (mascotmod.line_html(self.db_path) if optoutmod.show(opt, "mascot") else ""),
-                 resumemod.resume_box_html(resume_key or "", len(due)) + focustimermod.timer_html(due) + playlistsmod.playlist_html(due, recent=[r["grade"] for r in cal_rows], tried=tries),
+                 dailycapmod.cap_box(due, _capplan, cap, mode) + minisessionmod.dial_box(dial, mode) + lightdaysmod.light_box_html(light, lightfrac, mode) + (mascotmod.line_html(self.db_path) if optoutmod.show(opt, "mascot") else ""),
+                 resumemod.resume_box_html(resume_key or "", len(due)) + focustimermod.timer_html(due) + playlistsmod.playlist_html(due, recent=[r["grade"] for r in cal_rows], tried=tries) + workshopmod.sprint_html(due, workshop),
                  reteachmod.reteach_box_html(reteachmod.pick_reteach(
                      reteachmod.first_attempts(first_rows))) + (plainmod.toggle_link_html("/due") if plain != "1" else "")]
         if cold:
@@ -755,7 +755,7 @@ class Handler(BaseHTTPRequestHandler):
         else:
             parts.append("<p><a id='one-card' href='/due?mode=one'>"
                          "Just one card</a> for low-energy days.</p>")
-        parts.append((sermod.section_html(self.db_path) if optoutmod.show(opt, "serendipity") else "") + (partytrickmod.section_html(self.db_path) if optoutmod.show(opt, "party") else "") + interviewprepmod.track_html(prows, due))
+        parts.append((sermod.section_html(self.db_path) if optoutmod.show(opt, "serendipity") else "") + (partytrickmod.section_html(self.db_path) if optoutmod.show(opt, "party") else "") + interviewprepmod.track_html(prows, due) + oncallpackmod.prep_html(self.db_path, service, prows, due) + secchampmod.track_html(self.db_path, scope) + a11ychampmod.champ_html(self.db_path, scope))
         if not due:
             stats = self._hero_stats()
             parts.append((doneheromod.done_hero_html(
@@ -1020,7 +1020,7 @@ class Handler(BaseHTTPRequestHandler):
         return "".join(parts)
 
     def module_html(self, mid: str, level: str = "auto", order: str = "definition",
-                      replay_step=None, buddies=(), match_opt_in=False, match_repos=(), match_concepts=(), quest_spec=None, trail="", assign_spec=None, assign_fields=None) -> str:
+                      replay_step=None, buddies=(), match_opt_in=False, match_repos=(), match_concepts=(), quest_spec=None, trail="", assign_spec=None, assign_fields=None, comply_spec=None) -> str:
         con = self._con()
         try:
             m = con.execute("SELECT * FROM modules WHERE id=?", (mid,)).fetchone()
@@ -1104,8 +1104,8 @@ class Handler(BaseHTTPRequestHandler):
                 f"<p><small>{owned_n}/{len(concepts)} concepts owned</small></p>" + buddypingmod.ping_html(buddies, owned_n, len(concepts)) + thanksmod.thanks_box_html(dict(m)))
         parts.append(questsmod.skills_view(concepts, lesson_map, mastery_of))
         parts.append(onboardmod.countdown_box_html(lessons=list(lesson_map.values()), owned=owned, rows=history))
-        parts.append(layerpathmod.starthere_html(lesson_map, owned))
-        parts.append(classquestsmod.quest_html(quest_spec, [r["name"] for r in concepts if owned.get(r["cid"], (0, False))[1]], mastery_of))
+        parts.append(layerpathmod.starthere_html(lesson_map, owned) + ossladermod.ladder_html(concepts, owned, lesson_map))
+        parts.append(classquestsmod.quest_html(quest_spec, [r["name"] for r in concepts if owned.get(r["cid"], (0, False))[1]], mastery_of) + comptrackmod.verify_html(comply_spec, [r["name"] for r in concepts if owned.get(r["cid"], (0, False))[1]], mastery_of))
         parts.append(selfassignmod.assign_html(assign_spec, assign_fields, [r["name"] for r in concepts], [r["name"] for r in concepts if owned.get(r["cid"], (0, False))[1]], mastery_of, m["repo"], mid))
         practice_tagged = False
         dec_nodes = [r["cid"].split(":", 1)[1] if ":" in r["cid"] else r["cid"]
@@ -1384,7 +1384,7 @@ class Handler(BaseHTTPRequestHandler):
             due_left = server.tool_list_due_reviews({"limit": 1000})["count"]
             body = (cerr + scrollposmod.restore_js(origin)
                     + autoscrollmod.enhance_result(
-                        resmod.render_result(res["pass"], res["feedback"], back, out["next_due"], origin, mod_id, due_left, points=res.get("points"), drill=res.get("drill", ""), ref_ms=res.get("ref_ms")))
+                        resmod.render_result(res["pass"], res["feedback"], back, out["next_due"], origin, mod_id, due_left, points=res.get("points"), drill=res.get("drill", ""), ref_ms=res.get("ref_ms"), answer_hist=res.get("answer_hist", "")))
                     + out.get("relief", "") + out.get("atoms", "") + out.get("retry", "") + out.get("nextup", "") + out.get("similar", "")
                     + autoscrollmod.verdict_js())
             self._send(page("Result", body, counts=self._nav_counts()))

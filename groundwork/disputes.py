@@ -9,6 +9,7 @@ from __future__ import annotations
 import html
 
 from . import db as dbmod
+from . import quarantine as quarmod
 from . import sched as schedmod
 
 OPEN = "open"
@@ -65,7 +66,10 @@ def resolve_dispute(db_path: str, dispute_id: int, verdict: str) -> dict:
         con.commit()
         if cur.rowcount == 0:
             return {"error": "unknown dispute"}
-        return {"dispute_id": dispute_id, "status": verdict}
+        if verdict != "accepted":
+            return {"dispute_id": dispute_id, "status": verdict}
+        return {"dispute_id": dispute_id, "status": verdict,
+                **quarmod.settle_accepted(db_path, dispute_id)}
     finally:
         con.close()
 

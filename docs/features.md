@@ -197,6 +197,14 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | Office-hours bring-list | Your flagged sections, longest-confused first -- bring these to office hours. | `/status#status-b28-officehours` |
 | Verifiable certificates | Certificates with hashes any holder can check offline. | `/reviews#cert-hashes` |
 | Portable open badges | Fully-owned packs export as Open Badges 3.0 assertions -- download the JSON from History. | `/status#status-b28-openbadge` |
+| Knowledge half-life | What decayed since last quarter — per-concept half-life plus the slipped list, so review time goes where it matters. | `/status#status-b29-halflife` |
+| On-call prep packs | Explain this service before the rotation: the shakiest ideas in one service first, with study links. | `/status#status-b29-oncallpack` |
+| Incident-commander track | Replay, diagnose, then decide — gated commander stages over live reviews and mastery. | `/status#status-b29-cmdtrack` |
+| Compliance tracks | Required concepts verified against owned proofs — PASS, never checkboxed. | `/status#status-b29-comptrack` |
+| Security-champions track | Threat-model plus secret-scan practice per area: your area's security cards weakest-first, progress from owned proofs. | `/status#status-b29-secchamp` |
+| Accessibility champions track | Weakest-first audit practice per frontend — a11y cards plus UI-honest i18n cards, scoped by ?scope=. | `/status#status-b29-a11ychamp` |
+| Open-source contributor ladder | Study modules grow a contributor ladder -- first patch to owned subsystem -- computed from your own proofs, with the next good first issue named. | `/status#status-b29-osslader` |
+| Conference workshop | A 2-hour guided sprint from your queue — weakest-first segments with breaks, timed or self-paced. | `/due#workshop` |
 
 ## Improvements
 
@@ -388,6 +396,14 @@ Generated from the tour registry — do not edit by hand. Run `python -m groundw
 | What to review next | After each answer, the result screen suggests the next due cards with links back into the queue. | `/status#status-b28-nextup` |
 | Practice a similar card | Fail a shuffle-based card and one click deals a fresh sibling: same concept, same format, new order, due now. | `/status#status-b28-similar` |
 | Bonus attempts skip stats | Probe extras and bonus variants grade like normal but move no FSRS state, mastery, or accuracy count. | `/status#status-b28-bonus` |
+| Dispute quarantine | Accepted disputes retire the bad card and mint a fresh retry due now. | `/due#queue` |
+| Answer history diff | When your answer changes, the result shows what you wrote last time -- catch repeated mistakes. | `/status#status-b29-answerhist` |
+| Double-submit guard | One submit per card per 5 seconds: rapid repeats are cancelled with a status note, first submits always go through. | `/status#status-b29-spamguard` |
+| Full keyboard answer-rate-advance flow | Answer, rate confidence with Alt+1-5, and continue with n -- the whole review loop without the mouse. | `/status#status-b29-keyflow` |
+| Fuller FSRS fit | Review gaps use fuller FSRS-4.5 updates tuned to your own recall history -- newcomers keep the standard schedule. | `/status#status-b29-fsrs45` |
+| Desired retention | Set how well you want to remember (0.70-0.95) and preview the workload it costs — due within 7 and 30 days, before you commit. | `/reviews#retention` |
+| Daily review cap | Cap Due at N cards a day — overflow spreads across coming mornings instead of crushing today. | `/status#status-b29-dailycap` |
+| Weekend light mode | Chosen days run a lighter Due queue — new cards trimmed, due reviews untouched. | `/due#lightdays` |
 
 ## The original loop
 

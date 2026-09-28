@@ -415,6 +415,7 @@ class MCPServer:
                       confidence: int = 3, bonus: bool = False) -> dict:
         from . import sandbox as sbmod
         from . import refms as refmsmod
+        from . import answerhist as answerhistmod
         con = self._con()
         try:
             row = con.execute("SELECT * FROM cards WHERE id=?", (card_id,)).fetchone()
@@ -462,11 +463,29 @@ class MCPServer:
                     retry_html = retryblanksmod.retry_form(
                         {"id": card_id, "payload": exercise["payload"]},
                         submission, wrong_ids=missed)
-            hist = [r[0] for r in con.execute(
-                "SELECT grade FROM reviews WHERE card_id=? ORDER BY rowid",
-                (card_id,)).fetchall()]
+            # I-197: prior submission feeds the history diff; must stay
+            # pre-INSERT or the lookup echoes the current attempt.
+            _prior = con.execute("SELECT submission FROM reviews WHERE card_id=? ORDER BY rowid DESC LIMIT 1", (card_id,)).fetchone()
+            result = answerhistmod.attach(result, _prior[0] if _prior else "", submission)
+            _prows = con.execute(
+                "SELECT grade, reviewed_at FROM reviews WHERE card_id=?"
+                " ORDER BY rowid", (card_id,)).fetchall()
+            hist = [r[0] for r in _prows]
+            # I-201: per-learner fit replays the trailing history; thin
+            # history (or any fit failure) yields None and the legacy
+            # schedule stands.
+            try:
+                from . import fsrs45 as fsrs45mod
+                _frows = con.execute(
+                    "SELECT card_id, grade, reviewed_at FROM reviews"
+                    " ORDER BY reviewed_at").fetchall()
+                _fit = fsrs45mod.fit(_frows)
+                _lag = fsrs45mod.days_since(_prows[-1][1]) if _prows else None
+            except Exception:  # noqa: BLE001 -- fit never blocks grading
+                _fit, _lag = None, None
             upd = schedmod.review_card(card["stability"], card["difficulty"],
-                                       grade_val, grades=hist + [grade_val])
+                                       grade_val, grades=hist + [grade_val],
+                                       params=_fit, lag_days=_lag)
             # F-93: a first review landing in quiet hours defers to
             # morning so new cards are never scheduled late at night.
             if not hist:
