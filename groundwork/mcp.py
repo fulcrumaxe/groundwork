@@ -415,6 +415,7 @@ class MCPServer:
                       confidence: int = 3, bonus: bool = False) -> dict:
         from . import sandbox as sbmod
         from . import refms as refmsmod
+        from . import answerhist as answerhistmod
         con = self._con()
         try:
             row = con.execute("SELECT * FROM cards WHERE id=?", (card_id,)).fetchone()
@@ -462,6 +463,10 @@ class MCPServer:
                     retry_html = retryblanksmod.retry_form(
                         {"id": card_id, "payload": exercise["payload"]},
                         submission, wrong_ids=missed)
+            # I-197: prior submission feeds the history diff; must stay
+            # pre-INSERT or the lookup echoes the current attempt.
+            _prior = con.execute("SELECT submission FROM reviews WHERE card_id=? ORDER BY rowid DESC LIMIT 1", (card_id,)).fetchone()
+            result = answerhistmod.attach(result, _prior[0] if _prior else "", submission)
             hist = [r[0] for r in con.execute(
                 "SELECT grade FROM reviews WHERE card_id=? ORDER BY rowid",
                 (card_id,)).fetchall()]

@@ -1384,7 +1384,7 @@ class Handler(BaseHTTPRequestHandler):
             due_left = server.tool_list_due_reviews({"limit": 1000})["count"]
             body = (cerr + scrollposmod.restore_js(origin)
                     + autoscrollmod.enhance_result(
-                        resmod.render_result(res["pass"], res["feedback"], back, out["next_due"], origin, mod_id, due_left, points=res.get("points"), drill=res.get("drill", ""), ref_ms=res.get("ref_ms")))
+                        resmod.render_result(res["pass"], res["feedback"], back, out["next_due"], origin, mod_id, due_left, points=res.get("points"), drill=res.get("drill", ""), ref_ms=res.get("ref_ms"), answer_hist=res.get("answer_hist", "")))
                     + out.get("relief", "") + out.get("atoms", "") + out.get("retry", "") + out.get("nextup", "") + out.get("similar", "")
                     + autoscrollmod.verdict_js())
             self._send(page("Result", body, counts=self._nav_counts()))

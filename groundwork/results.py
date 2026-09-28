@@ -25,7 +25,7 @@ def result_nav(origin: str, mod_id: str) -> str:
 def render_result(passed: bool, feedback: str, back: str, next_due: str,
                  origin: str, mod_id: str, due_left: int | None = None,
                  points: int | None = None, drill: str = "",
-                 ref_ms: int | None = None) -> str:
+                 ref_ms: int | None = None, answer_hist: str = "") -> str:
     """Result screen: verdict first, explanation, then where to go next.
 
     ``points`` is the banked confidence-weighted score (Batch 15,
@@ -54,5 +54,5 @@ def render_result(passed: bool, feedback: str, back: str, next_due: str,
     return (f"<p class='verdict {cls}'>{verdict} — {html.escape(feedback)}</p>"
             f"<details open><summary>Explanation</summary><p>{html.escape(back)}</p></details>"
             f"<p>Next review: {html.escape(next_due)}</p>{banked}{drill_line}"
-            f"{refmsmod.line_html(ref_ms)}"
+            f"{refmsmod.line_html(ref_ms)}{answer_hist}"
             f"{left}{result_nav(origin, mod_id)}")
