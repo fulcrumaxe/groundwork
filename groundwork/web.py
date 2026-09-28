@@ -71,7 +71,7 @@ from . import formerr as formerrmod
 from . import handout as handoutmod
 from . import hinttiers as hinttiersmod
 from . import history as histmod
-from . import interviewprep as interviewprepmod
+from . import interviewprep as interviewprepmod, oncallpack as oncallpackmod  # Batch 29 F-185: on-call pack join.
 from . import journal as journalmod
 from . import kids as kidsmod, known as knownmod, keyflow as keyflowmod  # one line keeps web.py at WEB_CEILING. Batch 29 I-200: key flow.
 from . import lessons as lesmod
@@ -510,8 +510,8 @@ class Handler(BaseHTTPRequestHandler):
             one, cold = mode == "one", mode == "cold"
             dial = query.get("dial", [""])[0] or None; cap = query.get("cap", [""])[0] or None
             resume_key = query.get("resume", [""])[0]
-            scope = query.get("scope", [""])[0]; syllabus = query.get("syllabus", [""])[0]; light = query.get("light", [""])[0]; lightfrac = query.get("lightfrac", [""])[0]
-            self._send(page("Due", self.due_html(level, one, resume_key, dial, cold, mode, order, replay_step, query.get("buddy", []), self._optout, self._plain, scope=scope, syllabus=syllabus, cap=cap, light=light, lightfrac=lightfrac),
+            scope = query.get("scope", [""])[0]; syllabus = query.get("syllabus", [""])[0]; light = query.get("light", [""])[0]; lightfrac = query.get("lightfrac", [""])[0]; service = query.get("service", [""])[0]
+            self._send(page("Due", self.due_html(level, one, resume_key, dial, cold, mode, order, replay_step, query.get("buddy", []), self._optout, self._plain, scope=scope, syllabus=syllabus, cap=cap, light=light, lightfrac=lightfrac, service=service),
                             active="due", page_id="due",
                             lede="What to practice next — your spaced queue, one card at a time.",
                             counts=counts, tour=tour_ctx))
@@ -687,7 +687,7 @@ class Handler(BaseHTTPRequestHandler):
                  resume_key: str = "", dial=None, cold: bool = False,
                  mode: str = "", order: str = "definition",
                  replay_step=None, buddies=(), optout: str = "", plain: str = "",
-                 scope: str = "", syllabus: str = "", cap=None, light: str = "", lightfrac: str = "") -> str:
+                 scope: str = "", syllabus: str = "", cap=None, light: str = "", lightfrac: str = "", service: str = "") -> str:
         server = mcplib.MCPServer(self.db_path)
         due = server.tool_list_due_reviews({"limit": 20})["due"]
         due = syllabusmod.gate_due(self.db_path, ramppackmod.scope_due(self.db_path, due, scope), syllabus)
@@ -755,7 +755,7 @@ class Handler(BaseHTTPRequestHandler):
         else:
             parts.append("<p><a id='one-card' href='/due?mode=one'>"
                          "Just one card</a> for low-energy days.</p>")
-        parts.append((sermod.section_html(self.db_path) if optoutmod.show(opt, "serendipity") else "") + (partytrickmod.section_html(self.db_path) if optoutmod.show(opt, "party") else "") + interviewprepmod.track_html(prows, due))
+        parts.append((sermod.section_html(self.db_path) if optoutmod.show(opt, "serendipity") else "") + (partytrickmod.section_html(self.db_path) if optoutmod.show(opt, "party") else "") + interviewprepmod.track_html(prows, due) + oncallpackmod.prep_html(self.db_path, service, prows, due))
         if not due:
             stats = self._hero_stats()
             parts.append((doneheromod.done_hero_html(
