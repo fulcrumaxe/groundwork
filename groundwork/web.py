@@ -76,7 +76,7 @@ from . import journal as journalmod
 from . import kids as kidsmod, known as knownmod, keyflow as keyflowmod  # one line keeps web.py at WEB_CEILING. Batch 29 I-200: key flow.
 from . import lessons as lesmod
 from . import lessonpin as lessonpinmod
-from . import lessondeps as lessondepsmod
+from . import lessondeps as lessondepsmod, lightdays as lightdaysmod  # Batch 29 I-206: light-days join.
 from . import lessonver as lessonvermod
 from . import levelcarry as levelcarrymod
 from . import logbook as logbookmod
@@ -510,8 +510,8 @@ class Handler(BaseHTTPRequestHandler):
             one, cold = mode == "one", mode == "cold"
             dial = query.get("dial", [""])[0] or None; cap = query.get("cap", [""])[0] or None
             resume_key = query.get("resume", [""])[0]
-            scope = query.get("scope", [""])[0]; syllabus = query.get("syllabus", [""])[0]
-            self._send(page("Due", self.due_html(level, one, resume_key, dial, cold, mode, order, replay_step, query.get("buddy", []), self._optout, self._plain, scope=scope, syllabus=syllabus, cap=cap),
+            scope = query.get("scope", [""])[0]; syllabus = query.get("syllabus", [""])[0]; light = query.get("light", [""])[0]; lightfrac = query.get("lightfrac", [""])[0]
+            self._send(page("Due", self.due_html(level, one, resume_key, dial, cold, mode, order, replay_step, query.get("buddy", []), self._optout, self._plain, scope=scope, syllabus=syllabus, cap=cap, light=light, lightfrac=lightfrac),
                             active="due", page_id="due",
                             lede="What to practice next — your spaced queue, one card at a time.",
                             counts=counts, tour=tour_ctx))
@@ -687,7 +687,7 @@ class Handler(BaseHTTPRequestHandler):
                  resume_key: str = "", dial=None, cold: bool = False,
                  mode: str = "", order: str = "definition",
                  replay_step=None, buddies=(), optout: str = "", plain: str = "",
-                 scope: str = "", syllabus: str = "", cap=None) -> str:
+                 scope: str = "", syllabus: str = "", cap=None, light: str = "", lightfrac: str = "") -> str:
         server = mcplib.MCPServer(self.db_path)
         due = server.tool_list_due_reviews({"limit": 20})["due"]
         due = syllabusmod.gate_due(self.db_path, ramppackmod.scope_due(self.db_path, due, scope), syllabus)
@@ -734,7 +734,7 @@ class Handler(BaseHTTPRequestHandler):
         # k=1.0 (no history) keeps both legacy paths byte-identical.
         decay = forgetcurvemod.fit_decay(
             forgetcurvemod.clean_attempts(fc_rows))
-        due = minisessionmod.apply_dial(due, dial, tries, decay=decay)
+        due = lightdaysmod.apply_light_days(minisessionmod.apply_dial(due, dial, tries, decay=decay), light, lightfrac, tried=tries)
         due = forgetcurvemod.order_due(due, decay); due, _capplan = dailycapmod.apply_cap(due, cap)
         opt = optoutmod.parse(optout)
         parts = [pack_banner + coopmod.split_html(due, buddies) + (comebackmod.comeback_box_html(rows=[{"name": r[0], "reviewed_at": r[1]} for r in first_rows]) if optoutmod.show(opt, "comeback") else "") + digestmod.section_html(self.db_path) + optoutmod.toggle_box_html(opt, "/due") + officehoursmod.bring_html(self.db_path),
@@ -742,7 +742,7 @@ class Handler(BaseHTTPRequestHandler):
                  (peaktimemod.banner_html(peak_rows) if optoutmod.show(opt, "peak") else ""),
                  recentmod.strip_html(),
                  minisessionmod.session_box_html(due, recent=[r["grade"] for r in cal_rows], tried=tries, flow_attempts=flowdetectmod.attempts_with_pace(flow_rows)),
-                 dailycapmod.cap_box(due, _capplan, cap, mode) + minisessionmod.dial_box(dial, mode) + (mascotmod.line_html(self.db_path) if optoutmod.show(opt, "mascot") else ""),
+                 dailycapmod.cap_box(due, _capplan, cap, mode) + minisessionmod.dial_box(dial, mode) + lightdaysmod.light_box_html(light, lightfrac, mode) + (mascotmod.line_html(self.db_path) if optoutmod.show(opt, "mascot") else ""),
                  resumemod.resume_box_html(resume_key or "", len(due)) + focustimermod.timer_html(due) + playlistsmod.playlist_html(due, recent=[r["grade"] for r in cal_rows], tried=tries),
                  reteachmod.reteach_box_html(reteachmod.pick_reteach(
                      reteachmod.first_attempts(first_rows))) + (plainmod.toggle_link_html("/due") if plain != "1" else "")]
