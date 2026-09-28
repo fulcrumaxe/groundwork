@@ -64,7 +64,7 @@ from . import exports as expmod
 from . import favicon as faviconmod
 from . import fontstack as fontstackmod
 from . import focusrings as focusringsmod
-from . import flowdetect as flowdetectmod, focustimer as focustimermod, playlists as playlistsmod, restday as restdaymod, comeback as comebackmod, coop as coopmod  # one line keeps web.py at WEB_CEILING
+from . import flowdetect as flowdetectmod, focustimer as focustimermod, playlists as playlistsmod, restday as restdaymod, comeback as comebackmod, coop as coopmod, workshop as workshopmod  # one line keeps web.py at WEB_CEILING. Batch 29 F-195: workshop.
 from . import footnav as footnavmod
 from . import forgetcurve as forgetcurvemod
 from . import formerr as formerrmod
@@ -510,8 +510,8 @@ class Handler(BaseHTTPRequestHandler):
             one, cold = mode == "one", mode == "cold"
             dial = query.get("dial", [""])[0] or None; cap = query.get("cap", [""])[0] or None
             resume_key = query.get("resume", [""])[0]
-            scope = query.get("scope", [""])[0]; syllabus = query.get("syllabus", [""])[0]; light = query.get("light", [""])[0]; lightfrac = query.get("lightfrac", [""])[0]; service = query.get("service", [""])[0]
-            self._send(page("Due", self.due_html(level, one, resume_key, dial, cold, mode, order, replay_step, query.get("buddy", []), self._optout, self._plain, scope=scope, syllabus=syllabus, cap=cap, light=light, lightfrac=lightfrac, service=service),
+            scope = query.get("scope", [""])[0]; syllabus = query.get("syllabus", [""])[0]; light = query.get("light", [""])[0]; lightfrac = query.get("lightfrac", [""])[0]; service = query.get("service", [""])[0]; workshop = query.get("workshop", [""])[0]
+            self._send(page("Due", self.due_html(level, one, resume_key, dial, cold, mode, order, replay_step, query.get("buddy", []), self._optout, self._plain, scope=scope, syllabus=syllabus, cap=cap, light=light, lightfrac=lightfrac, service=service, workshop=workshop),
                             active="due", page_id="due",
                             lede="What to practice next — your spaced queue, one card at a time.",
                             counts=counts, tour=tour_ctx))
@@ -687,7 +687,7 @@ class Handler(BaseHTTPRequestHandler):
                  resume_key: str = "", dial=None, cold: bool = False,
                  mode: str = "", order: str = "definition",
                  replay_step=None, buddies=(), optout: str = "", plain: str = "",
-                 scope: str = "", syllabus: str = "", cap=None, light: str = "", lightfrac: str = "", service: str = "") -> str:
+                 scope: str = "", syllabus: str = "", cap=None, light: str = "", lightfrac: str = "", service: str = "", workshop: str = "") -> str:
         server = mcplib.MCPServer(self.db_path)
         due = server.tool_list_due_reviews({"limit": 20})["due"]
         due = syllabusmod.gate_due(self.db_path, ramppackmod.scope_due(self.db_path, due, scope), syllabus)
@@ -743,7 +743,7 @@ class Handler(BaseHTTPRequestHandler):
                  recentmod.strip_html(),
                  minisessionmod.session_box_html(due, recent=[r["grade"] for r in cal_rows], tried=tries, flow_attempts=flowdetectmod.attempts_with_pace(flow_rows)),
                  dailycapmod.cap_box(due, _capplan, cap, mode) + minisessionmod.dial_box(dial, mode) + lightdaysmod.light_box_html(light, lightfrac, mode) + (mascotmod.line_html(self.db_path) if optoutmod.show(opt, "mascot") else ""),
-                 resumemod.resume_box_html(resume_key or "", len(due)) + focustimermod.timer_html(due) + playlistsmod.playlist_html(due, recent=[r["grade"] for r in cal_rows], tried=tries),
+                 resumemod.resume_box_html(resume_key or "", len(due)) + focustimermod.timer_html(due) + playlistsmod.playlist_html(due, recent=[r["grade"] for r in cal_rows], tried=tries) + workshopmod.sprint_html(due, workshop),
                  reteachmod.reteach_box_html(reteachmod.pick_reteach(
                      reteachmod.first_attempts(first_rows))) + (plainmod.toggle_link_html("/due") if plain != "1" else "")]
         if cold:
