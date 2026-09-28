@@ -1405,6 +1405,102 @@ F-174 as decision 284 + module db09292c432b with
 designer-authored content; pre-shipped items correctly
 skipped MCP — verified in-DB).
 
+Batch 29 — eight improvements (I-195, I-197, I-199–I-202, I-205,
+I-206; I-196 recorded not-buildable, I-198 pre-shipped) + eight
+features (F-182, F-185, F-186, F-189–F-192, F-195; F-193/F-194
+recorded not-buildable).
+- [x] I-195 quarantine → accepted disputes stale the card and mint a
+  fresh retry due now. Caller disputes.resolve_dispute.
+- [x] I-197 answerhist → changed repeats show the prior answer on
+  the result screen. Caller MCPServer.submit_review.
+- [x] I-199 spamguard → one submit per card per 5s, repeats
+  cancelled with a status note. Caller web.page foot + head.
+- [x] I-200 keyflow → Alt+1-5 rates in place, n/Enter advances
+  from results. Caller web.page foot.
+- [x] I-201 fsrs45 → fuller FSRS-4.5 updates with a per-learner
+  (growth, decay) fit replayed from review history; thin history
+  keeps the legacy schedule. Caller sched.review_card.
+- [x] I-202 retention → ?retention= (0.7–0.95) with a what-if
+  workload preview; honestly no scheduler floor. Caller
+  history.history_html.
+- [x] I-205 dailycap → ?cap=N slices today plus dated overflow
+  buckets. Caller Handler.due_html.
+- [x] I-206 lightdays → ?light=/?lightfrac= trims new cards on
+  chosen days; reviews always survive. Caller Handler.due_html.
+- [x] I-198 PRE-SHIPPED (no new code): streak-free personal bests
+  shipped as F-101 in Batch 4 (bests.py, History render, tour).
+- [x] F-182 halflife → per-concept half-life plus the
+  decayed-since-last-quarter list. Caller history.history_html.
+- [x] F-185 oncallpack → ?service= repo-substring weakest-first
+  recap with study links. Caller Handler.due_html.
+- [x] F-186 cmdtrack → gated replay/diagnose/decide commander
+  stages; locked cards withheld with notice. Caller
+  Handler.due_html.
+- [x] F-189 comptrack → ?comply= JSON spec verified against
+  owned proofs; PASS, never checkboxed. Caller
+  Handler.module_html.
+- [x] F-190 secchamp → ?scope= security-card track
+  weakest-first with owned-proof progress. Caller
+  Handler.due_html.
+- [x] F-191 a11ychamp → ?scope= audit track (type 52 plus
+  UI-honest 53s) weakest-first. Caller Handler.due_html.
+- [x] F-192 osslader → contributor ladder from owned proofs
+  plus lesson-graph good-first-issue. Caller
+  Handler.module_html.
+- [x] F-195 workshop → ?workshop= guided/self sprint agenda
+  with segments, breaks, clocks. Caller Handler.due_html.
+
+Batch 29 deviations (all green-trunk, ledger-noted): per-item
+commits carry their caller wires plus any golden they move
+(Batch 18/19 precedent — a bare module without its caller
+cannot prove its effect test); I-195 needed a golden-refresh
+companion for the disputes count (one red pagesnap
+intermediate, repaired by follow-up, Batch 20 precedent);
+F-185 keeps ?service= as the repo dimension with a parent
+superseding decision 298 over the Batch-28 ?scope= probe
+(decision 282 holds single-repo only); F-190 restated from
+?service= file-prefix to ?scope= (parent decision 299 — one
+param must not fork into two meanings on one page), with
+unknown-scope copy rewritten for the filtered queue;
+F-182/F-186/F-191 tours point at /status (Batch 19/F-178
+precedent — fixtures carry no quarter-old reviews, track
+cards, or audit cards); I-202 tour verified live at
+/reviews#retention (tour fixture submits one review);
+parent fixed two self-authored test bugs (halflife anchor
+pin, a11ychamp section scoping) — module code untouched.
+
+Batch 29 migration: none (no schema changes; modes, scopes,
+caps, specs, and service ride URL params; quarantine writes
+existing columns only).
+
+Batch 29 wires: WEB_CEILING 1440 → 1440 (every wire same-line:
+disputes import + accept branch, mcp answerhist import +
+pre-INSERT lookup, results signature + join, result call,
+page foot x2, head CSS, kids/known + minisession + lessondeps
++ interviewprep + chiplinks + serendipity + digest + onboard
++ flowdetect + classquests import folds, due parse/call/sig
+x5, due stages x3, due parts joins x4, module call/sig x2,
+module joins x2); status.py holds at AREA_CAP (same-line
+batch29 join + import); history.py 270 → 270 (same-line
+retention + halflife joins); cards.py untouched at 349/350;
+disputes.py 103 → 107 (area, under cap); results.py 58
+(same-line); sched.py + params/lag_days (ungated core);
+mcp.py + fit feeder (ungated); tour 186/191 → 194/199; docs
+regen via the registry generator (README + features.md);
+goldens refreshed (status disputes count, due lightdays
+control, due workshop section, status batch29 home);
+every item module under 350 lines; MCP learning content
+covers every shipped item (children filed decisions
+285–297 + 13 modules against the served DB; F-182/F-185/
+F-186 reuse Batch-28 probe decisions 281–283 + modules
+aa69670aa4e6/0ebf382bc5e2/1e2c67c4b80a verified in-DB;
+parent filed superseding 298/299; pre-shipped I-198
+correctly skipped MCP — verified in-DB). Not-buildable
+stays uncrossed: I-196 (no authorship signal; payloads
+carry hints only), F-193 (no user directory or
+availability signal), F-194 (no money/sponsor rails;
+a fundless list would mislabel a reading list as a grant).
+
 ## IMPROVEMENTS (500)
 
 ### A. Navigation, IA & routing (I-1–50)
@@ -1612,21 +1708,21 @@ skipped MCP — verified in-DB).
 - [x] I-192: Variant cards marked as bonus (don't pollute FSRS stats).
 - [x] I-193: Let learners dispute a grade ("wrong reference") with one click.
 - [x] I-194: Dispute queue page for maintainers with accept/reject actions.
-- I-195: Accepted disputes auto-quarantine the card and regenerate it.
+- [x] I-195: Accepted disputes auto-quarantine the card and regenerate it.
 - I-196: Show card authorship (template vs LLM vs community) for trust.
-- I-197: Add answer history diff ("last time you wrote X").
-- I-198: Streak-free "personal bests" (fastest correct trace, etc.).
-- I-199: Reduce form spam: one submit per card per 5s (double-click guard).
-- I-200: Full keyboard flow: answer, rate, advance without touching mouse.
+- [x] I-197: Add answer history diff ("last time you wrote X").
+- [x] I-198: Streak-free "personal bests" (fastest correct trace, etc.).
+- [x] I-199: Reduce form spam: one submit per card per 5s (double-click guard).
+- [x] I-200: Full keyboard flow: answer, rate, advance without touching mouse.
 
 ### E. Scheduling, retention & progress (I-201–250)
 
-- I-201: Upgrade to full FSRS-4.5 parameters with per-learner optimization.
-- I-202: Add desired-retention setting (0.7–0.95) with workload preview.
+- [x] I-201: Upgrade to full FSRS-4.5 parameters with per-learner optimization.
+- [x] I-202: Add desired-retention setting (0.7–0.95) with workload preview.
 - I-203: Show "due in X days" forecast per card and per module.
 - I-204: Workload graph: reviews due per day for next 30 days.
-- I-205: Cap daily reviews with "load balance" spreading overflow.
-- I-206: Weekend/light mode: reduced load on chosen days.
+- [x] I-205: Cap daily reviews with "load balance" spreading overflow.
+- [x] I-206: Weekend/light mode: reduced load on chosen days.
 - I-207: Timezone-aware due dates (no midnight-boundary surprises).
 - I-208: Separate lapses counter drives relearning steps (1d → 3d ladder).
 - I-209: Add "cram mode" before a deadline (temporarily pull everything due).
@@ -2131,20 +2227,20 @@ skipped MCP — verified in-DB).
 - F-179: Exam-mode lockdown (timed, no hints, variant cards, honor pledge).
 - [x] F-180: Certificates with verification hashes (portable, offline-checkable).
 - [x] F-181: Open-badge 3.0 compliance for all credentials.
-- F-182: Team knowledge half-life report (what decayed since last quarter).
+- [x] F-182: Team knowledge half-life report (what decayed since last quarter).
 - F-183: Rotation suggestions from decay + bus-factor combined.
 - [x] F-184: Documentation coverage from owned maps (what nobody understands).
-- F-185: "Explain this service" on-call prep packs.
-- F-186: Incident-commander certification track (replay + diagnose + decide).
+- [x] F-185: "Explain this service" on-call prep packs.
+- [x] F-186: Incident-commander certification track (replay + diagnose + decide).
 - F-187: Postmortem-linked lessons (incident → concepts → cards auto-made).
 - F-188: Runbook comprehension checks (prove you grok the runbook).
-- F-189: Compliance training that actually verifies (SOX/PCI concepts owned).
-- F-190: Security-champions track (threat-model + scan types per service).
-- F-191: Accessibility-champions track (audit types per frontend).
-- F-192: Open-source contributor ladder (good-first-issue → owned subsystem).
+- [x] F-189: Compliance training that actually verifies (SOX/PCI concepts owned).
+- [x] F-190: Security-champions track (threat-model + scan types per service).
+- [x] F-191: Accessibility-champions track (audit types per frontend).
+- [x] F-192: Open-source contributor ladder (good-first-issue → owned subsystem).
 - F-193: Maintainer mentorship matching (by graph overlap + availability).
 - F-194: Foundation-sponsored pack grants (fund high-value OSS packs).
-- F-195: Conference workshop mode (2-hour guided module sprints).
+- [x] F-195: Conference workshop mode (2-hour guided module sprints).
 - F-196: Hackathon mode (team queue + live aggregate board, no individuals).
 - F-197: Alumni networks (keep owned proofs portable across jobs).
 - F-198: Reference letters auto-drafted from verified skills (human signs).
