@@ -407,6 +407,23 @@ AREAS = {
     "certhash": "certhash.py",
     "openbadge": "openbadge.py",
     "batch28": "batch28.py",
+    "quarantine": "quarantine.py",
+    "answerhist": "answerhist.py",
+    "spamguard": "spamguard.py",
+    "keyflow": "keyflow.py",
+    "fsrs45": "fsrs45.py",
+    "retention": "retention.py",
+    "dailycap": "dailycap.py",
+    "lightdays": "lightdays.py",
+    "halflife": "halflife.py",
+    "oncallpack": "oncallpack.py",
+    "cmdtrack": "cmdtrack.py",
+    "comptrack": "comptrack.py",
+    "secchamp": "secchamp.py",
+    "a11ychamp": "a11ychamp.py",
+    "osslader": "osslader.py",
+    "workshop": "workshop.py",
+    "batch29": "batch29.py",
 }
 
 

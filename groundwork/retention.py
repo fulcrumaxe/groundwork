@@ -250,6 +250,10 @@ def section_html() -> str:
 
 def tour_entry() -> dict:
     """Tour registry entry for the retention setting."""
+    # Live target: the box renders on History whenever the learner
+    # has review data (the tour fixture submits one review, so the
+    # gate lands here; the young-fixture pagesnap takes the empty
+    # branch without it).
     try:
         return {
             "id": "desired-retention",
