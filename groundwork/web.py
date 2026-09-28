@@ -33,7 +33,7 @@ from . import badge as badgemod
 from . import beforafter as beforaftermod
 from . import cardlinks as cardlinksmod
 from . import cards as cardsmod
-from . import chiplinks as chiplinksmod, conceptbadges as conceptbadgesmod  # one line keeps web.py at WEB_CEILING
+from . import chiplinks as chiplinksmod, cmdtrack as cmdtrackmod, conceptbadges as conceptbadgesmod  # one line keeps web.py at WEB_CEILING. Batch 29 F-186: commander track.
 from . import clarity as claritymod
 from . import classquests as classquestsmod
 from . import clickcards as clickcardsmod
@@ -735,9 +735,9 @@ class Handler(BaseHTTPRequestHandler):
         decay = forgetcurvemod.fit_decay(
             forgetcurvemod.clean_attempts(fc_rows))
         due = lightdaysmod.apply_light_days(minisessionmod.apply_dial(due, dial, tries, decay=decay), light, lightfrac, tried=tries)
-        due = forgetcurvemod.order_due(due, decay); due, _capplan = dailycapmod.apply_cap(due, cap)
+        due = forgetcurvemod.order_due(due, decay); due, track_banner = cmdtrackmod.apply_track(self.db_path, due); due, _capplan = dailycapmod.apply_cap(due, cap)
         opt = optoutmod.parse(optout)
-        parts = [pack_banner + coopmod.split_html(due, buddies) + (comebackmod.comeback_box_html(rows=[{"name": r[0], "reviewed_at": r[1]} for r in first_rows]) if optoutmod.show(opt, "comeback") else "") + digestmod.section_html(self.db_path) + optoutmod.toggle_box_html(opt, "/due") + officehoursmod.bring_html(self.db_path),
+        parts = [pack_banner + track_banner + coopmod.split_html(due, buddies) + (comebackmod.comeback_box_html(rows=[{"name": r[0], "reviewed_at": r[1]} for r in first_rows]) if optoutmod.show(opt, "comeback") else "") + digestmod.section_html(self.db_path) + optoutmod.toggle_box_html(opt, "/due") + officehoursmod.bring_html(self.db_path),
                  # F-92: peak-recall banner; "" below threshold.
                  (peaktimemod.banner_html(peak_rows) if optoutmod.show(opt, "peak") else ""),
                  recentmod.strip_html(),
