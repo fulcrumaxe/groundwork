@@ -1501,6 +1501,21 @@ carry hints only), F-193 (no user directory or
 availability signal), F-194 (no money/sponsor rails;
 a fundless list would mislabel a reading list as a grant).
 
+Batch 29 chrome-verify (real browser, served DB): clean, no fixes.
+Exercised /due base + ?service=/?scope=/?cap=/?light=/?workshop=
+variants, /reviews?retention=, /status home (all 17 anchors),
+module ladder + ?comply=, double-click submit (exactly one
+review), and the changed-repeat result line via curl
+(#verdict + Continue + n-hint all present). Console shows
+only two pre-existing issues (interactive-in-summary,
+lazy-image dimensions — untouched by this batch). Live
+dispute-accept skipped deliberately (wire covered by
+committed tests; would quarantine a real card); the five
+chrome-verify reviews plus their card-state writes were
+removed afterward (reviews back to 1). At merge: 383 AREAS,
+401 tour entries (8/194/199), 4411 tests green + E2E PASS,
+decisions 299, modules 388.
+
 ## IMPROVEMENTS (500)
 
 ### A. Navigation, IA & routing (I-1–50)
