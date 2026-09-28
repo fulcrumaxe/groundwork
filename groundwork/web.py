@@ -120,7 +120,7 @@ from . import scrollbar as scrollbarmod
 from . import scrollpos as scrollposmod
 from . import search as searchmod
 from . import selection as selectionmod, selfassign as selfassignmod, curricmap as curricmapmod, syllabus as syllabusmod
-from . import serendipity as sermod, partytrick as partytrickmod, optout as optoutmod  # one line keeps web.py at WEB_CEILING
+from . import serendipity as sermod, partytrick as partytrickmod, optout as optoutmod, secchamp as secchampmod  # one line keeps web.py at WEB_CEILING. Batch 29 F-190: sec track.
 from . import session as sessionmod
 from . import shelf as shelfmod, showcase as showcasemod  # one line keeps web.py at WEB_CEILING
 from . import shortcuts as shortcutsmod
@@ -755,7 +755,7 @@ class Handler(BaseHTTPRequestHandler):
         else:
             parts.append("<p><a id='one-card' href='/due?mode=one'>"
                          "Just one card</a> for low-energy days.</p>")
-        parts.append((sermod.section_html(self.db_path) if optoutmod.show(opt, "serendipity") else "") + (partytrickmod.section_html(self.db_path) if optoutmod.show(opt, "party") else "") + interviewprepmod.track_html(prows, due) + oncallpackmod.prep_html(self.db_path, service, prows, due))
+        parts.append((sermod.section_html(self.db_path) if optoutmod.show(opt, "serendipity") else "") + (partytrickmod.section_html(self.db_path) if optoutmod.show(opt, "party") else "") + interviewprepmod.track_html(prows, due) + oncallpackmod.prep_html(self.db_path, service, prows, due) + secchampmod.track_html(self.db_path, scope))
         if not due:
             stats = self._hero_stats()
             parts.append((doneheromod.done_hero_html(
