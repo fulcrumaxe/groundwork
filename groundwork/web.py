@@ -73,7 +73,7 @@ from . import hinttiers as hinttiersmod
 from . import history as histmod
 from . import interviewprep as interviewprepmod
 from . import journal as journalmod
-from . import kids as kidsmod, known as knownmod  # one line keeps web.py at WEB_CEILING
+from . import kids as kidsmod, known as knownmod, keyflow as keyflowmod  # one line keeps web.py at WEB_CEILING. Batch 29 I-200: key flow.
 from . import lessons as lesmod
 from . import lessonpin as lessonpinmod
 from . import lessondeps as lessondepsmod
@@ -368,7 +368,7 @@ def page(title: str, body: str, active: str = "projects",
             f"<body data-page='{page_id}'>{head}<main id='main'>{body}</main>{foot}"
             f"{shortcutsmod.overlay_html()}{GLOBAL_JS}{shortcutsmod.script_js()}"
             f"{searchmod.script_js()}{scrollposmod.record_js()}"
-            f"{reviewedmod.script_js()}{unsavedmod.guard_js()}{autofocusmod.focus_js()}"
+            f"{reviewedmod.script_js()}{unsavedmod.guard_js()}{autofocusmod.focus_js()}{keyflowmod.flow_js()}"
             f"{collapsemod.collapse_js()}{optimisticmod.optimistic_js()}{spamguardmod.guard_js()}{densitymod.toggle_js()}{dyslexiamod.toggle_js()}{readoutmod.script_js()}{audiosummod.script_js()}{calmmod.script_js()}</body></html>").encode()
 
 
