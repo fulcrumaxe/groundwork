@@ -47,7 +47,7 @@ from . import sched as schedmod
 from . import tablescroll as tablescrollmod
 from . import timetag as timetagmod
 from . import tztime as tztimemod
-from . import kids as kidsmod, workload as workloadmod, weekdigest as weekdigestmod, guardian as guardianmod  # one line keeps history.py lean
+from . import kids as kidsmod, workload as workloadmod, weekdigest as weekdigestmod, guardian as guardianmod, retention as retentionmod  # one line keeps history.py lean. Batch 29 I-202: retention box.
 
 COACH_TIPS = {
     "recall": "Say the answer aloud before rating yourself.",
@@ -238,7 +238,7 @@ def history_html(db_path: str, query=None) -> str:
                      + tablescrollmod.wrap_table(
                          f"<table class='log'><tr><th>Day</th><th>Attempts</th>"
                          f"<th>Passed</th></tr>{cells}</table>"))
-        parts.append(workloadmod.section_html(db_path))
+        parts.append(workloadmod.section_html(db_path) + retentionmod.box_html(db_path, query))
         wn, wok, wdays = week["n"] or 0, week["ok"] or 0, week["days"] or 0
         acc = f"{round(100 * wok / wn)}%" if wn else "—"
         parts.append(
