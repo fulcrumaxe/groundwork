@@ -89,7 +89,7 @@ from . import modules as modmod
 from . import motion as motionmod
 from . import ogtags as ogtagsmod
 from . import optimistic as optimisticmod, outdiff as outdiffmod, spamguard as spamguardmod  # Batch 24 I-157: diff CSS join keeps web.py at WEB_CEILING. Batch 29 I-199: throttle join.
-from . import onboard as onboardmod, layerpath as layerpathmod
+from . import onboard as onboardmod, layerpath as layerpathmod, osslader as ossladermod  # Batch 29 F-192: ladder join.
 from . import ownbanner as ownbannermod
 from . import ownership as ownmod
 from . import pageicon as pageiconmod
@@ -1104,7 +1104,7 @@ class Handler(BaseHTTPRequestHandler):
                 f"<p><small>{owned_n}/{len(concepts)} concepts owned</small></p>" + buddypingmod.ping_html(buddies, owned_n, len(concepts)) + thanksmod.thanks_box_html(dict(m)))
         parts.append(questsmod.skills_view(concepts, lesson_map, mastery_of))
         parts.append(onboardmod.countdown_box_html(lessons=list(lesson_map.values()), owned=owned, rows=history))
-        parts.append(layerpathmod.starthere_html(lesson_map, owned))
+        parts.append(layerpathmod.starthere_html(lesson_map, owned) + ossladermod.ladder_html(concepts, owned, lesson_map))
         parts.append(classquestsmod.quest_html(quest_spec, [r["name"] for r in concepts if owned.get(r["cid"], (0, False))[1]], mastery_of) + comptrackmod.verify_html(comply_spec, [r["name"] for r in concepts if owned.get(r["cid"], (0, False))[1]], mastery_of))
         parts.append(selfassignmod.assign_html(assign_spec, assign_fields, [r["name"] for r in concepts], [r["name"] for r in concepts if owned.get(r["cid"], (0, False))[1]], mastery_of, m["repo"], mid))
         practice_tagged = False
