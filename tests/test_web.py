@@ -1,6 +1,8 @@
 """Web IA tests: distinct pages, full nav, origin-aware results, lessons."""
+import sqlite3
 import tempfile
 import unittest
+from io import BytesIO
 from pathlib import Path
 from urllib.parse import urlencode
 
@@ -767,11 +769,70 @@ class MemoryStrengthTest(unittest.TestCase):
         self.assertIn("Memory strength", body)
         self.assertIn("class='bar'", body)
 
+    def test_bar_track_is_block_level(self):
+        # The memory bar is an inline span inside a <p> (a div there
+        # would be invalid nesting), so the .bar rule itself must
+        # force block layout -- otherwise the track collapses to a
+        # sliver instead of a filled bar.
+        self.assertIn(".bar{display:block", webmod.CSS.replace(" ", ""))
+
     def test_zero_stability_renders_empty_bar(self):
         self.assertIn("width:0%", cardsmod._memory_bar({}))
 
     def test_garbage_stability_renders_nothing(self):
         self.assertEqual(cardsmod._memory_bar({"stability": "high"}), "")
+
+
+def _post_concept(db, cid, suffix, fields):
+    """Drive a real concept POST without sockets; returns page bytes."""
+    h = webmod.Handler.__new__(webmod.Handler)
+    h.db_path = db
+    body = urlencode(fields).encode()
+    h.path = "/concepts/%s/%s" % (cid, suffix)
+    h.headers = {"Content-Length": str(len(body))}
+    h.rfile = BytesIO(body)
+    captured = {}
+    h._send = lambda data, code=200, ctype="text/html": captured.update(
+        data=data, code=code, ctype=ctype)
+    h.do_POST()
+    return captured
+
+
+class ConceptRouteTest(unittest.TestCase):
+    def setUp(self):
+        self.tmp, self.db, self.server, self.out = make_module("route mod")
+        self.mid = self.out["module_id"]
+        # Real concept ids carry slashes (mid:path/file.py:symbol);
+        # the fixture's calc.py:add never exercises that shape.
+        self.cid = "%s:groundwork/cards.py:answer_widget" % self.mid
+        con = sqlite3.connect(self.db)
+        try:
+            con.execute(
+                "INSERT INTO concepts(id, module_id, name, kind, file, line)"
+                " VALUES(?, ?, ?, ?, ?, ?)",
+                (self.cid, self.mid, "answer_widget", "function",
+                 "groundwork/cards.py", 10))
+            con.commit()
+        finally:
+            con.close()
+
+    def test_rate_keeps_slashed_concept_id(self):
+        page = _post_concept(
+            self.db, self.cid, "rate",
+            {"score": "5", "origin": "/modules"})["data"].decode()
+        self.assertIn("Clarity vote recorded", page)
+
+    def test_known_keeps_slashed_concept_id(self):
+        page = _post_concept(
+            self.db, self.cid, "known",
+            {"origin": "/modules"})["data"].decode()
+        self.assertIn("Skipped \u2014 verification due", page)
+
+    def test_diffvote_keeps_slashed_concept_id(self):
+        page = _post_concept(
+            self.db, self.cid, "diffvote",
+            {"vote": "just", "origin": "/modules"})["data"].decode()
+        self.assertIn("Difficulty vote recorded", page)
 
 
 if __name__ == "__main__":

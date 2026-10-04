@@ -31,3 +31,7 @@ node_modules/
 __pycache__/
 *.pyc
 .groundwork/
+
+# Demo-video build artifacts (mp4/gif/json rebuilt by nix run .#demo-video)
+# Root-scoped: tools/demos/ holds committed scenario sources.
+/demos/

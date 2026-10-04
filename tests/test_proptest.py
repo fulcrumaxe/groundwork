@@ -124,5 +124,31 @@ class RenderStatusTest(unittest.TestCase):
         self.assertIn("id='status-b7-proptest'", mod.section_html())
 
 
+class Batch7WidgetTest(unittest.TestCase):
+    """Batch-7 multiline answers need a textarea on the queue form.
+
+    A single-line input strips newlines (value sanitization), so
+    invariant sets, repro calls, rewrites, pruned modules, extracted
+    configs, and signature stubs arrive unparseable. Every batch-7
+    type whose own render() seeds a textarea must render a textarea
+    named answer; the one short-answer type (36, file:line) keeps
+    its input.
+    """
+
+    def test_multiline_types_render_textarea(self):
+        from groundwork import cards as cardsmod
+        for etype in ("33", "34", "35", "37", "38", "39", "40"):
+            card = {"id": "c1", "exercise_type": etype, "payload": "{}"}
+            body = cardsmod.answer_widget(card, 0, "/due")
+            self.assertIn("<textarea", body, etype)
+            self.assertIn("name='answer'", body, etype)
+
+    def test_short_answer_type_keeps_input(self):
+        from groundwork import cards as cardsmod
+        card = {"id": "c1", "exercise_type": "36", "payload": "{}"}
+        body = cardsmod.answer_widget(card, 0, "/due")
+        self.assertIn("<input name='answer'", body)
+
+
 if __name__ == "__main__":
     unittest.main()

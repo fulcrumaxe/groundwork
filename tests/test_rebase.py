@@ -151,5 +151,17 @@ class RenderStatusTest(unittest.TestCase):
         self.assertEqual(t["anchor"], "status-b8-rebase")
 
 
+class RebaseWidgetTest(unittest.TestCase):
+    def test_type_46_renders_textarea(self):
+        # Only multi-line answers pass (both sides kept as full
+        # lines), and a single-line input strips newlines — type 46
+        # is unwinnable without a textarea (filming found it).
+        from groundwork import cards as cardsmod
+        card = {"id": "c1", "exercise_type": "46", "payload": "{}"}
+        body = cardsmod.answer_widget(card, 0, "/due")
+        self.assertIn("<textarea", body)
+        self.assertIn("name='answer'", body)
+
+
 if __name__ == "__main__":
     unittest.main()

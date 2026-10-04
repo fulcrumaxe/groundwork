@@ -14,7 +14,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, quote, urlparse
 
 from . import abphrase as abmod
-from . import api as apimod, audiosum as audiosummod, archiveless as archivelessmod  # one line keeps web.py at WEB_CEILING
+from . import api as apimod, audiosum as audiosummod, archiveless as archivelessmod, archived as archivedmod  # one line keeps web.py at WEB_CEILING
 from . import autofocus as autofocusmod, avatar as avatarmod  # one line keeps web.py at WEB_CEILING
 from . import autoscroll as autoscrollmod
 from . import bloomchips as bloomchipsmod
@@ -198,7 +198,7 @@ CSS = ("body{font-family:system-ui,-apple-system,sans-serif;max-width:48rem;"
        ".modcard small{color:var(--stale)}"
        ".chip{display:inline-block;font-size:.75rem;border:1px solid #999;"
        "border-radius:999px;padding:.05rem .5rem;margin-right:.25rem;color:var(--ink)}"
-       ".bar{height:.5rem;background:#e6e6e6;border-radius:4px;overflow:hidden;margin:.4rem 0}"
+       ".bar{display:block;height:.5rem;background:#e6e6e6;border-radius:4px;overflow:hidden;margin:.4rem 0}"
        ".bar i{display:block;height:100%;background:var(--accent,#1a1a1a)}"
        "table.log{width:100%}"
        "footer.page-foot{margin-top:2rem;padding-top:.75rem;border-top:1px solid #ddd;"
@@ -656,9 +656,9 @@ class Handler(BaseHTTPRequestHandler):
             assign_fields = {"title": query.get("atitle", [""])[0], "due": query.get("adue", [""])[0], "steps": query.get("astep", []), "repo": query.get("arepo", [""])[0]} if query.get("assign", [""])[0] == "new" else None
             body = self.module_html(mid, level, order, replay_step, query.get("buddy", []), query.get("buddymatch", [""])[0] == "1", query.get("bmatch_repos", []), query.get("bmatch_concepts", []), query.get("quest", [""])[0] or None, query.get("trail", [""])[0], assign_spec, assign_fields, query.get("comply", [""])[0] or None)
             if body == "<p>Unknown module.</p>":
-                self._send(page("Not found", errmod.not_found_html(
-                    url.path, "Unknown module."), active="modules",
-                    page_id="modules", counts=counts, tour=tour_ctx), 404)
+                title, missing = archivedmod.missing_html(self.db_path, mid, url.path)
+                self._send(page(title, missing, active="modules", page_id="modules",
+                                counts=counts, tour=tour_ctx), 404)
             else:
                 self._send(page("Module", body, active="modules",
                                 page_id="modules", counts=counts,
@@ -1260,7 +1260,7 @@ class Handler(BaseHTTPRequestHandler):
                             page_id="modules", counts=self._nav_counts()))
             return
         if url.path.startswith("/concepts/") and url.path.endswith("/rate"):
-            cid = url.path.split("/")[2]
+            cid = url.path[len("/concepts/"):-len("/rate")]
             form = parse_qs(raw, keep_blank_values=True)
             origin = _safe_origin(form.get("origin", ["/modules"])[0])
             out = claritymod.record(
@@ -1276,7 +1276,7 @@ class Handler(BaseHTTPRequestHandler):
             self._send(page("Clarity", body, counts=self._nav_counts()))
             return
         if url.path.startswith("/concepts/") and url.path.endswith("/diffvote"):
-            cid = url.path.split("/")[2]
+            cid = url.path[len("/concepts/"):-len("/diffvote")]
             form = parse_qs(raw, keep_blank_values=True)
             origin = _safe_origin(form.get("origin", ["/modules"])[0])
             out = diffvotemod.record(self.db_path, cid, form.get("vote", [""])[0])
@@ -1304,7 +1304,7 @@ class Handler(BaseHTTPRequestHandler):
             self._send(page("Confusing", body, counts=self._nav_counts()))
             return
         if url.path.startswith("/concepts/") and url.path.endswith("/known"):
-            cid = url.path.split("/")[2]
+            cid = url.path[len("/concepts/"):-len("/known")]
             form = parse_qs(raw, keep_blank_values=True)
             origin = _safe_origin(form.get("origin", ["/modules"])[0])
             out = knownmod.skip(self.db_path, cid)
@@ -1384,7 +1384,7 @@ class Handler(BaseHTTPRequestHandler):
             due_left = server.tool_list_due_reviews({"limit": 1000})["count"]
             body = (cerr + scrollposmod.restore_js(origin)
                     + autoscrollmod.enhance_result(
-                        resmod.render_result(res["pass"], res["feedback"], back, out["next_due"], origin, mod_id, due_left, points=res.get("points"), drill=res.get("drill", ""), ref_ms=res.get("ref_ms"), answer_hist=res.get("answer_hist", "")))
+                        resmod.render_result(res["pass"], res["feedback"], back, out["next_due"], origin, mod_id, due_left, points=out.get("points"), drill=out.get("drill", ""), ref_ms=res.get("ref_ms"), answer_hist=res.get("answer_hist", "")))
                     + out.get("relief", "") + out.get("atoms", "") + out.get("retry", "") + out.get("nextup", "") + out.get("similar", "")
                     + autoscrollmod.verdict_js())
             self._send(page("Result", body, counts=self._nav_counts()))

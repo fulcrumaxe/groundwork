@@ -126,5 +126,22 @@ class RenderStatusTest(unittest.TestCase):
         self.assertIn("id='status-b6-golf'", golfmod.section_html())
 
 
+class RetrofitWidgetTest(unittest.TestCase):
+    """Multiline retrofit answers need a textarea on the queue form.
+
+    A single-line input strips newlines (value sanitization), so code
+    and id=level answers arrive unparseable. Every retrofit type whose
+    answer spans lines must render a textarea named answer.
+    """
+
+    def test_multiline_types_render_textarea(self):
+        from groundwork import cards as cardsmod
+        for etype in ("26", "27", "28", "29", "31", "32"):
+            card = {"id": "c1", "exercise_type": etype, "payload": "{}"}
+            body = cardsmod.answer_widget(card, 0, "/due")
+            self.assertIn("<textarea", body, etype)
+            self.assertIn("name='answer'", body, etype)
+
+
 if __name__ == "__main__":
     unittest.main()

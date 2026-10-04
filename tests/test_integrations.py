@@ -75,6 +75,16 @@ class HookTest(unittest.TestCase):
                            capture_output=True, text=True, cwd=tmp, env=env)
         self.assertEqual(r.returncode, 0)
 
+    def test_tracked_hook_executable_status_green(self):
+        from groundwork import db as dbmod
+        from groundwork import status as statusmod
+
+        from test_web import make_module
+        tmp, db, server, out = make_module("hook exec")
+        dbmod.init_db(db)
+        self.assertIn("present, executable",
+                      statusmod.page_html(db))
+
 
 class WorkflowTest(unittest.TestCase):
     def test_groundwork_workflow_markers(self):

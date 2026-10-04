@@ -130,7 +130,7 @@ def generate(ex_id, concept, snippet, ctx) -> dict:
         "concept_id": _concept_field(concept, "node_id", name),
         "concept": name, "file": file, "line": line, "commit": commit,
         "hints": hints, "front": front, "back": back,
-        "payload": {"diff": diff, "what": what, "why": why,
+        "payload": {"diff": diff, "what": what, "why_keywords": why,
                     "reference": reference, "grounded": True},
     }
 
@@ -158,7 +158,8 @@ def grade(exercise: dict, submission: str, runner=None) -> dict:
     try:
         payload = (exercise or {}).get("payload", {})
         what = [str(w).lower() for w in payload.get("what", []) if str(w)]
-        why = [str(w).lower() for w in payload.get("why", []) if str(w)]
+        why = [str(w).lower()
+               for w in payload.get("why_keywords", []) if str(w)]
         subject = _subject(submission)
         if not subject:
             return _fail("Submit a one-line commit message.")

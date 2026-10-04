@@ -120,7 +120,7 @@ def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:
         body = rubriclivemod.enhance(card, linecommentmod.branch_html(card, p))
     elif etype == "22":
         body = comparesplitmod.branch_html(card, p, cid)
-    elif etype in ("82", "83", "84", "85", "86", "90"):
+    elif etype in ("82", "83", "84", "85", "86", "90", "26", "27", "28", "29", "31", "32", "33", "34", "35", "37", "38", "39", "40", "46"):
         hint = {"82": "One edge per line: caller -> concept.",
                 "83": "Q1… Q2… Q3…",
                 "84": "Correction…, then the letter on its own line",

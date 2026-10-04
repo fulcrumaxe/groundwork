@@ -10,6 +10,8 @@ fresh cards) pinned quiet.
 """
 import sqlite3
 import unittest
+from io import BytesIO
+from urllib.parse import urlencode
 
 from groundwork import calibdrill as drillmod
 from groundwork import cards as cardsmod
@@ -18,8 +20,25 @@ from groundwork import history as histmod
 from groundwork import overconf as ocmod
 from groundwork import ownership as ownmod
 from groundwork import results as resmod
+from groundwork import web as webmod
 
 from test_web import make_module
+
+
+def _post_review(db, card_id, answer, confidence):
+    """Drive the real review POST without sockets; returns page bytes."""
+    h = webmod.Handler.__new__(webmod.Handler)
+    h.db_path = db
+    body = urlencode({"answer": answer, "confidence": str(confidence),
+                      "origin": "/due"}).encode()
+    h.path = "/cards/%s/review" % card_id
+    h.headers = {"Content-Length": str(len(body))}
+    h.rfile = BytesIO(body)
+    captured = {}
+    h._send = lambda data, code=200, ctype="text/html": captured.update(
+        data=data, code=code, ctype=ctype)
+    h.do_POST()
+    return captured
 
 
 def _seed_reviews(db, card_id, grades, conf=4, days_ago=None):
@@ -76,6 +95,17 @@ class PointsBankTest(unittest.TestCase):
         server.submit_review(card["id"], "5", 4)
         html = histmod.history_html(db)
         self.assertIn("bank +4 pts", html)
+
+    def test_web_verdict_threads_banked_points(self):
+        # Seam test: the real review POST renders the banked line and
+        # the settled drill (web.py must read them from out, where
+        # submit_review returns them -- not from out["result"]).
+        tmp, db, server, out = make_module("points seam")
+        card = server.tool_list_due_reviews({"limit": 1})["due"][0]
+        page = _post_review(db, card["id"], "5", 4)["data"].decode()
+        self.assertIn("banked +4", page)
+        self.assertIn("stated 80%", page)
+        self.assertIn("settled +2", page)
 
 
 class DrillOddsTest(unittest.TestCase):

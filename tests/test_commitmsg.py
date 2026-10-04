@@ -25,7 +25,7 @@ class GenerateTest(unittest.TestCase):
     def test_payload_keywords(self):
         e = mod.generate("ex42", make_concept(), DIFF.splitlines(), {})
         self.assertIn("fetch", e["payload"]["what"])
-        self.assertTrue(e["payload"]["why"])
+        self.assertTrue(e["payload"]["why_keywords"])
         self.assertTrue(e["payload"]["grounded"])
         self.assertLessEqual(len(e["payload"]["reference"]), 72)
 
@@ -117,6 +117,24 @@ class RenderStatusTest(unittest.TestCase):
                           "title": "Commit-message authorship",
                           "blurb": "Summarize a diff as a commit message: imperative subject naming the what and the why.",
                           "path": "/status", "anchor": "status-b8-commitmsg"})
+
+
+class PayloadContractTest(unittest.TestCase):
+    def test_keywords_do_not_shadow_pipeline_why(self):
+        # lessons.why_html renders payload["why"] as prose on /due and
+        # module pages; a list there 500s the queue. Rubric keywords
+        # live under why_keywords so pipeline prose stays attachable.
+        import json
+
+        from groundwork import lessons as lesmod
+        e = mod.generate("ex42", make_concept(), DIFF.splitlines(),
+                         {"decisions": [{"note": "flaky auth retry"}]})
+        why = e["payload"].get("why", "")
+        self.assertTrue(why == "" or isinstance(why, str))
+        self.assertTrue(e["payload"]["why_keywords"])
+        card = {"id": "x", "exercise_type": "42", "front": e["front"],
+                "payload": json.dumps(e["payload"])}
+        self.assertEqual(lesmod.why_html(card), "")
 
 
 if __name__ == "__main__":

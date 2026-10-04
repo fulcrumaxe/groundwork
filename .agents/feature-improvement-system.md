@@ -108,6 +108,13 @@ demo with no caller is half work, not a shipped feature:
    collapse/undo flow, confirm zero console errors.
    Fix anything found (regression test first), re-run to green.
 
+8b. **Film demos (demo-video system).** After chrome-verify is
+   green, film one 30–60s video per shipped item (`.agents/demo-video-system.md`,
+   trigger "run the demo-video system"): mp4 + README gif + manifest
+   per item, frames eyeballed in order. A filmed item meets that
+   runbook's definition of done; batches MAY film a subset when time
+   is short.
+
 9. **Merge.** `git checkout main && git merge --no-ff <branch>`
    (local only — never push unless explicitly asked). Resolve
    conflicts in tour.py/status.py by keeping all entries from both

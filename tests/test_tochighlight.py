@@ -59,6 +59,12 @@ class EnhanceTocTest(unittest.TestCase):
         self.assertEqual(tochmod.enhance_toc(""), "")
         self.assertEqual(tochmod.enhance_toc(None), "")
 
+    def test_script_waits_for_dom_before_collecting_sections(self):
+        # The script tag sits mid-page (right after the TOC), so a
+        # parse-time section lookup finds nothing below it yet and the
+        # observer watches an empty list. Setup must wait for the DOM.
+        self.assertIn("DOMContentLoaded", tochmod.script_js())
+
     def test_real_module_page_upgrades(self):
         tmp, db, server, out = make_module("toc highlight mod")
         h = handler_for(db)

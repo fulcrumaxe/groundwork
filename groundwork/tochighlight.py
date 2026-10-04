@@ -87,10 +87,16 @@ def style_css() -> str:
 
 
 def script_js() -> str:
-    """Inline observer: toggles .active + aria-current on the visible link."""
+    """Inline observer: toggles .active + aria-current on the visible link.
+
+    Setup waits for DOMContentLoaded: the tag ships mid-page (right
+    after the TOC), so a parse-time section lookup would find nothing
+    below it yet and the observer would watch an empty list.
+    """
     return (
         "<script " + SCRIPT_MARKER + ">\n"
         "(function () {\n"
+        "  function init() {\n"
         "  var toc = document.querySelector(\"p.toc#readtime[data-toc]\");\n"
         "  if (!toc) return;\n"
         "  var links = Array.prototype.slice.call(\n"
@@ -132,6 +138,10 @@ def script_js() -> str:
         "      });\n"
         "    }, {passive: true});\n"
         "  }\n"
+        "  }\n"
+        "  if (document.readyState === 'loading') {\n"
+        "    document.addEventListener('DOMContentLoaded', init);\n"
+        "  } else { init(); }\n"
         "})();\n"
         "</script>"
     )

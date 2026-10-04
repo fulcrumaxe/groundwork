@@ -94,5 +94,16 @@ class RenderStatusTest(unittest.TestCase):
         self.assertEqual(t["anchor"], "status-b8-rollback")
 
 
+class FrontStepsTest(unittest.TestCase):
+    def test_front_lists_shuffled_steps(self):
+        # Due and module pages render front + widget; steps living
+        # only in the payload left the card unanswerable (filming
+        # found it). The front numbers the shuffled steps 1-5.
+        e = mod.generate("ex48", make_concept(), ["x"], {})
+        steps = e["payload"]["steps"]
+        for i, step in enumerate(steps):
+            self.assertIn(f"{i + 1}. {step}", e["front"])
+
+
 if __name__ == "__main__":
     unittest.main()

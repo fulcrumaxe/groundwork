@@ -2,12 +2,14 @@
 
 Unknown id (never existed) -> keep the errors.py 404. Valid-looking id
 whose row is gone (deleted) -> explain + library search + sibling links.
-Pure HTML over inputs — no DB, no I/O, no groundwork imports; stdlib html only.
+Pure HTML over inputs (stdlib html only) plus one I/O helper,
+missing_html, serving the /modules/<mid> 404 branch.
 """
 from __future__ import annotations
 
 import html
 import re
+import sqlite3
 
 _MAX_ID_LEN = 64
 _MAX_SIBLINGS = 8
@@ -64,6 +66,34 @@ def archived_html(module_id: str, siblings=()) -> str:
         f"{follow}"
         "<p><a href='/modules'>Modules</a> · <a href='/'>Projects</a> · "
         "<a href='/status'>Status</a></p></div>")
+
+
+def _siblings(db_path, module_id, limit=_MAX_SIBLINGS) -> list:
+    """Recent other modules as sibling links; [] when unreadable."""
+    try:
+        con = sqlite3.connect(db_path)
+    except Exception:  # noqa: BLE001 — notice renders without siblings
+        return []
+    try:
+        rows = con.execute(
+            "SELECT id, task_summary FROM modules WHERE id != ?"
+            " ORDER BY rowid DESC LIMIT ?", (module_id, limit)).fetchall()
+    except Exception:  # noqa: BLE001 — notice renders without siblings
+        return []
+    finally:
+        try:
+            con.close()
+        except Exception:  # noqa: BLE001 — close must not raise
+            pass
+    return [{"id": r[0], "title": r[1] or r[0]} for r in rows]
+
+
+def missing_html(db_path, module_id: str, path="") -> tuple:
+    """(title, body) for a missing module: notice or bare 404."""
+    if not is_archived_id(module_id):
+        from . import errors as errmod
+        return "Not found", errmod.not_found_html(path, "Unknown module.")
+    return "Archived", archived_html(module_id, _siblings(db_path, module_id))
 
 
 def section_html() -> str:

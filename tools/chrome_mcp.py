@@ -54,13 +54,14 @@ class MCPClient:
     """One MCP session (one browser). Close pages when done — tabs
     persist for the server's lifetime and keep page timers firing."""
 
-    def __init__(self, roots: list[str] | None = None):
+    def __init__(self, roots: list[str] | None = None,
+                 screenshot_max_width: int = 1100):
         self._roots = [os.path.abspath(r) for r in (roots or [])]
         cmd = _resolve_server_cmd() + [
             "--headless", "--isolated",
             "--no-usage-statistics", "--no-performance-crux",
             "--screenshotFormat", "jpeg", "--screenshotQuality", "60",
-            "--screenshotMaxWidth", "1100",
+            "--screenshotMaxWidth", str(screenshot_max_width),
         ]
         chrome = _resolve_chrome()
         if chrome:

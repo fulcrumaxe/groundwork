@@ -51,5 +51,53 @@ class SectionTest(unittest.TestCase):
         self.assertIn("archived.py", body)
 
 
+class ArchivedRouteTest(unittest.TestCase):
+    def _get(self, db, path):
+        from groundwork import web as webmod
+        h = webmod.Handler.__new__(webmod.Handler)
+        h.db_path = db
+        h.path = path
+        h.headers = {}
+        captured = {}
+        h._send = lambda data, code=200, ctype="text/html": captured.update(
+            data=data, code=code, ctype=ctype)
+        h.do_GET()
+        return captured
+
+    def _db_with_sibling(self):
+        import sqlite3
+        import tempfile
+        from pathlib import Path
+
+        from groundwork import db as dbmod
+        tmp = Path(tempfile.mkdtemp(prefix="gw-archived-"))
+        db = str(tmp / "archived.db")
+        dbmod.init_db(db)
+        con = sqlite3.connect(db)
+        try:
+            con.execute(
+                "INSERT INTO modules(id, repo, task_summary) VALUES(?, ?, ?)",
+                ("sib1", "/tmp/demo", "Sibling module"))
+            con.commit()
+        finally:
+            con.close()
+        return db
+
+    def test_gone_id_serves_notice(self):
+        db = self._db_with_sibling()
+        page = self._get(db, "/modules/12")
+        self.assertEqual(page["code"], 404)
+        body = page["data"].decode()
+        self.assertIn("id='archived'", body)
+        self.assertIn("<code>12</code>", body)
+        self.assertIn("href='/modules/sib1'", body)
+
+    def test_garbage_id_keeps_bare_404(self):
+        db = self._db_with_sibling()
+        page = self._get(db, "/modules/a%2Fb")
+        self.assertEqual(page["code"], 404)
+        self.assertNotIn("id='archived'", page["data"].decode())
+
+
 if __name__ == "__main__":
     unittest.main()

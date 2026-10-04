@@ -66,7 +66,8 @@ def generate(ex_id, concept, snippet, ctx) -> dict:
         front = (f"A change to `{name}` ({kind}) went bad in production: "
                  "migration + deploy + flag-flip all shipped together.\n"
                  f"Put these {len(steps)} rollback steps in the safe order "
-                 "(first step first). Reply with space-separated step numbers.")
+                 "(first step first). Reply with space-separated step numbers.\n"
+                 + "\n".join(f"{i + 1}. {s}" for i, s in enumerate(steps)))
         back = "\n".join(f"{i + 1}. {s}" for i, s in enumerate(correct))
         hints = [
             "First stop the bleeding: freeze the rollout before undoing anything.",
@@ -89,7 +90,9 @@ def generate(ex_id, concept, snippet, ctx) -> dict:
                 "bloom": BLOOM, "concept_id": name, "concept": name,
                 "file": "", "line": 0, "commit": "",
                 "hints": ["Freeze first.", "Traffic before data.", "Verify last."],
-                "front": "Put the rollback steps in the safe order.",
+                "front": ("Put the rollback steps in the safe order.\n"
+                          + "\n".join(f"{i + 1}. {s}"
+                                      for i, s in enumerate(correct))),
                 "back": "\n".join(correct),
                 "payload": {"steps": list(correct),
                             "order": list(range(len(correct))),
