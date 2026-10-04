@@ -145,7 +145,7 @@ def collapse_js() -> str:
         "function(f){f.addEventListener('submit',function(e){"
         "if(f.getAttribute('data-gw-busy')){e.preventDefault();return;}"
         "e.preventDefault();f.setAttribute('data-gw-busy','1');"
-        "fetch(f.action,{method:'post',body:new FormData(f),"
+        "fetch(f.action,{method:'post',body:new URLSearchParams(new FormData(f)),"
         "credentials:'same-origin'}).then(function(r){"
         "f.removeAttribute('data-gw-busy');"
         "if(!r.ok)throw new Error('grade');done(f);})"

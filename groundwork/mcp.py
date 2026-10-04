@@ -270,7 +270,8 @@ class MCPServer:
         con = self._con()
         try:
             rows = con.execute(
-                "SELECT cards.*, concepts.name AS concept FROM cards"
+                "SELECT cards.*, concepts.name AS concept,"
+                " concepts.module_id AS module_id FROM cards"
                 " JOIN concepts ON concepts.id = cards.concept_id"
                 " WHERE cards.due <= ? AND cards.stale = 0"
                 " ORDER BY cards.due LIMIT ?",

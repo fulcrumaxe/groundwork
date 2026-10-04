@@ -48,6 +48,14 @@ class CollapseTest(unittest.TestCase):
         self.assertNotIn("removeAttribute('id'", js)
         self.assertNotIn('removeAttribute("id"', js)
 
+    def test_collapse_js_posts_urlencoded(self):
+        # Regression: fetch(new FormData(f)) posts multipart, which the
+        # review route (parse_qs) cannot read -- every intercepted
+        # review graded as an empty fail. The body must stay urlencoded.
+        js = colmod.collapse_js()
+        self.assertIn("URLSearchParams(new FormData(f))", js)
+        self.assertNotIn("body:new FormData(f)", js)
+
     def test_no_overlap_scrollpos(self):
         js = colmod.collapse_js()
         for banned in ("sessionStorage", "localStorage", "gw-scroll",

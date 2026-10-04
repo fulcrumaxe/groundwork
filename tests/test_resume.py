@@ -1,7 +1,10 @@
 """Resume interrupted sessions from History (I-48)."""
 import unittest
 
+from groundwork import db as dbmod
 from groundwork import resume as resumemod
+
+from test_web import handler_for, make_module
 
 
 class SessionKeyTest(unittest.TestCase):
@@ -100,6 +103,65 @@ class BannerTest(unittest.TestCase):
         body = resumemod.section_html()
         self.assertIn("id='status-b9-resume'", body)
         self.assertIn("groundwork/resume.py", body)
+
+
+class ResumeDueTest(unittest.TestCase):
+    """?resume= narrows the live Due queue to the session's module.
+
+    Regression: due cards carried no module field, so session_cards
+    always took its fail-closed branch and the History continue link
+    never narrowed anything (banner only).
+    """
+
+    def _two_module_db(self):
+        _tmp, db, server, out = make_module("resume narrow mod")
+        mid = out["module_id"]
+        con = dbmod.connect(db)
+        try:
+            con.execute(
+                "INSERT INTO modules(id, repo) VALUES('m-second', 'r')")
+            con.execute(
+                "INSERT INTO concepts(id, module_id, name)"
+                " VALUES('m-second:c', 'm-second', 'Second Concept')")
+            card = con.execute(
+                "SELECT exercise_type, front, back, payload FROM cards"
+                " ORDER BY rowid LIMIT 1").fetchone()
+            con.execute(
+                "INSERT INTO cards(id, concept_id, exercise_type, front,"
+                " back, payload, due) VALUES('card-second', 'm-second:c',"
+                " ?, 'SECOND-MARKER ' || ?, ?, ?,"
+                " '2000-01-01T00:00:00Z')",
+                (card[0], card[1], card[2], card[3]))
+            con.execute("UPDATE cards SET due='2000-01-01T00:00:00Z'"
+                        " WHERE id != 'card-second'")
+            con.execute("UPDATE cards SET front = 'FIRST-MARKER ' || front"
+                        " WHERE id != 'card-second'")
+            con.commit()
+        finally:
+            con.close()
+        return db, server, mid
+
+    def test_due_cards_carry_module_id(self):
+        _db, server, mid = self._two_module_db()
+        due = server.tool_list_due_reviews({"limit": 20})["due"]
+        self.assertGreaterEqual(len(due), 3)
+        for card in due:
+            self.assertIn("module_id", card)
+        mids = {card["module_id"] for card in due}
+        self.assertIn(mid, mids)
+        self.assertIn("m-second", mids)
+
+    def test_resume_key_narrows_live_queue(self):
+        db, _server, mid = self._two_module_db()
+        narrowed = handler_for(db).due_html(
+            resume_key=f"{mid}:2026-10-04")
+        self.assertIn("id='resume-box'", narrowed)
+        self.assertIn("FIRST-MARKER", narrowed)
+        self.assertNotIn("SECOND-MARKER", narrowed)
+        legacy = handler_for(db).due_html()
+        self.assertNotIn("id='resume-box'", legacy)
+        self.assertIn("FIRST-MARKER", legacy)
+        self.assertIn("SECOND-MARKER", legacy)
 
 
 if __name__ == "__main__":
