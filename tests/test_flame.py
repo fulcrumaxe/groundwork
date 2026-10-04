@@ -162,5 +162,17 @@ class RenderStatusTest(unittest.TestCase):
         self.assertEqual(t["anchor"], "status-b10-flame")
 
 
+class FlameWidgetTest(unittest.TestCase):
+    def test_type_60_renders_textarea(self):
+        # The passing answer is two lines (frame=… / why=…) and a
+        # single-line input strips newlines — type 60 is unwinnable
+        # without a textarea (filming found it).
+        from groundwork import cards as cardsmod
+        card = {"id": "c1", "exercise_type": "60", "payload": "{}"}
+        body = cardsmod.answer_widget(card, 0, "/due")
+        self.assertIn("<textarea", body)
+        self.assertIn("name='answer'", body)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -142,5 +142,17 @@ class RenderStatusTest(unittest.TestCase):
         self.assertEqual(t["anchor"], "status-b10-crashdump")
 
 
+class CrashdumpWidgetTest(unittest.TestCase):
+    def test_type_61_renders_textarea(self):
+        # The front invites two lines (frame: … / fix: …) and the
+        # key=value forms only parse per line — type 61 needs a
+        # textarea (filming found it).
+        from groundwork import cards as cardsmod
+        card = {"id": "c1", "exercise_type": "61", "payload": "{}"}
+        body = cardsmod.answer_widget(card, 0, "/due")
+        self.assertIn("<textarea", body)
+        self.assertIn("name='answer'", body)
+
+
 if __name__ == "__main__":
     unittest.main()

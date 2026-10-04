@@ -120,12 +120,12 @@ def answer_widget(card, attempts: int = 0, origin: str = "/") -> str:
         body = rubriclivemod.enhance(card, linecommentmod.branch_html(card, p))
     elif etype == "22":
         body = comparesplitmod.branch_html(card, p, cid)
-    elif etype in ("82", "83", "84", "85", "86", "90", "26", "27", "28", "29", "31", "32", "33", "34", "35", "37", "38", "39", "40", "46"):
+    elif etype in ("82", "83", "84", "85", "86", "90", "26", "27", "28", "29", "31", "32", "33", "34", "35", "37", "38", "39", "40", "46", "60", "61", "64"):
         hint = {"82": "One edge per line: caller -> concept.",
-                "83": "Q1… Q2… Q3…",
-                "84": "Correction…, then the letter on its own line",
-                "85": "Explain it simply…",
-                "86": "The mapping…, and where it breaks…",
+                "83": "Q1… Q2… Q3…", "84": "Correction…, then the letter on its own line",
+                "85": "Explain it simply…", "86": "The mapping…, and where it breaks…",
+                "60": "frame=…, then why=…", "61": "frame: …, then fix: …",
+                "64": "FROM… WORKDIR… COPY… EXPOSE… CMD […]…",
                 "90": "requires(x)…, then ensures(x, out)…"}.get(
                     etype, "Answer…")
         body = rubriclivemod.enhance(card, f"<textarea name='answer' rows='5' cols='70' placeholder='{hint}'></textarea><br>{_confidence()}<button>Submit answer</button>")

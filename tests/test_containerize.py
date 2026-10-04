@@ -148,5 +148,17 @@ class RenderStatusTest(unittest.TestCase):
                              "path": "/status", "anchor": "status-b10-containerize"})
 
 
+class ContainerizeWidgetTest(unittest.TestCase):
+    def test_type_64_renders_textarea(self):
+        # Only a multi-line Dockerfile passes (every directive is
+        # line-anchored) and a single-line input strips newlines —
+        # type 64 is unwinnable without a textarea (filming found it).
+        from groundwork import cards as cardsmod
+        card = {"id": "c1", "exercise_type": "64", "payload": "{}"}
+        body = cardsmod.answer_widget(card, 0, "/due")
+        self.assertIn("<textarea", body)
+        self.assertIn("name='answer'", body)
+
+
 if __name__ == "__main__":
     unittest.main()
