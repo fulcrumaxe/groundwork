@@ -498,6 +498,19 @@ Detail lines below marked [x] as they land.
 - [x] F-66: Calibration drills (calibdrill.py + test_calibdrill.py).
 - [x] F-67: Overconfidence cards (overconf.py + test_overconf.py).
 
+Demo-video pass (2026-10-05, 16 scenarios in tools/demos/, all filmed
+to demos/batch-13/): fixed the /modules/<id> route never passing a
+lede, so shares unfurled generic Module + default description despite
+the docstring's promise (ogtags.module_lede() + same-line route wire,
+web.py holds at ceiling) + route-level regression tests. Two open
+findings, not fixed (both pre-existing, verified identical on the
+untouched tree; both calendar-driven by the October seasonal event):
+(1) test_pagesnap golden drift on reviews + status (the Owntober
+section renders now but is not in the committed goldens).
+(2) test_seasonevent outside-window expects no seasonal-event, but
+October is inside the window. Fix while October lasts or pin the
+clock in both tests.
+
 ## Integration ledger — demos become behavior (Batch 14+; standing decision)
 
 Every db-free engine below renders a Status demo no learner path
