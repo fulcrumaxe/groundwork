@@ -13,6 +13,7 @@ stdlib only (``html``), no I/O, no DB changes.
 from __future__ import annotations
 
 import html
+import sqlite3
 
 STATUS_ANCHOR = "status-b13-ogtags"
 
@@ -39,6 +40,27 @@ def og_tags(title: str = "", lede: str = "") -> str:
         return ("<meta property='og:title' content='Groundwork'>"
                 "<meta property='og:type' content='website'>"
                 f"<meta property='og:site_name' content='{SITE_NAME}'>")
+
+
+def module_lede(db_path, mid: str = "") -> str:
+    """A module's share lede: its task summary, or "" when unreadable.
+
+    The /modules/<id> route passes this as the page lede so shares
+    name the concept studied (and readers see the same line under the
+    header). Never raises; unknown modules fail closed to "".
+    """
+    try:
+        if not db_path or not mid:
+            return ""
+        con = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+        try:
+            row = con.execute("SELECT task_summary FROM modules WHERE id=?",
+                              (str(mid),)).fetchone()
+        finally:
+            con.close()
+        return (row[0] or "").strip() if row else ""
+    except Exception:  # noqa: BLE001 -- head wire must never raise
+        return ""
 
 
 def section_html() -> str:

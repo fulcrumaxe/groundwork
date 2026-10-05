@@ -63,5 +63,53 @@ class OgtagsTest(unittest.TestCase):
             self.assertNotIn(marker, src)
 
 
+class ModuleLedeRouteTest(unittest.TestCase):
+    """The /modules/<id> route passes the summary as the unfurl lede.
+
+    Regression (demo-video batch 13): the module promised that module
+    pages pass their lede through so shares name the concept studied,
+    but the route never passed one — every module shared as generic
+    "Module" + the default description.
+    """
+
+    def _get(self, db, path):
+        import io
+
+        from groundwork import web as webmod
+        h = webmod.Handler.__new__(webmod.Handler)
+        h.db_path = db
+        h.path = path
+        h.headers = {}
+        h.rfile = io.BytesIO(b"")
+        captured = {}
+        h._send = lambda data, code=200, ctype="text/html": captured.update(
+            data=data, code=code, ctype=ctype)
+        h.do_GET()
+        return captured
+
+    def test_module_share_names_the_summary(self):
+        from test_web import make_module
+        _tmp, db, _server, out = make_module("ogtags lede module")
+        got = self._get(db, f"/modules/{out['module_id']}")
+        self.assertEqual(got["code"], 200)
+        raw = got["data"].decode()
+        self.assertIn("ogtags lede module", raw)
+        desc = [line for line in raw.split("><")
+                if "og:description" in line]
+        self.assertTrue(desc, "no og:description on module page")
+        self.assertIn("ogtags lede module", desc[0])
+
+    def test_unknown_module_stays_404_without_lede(self):
+        from test_web import make_module
+        _tmp, db, _server, _out = make_module("ogtags lede missing")
+        got = self._get(db, "/modules/does-not-exist")
+        self.assertEqual(got["code"], 404)
+
+    def test_module_lede_never_raises(self):
+        self.assertEqual(ogmod.module_lede(None, None), "")
+        self.assertEqual(ogmod.module_lede("/no/such.db", "x"), "")
+        self.assertEqual(ogmod.module_lede("", ""), "")
+
+
 if __name__ == "__main__":
     unittest.main()

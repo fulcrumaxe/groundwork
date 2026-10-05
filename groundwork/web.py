@@ -662,7 +662,7 @@ class Handler(BaseHTTPRequestHandler):
             else:
                 self._send(page("Module", body, active="modules",
                                 page_id="modules", counts=counts,
-                                tour=tour_ctx))
+                                tour=tour_ctx, lede=ogtagsmod.module_lede(self.db_path, mid)))
         else:
             self._send(page("Not found",
                             errmod.not_found_html(url.path),
