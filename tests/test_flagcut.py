@@ -67,6 +67,19 @@ class GradeTest(unittest.TestCase):
         r = mod.grade(e, e["payload"]["reference"], runner())
         self.assertTrue(r["pass"] and r["score"] == 1.0)
 
+    def test_round_trip_pass_dead_flag(self):
+        # Regression: live=False seeds resolve to `x + 100`, so the
+        # reference must satisfy the else-branch asserts, not the
+        # live-branch ones. "demo-flagcut-66" is a fixed live=False seed.
+        e = mod.generate("demo-flagcut-66", make_concept(),
+                         ["NEW_UI = True", "",
+                          "def greet(name):", "    if NEW_UI:",
+                          "        return 'hi ' + name",
+                          "    return 'hello ' + name"], {})
+        self.assertIn("NEW_UI = False", e["front"])
+        r = mod.grade(e, e["payload"]["reference"], runner())
+        self.assertTrue(r["pass"] and r["score"] == 1.0)
+
     def test_flag_in_code_fails(self):
         e = mod.generate("ex66", make_concept(), ["x = 1"], {})
         self.assertFalse(mod.grade(e, e["payload"]["original"],

@@ -120,7 +120,9 @@ def _resolve(body: str, flag: str, live: bool) -> str:
 
 
 def _tests(func: str, live: bool) -> str:
-    a, b = (6, 206) if live else (106, 306)
+    # Live branch is `x * 2` (3->6, 103->206); dead-flag branch is
+    # `x + 100` (3->103, 103->203). The reference must satisfy both.
+    a, b = (6, 206) if live else (103, 203)
     return (f"assert {func}(3) == {a}\n"
             f"assert {func}(103) == {b}\n"
             "print('OK')")

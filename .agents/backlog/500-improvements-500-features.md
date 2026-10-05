@@ -392,6 +392,18 @@ Detail lines below marked [x] as they land.
 - [x] F-48: Rate-limit design, type 71 (ratelimit.py + test_ratelimit.py).
 - [x] F-49: Webhook verification, type 72 (webhook.py + test_webhook.py).
 
+Demo-video pass (2026-10-04, 16 scenarios in tools/demos/, all filmed
+to demos/batch-11/): fixed flagcut _tests dead-flag values 106/306
+-> 103/203 (the else branch is `x + 100`, so ~half of all flag-cut
+cards were unpassable, reference included) + regression test on a
+fixed live=False seed. Two open findings, not fixed: (1) pageapi
+front text says "three `page=<json>` lines" but the grader parses
+`page1=`/`page2=`/`page99=` (render widget labels them correctly;
+front wording misleads). (2) exercise types 65-72 have no
+cards.answer_widget branch, so /due renders the generic single-line
+answer input and multi-line answers (YAML, code, page lines) cannot
+be submitted in-browser -- only cacheinv's "A B" fits today.
+
 ## Batch 12 rule — eight-and-eight, themes + learning science (this run)
 
 Same workflow as Batch 11 (tour entry + docs regen + MCP run + commit
