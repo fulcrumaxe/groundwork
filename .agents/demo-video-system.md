@@ -64,13 +64,18 @@ filming around it.
 
 6. **Publish the gifs to the wiki.** The wiki is the media home —
    README tables stay generated and `demos/` stays uncommitted:
-   clone `groundwork.wiki.git` to /tmp, add one gallery page per
-   batch (`Batch-<N>-Demos.md`, items grouped by kind with title,
+   clone `groundwork.wiki.git` to /tmp (or pull the existing
+   checkout — never push over a stale clone), add one gallery page
+   per batch (`Batch-<N>-Demos.md`, items grouped by kind with title,
    blurb, live anchor, and seconds), copy the batch's gifs under
    `batch-<N>/`, link the page from Home, commit, and push (wiki
    pushes need the `johnproblems` account like `origin/main` —
    switch, push, switch back). Keep gifs under ~10MB (the pipeline
    warns above it); the mp4 stays the full-quality artifact.
+   Verify on the remote afterward (fresh `git log` on the pushed
+   branch shows your commit). This step is never skipped and never
+   deferred to a later session: a run that filmed videos but did not
+   publish them is not done (see Definition of done, batch items).
 
 7. **Patch findings, don't film around them.** When scenario
    research surfaces a real bug (red gate, dead display line,
@@ -90,6 +95,17 @@ filming around it.
 3. Every chrome beat carries an assert or required poll that passed
    in the filming run (see the run log).
 4. Frames were eyeballed in order; captions read as a story.
+
+## Definition of done — every batch, no exceptions
+
+5. The wiki gallery is published: `Batch-<N>-Demos.md` plus the
+   batch's gifs under `batch-<N>/` are committed and pushed, the page
+   is linked from Home, and the pushed commit is verified on the
+   remote. Filmed-but-unpublished is not done — backfills are banned.
+6. The batch's scenario files (`tools/demos/*.py`, plus any
+   regression tests from step 7) are committed and pushed on the main
+   repo; the commit message names the batch (`Demo-video batch <N>:
+   ...`). Videos stay uncommitted (`demos/` is gitignored).
 
 ## Pipeline facts (learned debugging the pilots — do not regress)
 
@@ -142,4 +158,5 @@ in a real browser, film one video per shipped item, eyeball the
 frames, patch any findings with regression tests, publish the batch
 gallery to the wiki, then merge. Backlog batches MAY film a subset
 when time is short, but a filmed item always meets the definition
-of done above.
+of done above — including the batch items: whatever was filmed is
+published and committed in the same run, never left for later.
