@@ -51,9 +51,9 @@ SCENARIO = {
          "commands": [
              ["python3", "-c",
               "import os, sqlite3; con = sqlite3.connect(os.environ.get('DEMO_DB', 'groundwork.db')); "
-              "for cid in ('{seed_weak}', '{seed_strong}'): "
-              "  g = con.execute('SELECT AVG(grade) FROM reviews WHERE card_id=?', (cid,)).fetchone()[0]; "
-              "  print(cid[-12:], 'avg grade:', round(g, 1))"],
+              "[print(cid[-12:], 'avg grade:', round(con.execute('SELECT AVG(grade) FROM reviews"
+              " WHERE card_id=?', (cid,)).fetchone()[0], 1)) "
+              "for cid in ('{seed_weak}', '{seed_strong}')]"],
          ]},
         {"type": "title", "duration": 5,
          "kicker": "Groundwork - Batch 13",
