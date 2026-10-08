@@ -107,6 +107,18 @@ class SectionHtmlTest(unittest.TestCase):
         self.assertIn("id='status-b12-typecontract'", html)
         self.assertIn("72", html)
 
+    def test_live_report_prose_names_live_table(self):
+        report = [tcmod.audit_type(72, _full_registry((72,)))]
+        html = tcmod.section_html(report)
+        self.assertIn("live table below", html)
+        self.assertNotIn("sketch below", html)
+
+    def test_sketch_prose_kept_without_report(self):
+        for html in (tcmod.section_html(), tcmod.section_html([]),
+                     tcmod.section_html(None)):
+            self.assertIn("sketch below", html)
+            self.assertNotIn("live table below", html)
+
     def test_no_placeholders_in_shipped_module(self):
         import pathlib
         src = (pathlib.Path(__file__).resolve().parent.parent

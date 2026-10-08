@@ -131,7 +131,8 @@ def section_html(report=None) -> str:
     try:
         parts = required_parts()
         head = "".join(f"<th>{html.escape(p)}</th>" for p in parts)
-        if isinstance(report, list) and report:
+        live = isinstance(report, list) and len(report) > 0
+        if live:
             rows = ""
             for r in report[:12]:
                 try:
@@ -151,6 +152,12 @@ def section_html(report=None) -> str:
                               for p in parts)
             rows = (f"<tr><td>72</td>{tds_ok}<td>ok</td></tr>"
                     f"<tr><td>99</td>{tds_gap}<td>gap</td></tr>")
+        if live:
+            blurb = ("the live table below audits the first 12 registered "
+                     "types — gaps marked no.")
+        else:
+            blurb = ("the sketch below shows a complete type and one "
+                     "missing its grader and e2e answer.")
         return (
             f"<h3 id='{STATUS_ANCHOR}'>Type completeness contract "
             "<small>(feature)</small></h3>"
@@ -160,8 +167,7 @@ def section_html(report=None) -> str:
             "<code>emission</code>, <code>e2e</code> — or it does not "
             "ship. <code>groundwork/typecontract.py</code> audits a "
             "passed-in registry dict (db-free, stdlib only, never "
-            "raises); the sketch below shows a complete type and one "
-            "missing its grader and e2e answer.</p>"
+            f"raises); {blurb}</p>"
             f"<table class='log'><tr><th>Type</th>{head}<th>Verdict</th></tr>"
             f"{rows}</table>"
         )
