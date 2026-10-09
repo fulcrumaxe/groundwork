@@ -9,6 +9,16 @@ class DocsFreshnessTest(unittest.TestCase):
     def test_render_all_is_clean(self):
         self.assertEqual(docsmod.render_all(), [])
 
+    def test_regen_owns_readme_token_table(self):
+        # I-94 wiring: docs regen owns the README design-tokens
+        # section from the single token table.
+        from groundwork import tokens as tokensmod
+        self.assertEqual(docsmod.render_all(), [])
+        text = (docsmod.ROOT / "README.md").read_text(encoding="utf-8")
+        self.assertIn("<!-- GW-TOKENS:START -->", text)
+        for t in tokensmod.TOKENS:
+            self.assertIn(f"`{t['name']}`", text)
+
     def test_registry_kinds_covered_in_catalog(self):
         body = docsmod.features_doc()
         for kind, heading in docsmod.KINDS:

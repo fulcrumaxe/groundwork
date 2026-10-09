@@ -468,6 +468,24 @@ sandbox, never invented.
 See also [docs/features.md](docs/features.md) and the in-app
 [Tour](http://127.0.0.1:8765/tour) — every row above has a visible home.
 
+## Design tokens
+
+<!-- GW-TOKENS:START -->
+| Name | Value | Usage |
+|---|---|---|
+| `--accent-due` | `#0b6e4f` | Due-queue accent; doubles as the pass color. |
+| `--accent-history` | `#33507a` | History-page accent. |
+| `--accent-modules` | `#8a5a00` | Modules-library accent. |
+| `--fail` | `#a4262c` | Fail verdicts and destructive emphasis. |
+| `--ink` | `#1a1a1a` | Body text and headings on paper surfaces. |
+| `--paper` | `#ffffff` | Page background; pairs with --ink for body text. |
+| `--pass` | `#0b6e4f` | Pass verdicts and owned states. |
+| `--r-card` | `12px` | Card corners: articles, module cards, banners. |
+| `--r-chip` | `999px` | Pill corners: chips, confidence pills, back-to-top. |
+| `--r-control` | `8px` | Control corners: buttons, inputs, code blocks. |
+| `--stale` | `#6b6b6b` | Muted chrome: stale chips, scrollbars, borders. |
+<!-- GW-TOKENS:END -->
+
 ## Module format
 
 Plain Markdown + YAML front matter, mirrored to `<repo>/.groundwork/modules/<id>.md`

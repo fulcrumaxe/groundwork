@@ -29,6 +29,7 @@ class TokensParityTest(unittest.TestCase):
 
     def test_styleguide_covers_same_set(self):
         rows = tokensmod.styleguide_rows()
+        self.assertIn("id='design-tokens'", rows)
         for t in tokensmod.TOKENS:
             self.assertIn(t["name"], rows)
 

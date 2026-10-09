@@ -78,6 +78,19 @@ class PagesnapGateTest(unittest.TestCase):
         self.assertEqual(snapmod.snapshot(None), {})
         self.assertEqual(snapmod.render_page(None, "due"), "")
 
+    def test_seasonal_block_scrubbed_across_months(self):
+        # Owntober renders only in October; the gate must not go red
+        # when the month rolls (demo-video batch 18 finding).
+        block = ("<h2 id='seasonal-event'>Owntober — own 5 concepts</h2>"
+                 "<p>0 of 5 owned this October — a gentle seasonal goal, "
+                 "no streak attached.</p>")
+        on_season = f"<ul><li>owned</li></ul>{block}<svg></svg>"
+        off_season = "<ul><li>owned</li></ul><svg></svg>"
+        self.assertEqual(snapmod.normalize(on_season),
+                         snapmod.normalize(off_season))
+        self.assertTrue(snapmod.compare({"reviews": on_season},
+                                        {"reviews": off_season})["ok"])
+
     def test_bare_dates_scrubbed_across_midnight(self):
         # Batch 28 base: preptrack renders bare "due YYYY-MM-DD" from the
         # wall clock; the gate must not go red when the date rolls.

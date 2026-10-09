@@ -76,7 +76,7 @@ def styleguide_rows(tokens=None) -> str:
     if not rows:
         return ("<h2>Design tokens</h2><p>No tokens registered — "
                 "see <code>groundwork/tokens.py</code>.</p>")
-    parts = ["<h2>Design tokens</h2><table class='log'>"
+    parts = ["<h2 id='design-tokens'>Design tokens</h2><table class='log'>"
              "<tr><th>Token</th><th>Swatch</th><th>Value</th>"
              "<th>Usage</th></tr>"]
     for t in rows:

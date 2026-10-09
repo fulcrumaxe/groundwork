@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from . import cards as cardsmod
 from . import grading as gradingmod
+from . import tokens as tokensmod
 
 
 def _sample_card() -> dict:
@@ -56,6 +57,7 @@ def page() -> str:
          "<table class='log'><tr><th>Day</th><th>Due</th></tr>"
          "<tr><td>today</td><td>3</td></tr></table> — "
          "<code>table.log</code>"),
+        tokensmod.styleguide_rows(),
     ]
     return ("<div id='styleguide'><p><small>Dev gallery — every "
             "component with its class name.</small></p>"

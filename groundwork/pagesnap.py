@@ -35,6 +35,7 @@ _VOLATILE = (
     re.compile(r"cf[0-9a-f]{12}ex\d+"),  # cardflip per-card toggle ids
     re.compile(r"\b[0-9a-f]{12}\b"),
     re.compile(r"/tmp/[A-Za-z0-9_.\-/]*"),  # Batch 27: nested TMPDIRs (/tmp/nix-shell.*/gw-*) scrub fully
+    re.compile(r"<h2 id='seasonal-event'>.*?</p>"),  # Owntober renders Oct-only; gate must not track the month
 )
 
 _WS_BETWEEN = re.compile(r">\s+<")

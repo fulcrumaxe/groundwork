@@ -37,6 +37,12 @@ class FakeDate(date):
         return date(2026, 10, 15)
 
 
+class FakeJune(date):
+    @classmethod
+    def today(cls):
+        return date(2026, 6, 15)
+
+
 class SeasoneventUnitTest(unittest.TestCase):
     def test_window_bounds_inclusive(self):
         self.assertIsNotNone(mod.current_event("2026-10-01"))
@@ -86,7 +92,8 @@ class SeasoneventEffectTest(unittest.TestCase):
     def test_caller_history_legacy_outside_window(self):
         _tmp, db, _server, _out = make_module("season legacy mod")
         _own_october(db)
-        self.assertNotIn("seasonal-event", histmod.history_html(db))
+        with mock.patch.object(mod, "date", FakeJune):
+            self.assertNotIn("seasonal-event", histmod.history_html(db))
 
 
 class SeasoneventShapeTest(unittest.TestCase):

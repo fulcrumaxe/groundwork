@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from . import tokens as tokensmod
 from . import tour as tourmod
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -65,6 +66,7 @@ def render_all() -> list[str]:
     text = readme.read_text(encoding="utf-8")
     new = _swap(text, "FEATURES", readme_table("feature"))
     new = _swap(new, "IMPROVEMENTS", readme_table("improvement"))
+    new = _swap(new, "TOKENS", tokensmod.readme_section())
     if new != text:
         readme.write_text(new, encoding="utf-8")
         changed.append("README.md")
