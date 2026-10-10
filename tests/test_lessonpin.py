@@ -50,6 +50,37 @@ class MarkerTest(unittest.TestCase):
         self.assertNotIn("<b>", out)
 
 
+def _two_concept_db():
+    """Fixture module plus a second concept+lesson; returns (db, mid)."""
+    import json
+    import sqlite3
+
+    from test_web import make_module
+    tmp, db, server, out = make_module()
+    mid = out["module_id"]
+    con = sqlite3.connect(db)
+    try:
+        con.execute(
+            "INSERT INTO concepts(id, module_id, name, kind, file, line,"
+            " mastery) VALUES(?, ?, ?, ?, ?, ?, ?)",
+            (f"{mid}:mul", mid, "mul", "function", "calc.py", 5, 0.0))
+        lessons = json.loads(con.execute(
+            "SELECT lessons FROM modules WHERE id=?", (mid,)).fetchone()[0])
+        lessons.append({"concept_id": "mul", "name": "mul", "kind": "function",
+                        "file": "calc.py", "line": 5,
+                        "summary": "mul() multiplies two numbers.",
+                        "docstring": "", "callers": [], "callees": [],
+                        "key_lines": "",
+                        "source": "def mul(a, b):\n    return a * b\n",
+                        "how": ["Read the factors."], "worked": None})
+        con.execute("UPDATE modules SET lessons=? WHERE id=?",
+                    (json.dumps(lessons), mid))
+        con.commit()
+    finally:
+        con.close()
+    return db, mid
+
+
 class CallerEffectTest(unittest.TestCase):
     def test_module_html_legacy_without_pins(self):
         from test_web import handler_for, make_module
@@ -57,6 +88,32 @@ class CallerEffectTest(unittest.TestCase):
         h = handler_for(db)
         base = h.module_html(out["module_id"])
         self.assertNotIn("Pinned", base)
+
+    def test_module_html_pins_reorder_and_mark(self):
+        from test_web import handler_for
+        db, mid = _two_concept_db()
+        h = handler_for(db)
+        base = h.module_html(mid)
+        add_sec = "<section id='lesson-calc-py-add'>"
+        mul_sec = "<section id='lesson-mul'>"
+        self.assertLess(base.index(add_sec), base.index(mul_sec))
+        pinned = h.module_html(mid, pins=["mul"])
+        self.assertLess(pinned.index(mul_sec), pinned.index(add_sec))
+        self.assertIn("class='pin'", pinned)
+        self.assertIn("Pinned", pinned)
+
+    def test_module_html_unknown_pins_keep_legacy(self):
+        from test_web import handler_for
+        db, mid = _two_concept_db()
+        h = handler_for(db)
+        base = h.module_html(mid)
+        self.assertEqual(h.module_html(mid, pins=["zzz"]), base)
+        self.assertEqual(h.module_html(mid, pins=None), base)
+
+    def test_pin_css_shipped_in_page_css(self):
+        from groundwork import web as webmod
+        self.assertIn(".pin{", webmod.CSS)
+        self.assertIn(lpmod.pin_css(), webmod.CSS)
 
     def test_status_anchor_and_tour(self):
         self.assertIn(f"id='{lpmod.STATUS_ANCHOR}'",

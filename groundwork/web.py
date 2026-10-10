@@ -260,7 +260,7 @@ CSS = ("body{font-family:system-ui,-apple-system,sans-serif;max-width:48rem;"
 # concatenated into CSS (that nests <style> inside <style>, closes the
 # head stylesheet early, and dumps all later CSS into <body> as text).
 FOCUS_CSS = clickcardsmod.focus_css()
-CSS += palettemod.palette_css() + darkmodemod.dark_css() + typescalemod.scale_css() + fontstackmod.stack_css() + wordmarkmod.wordmark_css() + bloomchipsmod.chip_css() + progbarmod.progbar_css() + ownedbadgemod.badge_css() + staggermod.stagger_css() + caretsmod.carets_css() + codelinesmod.codelines_css() + highlightmod.highlight_css() + hinttiersmod.hinttiers_css() + confslidermod.css() + focusringsmod.css() + taptargetsmod.target_css() + radiusmod.radius_css() + spacingmod.spacing_css() + doneheromod.hero_css() + logbookmod.logbook_css() + shelfmod.shelf_css() + briefingmod.briefing_css() + verdictsmod.verdicts_css() + ownbannermod.ownbanner_css() + pressfxmod.pressfx_css() + skeletonsmod.skeletons_css() + optimisticmod.optimistic_css() + formerrmod.formerr_css() + selectionmod.selection_css() + scrollbarmod.scrollbar_css() + densitymod.density_css() + responsivemod.narrow_css() + emojimod.icon_css() + parsonsmod.parsons_css() + parkeysmod.parkeys_css() + comparesplitmod.split_css() + specsplitmod.split_css() + cardflipmod.flip_css() + kidsmod.kids_css() + contrastmod.contrast_css() + motionmod.motion_css() + lessonvermod.banner_css() + tablescrollmod.scroll_css() + dyslexiamod.dyslexia_css() + unlockfxmod.badge_css() + conceptbadgesmod.badge_css() + showcasemod.showcase_css() + themeunlockmod.theme_css() + calmjoymod.celebrate_css() + avatarmod.avatar_css() + mascotmod.mascot_css() + codeeditmod.editor_css() + outdiffmod.diff_css() + spamguardmod.guard_css()  # Batch 24 I-154: code editor. I-157: output diff. Batch 29 I-199: throttle note. Batch 9 I-51/52/53/54: token variables, dark overrides, type scale, font stacks. Batch 10 I-55..I-62: wordmark, bloom chips, progress motion, owned badge, stagger, carets, code lines, highlight. Batch 11 I-63..I-70: hint tiers, confidence segments, focus rings, tap floor, radii, spacing, hero. Batch 12 I-71..I-73/I-77/I-79..I-82: logbook, shelf, briefing, verdicts, banner, press, skeletons, optimistic submit. Batch 13 I-84/I-85/I-86/I-89/I-90: field errors, selection, scrollbars, density, narrow phones. Batch 19 I-115: lesson version banner. Batch 21 I-92: scrollable tables.
+CSS += palettemod.palette_css() + darkmodemod.dark_css() + typescalemod.scale_css() + fontstackmod.stack_css() + wordmarkmod.wordmark_css() + bloomchipsmod.chip_css() + progbarmod.progbar_css() + ownedbadgemod.badge_css() + staggermod.stagger_css() + caretsmod.carets_css() + codelinesmod.codelines_css() + highlightmod.highlight_css() + hinttiersmod.hinttiers_css() + confslidermod.css() + focusringsmod.css() + taptargetsmod.target_css() + radiusmod.radius_css() + spacingmod.spacing_css() + doneheromod.hero_css() + logbookmod.logbook_css() + shelfmod.shelf_css() + briefingmod.briefing_css() + verdictsmod.verdicts_css() + ownbannermod.ownbanner_css() + pressfxmod.pressfx_css() + skeletonsmod.skeletons_css() + optimisticmod.optimistic_css() + formerrmod.formerr_css() + selectionmod.selection_css() + scrollbarmod.scrollbar_css() + densitymod.density_css() + responsivemod.narrow_css() + emojimod.icon_css() + parsonsmod.parsons_css() + parkeysmod.parkeys_css() + comparesplitmod.split_css() + specsplitmod.split_css() + cardflipmod.flip_css() + kidsmod.kids_css() + contrastmod.contrast_css() + motionmod.motion_css() + lessonvermod.banner_css() + tablescrollmod.scroll_css() + dyslexiamod.dyslexia_css() + unlockfxmod.badge_css() + conceptbadgesmod.badge_css() + showcasemod.showcase_css() + themeunlockmod.theme_css() + calmjoymod.celebrate_css() + avatarmod.avatar_css() + mascotmod.mascot_css() + codeeditmod.editor_css() + outdiffmod.diff_css() + spamguardmod.guard_css() + lessonpinmod.pin_css()  # Demo-video b20: pin chip. Batch 24 I-154: code editor. I-157: output diff. Batch 29 I-199: throttle note. Batch 9 I-51/52/53/54: token variables, dark overrides, type scale, font stacks. Batch 10 I-55..I-62: wordmark, bloom chips, progress motion, owned badge, stagger, carets, code lines, highlight. Batch 11 I-63..I-70: hint tiers, confidence segments, focus rings, tap floor, radii, spacing, hero. Batch 12 I-71..I-73/I-77/I-79..I-82: logbook, shelf, briefing, verdicts, banner, press, skeletons, optimistic submit. Batch 13 I-84/I-85/I-86/I-89/I-90: field errors, selection, scrollbars, density, narrow phones. Batch 19 I-115: lesson version banner. Batch 21 I-92: scrollable tables.
 
 GLOBAL_JS = """
 <script>
@@ -654,7 +654,7 @@ class Handler(BaseHTTPRequestHandler):
             mid = url.path.split("/")[-1]
             assign_spec = query.get("assign", [""])[0] or None
             assign_fields = {"title": query.get("atitle", [""])[0], "due": query.get("adue", [""])[0], "steps": query.get("astep", []), "repo": query.get("arepo", [""])[0]} if query.get("assign", [""])[0] == "new" else None
-            body = self.module_html(mid, level, order, replay_step, query.get("buddy", []), query.get("buddymatch", [""])[0] == "1", query.get("bmatch_repos", []), query.get("bmatch_concepts", []), query.get("quest", [""])[0] or None, query.get("trail", [""])[0], assign_spec, assign_fields, query.get("comply", [""])[0] or None)
+            body = self.module_html(mid, level, order, replay_step, query.get("buddy", []), query.get("buddymatch", [""])[0] == "1", query.get("bmatch_repos", []), query.get("bmatch_concepts", []), query.get("quest", [""])[0] or None, query.get("trail", [""])[0], assign_spec, assign_fields, query.get("comply", [""])[0] or None, query.get("pin", []))
             if body == "<p>Unknown module.</p>":
                 title, missing = archivedmod.missing_html(self.db_path, mid, url.path)
                 self._send(page(title, missing, active="modules", page_id="modules",
@@ -1020,7 +1020,7 @@ class Handler(BaseHTTPRequestHandler):
         return "".join(parts)
 
     def module_html(self, mid: str, level: str = "auto", order: str = "definition",
-                      replay_step=None, buddies=(), match_opt_in=False, match_repos=(), match_concepts=(), quest_spec=None, trail="", assign_spec=None, assign_fields=None, comply_spec=None) -> str:
+                      replay_step=None, buddies=(), match_opt_in=False, match_repos=(), match_concepts=(), quest_spec=None, trail="", assign_spec=None, assign_fields=None, comply_spec=None, pins=()) -> str:
         con = self._con()
         try:
             m = con.execute("SELECT * FROM modules WHERE id=?", (mid,)).fetchone()
@@ -1040,7 +1040,7 @@ class Handler(BaseHTTPRequestHandler):
         finally:
             con.close()
         # I-117: pinned lessons first; no pins keeps the legacy order.
-        pins = []
+        pins = lessonpinmod.normalize_pins(pins)
         concepts = lessonpinmod.order_with_pins(concepts, pins)
         base = f"/modules/{mid}"
         try:
@@ -1138,7 +1138,7 @@ class Handler(BaseHTTPRequestHandler):
             parts.append(
                 f"<section id='lesson-{slug}'>"
                 f"<h2>{html.escape(row['name'])}"
-                f" {chiplinksmod.chip_link(mid, node, status)}{conceptbadgesmod.badge_html(node, is_owned)}"
+                f" {chiplinksmod.chip_link(mid, node, status)}{conceptbadgesmod.badge_html(node, is_owned)}{lessonpinmod.pin_marker_html(row, pins)}"
                 f"{debtmod.ladder_html(ladders.get(row['cid'], -1), ladder_extra)}{stale}{unlockfxmod.badge_for(node, lesson_map, mastery_of)}</h2>"
                 f"<p><small>{html.escape(row['kind'])} · "
                 f"{html.escape(row['file'])}:{row['line']}"
