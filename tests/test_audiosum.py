@@ -51,6 +51,11 @@ class BlockTest(unittest.TestCase):
         self.assertIn("if(!('speechSynthesis' in window))return;", js)
         self.assertIn("cancel()", js)
 
+    def test_script_invokes_itself(self):
+        # Demo-video batch 23: an uninvoked IIFE left every Listen
+        # button dead, silently. The emitted script must close invoked.
+        self.assertIn("})()</script>", mod.script_js())
+
     def test_status_anchor_and_tour(self):
         self.assertIn(f"id='{mod.STATUS_ANCHOR}'",
                       mod.status_section_html())

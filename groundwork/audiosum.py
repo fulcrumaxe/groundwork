@@ -93,7 +93,7 @@ def script_js() -> str:
         "var p=box.querySelector('.audiosum-text');"
         "if(!p)return;"
         "speak(p.textContent);});});"
-        "}catch(e){}})</script>")
+        "}catch(e){}})()</script>")
 
 
 def status_section_html() -> str:

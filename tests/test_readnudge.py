@@ -25,6 +25,11 @@ class NudgeTest(unittest.TestCase):
         self.assertIn("hidden", body)
         self.assertIn("600", body)
 
+    def test_script_invokes_itself(self):
+        # Demo-video batch 23: an uninvoked IIFE meant the idle
+        # timer never armed. The emitted script must close invoked.
+        self.assertIn("})()</script>", mod.nudge_html())
+
     def test_status_anchor_and_tour(self):
         self.assertIn(f"id='{mod.STATUS_ANCHOR}'",
                       mod.section_html())

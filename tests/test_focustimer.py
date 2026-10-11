@@ -35,6 +35,11 @@ class MixTest(unittest.TestCase):
         self.assertIn("data-focustimer", body)
         self.assertIn("25:00", body)
 
+    def test_script_invokes_itself(self):
+        # Demo-video batch 23: an uninvoked IIFE meant Start never
+        # started the countdown. The script must close invoked.
+        self.assertIn("})()</script>", mod.timer_html(_due(10)))
+
     def test_status_anchor_and_tour(self):
         self.assertIn(f"id='{mod.STATUS_ANCHOR}'",
                       mod.status_section_html())

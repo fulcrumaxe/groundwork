@@ -104,7 +104,7 @@ def gallery_html(db_path: str) -> str:
             "try{var v=JSON.parse(b.getAttribute('data-vars'));"
             "localStorage.setItem(key,JSON.stringify(v));apply(v);"
             "}catch(e){}});});"
-            "}catch(e){}})</script>")
+            "}catch(e){}})()</script>")
     except Exception:  # noqa: BLE001 -- gallery must never raise
         return ("<h2 id='theme-unlocks'>Theme unlocks</h2>"
                 "<p>Themes temporarily unavailable.</p>")

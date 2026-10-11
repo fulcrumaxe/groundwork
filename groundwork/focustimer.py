@@ -81,7 +81,7 @@ def timer_html(due, minutes: int = WORK_MINUTES) -> str:
             "if(t)return;t=setInterval(tick,1000);});"
             "if(reset)reset.addEventListener('click',function(){"
             "if(t)clearInterval(t);t=null;left=total;show();});"
-            "show();}catch(e){}})</script></div>")
+            "show();}catch(e){}})()</script></div>")
     except Exception:  # noqa: BLE001 -- timer must never raise
         return (f"<div id='{SECTION_ANCHOR}'><h2>Focus timer</h2>"
                 "<p>Timer temporarily unavailable.</p></div>")

@@ -31,6 +31,12 @@ class UnlockTest(unittest.TestCase):
         self.assertIn("data-themes", body)
         self.assertIn("localStorage", body)
 
+    def test_gallery_script_invokes_itself(self):
+        # Demo-video batch 23: an uninvoked IIFE meant swatch
+        # clicks never applied. The script must close invoked.
+        _tmp, db, _s, _out = make_module("themes invoke")
+        self.assertIn("})()</script>", mod.gallery_html(db))
+
     def test_hostile_never_raises(self):
         self.assertEqual(mod.progress("/nonexistent.db"),
                          {"owned": 0, "certificates": 0})

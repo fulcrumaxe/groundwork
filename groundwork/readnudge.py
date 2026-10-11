@@ -55,7 +55,7 @@ def nudge_html(idle: int = IDLE_SECS) -> str:
         "function(){box.hidden=true;arm();});"
         "['click','keydown','scroll'].forEach(function(e){"
         "document.addEventListener(e,arm,{passive:true});});"
-        "arm();}catch(e){}})</script>")
+        "arm();}catch(e){}})()</script>")
 
 
 def section_html() -> str:
