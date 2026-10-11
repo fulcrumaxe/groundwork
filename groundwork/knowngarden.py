@@ -149,8 +149,13 @@ def beds_for(rows) -> str:
             (mid, summary, owned, total))
     parts = []
     for repo in sorted(beds):
-        plots = "".join(plot_html(mid, s, o, t)
-                        for mid, s, o, t in beds[repo][:MAX_PLOTS])
+        # Demo-video b22: plots are inline anchors, so a bare join
+        # flows each label onto the NEXT plot's plant. A break keeps
+        # every plant above its own label with no CSS.
+        plots = "<br>".join(p for p in
+                            (plot_html(mid, s, o, t)
+                             for mid, s, o, t in beds[repo][:MAX_PLOTS])
+                            if p)
         if not plots:
             continue
         parts.append(

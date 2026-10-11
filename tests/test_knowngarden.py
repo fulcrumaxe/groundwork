@@ -60,6 +60,14 @@ class BedsTest(unittest.TestCase):
         for bad in (None, [], "x"):
             self.assertEqual(mod.beds_for(bad), "")
 
+    def test_plots_break_lines_so_labels_keep_their_plants(self):
+        # Demo-video b22: inline plots flowed so each label sat next
+        # to the NEXT plot's plant. A break between plots keeps each
+        # plant above its own label with no CSS.
+        body = mod.beds_for([("r1", "m1", "one", 0, 2),
+                             ("r1", "m2", "two", 2, 2)])
+        self.assertIn("</a><br><a", body)
+
     def test_stats_from_fixture(self):
         _tmp, db, _s, _o = _own_fixture()
         stats = mod.garden_stats(db)
