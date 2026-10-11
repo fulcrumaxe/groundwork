@@ -65,6 +65,30 @@ class AttemptsWithPaceTest(unittest.TestCase):
             out = mod.attempts_with_pace(bad)
             self.assertIsInstance(out, list)
 
+    def test_accepts_sqlite_rows_from_live_path(self):
+        # Demo-video b21: the Due page passes sqlite3.Row objects (db
+        # row_factory), not dicts -- the gate saw [] and never fired.
+        import sqlite3
+        con = sqlite3.connect(":memory:")
+        con.execute("CREATE TABLE reviews (grade INTEGER,"
+                    " reviewed_at TEXT)")
+        con.executemany(
+            "INSERT INTO reviews VALUES (?, ?)",
+            [(5, "2026-01-02T00:00:00Z"),
+             (5, "2026-01-02T00:00:20Z"),
+             (4, "2026-01-02T00:00:40Z"),
+             (5, "2026-01-02T00:01:00Z")])
+        con.row_factory = sqlite3.Row
+        fetched = con.execute(
+            "SELECT grade, reviewed_at FROM reviews"
+            " ORDER BY rowid DESC LIMIT 6").fetchall()
+        con.close()
+        attempts = mod.attempts_with_pace(fetched)
+        self.assertEqual([a["grade"] for a in attempts], [5, 5, 4, 5])
+        self.assertEqual([a.get("secs") for a in attempts],
+                         [None, 20.0, 20.0, 20.0])
+        self.assertTrue(mod.in_flow(attempts))
+
 
 class InFlowTest(unittest.TestCase):
     def test_flow_when_fast_and_accurate(self):

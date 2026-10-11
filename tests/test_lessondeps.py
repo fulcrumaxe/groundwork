@@ -52,6 +52,22 @@ class DepsHtmlTest(unittest.TestCase):
         self.assertIn(f"#{anchor}", body)
         self.assertIn("For Loops", body)
 
+    def test_node_anchor_wins_when_concept_id_present(self):
+        # Demo-video b21: section ids slug the node (file:qualname), so
+        # jump links must too -- slug(name) alone is a dead anchor.
+        earlier = [{"name": "For Loops",
+                    "concept_id": "demo/loops.py:For Loops"}]
+        body = ldmod.deps_html({"name": "c", "needs": ["For Loops"]},
+                               earlier)
+        self.assertIn("#lesson-demo-loops-py-for-loops", body)
+        self.assertNotIn("#lesson-for-loops", body)
+
+    def test_name_anchor_fallback_without_concept_id(self):
+        earlier = [{"name": "For Loops"}]
+        body = ldmod.deps_html({"name": "c", "needs": ["For Loops"]},
+                               earlier)
+        self.assertIn("#lesson-for-loops", body)
+
     def test_empty_renders_empty(self):
         self.assertEqual(ldmod.deps_html({"name": "a"}, [{"name": "b"}]), "")
         self.assertEqual(ldmod.deps_html(None, None), "")
@@ -97,7 +113,12 @@ class CallerEffectTest(unittest.TestCase):
         _add_second_concept(db, mid)
         body = handler_for(db).module_html(mid)
         self.assertIn("Understand first", body)
-        self.assertIn("#lesson-add", body)
+        # Demo-video b21: the link must hit a real section id (node
+        # slug), not the dead slug(name) anchor.
+        self.assertIn("#lesson-calc-py-add", body)
+        self.assertIn("id='lesson-calc-py-add'", body)
+        deps = body.split("<p class='deps'>", 1)[1].split("</p>", 1)[0]
+        self.assertNotIn("#lesson-add'", deps)
         # Exactly one lesson carries needs: the first stays clean.
         self.assertEqual(body.count("Understand first"), 1)
 

@@ -95,14 +95,32 @@ def deps_for(lesson, earlier) -> list:
 
 
 def deps_html(lesson, earlier) -> str:
-    """Understand-first list with jump links; "" with no dependencies."""
+    """Understand-first list with jump links; "" with no dependencies.
+
+    Anchors slug each earlier lesson's node id (``concept_id``), matching
+    the ``lesson-<slug(node)>`` section ids ``Handler.module_html``
+    emits; lessons without a node id fall back to slug(name).
+    """
     try:
         deps = deps_for(lesson, earlier)
         if not deps:
             return ""
+        anchors = {}
+        for item in (earlier or []):
+            if not isinstance(item, dict):
+                continue
+            name = _name_of(item).strip()
+            key = lesson_slug(name) if name else ""
+            if not key or key in anchors:
+                continue
+            node = item.get("concept_id", "")
+            if not isinstance(node, str) or not node:
+                node = name
+            anchors[key] = "lesson-" + lesson_slug(node)
         links = []
         for name in deps:
-            anchor = "lesson-" + lesson_slug(name)
+            anchor = anchors.get(lesson_slug(name),
+                                 "lesson-" + lesson_slug(name))
             links.append(
                 f"<a href='#{html.escape(anchor, quote=True)}'>"
                 f"{html.escape(name)}</a>")

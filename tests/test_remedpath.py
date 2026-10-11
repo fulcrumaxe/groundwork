@@ -178,6 +178,34 @@ class CallerEffectTest(unittest.TestCase):
         due = self.server.tool_list_due_reviews({"limit": 20})["due"]
         self.assertFalse(any(c.get("remedial") for c in due))
 
+    def test_node_keyed_lessons_remediate(self):
+        # Demo-video b21: real lessons key concept_id by node
+        # ("calc.py:add"), while failures key by full concept id --
+        # the map must join them or remediation never fires.
+        mid = self.out["module_id"]
+        con = sqlite3.connect(self.db)
+        try:
+            lessons = json.loads(con.execute(
+                "SELECT lessons FROM modules WHERE id=?", (mid,)).fetchone()[0]
+                or "[]")
+            node = self.concept_id.split(":", 1)[1]
+            for lesson in lessons:
+                if lesson.get("concept_id") == self.concept_id:
+                    lesson["concept_id"] = node
+            con.execute("UPDATE modules SET lessons=? WHERE id=?",
+                        (json.dumps(lessons), mid))
+            con.commit()
+        finally:
+            con.close()
+        self.server.submit_review(self.card_id, "0", 3)
+        due = self.server.tool_list_due_reviews({"limit": 20})["due"]
+        ids = [c["id"] for c in due]
+        self.assertIn(self.pre_id, ids)
+        pre = due[ids.index(self.pre_id)]
+        self.assertEqual(ids.index(self.pre_id), 0)
+        self.assertTrue(pre.get("remedial"))
+        self.assertEqual(pre.get("remediation_for"), self.concept_id)
+
 
 if __name__ == "__main__":
     unittest.main()

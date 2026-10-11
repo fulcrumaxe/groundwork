@@ -99,5 +99,34 @@ class CallerEffectTest(unittest.TestCase):
         })
 
 
+class GraphCssTest(unittest.TestCase):
+    """Demo-video b21: unstyled boxes rendered as solid black rects."""
+
+    def test_boxes_filled_and_stroked(self):
+        css = cgmod.graph_css()
+        nospace = css.replace(" ", "")
+        self.assertIn(".callgraphrect{", nospace)
+        self.assertIn("fill:var(--paper)", nospace)
+        self.assertIn("stroke:var(--ink)", nospace)
+
+    def test_labels_and_arrows_use_ink(self):
+        css = cgmod.graph_css()
+        nospace = css.replace(" ", "")
+        self.assertIn(".callgraphtext{", nospace)
+        self.assertIn(".callgraphline{", nospace)
+        self.assertGreaterEqual(nospace.count("var(--ink)"), 3)
+
+    def test_self_box_emphasized(self):
+        css = cgmod.graph_css()
+        self.assertIn("cg-self", css.replace(" ", ""))
+
+    def test_raw_declarations_only(self):
+        self.assertNotIn("<style", cgmod.graph_css().lower())
+
+    def test_wired_into_page_css(self):
+        from groundwork import web as webmod
+        self.assertIn(".callgraph", webmod.CSS)
+
+
 if __name__ == "__main__":
     unittest.main()

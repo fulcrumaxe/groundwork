@@ -80,7 +80,12 @@ def attempts_with_pace(rows) -> list:
         for r in items:
             try:
                 if not isinstance(r, dict):
-                    continue
+                    # Live Due rows are sqlite3.Row (db row_factory),
+                    # not dicts; anything else unmappable still skips.
+                    try:
+                        r = dict(r)
+                    except (TypeError, ValueError):
+                        continue
                 grade = int(r.get("grade"))
                 if grade < 0 or grade > 5:
                     continue

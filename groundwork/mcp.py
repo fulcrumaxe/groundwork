@@ -306,17 +306,25 @@ class MCPServer:
             # concept mastery on the scheduler's grade scale.
             try:
                 remap: dict = {}
-                for (lj,) in con.execute(
-                        "SELECT lessons FROM modules").fetchall():
+                for midrow in con.execute(
+                        "SELECT id, lessons FROM modules").fetchall():
                     try:
-                        lessons = json.loads(lj or "[]")
+                        lessons = json.loads(midrow[1] or "[]")
                     except ValueError:
                         continue
                     for lesson in lessons:
                         if isinstance(lesson, dict) and lesson.get("concept_id"):
                             needs = lessondepsmod.needs_of(lesson)
                             if needs:
-                                remap.setdefault(lesson["concept_id"], needs)
+                                # Lessons key by node ("calc.py:add")
+                                # while failures key by full concept id;
+                                # join on the full id (already-full keys
+                                # pass through unchanged).
+                                key = lesson["concept_id"]
+                                prefix = str(midrow[0]) + ":"
+                                if not key.startswith(prefix):
+                                    key = prefix + key
+                                remap.setdefault(key, needs)
                 remaster: dict = {}
                 for r in con.execute(
                         "SELECT id, name, mastery FROM concepts").fetchall():

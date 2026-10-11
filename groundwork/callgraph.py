@@ -186,6 +186,21 @@ def section_html() -> str:
                 "<p>Call-graph help temporarily unavailable.</p>")
 
 
+def graph_css() -> str:
+    """Raw box/label/arrow declarations for the inline SVG.
+
+    Unstyled SVG rects paint solid black and labels vanish on them;
+    boxes fill `--paper` with an `--ink` outline, labels and arrows
+    draw in `--ink` (dark-mode safe), and the self box gets a heavier
+    outline. Raw declarations only, never `<style>` tags.
+    """
+    return (
+        ".callgraph rect{fill:var(--paper);stroke:var(--ink)}"
+        ".callgraph text{fill:var(--ink);font-size:12px}"
+        ".callgraph line{stroke:var(--ink)}"
+        ".callgraph .cg-self rect{stroke-width:2.5}")
+
+
 def tour_entry() -> dict:
     """Tour catalog entry for this item; the parent appends it to ENTRIES."""
     return {
