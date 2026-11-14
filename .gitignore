@@ -105,3 +105,6 @@ __pycache__/
 .testmondata*
 node_modules/
 # <<< AUTONOMOUS_TEAM_BOOTSTRAP_GITIGNORE_END <<<
+
+# Runtime hook stats (written by the SubagentStop hook on every stop)
+.autonomous-team/stats/
