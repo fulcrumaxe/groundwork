@@ -1,0 +1,301 @@
+## ROLE_BODY
+
+{{project_context}}
+{{agent_memory}}
+[Control plane gates: {{gate_context}}]
+
+{{working_principles}}
+
+## BRIEF
+
+Review PR #{{pr_number}} for Discussion #{{discussion_number}} ({{discussion_title}}).
+
+Task:
+{{task_brief}}
+
+Discussion URL: {{discussion_url}}
+
+HOST_EXECUTION: __PR_HOST_EXECUTION_MODE__
+
+## DETAILED_SPEC
+
+## STEP 1 — Always read REMOTE PR state, never local
+
+The local `.claude/worktrees/agent-X/` checkout is OFTEN STALE. The PR branch on the CODE
+plane's remote is the source of truth — never the bare name `origin`, which is the Discussion
+plane (D#1940 FM-5). Before reading any file:
+
+```bash
+source scripts/lib/repo-resolve.sh
+
+# This function ships on the code plane (D#1940 PR-a) but this template
+# itself is read from wherever backend/spawn_templates.py's own file lives —
+# your own local checkout, which can be behind. A missing function here
+# means the checkout serving this spawn hasn't picked up that change yet;
+# fail with a diagnostic that says so, not a bare "command not found".
+if ! declare -f _resolve_code_plane_remote > /dev/null 2>&1; then
+  echo "FAIL: _resolve_code_plane_remote is not defined after sourcing scripts/lib/repo-resolve.sh — this checkout's copy of that file predates D#1940 PR-a and does not know how to resolve the code-plane remote. Do not fall back to the bare name \"origin\" (that is the Discussion plane, D#1940 FM-5); update this checkout's scripts/lib/repo-resolve.sh instead."
+  exit 1
+fi
+
+# Resolve the CODE plane's git remote — never fetch a PR branch from the
+# bare name "origin", which is the Discussion plane. PR numbers collide
+# across the two planes, and a wrong-plane fetch succeeds silently (D#1940
+# FM-5): the wrong commit, exit 0, no warning.
+#
+# {{pr_repo}} below is #{{pr_number}}'s own resolved plane, which may be the
+# Discussion plane. If it is, this fetch step is against the WRONG remote —
+# that gap is real and pre-existing; fixing the fetch side is out of scope
+# for the PR that introduced {{pr_repo}} (D#2563 fixed the `gh pr` calls, not
+# this git-fetch strategy). Until it is: if the local fetch below fails for a
+# PR whose {{pr_repo}} names the Discussion plane, that mismatch is why —
+# trust `gh pr diff` (see below) over this section's local fetch instead.
+CODE_REMOTE=$(_resolve_code_plane_remote) || exit 1
+
+# Get the PR's branch name and authoritative head sha
+BRANCH=$(gh pr view {{pr_number}} --repo {{pr_repo}} --json headRefName --jq .headRefName)
+HEAD_SHA=$(gh pr view {{pr_number}} --repo {{pr_repo}} --json headRefOid --jq .headRefOid)
+# Fetch fresh, from the code plane — the PR branch AND main, so a
+# differential has both ends (D#1940 FM-3/FM-4).
+git fetch --quiet "$CODE_REMOTE" "$BRANCH"
+git fetch --quiet "$CODE_REMOTE" main
+FETCHED_SHA=$(git rev-parse --verify --quiet "$CODE_REMOTE/$BRANCH")
+[ "$FETCHED_SHA" = "$HEAD_SHA" ] || { echo "FAIL: fetched $FETCHED_SHA but PR #{{pr_number}}'s head on the code plane is $HEAD_SHA — refusing to review the wrong commit"; exit 1; }
+# Read files via git show, not direct file read:
+git show "$CODE_REMOTE/$BRANCH:path/to/file.py"
+# A differential is three-dot, with explicit remote refs on both sides —
+# never a bare `main..HEAD` or `origin/main..HEAD` (D#1940 FM-4: two-dot
+# conflates "files this branch changed" with "files main changed since this
+# branch's base", and a bare `main`/`HEAD` reads your possibly-stale local
+# checkout, not the code plane):
+git diff "$CODE_REMOTE/main...$CODE_REMOTE/$BRANCH"
+```
+
+To run tests or inspect a full tree (not single files), materialise one with
+`verify_tree_build` (`source scripts/lib/verify-tree.sh`) — never
+`.claude/worktrees/agent-*/`, which is the stale checkout this whole step
+exists to route around. Before trusting ANY measured result (a test count, a
+diff, a file read) from that tree, assert it is capable of producing one:
+
+```bash
+source scripts/lib/tree-capability.sh
+verify_tree_build "$FETCHED_SHA" "$SCRATCH_DIR" || exit 1
+tree_capability_assert "$SCRATCH_DIR" "$FETCHED_SHA" || { echo "FAIL: tree is not capable of a trustworthy result — see stderr for which shape (D#1940 FM-1..FM-4)"; exit 1; }
+```
+
+`tree_capability_assert` rejects a `git archive | tar -x` extraction (no `.git`, silently
+wrong test counts), a synthetic single-commit history, a tree missing the commit you meant to
+review, and a tree that can't resolve the code plane's `main` as a comparison base — four
+independent ways a tree can be incapable of the result you're about to report. It is not a
+substitute for the head-sha check above; run both.
+
+`gh pr diff {{pr_number}} --repo "{{pr_repo}}"` is GitHub's own authoritative
+diff. If a local diff (two-dot, three-dot, or otherwise) ever disagrees with it, `gh pr diff`
+wins — treat the disagreement itself as a signal your local tree is stale, not as two valid
+answers to pick between.
+
+Violating this rule causes "needs-fix" verdicts on PRs that are actually clean, which wastes
+a fix-cycle round.
+
+Review checklist:
+1. Correctness — does the implementation match the spec exactly?
+2. Code quality — no dead code, unnecessary complexity, or anti-patterns.
+3. No regressions — existing tests still pass; no imports broken.
+4. Spec adherence — every acceptance criterion is met.
+5. Security trigger detection (unless gate is off):
+     SEC_GATE=$(python3 backend/control_plane.py get gates.security_review 2>/dev/null || echo "true")
+     If SEC_GATE=false, skip security trigger detection entirely.
+     Otherwise, check diff for: api_key, password, subprocess, exec(, fetch(, localStorage,
+     chrome.storage, __proto__, server.py, *.env*, auth/, secret/, credential/, token/, manifest*.json
+
+6. Surgical-changes check (Working Principle #3):
+   - Count total diff lines (additions + deletions): `gh pr diff {{pr_number}} --repo {{pr_repo}} | grep "^[+-]" | grep -v "^---\|^+++" | wc -l`
+   - List files touched: `gh pr diff {{pr_number}} --repo {{pr_repo}} --name-only`
+   - For each file touched, ask: does this file trace directly to the spec's stated scope?
+   - Any line or file that does NOT trace to the spec → call out as severity "suggestion" in AGENT_OUTPUT issues.
+   - If >300 diff lines OR >5 files unrelated to the immediate ask → severity "error", verdict "needs-fix".
+
+<!-- HOST_EXEC_BEGIN -->
+7. MANDATORY — Execute the test suites the PR touches. Reading test code is not sufficient.
+
+   SPEC DISCOVERY CHECK: If this PR adds a new `*.spec.ts` file under `dashboard/e2e/`,
+   verify it actually appears in the `npm run test:e2e` output — look for "Loading spec: <filename>"
+   in the runner log. Do NOT trust the exit code alone. A passing run that silently skips a
+   new spec is a false green. If the spec name is absent from the output, file the verdict as
+   `needs-fix` and note that `run.mjs` must be updated (or already was, but the spec failed to
+   load for another reason).
+
+   Run the test runner helper (auto-detects suites from the PR diff) through
+   the caller-side wrapper, `scripts/gate1-invoke.sh`, so the runner copy
+   that executes is the operator's and not the PR head's. Your cwd is your
+   own review worktree, so resolve the operator checkout via git plumbing
+   rather than a relative path — a relative `scripts/gate1-invoke.sh` there
+   would resolve to the head's own copy of the file instead:
+     OP_ROOT=$(dirname "$(git rev-parse --git-common-dir)")
+     if [ -x "$OP_ROOT/scripts/gate1-invoke.sh" ]; then
+       TESTS_JSON=$(bash "$OP_ROOT/scripts/gate1-invoke.sh" --pr {{pr_number}} --tree "$(pwd)")
+     else
+       # Announce the fallback on stderr so a run that reverted to the
+       # welded behaviour is distinguishable in the review log from a real
+       # wrapper run.
+       echo "gate1_wrapper=MISSING -- falling back to bare run-pr-tests.sh (runner-copy/tree separation not in effect for this run)" >&2
+       TESTS_JSON=$(bash scripts/run-pr-tests.sh {{pr_number}})
+     fi
+     TEST_EXIT=$?
+
+   This wrapper provides no additional security by itself — Gate 1 still
+   runs the PR head as the same uid as everything else. It only separates
+   which copy of the runner executes from which tree it runs against, which
+   a real containment mechanism can later attach to.
+
+   If neither scripts/gate1-invoke.sh nor scripts/run-pr-tests.sh is available, run suites manually based on diff files:
+     - PR touches backend/** or tests/**:
+         TEST_DIRS=""; [ -d tests ] && TEST_DIRS="tests/"; [ -d backend/tests ] && TEST_DIRS="$TEST_DIRS backend/tests/"
+         python3 -m pytest $TEST_DIRS -x -q
+     - PR touches dashboard/**:
+         cd dashboard && npm install --silent && npm run test && npm run test:e2e
+     - PR touches tui/** or *.spec.ts / *.test.ts:
+         cd tui && npm install --silent && npm run test
+
+   Capture the result as a JSON array: tests_run = [{command, exit_code, duration_seconds}, ...]
+
+   RULE: If any test command exits non-zero → verdict MUST be 'needs-fix', not 'pass'.
+   RULE: Include the tests_run array in the AGENT_OUTPUT envelope (empty array is allowed only
+         when the PR provably touches no test-bearing directories — state why in the review).
+<!-- HOST_EXEC_END -->
+
+## When to verdict needs-fix
+
+Before verdicting needs-fix on a "didn't apply the fix" issue, double-check you read from
+the code plane's remote branch, not the stale local worktree. A spurious needs-fix wastes a
+full fix-cycle round.
+
+After review:
+Label API: use `gh pr edit --add-label` / `--remove-label` — this is the confirmed-working
+spelling from a worktree-isolated context (measured directly on D#2045/D#2139). Re-read the
+label afterwards with an independent `gh pr view --json labels` call — don't trust the exit
+code alone.
+  Apply label:  gh pr edit {pr_number} --repo {{pr_repo}} --add-label code-review-passed
+  Remove label: gh pr edit {pr_number} --repo {{pr_repo}} --remove-label code-review-needs-fix
+
+- Apply label 'code-review-passed' only when all tests passed (TEST_EXIT=0) and review passes.
+- Apply label 'code-review-needs-fix' with inline PR comments if tests fail or changes are required.
+- If this is your Nth round (check max_review_rounds policy):
+    MAX_ROUNDS=$(python3 backend/control_plane.py get policies.code_reviewer.max_review_rounds 2>/dev/null | tr -d '"' || echo 2)
+  If round >= MAX_ROUNDS, escalate to Team Lead instead of another fix cycle.
+
+If a tool call returns the same error 3 times in a row, STOP retrying — either change your approach or return needs-fix.
+
+### Backend real-world verification
+
+8. **Backend CLI/RPC/schema PRs: substance decides, not a heading string (D#2008).**
+   `absent` NEVER blocks — it flags, and you decide the verdict on code merits alone.
+   Classification only (6th round, owner ruling — nothing here executes anything;
+   verify CLI/RPC behavior yourself the same way you already do for every other PR,
+   per step 7's test-execution mandate above).
+
+   After tests pass, anchor to the operator checkout — your cwd here may be the
+   PR-head verify-tree, and a bare relative path (or a git-plumbing guess
+   such as `dirname "$(git rev-parse --git-common-dir)")`) would run the
+   PR's own copy of these scripts instead of the operator's:
+   `verify_tree_build` clones a standalone tree with its own `.git`, not a
+   linked worktree of the operator checkout, so that guess resolves to the
+   PR tree itself. OP_ROOT below is rendered as an absolute path at spawn
+   time and does not depend on your cwd:
+     OP_ROOT="__PR_OPERATOR_ROOT__"
+     CLI_TOUCHED=$(bash "$OP_ROOT/scripts/check-pr-cli-touched.sh" {{pr_number}} && echo "yes" || echo "no")
+
+   If CLI_TOUCHED=yes:
+     SUBSTANCE_JSON=$(python3 "$OP_ROOT/backend/spec_verification_substance.py" check --discussion {{discussion_number}} --json)
+   Embed `$SUBSTANCE_JSON` verbatim as `verification_substance` in AGENT_OUTPUT
+   (resolves body + a linked frozen-Spec comment, D#1944's shape).
+
+   `"satisfied"` / `"satisfied_with_flag"` → proceed with normal review.
+   `"absent"` → code merits alone (`"status": "absent"` IS the flag).
+   `apply_label {pr_number} verification-substance-absent`.
+
+   CLI_TOUCHED=no → omit `verification_substance` entirely.
+
+### external_docs gate (Stage 2 — hard-fail)
+
+8b. **After reading the diff and Discussion body, run the external_docs check:**
+
+Anchor the import to the operator checkout, not cwd — your cwd here may be the
+PR-head verify-tree, and a bare relative `sys.path` entry (or a git-plumbing
+guess) would import the PR's own (possibly edited) copy of
+`backend/spec_external_docs.py` instead of the operator's trusted one.
+OP_ROOT below is rendered as an absolute path at spawn time — it does not
+depend on cwd, so it resolves correctly even from inside a
+`verify_tree_build` tree, whose own `.git` is a standalone clone, not a
+linked worktree of the operator checkout:
+
+```bash
+OP_ROOT="__PR_OPERATOR_ROOT__"
+OP_ROOT="$OP_ROOT" python3 - <<'_EXTDOCS_EOF_'
+import os, sys, json, subprocess
+sys.path.insert(0, os.environ["OP_ROOT"])
+from backend.spec_external_docs import check_imports_have_docs
+
+diff = subprocess.check_output(
+    ['gh', 'pr', 'diff', '{{pr_number}}', '--repo', '{{pr_repo}}'],
+    text=True
+)
+result = subprocess.run(
+    ['gh', 'api', 'graphql', '-f',
+     'query={repository(owner:"{{REPO_OWNER}}",name:"{{REPO_NAME}}"){discussion(number:{{discussion_number}}){body}}}'],
+    capture_output=True, text=True
+)
+spec_body = json.loads(result.stdout)['data']['repository']['discussion']['body']
+
+# Language is derived per file inside check_imports_have_docs (language="auto"
+# default): it splits the diff on its file headers and picks the extractor per
+# section from the post-image path, so a mixed backend+frontend diff is
+# checked correctly in one call.
+missing = check_imports_have_docs(diff, spec_body)
+if missing:
+    print(f"EXTERNAL_DOCS_MISSING: {', '.join(missing)}", file=sys.stderr)
+    sys.exit(1)
+print("external_docs gate: OK")
+_EXTDOCS_EOF_
+```
+
+Override: `ALLOW_MISSING_EXTERNAL_DOCS=1` in environment skips this check (emergency only).
+
+If the check exits non-zero → verdict MUST be `needs-fix`. Add to issues:
+```json
+{"file": "Discussion body", "line": 0, "severity": "error",
+ "message": "Spec is missing external_docs for: <modules>. Add a URL per module in the external_docs: block."}
+```
+
+### hub_overload check
+
+Hub files (registries — should not grow business logic):
+- dashboard/src/pages/StatsPage.tsx
+- backend/server.py
+- backend/stats_writer.py
+- scripts/post-agent-hook.sh
+- backend/run_analyst.py
+
+For each hub file in the diff, count lines added that are NOT one of:
+- import / from-import statements
+- single-line registration entries (e.g. `Tile: <FooTile />`, `register(handler)`, `@_rpc_method("…")` decorator + single-line def stub)
+- dispatch-table entries (single key → callable mapping)
+- comments / blank lines
+
+If any hub file has ≥50 such "business logic" lines added → verdict needs-fix with message:
+"Extract <symbol(s)> to a per-feature module per CLAUDE.md Development Conventions. Hub files hold registration only."
+
+If 20–49 business-logic lines added → verdict pass with a suggestion comment (do not block).
+Below 20 → no comment needed.
+
+## WORKING_PRINCIPLES
+
+{{include:bash-discipline}}
+
+<!-- cache_control: ephemeral — content above this line is variable; content below is stable -->
+
+## GATES
+
+{{include:rate-limit-policy-reviewer}}
+
+{{include:hard-stop-no-claude}}

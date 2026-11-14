@@ -1,0 +1,159 @@
+"""backend/spawn_payload.py — build the SPAWN_PROMPT_JSON payload handed to
+backend.prompt_builder, from the same env vars scripts/spawn-agent.sh already
+sets on every spawn.
+
+Extracted from the inline `python3 -c` heredoc that used to live in
+scripts/spawn-agent.sh, wrapped in `2>/dev/null`. That heredoc built a
+13-key dict with no `pr` key — `--pr` was parsed, used elsewhere in the
+script, and then simply never reached the renderer (D#1788). A missing dict
+key inside an unreviewable, stderr-suppressed heredoc is exactly the kind of
+bug that goes unnoticed; making the payload shape an importable function
+means it is testable and inspectable from a plain command line instead.
+
+Usage (library):
+    from backend.spawn_payload import build_payload
+    payload = build_payload(os.environ)
+
+Usage (CLI — what scripts/spawn-agent.sh invokes, and how to inspect the
+payload by hand):
+    _ROLE=code-reviewer _DISC=1761 _PR=1786 PSC_JSON_INPUT='{}' \\
+      python3 -m backend.spawn_payload
+"""
+
+from __future__ import annotations
+
+import json
+import os
+import sys
+from typing import Mapping
+
+# D#2644: the three roles that may run PR-head code on the operator host when
+# (and only when) pr_execution_policy.resolve() confirms the PR is internal.
+_PR_HOST_EXECUTION_ROLES = frozenset({"code-reviewer", "security-reviewer", "acceptance-tester"})
+
+
+def _route_warnings(warnings: list, role: str, discussion: str) -> None:
+    """Route pre-spawn-check.sh's WARNINGS array to a durable, greppable sink.
+
+    D#2144: pre-spawn-check.sh has always produced these (9 WARNINGS+= sites,
+    JSON key 'warnings') but nothing ever consumed them -- stderr is discarded
+    at spawn-agent.sh's call site and this dict never read the JSON key. The
+    9 sites are read-only reporting; this function does not change what
+    pre-spawn-check.sh decides, and must never turn a warning into a block.
+
+    One audit_trail row per warning, source="pre_spawn_check". Measured
+    2026-09-10 (20 real, non-stubbed invocations across every named role,
+    this host): 0/20 fired, so all 9 sites route -- none showed the volume
+    that would justify excluding any of them.
+
+    Never raises: a routing failure here must not fail build_payload(), which
+    would block the spawn build_payload() feeds (spawn-agent.sh treats a
+    non-zero exit or empty SPAWN_PROMPT_JSON from this module as a hard
+    "Spawn blocked").
+    """
+    if not warnings:
+        return
+    try:
+        from backend.audit_trail import get_audit_trail  # noqa: PLC0415
+
+        trail = get_audit_trail()
+        for warning_text in warnings:
+            trail.emit(
+                source="pre_spawn_check",
+                action="warning",
+                key=f"role={role or 'unknown'} discussion={discussion or ''}",
+                old_value=None,
+                new_value=warning_text,
+                actor=role or "unknown",
+            )
+    except Exception:
+        pass
+
+
+def build_payload(env: Mapping[str, str]) -> dict:
+    """Build the dict serialized into SPAWN_PROMPT_JSON for backend.prompt_builder.
+
+    Reads the env var names scripts/spawn-agent.sh already sets when it
+    invokes this module. Every var is optional except PSC_JSON_INPUT, which
+    defaults to an empty JSON object when absent so this can be probed
+    standalone (see module docstring example).
+    """
+    psc = json.loads(env.get("PSC_JSON_INPUT") or "{}")
+    gates = psc.get("gate_context", {}).get("gates", {})
+    pairs = ", ".join(f"{k}={v}" for k, v in gates.items()) if gates else ""
+    gate_line = f"[Control plane gates: {pairs}]" if pairs else ""
+
+    disc_raw = env.get("_DISC", "")
+    pr_raw = env.get("_PR", "")
+    role = env.get("_ROLE", "")
+
+    _route_warnings(psc.get("warnings") or [], role, disc_raw)
+
+    pr_int = int(pr_raw) if pr_raw else None
+    disc_int = int(disc_raw) if disc_raw else None
+
+    # D#2644: resolved strictly from the two intake CLIs' exit codes — never
+    # from an environment variable, so nothing in the spawn environment can
+    # force "host". Left empty (renders as static-only, fail-closed) for
+    # every role that isn't one of the three PR-scoped reviewers, and for a
+    # PR-scoped reviewer spawned without a PR number.
+    pr_host_execution = ""
+    if role in _PR_HOST_EXECUTION_ROLES and pr_int is not None:
+        from backend.pr_execution_policy import resolve as _resolve_pr_host_execution
+
+        pr_host_execution, _reason = _resolve_pr_host_execution(
+            pr_int, env.get("_PR_REPO", ""), disc_int
+        )
+
+    return {
+        "role":                  role,
+        "discussion":            disc_int,
+        "task_prompt":           env.get("_TASK", ""),
+        "persona_voice":         psc.get("persona_voice", ""),
+        "working_principles":    psc.get("working_principles", ""),
+        "agent_scratchpad":      psc.get("agent_scratchpad", ""),
+        "self_observe_gate":     psc.get("self_observe_gate", ""),
+        "gate_line":             gate_line,
+        "worktree_path":         json.loads(env.get("_WT_PATH") or "null"),
+        # D#2014: set by spawn-agent.sh when isolation="worktree" was
+        # requested but no concrete path could be resolved (e.g. a --pr
+        # amend spawn where pr_tree_provision failed) — tells prompt_builder
+        # to emit the honest "no tree" block instead of staying silent.
+        "worktree_unprovisioned": bool(env.get("_WT_UNPROVISIONED", "")),
+        # D#2222: WHY no path was resolved — "" (or "pr_tree_failed") means a
+        # real provisioning attempt failed (hard stop is correct);
+        # "agent_tool_provisions" means no attempt was made because none was
+        # spawn-agent.sh's to make: --isolation worktree with no --pr/--worktree-path
+        # is the canonical fresh-spawn shape, provisioned by the Agent tool's
+        # own isolation param on the actual Agent() call.
+        "worktree_unprovisioned_reason": env.get("_WT_UNPROVISIONED_REASON", ""),
+        "security_block":        bool(env.get("_SEC", "")),
+        "hook_event_id":         env.get("_EVENT_ID", ""),
+        "env_scrub_snippet":     env.get("_ENV_SCRUB", ""),
+        "prior_test_runs_block": env.get("_PRIOR_RUNS", ""),
+        "dial_state_at_spawn":   env.get("_DIAL_STATE", ""),
+        "pr":                    pr_int,
+        "pr_branch":             env.get("_PR_BRANCH", ""),
+        # D#2563: the repo plane PR #<pr> was resolved to (spawn-agent.sh's
+        # --pr-plane / probe-both-planes resolution) — mirrors pr_branch
+        # above, same reasoning: a PR-scoped role template needs to know
+        # which repo to run `gh pr diff --repo` against, and that is no
+        # longer always the code plane.
+        "pr_repo":               env.get("_PR_REPO", ""),
+        # D#2644: "host" only when pr_execution_policy.resolve() confirmed an
+        # internal PR for one of the three reviewer roles; "" (renders as
+        # static-only) for every other role or PR-less spawn.
+        "pr_host_execution":     pr_host_execution,
+    }
+
+
+def main(argv: list[str] | None = None) -> int:
+    """CLI: read the env vars build_payload() understands, print the JSON payload."""
+    del argv  # no positional args — everything comes from the environment
+    payload = build_payload(os.environ)
+    print(json.dumps(payload))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

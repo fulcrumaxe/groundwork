@@ -1,0 +1,256 @@
+#!/usr/bin/env bash
+# spawn-hourly-stats.sh — emit hourly metrics to stats.duckdb
+#
+# Metrics emitted:
+#   spawn_hourly_stats_heartbeat — unconditional liveness row, one per run
+#   wasted_tokens_ratio    — tokens on fail/needs-fix agents ÷ total tokens (past 24h)
+#   impersonation_rate     — reviewer_skipped findings ÷ impl-coord runs (past 24h)
+#   hard_rule_violation_count — forbidden_subagent_type + git_rm_usage + team_lead_self_edit
+#
+# Wire into /loop step 7.5:
+#   bash scripts/spawn-hourly-stats.sh 2>/dev/null || true
+#
+# Safe to re-run multiple times — DuckDB INSERT OR IGNORE deduplicates by (ts, metric, tags).
+
+set -uo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+FEED="$REPO_ROOT/.autonomous-team/agent-feed.jsonl"
+RETROS="$REPO_ROOT/.autonomous-team/agent-retros.jsonl"
+RUN_REPORTS_DIR="$REPO_ROOT/.autonomous-team/run-reports"
+
+# ── Helper: emit one metric row ───────────────────────────────────────────────
+emit_metric() {
+  local metric="$1"
+  local value="$2"
+  local unit="$3"
+  local tags_json="$4"
+  local source="spawn-hourly-stats"
+
+  STATS_DB_PATH="" \
+  python3 -c "
+import sys, os
+sys.path.insert(0, '${REPO_ROOT}/backend')
+import stats_writer
+import json
+
+stats_writer.record(
+    metric=${metric@Q},
+    value=float(${value@Q}),
+    unit=${unit@Q},
+    tags=json.loads(${tags_json@Q}),
+    source=${source@Q},
+)
+print('[hourly-stats] recorded ${metric}=${value} ${unit}')
+"
+}
+
+# ── 0. heartbeat ───────────────────────────────────────────────────────────────
+# Unconditional — written before any measurement guard, on a path with no
+# early return above it. This is what makes "the job did not run" observably
+# different from "the job ran and found nothing" (D#2501): the three metrics
+# below can all legitimately skip when their 24h window is empty, and after
+# that skip a dead cron and an idle-but-alive one produce the identical
+# observable — no rows. This row is emitted every single run regardless of
+# what the metrics below find, so its own age (via the freshness watchdog,
+# which ages any metric_event row by MAX(ts) — see
+# backend/stats_freshness_watchdog.py and registered_metrics() in
+# backend/stats_writer.py) is the liveness signal. Do NOT make this
+# conditional on any of the three metrics below having a value — that would
+# silently reintroduce the exact ambiguity this row exists to remove.
+emit_metric "spawn_hourly_stats_heartbeat" "1" "count" "{}"
+
+# ── 1. wasted_tokens_ratio ────────────────────────────────────────────────────
+# An empty WASTED_RATIO means "no token-bearing feed rows fell in the 24h
+# window" — that is not the same fact as a measured ratio of 0.0, so it must
+# not be published as one (D#2477: fail-open initialisers were being read as
+# measurements, same shape as the fix_rounds_per_pr breakage).
+WASTED_RATIO=""
+if [[ -f "$FEED" ]]; then
+  WASTED_RATIO=$(FEED_PATH="$FEED" python3 -c "
+import json, os, datetime
+
+feed_path = os.environ['FEED_PATH']
+cutoff = (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=24)).isoformat()
+
+fail_tokens = 0
+total_tokens = 0
+
+with open(feed_path) as f:
+    for line in f:
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            e = json.loads(line)
+        except Exception:
+            continue
+        ts = e.get('ts', '')
+        if ts < cutoff:
+            continue
+        tok = e.get('tokens') or {}
+        inp = tok.get('input', 0) or 0
+        out = tok.get('output', 0) or 0
+        t = inp + out
+        total_tokens += t
+        if e.get('verdict') in ('fail', 'needs-fix', 'needs_fix'):
+            fail_tokens += t
+
+if total_tokens == 0:
+    print('')
+else:
+    print(round(fail_tokens / total_tokens, 4))
+" 2>/dev/null || echo "")
+fi
+
+if [[ -n "$WASTED_RATIO" ]]; then
+  STATS_DB_PATH="" python3 -c "
+import sys, os
+sys.path.insert(0, '${REPO_ROOT}/backend')
+import stats_writer
+stats_writer.record(
+    metric='wasted_tokens_ratio',
+    value=float('${WASTED_RATIO}'),
+    unit='ratio',
+    tags={'window': '24h'},
+    source='spawn-hourly-stats',
+)
+print('[hourly-stats] recorded wasted_tokens_ratio=${WASTED_RATIO} ratio')
+"
+else
+  echo "[hourly-stats] skipped wasted_tokens_ratio: no token data in 24h window"
+fi
+
+# ── 2. impersonation_rate ─────────────────────────────────────────────────────
+# Same rule as above: an empty IMPERSONATION_RATE means "zero impl-coord runs
+# in the 24h window", not "measured zero impersonation" — publish nothing
+# rather than a value nobody computed (D#2477).
+IMPERSONATION_RATE=""
+if [[ -f "$FEED" ]]; then
+  IMPERSONATION_RATE=$(RETROS_PATH="$RETROS" FEED_PATH="$FEED" python3 -c "
+import json, os, datetime
+
+retros_path = os.environ.get('RETROS_PATH', '')
+feed_path   = os.environ.get('FEED_PATH', '')
+cutoff = (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=24)).isoformat()
+
+impl_runs = 0
+with open(feed_path) as f:
+    for line in f:
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            e = json.loads(line)
+        except Exception:
+            continue
+        ts = e.get('ts', '')
+        if ts < cutoff:
+            continue
+        # 'merge' events are always logged with role='merge' (see
+        # post-merge-hook.sh), never role='executor' — a merge is a Team
+        # Lead action on a PR, not an executor run, and counting it here
+        # would double-count a run already captured by its own agent_end
+        # event. So the denominator is executor agent_end events only
+        # (D#2501: the old 'merge' arm in this AND could never match).
+        if e.get('role') == 'executor' and e.get('event_type') == 'agent_end':
+            impl_runs += 1
+
+skipped = 0
+try:
+    with open(retros_path) as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                e = json.loads(line)
+            except Exception:
+                continue
+            ts = e.get('ts', e.get('created_at', ''))
+            if ts < cutoff:
+                continue
+            cat = e.get('classifier') or ''
+            if 'reviewer_skipped' in cat or 'impersonat' in cat:
+                skipped += 1
+except FileNotFoundError:
+    pass
+
+if impl_runs == 0:
+    print('')
+else:
+    print(round(skipped / impl_runs, 4))
+" 2>/dev/null || echo "")
+fi
+
+if [[ -n "$IMPERSONATION_RATE" ]]; then
+  STATS_DB_PATH="" python3 -c "
+import sys, os
+sys.path.insert(0, '${REPO_ROOT}/backend')
+import stats_writer
+stats_writer.record(
+    metric='impersonation_rate',
+    value=float('${IMPERSONATION_RATE}'),
+    unit='ratio',
+    tags={'window': '24h'},
+    source='spawn-hourly-stats',
+)
+print('[hourly-stats] recorded impersonation_rate=${IMPERSONATION_RATE} ratio')
+"
+else
+  echo "[hourly-stats] skipped impersonation_rate: no impl-coord runs in 24h window"
+fi
+
+# ── 3. hard_rule_violation_count ──────────────────────────────────────────────
+# An empty VIOLATION_COUNT means "no run-analyst report fell in the 24h
+# window" — no check was actually performed, so there is nothing to publish.
+# A real 0 still requires at least one report to have been examined (D#2477).
+VIOLATION_COUNT=""
+VIOLATION_COUNT=$(REPORTS_DIR="$RUN_REPORTS_DIR" python3 -c "
+import json, os, glob, datetime
+
+reports_dir = os.environ.get('REPORTS_DIR', '')
+cutoff = (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=24)).isoformat()
+
+VIOLATION_CATEGORIES = {'forbidden_subagent_type', 'git_rm_usage', 'team_lead_self_edit'}
+
+count = 0
+reports_seen = 0
+for path in glob.glob(os.path.join(reports_dir, '*.json')):
+    try:
+        with open(path) as f:
+            data = json.load(f)
+    except Exception:
+        continue
+    report_at = data.get('report_at', '')
+    if report_at < cutoff:
+        continue
+    reports_seen += 1
+    for finding in data.get('findings', []):
+        cat = finding.get('category', '')
+        if cat in VIOLATION_CATEGORIES:
+            count += 1
+
+print(count if reports_seen > 0 else '')
+" 2>/dev/null || echo "")
+
+if [[ -n "$VIOLATION_COUNT" ]]; then
+  STATS_DB_PATH="" python3 -c "
+import sys, os
+sys.path.insert(0, '${REPO_ROOT}/backend')
+import stats_writer
+stats_writer.record(
+    metric='hard_rule_violation_count',
+    value=float('${VIOLATION_COUNT}'),
+    unit='count',
+    tags={'window': '24h'},
+    source='spawn-hourly-stats',
+)
+print('[hourly-stats] recorded hard_rule_violation_count=${VIOLATION_COUNT} count')
+"
+else
+  echo "[hourly-stats] skipped hard_rule_violation_count: no run-analyst report in 24h window"
+fi
+
+echo "[hourly-stats] done"
